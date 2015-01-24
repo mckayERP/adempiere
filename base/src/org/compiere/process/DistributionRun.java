@@ -712,7 +712,7 @@ public class DistributionRun extends SvrProcess
 			+ "Ratio, MinQty, Qty) "			
 			+"SELECT rl.M_DistributionRun_ID, rl.M_DistributionRunLine_ID,ll.M_DistributionList_ID, ll.M_DistributionListLine_ID, "
 			+"rl.AD_Client_ID,rl.AD_Org_ID, rl.IsActive, rl.Created,rl.CreatedBy, rl.Updated,rl.UpdatedBy, "
-			+"ll.C_BPartner_ID, ll.C_BPartner_Location_ID, rl.M_Product_ID, 0 , "
+			+"ll.C_BPartner_ID, ll.C_BPartner_Location_ID, rl.M_Product_ID, ll.Ratio, "
 			+"ol.TargetQty AS MinQty , 0 FROM M_DistributionRunLine rl "
 			+"INNER JOIN M_DistributionList l ON (rl.M_DistributionList_ID=l.M_DistributionList_ID) "
 			+"INNER JOIN M_DistributionListLine ll ON (rl.M_DistributionList_ID=ll.M_DistributionList_ID) "
@@ -761,7 +761,7 @@ public class DistributionRun extends SvrProcess
 				MOrgInfo oi_source = MOrgInfo.get(getCtx(), m_run.getAD_Org_ID(), get_TrxName());
 				MWarehouse m_source = MWarehouse.get(getCtx(), oi_source.getM_Warehouse_ID());
 				if(m_source == null)
-					throw new AdempiereException("Do not exist Defautl Warehouse Source");
+					throw new AdempiereException("A Default Source Warehouse does not exist");
 				M_Warehouse_ID = m_source.getM_Warehouse_ID();
 			}
 			else 
@@ -772,6 +772,7 @@ public class DistributionRun extends SvrProcess
 			{
 				MDistributionRunDetail detail = m_details[i];
 				
+				// Find all distribution order lines on orders that are draft or invalid
 				StringBuffer sql = new StringBuffer("SELECT * FROM DD_OrderLine ol INNER JOIN DD_Order o ON (o.DD_Order_ID=ol.DD_Order_ID)  INNER JOIN M_Locator l ON (l.M_Locator_ID=ol.M_Locator_ID) ");
 				//sql.append(" WHERE o.DocStatus IN ('DR','IN') AND o.C_BPartner_ID = ? AND M_Product_ID=? AND  l.M_Warehouse_ID=?  AND ol.DatePromised BETWEEN ? AND ? ");
 				sql.append(" WHERE o.DocStatus IN ('DR','IN') AND o.C_BPartner_ID = ? AND M_Product_ID=? AND  l.M_Warehouse_ID=?  AND ol.DatePromised <=?");
@@ -790,14 +791,14 @@ public class DistributionRun extends SvrProcess
 		 	            rs = pstmt.executeQuery();
 		 	            while (rs.next())
 		 	            {           	
-			 	   			//	Create Order Line
+			 	   			//	Modify Order Line
 			 	   			MDDOrderLine line = new MDDOrderLine(getCtx(), rs , get_TrxName());
 			 	   			line.setM_Product_ID(detail.getM_Product_ID());
 			 	   			line.setConfirmedQty(line.getTargetQty().add(detail.getActualAllocation()));
 			 	   			if(p_M_Warehouse_ID>0)
-			 	   			line.setDescription(Msg.translate(getCtx(), "PlannedQty"));
+			 	   				line.setDescription(Msg.translate(getCtx(), "PlannedQty"));
 			 	   			else 
-			 	   			line.setDescription(m_run.getName());
+			 	   				line.setDescription(m_run.getName());
 			 	   			line.saveEx();
 			 	   			break;
 			 	   			//addLog(0,null, detail.getActualAllocation(), order.getDocumentNo() 
@@ -821,15 +822,19 @@ public class DistributionRun extends SvrProcess
 		}
 		
 		//		Get Counter Org/BP
-		int runAD_Org_ID = m_run.getAD_Org_ID();
+		int runAD_Org_ID = m_run.getAD_Org_ID();  
 		if (runAD_Org_ID == 0)
-			runAD_Org_ID = Env.getAD_Org_ID(getCtx());
+			runAD_Org_ID = Env.getAD_Org_ID(getCtx()); 
 		MOrg runOrg = MOrg.get(getCtx(), runAD_Org_ID);
+		//
 		int runC_BPartner_ID = runOrg.getLinkedC_BPartner_ID(get_TrxName());
-		boolean counter = !m_run.isCreateSingleOrder()	//	no single Order 
+		//
+		boolean counter = !m_run.isCreateSingleOrder()	//	no single Order  TODO - is this what CreateSingleOrder means? IE No counter docs?
 			&& runC_BPartner_ID > 0						//	Org linked to BP
 			&& !m_docType.isSOTrx();					//	PO
+		//
 		MBPartner runBPartner = counter ? new MBPartner(getCtx(), runC_BPartner_ID, get_TrxName()) : null;
+		//
 		if (!counter || runBPartner == null || runBPartner.get_ID() != runC_BPartner_ID)
 			counter = false;
 		if (counter)
@@ -850,18 +855,18 @@ public class DistributionRun extends SvrProcess
 		MLocator m_locator_to= null;
 		MWarehouse[] ws = null;
 		
-		MOrgInfo oi_source = MOrgInfo.get(getCtx(), m_run.getAD_Org_ID(), get_TrxName());
+		MOrgInfo oi_source = MOrgInfo.get(getCtx(), runAD_Org_ID, get_TrxName());
 		m_source = MWarehouse.get(getCtx(), oi_source.getM_Warehouse_ID());
 		if(m_source == null)
-			throw new AdempiereException("Do not exist Defautl Warehouse Source");
+			throw new AdempiereException("Default Source Warehouse does not exist");
 		
 		m_locator =  MLocator.getDefault(m_source);
 		
 		//get the warehouse in transit
-		ws = MWarehouse.getInTransitForOrg(getCtx(), m_source.getAD_Org_ID());
+		ws = MWarehouse.getInTransitForOrg(getCtx(), runAD_Org_ID);
 		
 		if(ws==null)
-			throw new AdempiereException("Warehouse Intransit do not found");
+			throw new AdempiereException("Intransit Warehouse was not found");
 		
 		
 		//	Consolidated Single Order 
@@ -918,13 +923,13 @@ public class DistributionRun extends SvrProcess
 			MOrgInfo oi_target = MOrgInfo.get(getCtx(), bp.getAD_OrgBP_ID_Int(), get_TrxName());
 			m_target = MWarehouse.get(getCtx(), oi_target.getM_Warehouse_ID());
 			if(m_target==null)
-				throw new AdempiereException("Do not exist Default Warehouse Target");
+				throw new AdempiereException("Target Default Warehouse does not exist");
 			
 			m_locator_to = MLocator.getDefault(m_target); 
 
 			if (m_locator == null || m_locator_to == null)
 			{
-				throw new AdempiereException("Do not exist default Locator for Warehouses");
+				throw new AdempiereException("Target Warehouse default locator can't be found");
 			}
 			
 			if(p_ConsolidateDocument)
@@ -939,7 +944,7 @@ public class DistributionRun extends SvrProcess
 							.setParameters(new Object[]{lastC_BPartner_ID, ws[0].getM_Warehouse_ID(), p_DatePromised})
 							.setOrderBy(MDDOrder.COLUMNNAME_DatePromised +" DESC")
 							.first();
-		}
+			}
 			
 			//	New Order
 			if (order == null)
@@ -947,7 +952,7 @@ public class DistributionRun extends SvrProcess
 				if (!p_IsTest)
 				{
 					order = new MDDOrder (getCtx(), 0, get_TrxName());
-					order.setAD_Org_ID(bp.getAD_OrgBP_ID_Int());
+// set below 		order.setAD_Org_ID(bp.getAD_OrgBP_ID_Int());
 					order.setC_DocType_ID(m_docType.getC_DocType_ID());
 					order.setIsSOTrx(m_docType.isSOTrx());					
 
@@ -957,9 +962,12 @@ public class DistributionRun extends SvrProcess
 						log.fine("Counter - From_BPOrg=" + bp.getAD_OrgBP_ID_Int() 
 							+ "-" + bp + ", To_BP=" + runBPartner);
 						order.setAD_Org_ID(bp.getAD_OrgBP_ID_Int());
-						if (ws[0].getM_Warehouse_ID() > 0)
-						order.setM_Warehouse_ID(ws[0].getM_Warehouse_ID());
+// Set below			if (ws[0].getM_Warehouse_ID() > 0)
+//							order.setM_Warehouse_ID(ws[0].getM_Warehouse_ID());
 						order.setBPartner(runBPartner);
+						// Adding - set the order to purchase
+						// material is being received in bound
+						order.setIsSOTrx(false);
 					}
 					else	//	normal
 					{
@@ -996,8 +1004,18 @@ public class DistributionRun extends SvrProcess
 			if(p_ConsolidateDocument)
 			{
 
-				String sql = "SELECT DD_OrderLine_ID FROM DD_OrderLine ol INNER JOIN DD_Order o ON (o.DD_Order_ID=ol.DD_Order_ID) WHERE o.DocStatus IN ('DR','IN') AND o.C_BPartner_ID = ? AND M_Product_ID=? AND  ol.M_Locator_ID=?  AND ol.DatePromised <= ?";				
-				int DD_OrderLine_ID = DB.getSQLValueEx(get_TrxName(), sql, new Object[]{detail.getC_BPartner_ID(),product.getM_Product_ID(), m_locator.getM_Locator_ID(), p_DatePromised});	
+				String sql = "SELECT DD_OrderLine_ID FROM DD_OrderLine ol"
+							+ " INNER JOIN DD_Order o ON (o.DD_Order_ID=ol.DD_Order_ID) "
+							+ "WHERE o.DocStatus IN ('DR','IN') AND o.C_BPartner_ID = ?"
+							+ " AND M_Product_ID=? AND  ol.M_Locator_ID=?"
+							+ " AND ol.DatePromised <= ?";
+				
+				int DD_OrderLine_ID = DB.getSQLValueEx(get_TrxName(), sql, 
+						new Object[]{detail.getC_BPartner_ID(),
+									product.getM_Product_ID(), 
+									m_locator.getM_Locator_ID(), 
+									p_DatePromised});	
+				
 				if (DD_OrderLine_ID  <= 0)
 				{	
 					MDDOrderLine line = new MDDOrderLine(order);
