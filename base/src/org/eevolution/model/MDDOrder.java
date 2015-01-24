@@ -502,7 +502,7 @@ public class MDDOrder extends X_DD_Order implements DocAction
 	public MMovement[] getMovement()
 	{
 		ArrayList<MMovement> list = new ArrayList<MMovement>();
-		String sql = "SELECT DISTINCT io.* FROM M_MovementLine ml " + 
+		String sql = "SELECT DISTINCT m.* FROM M_MovementLine ml " + 
 						"INNER JOIN M_Movement m ON (m.M_Movement_ID = ml.M_Movement_ID) " +
 						"INNER JOIN DD_ORDERLINE ol ON (ol.DD_ORDERLINE_ID=ml.DD_ORDERLINE_ID) " + 
 						"INNER JOIN DD_ORDER o ON (o.DD_ORDER_ID=ol.DD_ORDER_ID) " +
@@ -1007,6 +1007,9 @@ public class MDDOrder extends X_DD_Order implements DocAction
 			BigDecimal old = line.getQtyOrdered();
 			if (old.signum() != 0)
 			{
+				//  Setting the line quantity to zero will cause a reversal of the remaining 
+				//  stock reservation and reduce the quantity on order at the destination.
+				line.setQtyOrdered(Env.ZERO);  
 				line.addDescription(Msg.getMsg(getCtx(), "Voided") + " (" + old + ")");		
 				line.save(get_TrxName());
 			}
