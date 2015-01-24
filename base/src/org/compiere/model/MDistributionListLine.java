@@ -17,9 +17,12 @@
 package org.compiere.model;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Properties;
+import java.util.logging.Level;
 
+import org.compiere.util.DB;
 import org.compiere.util.Env;
 
 
@@ -84,5 +87,52 @@ public class MDistributionListLine extends X_M_DistributionListLine
 			return Env.ZERO;
 		return ratio;
 	}	//	getRatio
-	
+
+	/**
+	 *	Update Header Ratio Total
+	 *	@return true if header updated
+	 */
+	private boolean updateHeaderRatioTotal()
+	{
+		int no = 0;
+		String sql = "UPDATE M_DistributionList dl SET RatioTotal = "
+						+ "(SELECT SUM(COALESCE(Ratio,0)) FROM M_DistributionListLine dll"
+						+ " WHERE dll.M_DistributionList_ID=dl.M_DistributionList_ID)"
+					+ " WHERE M_DistributionList_ID=? ";
+		PreparedStatement pstmt = null;
+		try
+		{
+			pstmt = DB.prepareStatement (sql, get_TrxName());
+			pstmt.setInt (1, getM_DistributionList_ID());
+			no = pstmt.executeUpdate();
+			if (no != 1)
+				log.warning("(1) #" + no);
+			pstmt.close ();
+			pstmt = null;
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "getLines", e);
+		}
+		return no == 1;
+	}	//	updateHeaderRatioTotal
+
+	/**
+	 * 	After Save
+	 *	@param newRecord new
+	 *	@param success success
+	 *	@return saved
+	 */
+	protected boolean afterSave (boolean newRecord, boolean success)
+	{
+		if (!success)
+			return success;
+
+		if (newRecord || is_ValueChanged("Ratio"))
+		{
+			return updateHeaderRatioTotal();
+		}
+		return success;
+	}	//	afterSave
+
 }	//	MDistributionListLine
