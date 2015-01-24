@@ -633,7 +633,7 @@ public class ReplenishReport extends SvrProcess
 				order.setIsSelected(false);
 				order.setIsSOTrx(false);
 				// Warehouse in Transit
-				MWarehouse[] whsInTransit  = MWarehouse.getForOrg(getCtx(), whSource.getAD_Org_ID());
+				MWarehouse[] whsInTransit  = MWarehouse.getForOrg(getCtx(), wh.getAD_Org_ID());
 				for (MWarehouse whInTransit:whsInTransit)
 				{
 					if(whInTransit.isInTransit())	
@@ -698,8 +698,10 @@ public class ReplenishReport extends SvrProcess
 			MDDOrderLine line = new MDDOrderLine(order);
 			line.setM_Product_ID(replenish.getM_Product_ID());
 			line.setQty(replenish.getQtyToOrder());
-			if (replenish.getQtyToOrder().compareTo(replenish.getQtyToOrder()) != 0)
+			if (replenish.getQtyOrdered().compareTo(replenish.getQtyToOrder()) != 0)
 				line.setDescription("Total: " + replenish.getQtyToOrder());
+			// Same as callout
+			line.setConfirmedQty(line.getQtyOrdered().subtract(line.getQtyInTransit()).subtract(line.getQtyDelivered()));
 			line.setM_Locator_ID(M_Locator_ID);		//	from
 			line.setM_AttributeSetInstance_ID(0);
 			line.setM_LocatorTo_ID(M_LocatorTo_ID);					//	to
