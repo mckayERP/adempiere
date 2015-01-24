@@ -420,5 +420,52 @@ public final class MRegion extends X_C_Region
 		temp.saveEx();
 
 	}	//	main
+
+	/**
+	 * 	Get Default Region
+	 * 	@param ctx context
+	 *  @param C_Country_ID The country ID used to determine the default region
+	 *	@return Region or null
+	 */
+	public static MRegion getDefault(Properties ctx, int C_Country_ID) {
+
+		if (s_regions == null || s_regions.size() == 0)
+				loadAllRegions(ctx, C_Country_ID);
+			return s_default;
+	} //getDefault
 	
+	private static void loadAllRegions(Properties ctx, int C_Country_ID) {
+		s_regions = new CCache<String,MRegion>("C_Region", 100);
+		MRegion c_default = null;
+		
+		String sql = "SELECT * FROM C_Region WHERE IsActive='Y'";
+		try
+		{
+			Statement stmt = DB.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next())
+			{
+				MRegion r = new MRegion (ctx, rs, null);
+				s_regions.put(String.valueOf(r.getC_Region_ID()), r);
+				if (r.isDefault())
+					s_default = r;
+				if (r.isDefault() && r.getC_Country_ID() == C_Country_ID)
+					c_default = r;
+			}
+			rs.close();
+			stmt.close();
+		}
+		catch (SQLException e)
+		{
+			s_log.log(Level.SEVERE, sql, e);
+		}
+		
+		// If there is a country default, use it as the default region
+		if (c_default != null && s_default != null)
+			s_default = c_default;
+		
+		s_log.fine(s_regions.size() + " - default=" + s_default);
+	}	//	loadAllRegions
+
+
 }	//	MRegion
