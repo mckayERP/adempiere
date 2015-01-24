@@ -33,7 +33,7 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150101L;
+	private static final long serialVersionUID = 20150107L;
 
     /** Standard Constructor */
     public X_I_Inventory (Properties ctx, int I_Inventory_ID, String trxName)
@@ -217,34 +217,6 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 		return (String)get_Value(COLUMNNAME_Lot);
 	}
 
-	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_InventoryLine)MTable.get(getCtx(), org.compiere.model.I_M_InventoryLine.Table_Name)
-			.getPO(getM_InventoryLine_ID(), get_TrxName());	}
-
-	/** Set Phys.Inventory Line.
-		@param M_InventoryLine_ID 
-		Unique line in an Inventory document
-	  */
-	public void setM_InventoryLine_ID (int M_InventoryLine_ID)
-	{
-		if (M_InventoryLine_ID < 1) 
-			set_Value (COLUMNNAME_M_InventoryLine_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_InventoryLine_ID, Integer.valueOf(M_InventoryLine_ID));
-	}
-
-	/** Get Phys.Inventory Line.
-		@return Unique line in an Inventory document
-	  */
-	public int getM_InventoryLine_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_InventoryLine_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Inventory)MTable.get(getCtx(), org.compiere.model.I_M_Inventory.Table_Name)
@@ -268,6 +240,34 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	public int getM_Inventory_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Inventory_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_InventoryLine)MTable.get(getCtx(), org.compiere.model.I_M_InventoryLine.Table_Name)
+			.getPO(getM_InventoryLine_ID(), get_TrxName());	}
+
+	/** Set Phys.Inventory Line.
+		@param M_InventoryLine_ID 
+		Unique line in an Inventory document
+	  */
+	public void setM_InventoryLine_ID (int M_InventoryLine_ID)
+	{
+		if (M_InventoryLine_ID < 1) 
+			set_Value (COLUMNNAME_M_InventoryLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_InventoryLine_ID, Integer.valueOf(M_InventoryLine_ID));
+	}
+
+	/** Get Phys.Inventory Line.
+		@return Unique line in an Inventory document
+	  */
+	public int getM_InventoryLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InventoryLine_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -525,6 +525,51 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	public String getWarehouseValue () 
 	{
 		return (String)get_Value(COLUMNNAME_WarehouseValue);
+	}
+
+	public org.eevolution.model.I_WM_Area getWM_Area() throws RuntimeException
+    {
+		return (org.eevolution.model.I_WM_Area)MTable.get(getCtx(), org.eevolution.model.I_WM_Area.Table_Name)
+			.getPO(getWM_Area_ID(), get_TrxName());	}
+
+	/** Set Warehouse Area.
+		@param WM_Area_ID 
+		Warehouse Area allow grouping the Warehouse Section
+	  */
+	public void setWM_Area_ID (int WM_Area_ID)
+	{
+		if (WM_Area_ID < 1) 
+			set_Value (COLUMNNAME_WM_Area_ID, null);
+		else 
+			set_Value (COLUMNNAME_WM_Area_ID, Integer.valueOf(WM_Area_ID));
+	}
+
+	/** Get Warehouse Area.
+		@return Warehouse Area allow grouping the Warehouse Section
+	  */
+	public int getWM_Area_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_WM_Area_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Warehouse Area Value.
+		@param WMAreaValue 
+		The value or search key of the warehouse area.
+	  */
+	public void setWMAreaValue (String WMAreaValue)
+	{
+		set_Value (COLUMNNAME_WMAreaValue, WMAreaValue);
+	}
+
+	/** Get Warehouse Area Value.
+		@return The value or search key of the warehouse area.
+	  */
+	public String getWMAreaValue () 
+	{
+		return (String)get_Value(COLUMNNAME_WMAreaValue);
 	}
 
 	/** Set Aisle (X).

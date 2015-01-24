@@ -41,6 +41,7 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -66,10 +67,12 @@ public class WLocatorDialog extends Window implements EventListener
 	
 	private Listbox lstLocator = new Listbox();
 	private Listbox lstWarehouse = new Listbox();
+	private Listbox lstWMArea = new Listbox();
 	
 	private Checkbox chkCreateNew = new Checkbox();
 
 	private Textbox txtWarehouse = new Textbox();
+	private Textbox txtWMArea = new Textbox();
 	private Textbox txtAisleX = new Textbox();
 	private Textbox txtBinY = new Textbox();
 	private Textbox txtLevelZ = new Textbox();
@@ -77,6 +80,7 @@ public class WLocatorDialog extends Window implements EventListener
 	
 	private Label lblLocator = new Label();
 	private Label lblWarehouse = new Label();
+	private Label lblWMArea = new Label();
 	private Label lblAisleX = new Label();
 	private Label lblBinY = new Label();
 	private Label lblLevelZ = new Label();
@@ -85,7 +89,7 @@ public class WLocatorDialog extends Window implements EventListener
 	private Button btnCancel = new Button();
 	private Button btnOk = new Button();
 
-	private MLocatorLookup m_mLocator;
+	private MLocatorLookup m_mLocatorLookup;
 	
 	private int m_WindowNo;
 	private int m_M_Locator_ID;
@@ -93,11 +97,13 @@ public class WLocatorDialog extends Window implements EventListener
 	private int m_AD_Org_ID;
 	private int m_only_Warehouse_ID;
 	private int m_M_Warehouse_ID;
+	private int m_WM_Area_ID;
 	
 	private boolean m_mandatory;
 	
 	private String m_M_WarehouseName;
 	private String m_M_WarehouseValue;
+	private String m_WM_AreaValue;
 	private String m_Separator;
 
 	private boolean m_change;
@@ -125,9 +131,12 @@ public class WLocatorDialog extends Window implements EventListener
 		m_WindowNo = windowNo;
 		this.title = title;
 		initComponents();
+		
+		MLocator loc = MLocator.get(Env.getCtx(), M_Locator_ID);
 
-		m_mLocator = mLocator;
+		m_mLocatorLookup = mLocator;
 		m_M_Locator_ID = M_Locator_ID;
+		m_WM_Area_ID = loc.getWM_Area_ID();
 		m_mandatory = mandatory;
 		m_only_Warehouse_ID = only_Warehouse_ID;
 		
@@ -137,12 +146,13 @@ public class WLocatorDialog extends Window implements EventListener
 	
 	private void initComponents()
 	{
-		lblLocator.setValue(Msg.translate(Env.getCtx(), "M_Locator_ID"));
-		lblWarehouse.setValue(Msg.translate(Env.getCtx(), "M_Warehouse_ID"));
-		lblAisleX.setValue(Msg.getElement(Env.getCtx(), "X"));
-		lblBinY.setValue(Msg.getElement(Env.getCtx(), "Y"));
-		lblLevelZ.setValue(Msg.getElement(Env.getCtx(), "Z"));
-		lblKey.setValue(Msg.translate(Env.getCtx(), "Value"));
+		lblLocator.setValue(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Locator_ID")));
+		lblWarehouse.setValue(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Warehouse_ID")));
+		lblWMArea.setValue(Util.cleanAmp(Msg.translate(Env.getCtx(), "WM_Area_ID")));
+		lblAisleX.setValue(Util.cleanAmp(Msg.getElement(Env.getCtx(), "X")));
+		lblBinY.setValue(Util.cleanAmp(Msg.getElement(Env.getCtx(), "Y")));
+		lblLevelZ.setValue(Util.cleanAmp(Msg.getElement(Env.getCtx(), "Z")));
+		lblKey.setValue(Util.cleanAmp(Msg.translate(Env.getCtx(), "Value")));
 		
 		Hbox boxLocator = new Hbox();
 		boxLocator.setWidth("100%");
@@ -169,7 +179,7 @@ public class WLocatorDialog extends Window implements EventListener
 		boxWarehouse.setWidth("100%");
 		boxWarehouse.setWidths("30%, 70%");
 		
-		lstWarehouse.setWidth("100px");
+		lstWarehouse.setWidth("150px");
 		lstWarehouse.setMold("select");
 		lstWarehouse.setRows(0);
 		
@@ -177,6 +187,18 @@ public class WLocatorDialog extends Window implements EventListener
 		boxWarehouse.appendChild(lstWarehouse);
 		boxWarehouse.appendChild(txtWarehouse);
 		
+		Hbox boxArea = new Hbox();
+		boxArea.setWidth("100%");
+		boxArea.setWidths("30%, 70%");
+		
+		lstWMArea.setWidth("150px");
+		lstWMArea.setMold("select");
+		lstWMArea.setRows(0);
+		
+		boxArea.appendChild(lblWMArea);
+		boxArea.appendChild(lstWMArea);
+		boxArea.appendChild(txtWMArea);
+
 		Hbox boxAisle = new Hbox();
 		boxAisle.setWidth("100%");
 		boxAisle.setWidths("30%, 70%");
@@ -227,6 +249,7 @@ public class WLocatorDialog extends Window implements EventListener
 		mainBox.appendChild(boxCheckbox);
 		mainBox.appendChild(new Separator());
 		mainBox.appendChild(boxWarehouse);
+		mainBox.appendChild(boxArea);
 		mainBox.appendChild(boxAisle);
 		mainBox.appendChild(boxBin);
 		mainBox.appendChild(boxLevel);
@@ -279,22 +302,28 @@ public class WLocatorDialog extends Window implements EventListener
 
 		log.fine("Warehouses=" + lstWarehouse.getItemCount());
 
+		loadWHArea(m_only_Warehouse_ID, m_WM_Area_ID);
+		log.fine("Areas=" + lstWMArea.getItemCount());
+
 		//	Load existing Locators
+
+		m_mLocatorLookup.fillComboBox(m_mandatory, true, true, false);
 		
-		m_mLocator.fillComboBox(m_mandatory, true, true, false);
+		log.fine(m_mLocatorLookup.toString());
 		
-		log.fine(m_mLocator.toString());
-		
-		for (int i = 0; i < m_mLocator.getSize(); i++)
+		int selectedIndex = 0;
+		for (int i = 0; i < m_mLocatorLookup.getSize(); i++)
 		{
-			Object obj = m_mLocator.getElementAt(i);
-			
-			lstLocator.appendItem(obj.toString(), obj);
+			MLocator mLoc = (MLocator) m_mLocatorLookup.getElementAt(i);
+			if (mLoc.getM_Locator_ID() == m_M_Locator_ID) {
+				selectedIndex = i;
+			}
+			lstLocator.appendItem(mLoc.toString(), (Object) mLoc);
 		}
 		
 		//lstLocator.setModel(m_mLocator);
 		//lstLocator.setValue(m_M_Locator_ID);
-		lstLocator.setSelectedIndex(0);
+		lstLocator.setSelectedIndex(selectedIndex);
 		lstLocator.addEventListener(Events.ON_SELECT, this);
 		
 		displayLocator();
@@ -305,6 +334,7 @@ public class WLocatorDialog extends Window implements EventListener
 		enableNew();
 
 		lstWarehouse.addEventListener(Events.ON_SELECT, this);
+		lstWMArea.addEventListener(Events.ON_SELECT, this);
 		
 		txtAisleX.addEventListener(Events.ON_CHANGE, this);
 		txtBinY.addEventListener(Events.ON_CHANGE, this);
@@ -335,7 +365,7 @@ public class WLocatorDialog extends Window implements EventListener
 		txtLevelZ.setText(l.getZ());
 		txtKey.setText(l.getValue());
 		
-		getWarehouseInfo(l.getM_Warehouse_ID());
+		getWarehouseInfo(l.getM_Warehouse_ID(), l.getWM_Area_ID());
 		
 		//	Set Warehouse
 		
@@ -352,6 +382,7 @@ public class WLocatorDialog extends Window implements EventListener
 				continue;
 			}
 		}
+		loadWHArea(l.getM_Warehouse_ID(), l.getWM_Area_ID());
 	} // displayLocator
 	
 	/**
@@ -363,10 +394,13 @@ public class WLocatorDialog extends Window implements EventListener
 		boolean sel = chkCreateNew.isChecked();
 		//lblWarehouse.setVisible(sel);
 		lstWarehouse.setVisible(sel);
+		lstWMArea.setVisible(sel);
 		//lWarehouseInfo.setVisible(!sel);
 		txtWarehouse.setVisible(!sel);
+		txtWMArea.setVisible(!sel);
 		
 		txtWarehouse.setReadonly(true);
+		txtWMArea.setReadonly(true);
 		txtAisleX.setReadonly(!sel);
 		txtBinY.setReadonly(!sel);
 		txtLevelZ.setReadonly(!sel);
@@ -379,9 +413,9 @@ public class WLocatorDialog extends Window implements EventListener
 	 *	Get Warehouse Info
 	 *  @param M_Warehouse_ID warehouse
 	 */
-	private void getWarehouseInfo (int M_Warehouse_ID)
+	private void getWarehouseInfo (int M_Warehouse_ID, int WM_Area_ID)
 	{
-		if (M_Warehouse_ID == m_M_Warehouse_ID)
+		if (M_Warehouse_ID == m_M_Warehouse_ID && WM_Area_ID == m_WM_Area_ID)
 			return;
 
 		//	Defaults
@@ -389,6 +423,8 @@ public class WLocatorDialog extends Window implements EventListener
 		m_M_Warehouse_ID = 0;
 		m_M_WarehouseName = "";
 		m_M_WarehouseValue = "";
+		m_WM_Area_ID = 0;
+		m_WM_AreaValue = "";
 		m_Separator = ".";
 		m_AD_Client_ID = 0;
 		m_AD_Org_ID = 0;
@@ -418,6 +454,28 @@ public class WLocatorDialog extends Window implements EventListener
 		{
 			log.log(Level.SEVERE, SQL, e);
 		}
+
+		//  WM_Area
+		SQL = "SELECT WM_Area_ID, Value "
+			+ "FROM WM_Area WHERE M_Warehouse_ID=? AND WM_Area_ID=?";
+		try
+		{
+			PreparedStatement pstmt = DB.prepareStatement(SQL, null);
+			pstmt.setInt(1, M_Warehouse_ID);
+			pstmt.setInt(2, WM_Area_ID);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next())
+			{
+				m_WM_Area_ID = rs.getInt(1);
+				m_WM_AreaValue = rs.getString(2);
+			}
+			rs.close();
+			pstmt.close();
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.SEVERE, SQL, e);
+		}
 	} // getWarehouseInfo
 
 	/**
@@ -427,21 +485,26 @@ public class WLocatorDialog extends Window implements EventListener
 	private void createValue()
 	{
 		// Get Warehouse Info
+		int wmArea = 0;
 		
 		ListItem listitem = lstWarehouse.getSelectedItem();
 		KeyNamePair pp = (KeyNamePair)listitem.getValue();
 		
 		if (pp == null)
 			return;
-		
-		getWarehouseInfo(pp.getKey());
 
-		StringBuffer buf = new StringBuffer(m_M_WarehouseValue);
-		buf.append(m_Separator).append(txtAisleX.getText());
-		buf.append(m_Separator).append(txtBinY.getText());
-		buf.append(m_Separator).append(txtLevelZ.getText());
+		listitem = lstWMArea.getSelectedItem();
+		KeyNamePair pa = (KeyNamePair)listitem.getValue();
 		
-		txtKey.setText(buf.toString());
+		if (pa != null)
+			wmArea = pa.getKey();
+
+		getWarehouseInfo(pp.getKey(), wmArea);
+		
+		String value = MLocator.createValueString(m_M_WarehouseValue, m_WM_AreaValue,
+				txtAisleX.getText(), txtBinY.getText(), txtLevelZ.getText(), m_Separator);
+		
+		txtKey.setText(value);
 	} // createValue
 
 	/**
@@ -453,12 +516,18 @@ public class WLocatorDialog extends Window implements EventListener
 		if (chkCreateNew.isChecked())
 		{
 			//	Get Warehouse Info
+			int wmArea = 0;
 			
 			ListItem listitem = lstWarehouse.getSelectedItem();
 			KeyNamePair pp = (KeyNamePair)listitem.getValue();
 			
-			if (pp != null)
-				getWarehouseInfo(pp.getKey());
+			listitem = lstWMArea.getSelectedItem();
+			KeyNamePair pa = (KeyNamePair)listitem.getValue();
+			
+			if (pa != null)
+				wmArea = pa.getKey();
+
+			getWarehouseInfo(pp.getKey(), wmArea);
 
 			//	Check mandatory values
 			
@@ -485,7 +554,7 @@ public class WLocatorDialog extends Window implements EventListener
 				return;
 			}
 
-			MLocator loc = MLocator.get(Env.getCtx(), m_M_Warehouse_ID, txtKey.getText(),
+			MLocator loc = MLocator.get(Env.getCtx(), m_M_Warehouse_ID, m_WM_Area_ID, txtKey.getText(),
 				txtAisleX.getText(), txtBinY.getText(), txtLevelZ.getText());
 			
 			m_M_Locator_ID = loc.getM_Locator_ID();
@@ -556,7 +625,57 @@ public class WLocatorDialog extends Window implements EventListener
 		else if (event.getTarget() == chkCreateNew)
 			enableNew();
 		//	Entered/Changed data for Value
-		else if (chkCreateNew.isChecked() && event.getTarget() == lstWarehouse)
+		else if (chkCreateNew.isChecked() && (
+				event.getTarget() == lstWarehouse
+				|| event.getTarget() == lstWMArea
+				|| event.getTarget() == txtAisleX
+				|| event.getTarget() == txtBinY
+				|| event.getTarget() == txtLevelZ)) {
 			createValue();
+		}
+	}
+	
+	public void loadWHArea(int M_Warehouse_ID, int WM_Area_ID) {
+		//	Load Warehouse Areas
+		// Clear the combo box
+		lstWMArea.removeAllItems();
+		// Add a zero value = no assignment
+		lstWMArea.appendItem("", new KeyNamePair(0,""));
+		String sql = "SELECT WM_Area_ID, Name FROM WM_Area";
+		if (M_Warehouse_ID != 0) {
+			sql += " WHERE M_Warehouse_ID=" + M_Warehouse_ID;
+		}
+		else { // Use the value selected in the warehouse field
+			KeyNamePair pp = (KeyNamePair) lstWarehouse.getSelectedItem().getValue();
+			if (pp != null) {
+				sql += " WHERE M_Warehouse_ID=" + pp.getKey();
+			}
+		}
+		int selectedIndex = 0;
+		String SQL = MRole.getDefault().addAccessSQL(
+			sql, "WM_Area", MRole.SQL_NOTQUALIFIED, MRole.SQL_RO)
+			+ " ORDER BY 2";
+		try
+		{
+			PreparedStatement pstmt = DB.prepareStatement(SQL, null);
+			ResultSet rs = pstmt.executeQuery();
+			int i = 0;  // Take into account the null entry ...
+			while (rs.next()) {
+				i++; // ...here.
+				KeyNamePair key = new KeyNamePair(rs.getInt(1), rs.getString(2));
+				lstWMArea.appendItem(key.getName(), key);
+				if (rs.getInt(1) == WM_Area_ID) {
+					lstWMArea.setSelectedIndex(i);
+					txtWMArea.setValue(rs.getString(2));					
+				}
+					selectedIndex = i; 
+			}
+			rs.close();
+			pstmt.close();
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.SEVERE, SQL, e);
+		}
 	}
 }

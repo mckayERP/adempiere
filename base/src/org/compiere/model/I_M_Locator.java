@@ -174,6 +174,21 @@ public interface I_M_Locator
 	  */
 	public String getValue();
 
+    /** Column name WM_Area_ID */
+    public static final String COLUMNNAME_WM_Area_ID = "WM_Area_ID";
+
+	/** Set Warehouse Area.
+	  * Warehouse Area allow grouping the Warehouse Section
+	  */
+	public void setWM_Area_ID (int WM_Area_ID);
+
+	/** Get Warehouse Area.
+	  * Warehouse Area allow grouping the Warehouse Section
+	  */
+	public int getWM_Area_ID();
+
+	public org.eevolution.model.I_WM_Area getWM_Area() throws RuntimeException;
+
     /** Column name X */
     public static final String COLUMNNAME_X = "X";
 

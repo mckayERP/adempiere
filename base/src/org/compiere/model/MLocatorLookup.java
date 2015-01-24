@@ -151,7 +151,7 @@ public final class MLocatorLookup extends Lookup implements Serializable
 	}   //  loadComplete
 
 	/**
-	 *	Get value
+	 *	Get value.  If key is 0, it will add an item to the lookup.
 	 *  @param key key
 	 *  @return value value
 	 */
@@ -187,10 +187,10 @@ public final class MLocatorLookup extends Lookup implements Serializable
 	 */
 	public String getDisplay (Object value)
 	{
-		if (value == null)
+		if (value == null || ((Integer) value).intValue() == 0 )
 			return "";
 		//
-		NamePair display = get (value);
+		NamePair display = get (value);  // Will add a record if value is 0
 		if (display == null)
 			return "<" + value.toString() + ">";
 		return display.toString();
@@ -207,7 +207,7 @@ public final class MLocatorLookup extends Lookup implements Serializable
 	}   //  containsKey
 
 	/**
-	 *	Get Data Direct from Table
+	 *	Get Data Direct from Table, creating a new record if keyValue is 0
 	 *  @param keyValue integer key value
 	 *  @param saveInCache save in cache
 	 *  @param trxName transaction
@@ -215,7 +215,7 @@ public final class MLocatorLookup extends Lookup implements Serializable
 	 */
 	public NamePair getDirect (Object keyValue, boolean saveInCache, String trxName)
 	{
-		MLocator loc = getMLocator (keyValue, trxName);
+		MLocator loc = getMLocator (keyValue, trxName);  //  !! Will create a new locator if keyValue is 0
 		if (loc == null)
 			return null;
 		//

@@ -182,21 +182,6 @@ public interface I_I_Inventory
 	  */
 	public String getLot();
 
-    /** Column name M_InventoryLine_ID */
-    public static final String COLUMNNAME_M_InventoryLine_ID = "M_InventoryLine_ID";
-
-	/** Set Phys.Inventory Line.
-	  * Unique line in an Inventory document
-	  */
-	public void setM_InventoryLine_ID (int M_InventoryLine_ID);
-
-	/** Get Phys.Inventory Line.
-	  * Unique line in an Inventory document
-	  */
-	public int getM_InventoryLine_ID();
-
-	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException;
-
     /** Column name M_Inventory_ID */
     public static final String COLUMNNAME_M_Inventory_ID = "M_Inventory_ID";
 
@@ -211,6 +196,21 @@ public interface I_I_Inventory
 	public int getM_Inventory_ID();
 
 	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException;
+
+    /** Column name M_InventoryLine_ID */
+    public static final String COLUMNNAME_M_InventoryLine_ID = "M_InventoryLine_ID";
+
+	/** Set Phys.Inventory Line.
+	  * Unique line in an Inventory document
+	  */
+	public void setM_InventoryLine_ID (int M_InventoryLine_ID);
+
+	/** Get Phys.Inventory Line.
+	  * Unique line in an Inventory document
+	  */
+	public int getM_InventoryLine_ID();
+
+	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException;
 
     /** Column name M_Locator_ID */
     public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
@@ -385,6 +385,34 @@ public interface I_I_Inventory
 	  * Key of the Warehouse
 	  */
 	public String getWarehouseValue();
+
+    /** Column name WM_Area_ID */
+    public static final String COLUMNNAME_WM_Area_ID = "WM_Area_ID";
+
+	/** Set Warehouse Area.
+	  * Warehouse Area allow grouping the Warehouse Section
+	  */
+	public void setWM_Area_ID (int WM_Area_ID);
+
+	/** Get Warehouse Area.
+	  * Warehouse Area allow grouping the Warehouse Section
+	  */
+	public int getWM_Area_ID();
+
+	public org.eevolution.model.I_WM_Area getWM_Area() throws RuntimeException;
+
+    /** Column name WMAreaValue */
+    public static final String COLUMNNAME_WMAreaValue = "WMAreaValue";
+
+	/** Set Warehouse Area Value.
+	  * The value or search key of the warehouse area.
+	  */
+	public void setWMAreaValue (String WMAreaValue);
+
+	/** Get Warehouse Area Value.
+	  * The value or search key of the warehouse area.
+	  */
+	public String getWMAreaValue();
 
     /** Column name X */
     public static final String COLUMNNAME_X = "X";

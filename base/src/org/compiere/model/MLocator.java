@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import org.compiere.util.CCache;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.eevolution.model.X_WM_Area;
 
 /**
  *	Warehouse Locator Object
@@ -122,7 +123,7 @@ public class MLocator extends X_M_Locator
 	 * 	Get the Locator with the combination or create new one
 	 *	@param ctx Context
 	 *	@param M_Warehouse_ID warehouse
-	 *	@param Value value
+	 *	@param Value value - if null string, one will be generated.
 	 *	@param X x
 	 *	@param Y y
 	 *	@param Z z
@@ -131,17 +132,38 @@ public class MLocator extends X_M_Locator
 	 public static MLocator get (Properties ctx, int M_Warehouse_ID, String Value,
 		 String X, String Y, String Z)
 	 {
+		 return get (ctx, M_Warehouse_ID, 0, Value, X, Y, Z);
+	 }
+	/**
+	 * 	Get the Locator with the combination or create new one.  If creating a new 
+	 *  record, if Value is null, a default string will be generated 
+	 *	@param ctx Context
+	 *	@param M_Warehouse_ID warehouse
+	 *  @param WH_Area_ID warehouse area
+	 *	@param Value value
+	 *	@param X x
+	 *	@param Y y
+	 *	@param Z z
+	 * 	@return locator
+	 */
+	 public static MLocator get (Properties ctx, int M_Warehouse_ID, int WM_Area_ID, String Value,
+		 String X, String Y, String Z)
+	 {
 		MLocator retValue = null;
-		String sql = "SELECT * FROM M_Locator WHERE IsActive = 'Y' AND M_Warehouse_ID=? AND X=? AND Y=? AND Z=?";
+		String sql = "SELECT * FROM M_Locator WHERE IsActive = 'Y' "
+				+ "AND M_Warehouse_ID=? "
+				+ "AND COALESCE(WM_Area_ID,0)=?"
+				+ "AND X=? AND Y=? AND Z=?";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
 		{
 			pstmt = DB.prepareStatement(sql, null);
 			pstmt.setInt(1, M_Warehouse_ID);
-			pstmt.setString(2, X);
-			pstmt.setString(3, Y);
-			pstmt.setString(4, Z);
+			pstmt.setInt(2, WM_Area_ID);
+			pstmt.setString(3, X);
+			pstmt.setString(4, Y);
+			pstmt.setString(5, Z);
 			rs = pstmt.executeQuery();
 			if (rs.next())
 				retValue = new MLocator (ctx, rs, null);
@@ -159,7 +181,9 @@ public class MLocator extends X_M_Locator
 		{
 			MWarehouse wh = MWarehouse.get (ctx, M_Warehouse_ID);
 			retValue = new MLocator (wh, Value);
+			retValue.setWM_Area_ID(WM_Area_ID);
 			retValue.setXYZ(X, Y, Z);
+			retValue.setValue(Value);
 			retValue.saveEx();
 		}
 		return retValue;
@@ -224,8 +248,9 @@ public class MLocator extends X_M_Locator
 		this (warehouse.getCtx(), 0, warehouse.get_TrxName());
 		setClientOrg(warehouse);
 		setM_Warehouse_ID (warehouse.getM_Warehouse_ID());		//	Parent
-		setValue (Value);
 		setXYZ("0","0","0");
+		setValue (Value);
+
 	}	//	MLocator
 
 	/**
@@ -351,4 +376,42 @@ public class MLocator extends X_M_Locator
 		*/
 	}	//	isCanStoreProduct
 	
+	/**
+	 *	Create Locator-Value string based on the other locator data and the separator
+	 *  character.  The model will need to be saved.
+	 */	
+	public static String createValueString(String whValue, String wmAreaValue, String X, String Y, String Z, String separator)
+	{
+		StringBuffer buf = new StringBuffer(whValue);
+		if ( !wmAreaValue.isEmpty() ) {
+			buf.append(separator).append(wmAreaValue);
+		}
+		buf.append(separator).append(X);
+		buf.append(separator).append(Y);
+		buf.append(separator).append(Z);
+		
+		return(buf.toString());
+	} // createValueString
+	
+	/**
+	 * Set the value.  If value is null, a string of the form
+	 * warehouseValue*areaValue*X*Y*Z
+	 * @param value  The value to set or a null string.
+	 */
+	public void setValue(String value) {
+		
+		if (value == null || value.isEmpty()) {
+			
+			MWarehouse wh = MWarehouse.get(getCtx(), this.getM_Warehouse_ID());
+			String separator = wh.getSeparator();
+			String areaValue = "";
+			if ( this.getWM_Area_ID() > 0 ) {
+				X_WM_Area area = new X_WM_Area(getCtx(), this.getWM_Area_ID(), get_TrxName());
+				areaValue = area.getValue();
+			}
+			value = this.createValueString(wh.getValue(), areaValue, 
+									this.getX(), this.getY(), this.getZ(), separator);
+		}
+		super.setValue(value);
+	}	
 }	//	MLocator

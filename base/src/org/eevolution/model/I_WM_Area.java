@@ -18,7 +18,8 @@ package org.eevolution.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import org.compiere.model.*;
+
+import org.compiere.model.MTable;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for WM_Area
@@ -148,6 +149,19 @@ public interface I_WM_Area
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name Value */
+    public static final String COLUMNNAME_Value = "Value";
+
+	/** Set Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value);
+
+	/** Get Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public String getValue();
 
     /** Column name WM_Area_ID */
     public static final String COLUMNNAME_WM_Area_ID = "WM_Area_ID";

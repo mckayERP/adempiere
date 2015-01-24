@@ -50,6 +50,8 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
+
 
 /**
  *	Dialog to enter Warehouse Locator Info
@@ -69,15 +71,16 @@ public class VLocatorDialog extends CDialog
 	 *	Constructor
 	 *  @param frame frame
 	 *  @param title title
-	 *  @param mLocator locator
+	 *  @param mLocatorLookup locator lookup
 	 *  @param M_Locator_ID locator id
 	 * 	@param mandatory mandatory
 	 * 	@param only_Warehouse_ID of not 0 restrict warehouse
 	 */
-	public VLocatorDialog (Frame frame, String title, MLocatorLookup mLocator,
+	public VLocatorDialog (Frame frame, String title, MLocatorLookup mLocatorLookup,
 		int M_Locator_ID, boolean mandatory, int only_Warehouse_ID)
 	{
 		super (frame, title, true);
+		m_Loading = true;
 		m_WindowNo = Env.getWindowNo(frame);
 		try
 		{
@@ -89,18 +92,23 @@ public class VLocatorDialog extends CDialog
 			log.log(Level.SEVERE, "VLocatorDialog", ex);
 		}
 		//
-		m_mLocator = mLocator;
+		m_mLocatorLookup = mLocatorLookup;
+		MLocator loc = MLocator.get(Env.getCtx(), M_Locator_ID);
+
 		m_M_Locator_ID = M_Locator_ID;
+		m_WM_Area_ID = loc.getWM_Area_ID();
 		m_mandatory = mandatory;
 		m_only_Warehouse_ID = only_Warehouse_ID;
 		//
 		initLocator();
 		AEnv.positionCenterWindow(frame, this);
+		m_Loading = false;
 	}	//	VLocatorDialog
 
 	private int				m_WindowNo;
+	private boolean			m_Loading;
 	private boolean 		m_change = false;
-	private MLocatorLookup	m_mLocator;
+	private MLocatorLookup	m_mLocatorLookup;
 	private int				m_M_Locator_ID;
 	private boolean			m_mandatory = false;
 	private int				m_only_Warehouse_ID = 0;
@@ -108,9 +116,12 @@ public class VLocatorDialog extends CDialog
 	private int				m_M_Warehouse_ID;
 	private String			m_M_WarehouseName;
 	private String 			m_M_WarehouseValue;
+	private int				m_WM_Area_ID = 0;
+	private String 			m_WM_AreaValue = "";
 	private String 			m_Separator;
 	private int				m_AD_Client_ID;
 	private int				m_AD_Org_ID;
+	//
 	/**	Logger			*/
 	private static CLogger log = CLogger.getCLogger(VLocatorDialog.class);
 	//
@@ -123,16 +134,22 @@ public class VLocatorDialog extends CDialog
 	private BorderLayout southLayout = new BorderLayout();
 	//
 	private VComboBox fLocator = new VComboBox();
+	private CTextField fLocatorBlank = new CTextField();
 	private CComboBox fWarehouse = new CComboBox();
+	private CComboBox fWMArea = new CComboBox();
 	private JCheckBox fCreateNew = new JCheckBox();
 	private CTextField fX = new CTextField();
 	private CTextField fY = new CTextField();
 	private CTextField fZ = new CTextField();
 	private JLabel lLocator = new JLabel();
+	private JLabel lLocatorBlank = new JLabel();
 	private CTextField fWarehouseInfo = new CTextField();
+	private CTextField fWMAreaInfo = new CTextField();
 	private CTextField fValue = new CTextField();
 	private JLabel lWarehouseInfo = new JLabel();
 	private JLabel lWarehouse = new JLabel();
+	private JLabel lWMArea = new JLabel();
+	private JLabel lWMAreaInfo = new JLabel();	
 	private JLabel lX = new JLabel();
 	private JLabel lY = new JLabel();
 	private JLabel lZ = new JLabel();
@@ -149,20 +166,32 @@ public class VLocatorDialog extends CDialog
 		mainPanel.setLayout(gridBagLayout);
 		panelLayout.setHgap(5);
 		panelLayout.setVgap(10);
-		fCreateNew.setText(Msg.getMsg(Env.getCtx(), "CreateNew"));
+		fCreateNew.setText(Util.cleanAmp(Msg.getMsg(Env.getCtx(), "CreateNew")));
 		fX.setColumns(15);
 		fY.setColumns(15);
 		fZ.setColumns(15);
 		lLocator.setLabelFor(fLocator);
-		lLocator.setText(Msg.translate(Env.getCtx(), "M_Locator_ID"));
+		lLocator.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Locator_ID")));
+		lLocatorBlank.setLabelFor(fLocatorBlank);
+		lLocator.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Locator_ID")));
+		fLocatorBlank.setBackground(AdempierePLAF.getFieldBackground_Inactive());
+		fLocatorBlank.setReadWrite(false);
+		fLocatorBlank.setColumns(15);		
 		fWarehouseInfo.setBackground(AdempierePLAF.getFieldBackground_Inactive());
 		fWarehouseInfo.setReadWrite(false);
 		fWarehouseInfo.setColumns(15);
+		fWMAreaInfo.setBackground(AdempierePLAF.getFieldBackground_Inactive());
+		fWMAreaInfo.setReadWrite(false);
+		fWMAreaInfo.setColumns(15);
 		fValue.setColumns(15);
 		lWarehouseInfo.setLabelFor(fWarehouseInfo);
-		lWarehouseInfo.setText(Msg.translate(Env.getCtx(), "M_Warehouse_ID"));
+		lWarehouseInfo.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Warehouse_ID")));
+		lWMAreaInfo.setLabelFor(fWarehouseInfo);
+		lWMAreaInfo.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "WM_Area_ID")));
 		lWarehouse.setLabelFor(fWarehouse);
-		lWarehouse.setText(Msg.translate(Env.getCtx(), "M_Warehouse_ID"));
+		lWarehouse.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "M_Warehouse_ID")));
+		lWMArea.setLabelFor(fWMArea);
+		lWMArea.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "WM_Area_ID")));
 		lX.setLabelFor(fX);
 		lX.setText(Msg.getElement(Env.getCtx(), "X"));
 		lY.setLabelFor(fY);
@@ -170,39 +199,52 @@ public class VLocatorDialog extends CDialog
 		lZ.setLabelFor(fZ);
 		lZ.setText(Msg.getElement(Env.getCtx(), "Z"));
 		lValue.setLabelFor(fValue);
-		lValue.setText(Msg.translate(Env.getCtx(), "Value"));
+		lValue.setText(Util.cleanAmp(Msg.translate(Env.getCtx(), "Value")));
 		getContentPane().add(panel);
 		panel.add(mainPanel, BorderLayout.CENTER);
 		//
-		mainPanel.add(lLocator, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+		int i = 0;
+		mainPanel.add(lLocator, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fLocator, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+		mainPanel.add(fLocator, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(fCreateNew, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+		mainPanel.add(lLocatorBlank, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
+				,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
+		mainPanel.add(fLocatorBlank, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
+				,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
+		mainPanel.add(fCreateNew, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 5), 0, 0));
-		mainPanel.add(lWarehouseInfo, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+		mainPanel.add(lWarehouseInfo, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fWarehouseInfo, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+		mainPanel.add(fWarehouseInfo, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(lWarehouse, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+		mainPanel.add(lWarehouse, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fWarehouse, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+		mainPanel.add(fWarehouse, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(lX, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+		mainPanel.add(lWMAreaInfo, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
+				,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
+		mainPanel.add(fWMAreaInfo, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
+				,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
+		mainPanel.add(lWMArea, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
+				,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
+		mainPanel.add(fWMArea, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
+				,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
+		mainPanel.add(lX, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fX, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
+		mainPanel.add(fX, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(lY, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
+		mainPanel.add(lY, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fY, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+		mainPanel.add(fY, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(lZ, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
+		mainPanel.add(lZ, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fZ, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
+		mainPanel.add(fZ, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
-		mainPanel.add(lValue, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
+		mainPanel.add(lValue, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
-		mainPanel.add(fValue, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0
+		mainPanel.add(fValue, new GridBagConstraints(1, i++, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 5), 0, 0));
 		//
 		panel.add(southPanel, BorderLayout.SOUTH);
@@ -238,12 +280,19 @@ public class VLocatorDialog extends CDialog
 			log.log(Level.SEVERE, SQL, e);
 		}
 		log.fine("Warehouses=" + fWarehouse.getItemCount());
+		loadWHArea(m_only_Warehouse_ID, m_WM_Area_ID);
+		log.fine("Areas=" + fWMArea.getItemCount());
 
 		//	Load existing Locators
-		m_mLocator.fillComboBox(m_mandatory, true, true, false);
-		log.fine(m_mLocator.toString());
-		fLocator.setModel(m_mLocator);
-		fLocator.setValue(m_M_Locator_ID);
+		m_mLocatorLookup.fillComboBox(m_mandatory, true, true, false);
+		log.fine(m_mLocatorLookup.toString());
+		fLocator.setModel(m_mLocatorLookup);
+		if (m_M_Locator_ID == 0) {
+			fLocator.setSelectedIndex(0);
+		}
+		else {
+			fLocator.setValue(m_M_Locator_ID);
+		}
 		fLocator.addActionListener(this);
 		displayLocator();
 		//
@@ -252,6 +301,7 @@ public class VLocatorDialog extends CDialog
 		enableNew();
 		//
 		fWarehouse.addActionListener(this);
+		fWMArea.addActionListener(this);
 		fX.addKeyListener(this);
 		fY.addKeyListener(this);
 		fZ.addKeyListener(this);
@@ -269,6 +319,9 @@ public class VLocatorDialog extends CDialog
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		if (m_Loading)
+			return;
+		
 		Object source = e.getSource();
 		//
 		if (e.getActionCommand().equals(ConfirmPanel.A_OK))
@@ -290,8 +343,13 @@ public class VLocatorDialog extends CDialog
 		else if (source == fCreateNew)
 			enableNew();
 
-		//	Entered/Changed data for Value
-		else if (fCreateNew.isSelected() && source == fWarehouse)
+		//	Entered/Changed data for Value if new and any of the fields changed.
+		else if (fCreateNew.isSelected() && ( 
+				source == fWarehouse
+				|| source == fWMArea
+				|| source == fX
+				|| source == fY
+				|| source == fZ))
 			createValue();
 
 	}	//	actionPerformed
@@ -333,7 +391,7 @@ public class VLocatorDialog extends CDialog
 		fY.setText(l.getY());
 		fZ.setText(l.getZ());
 		fValue.setText(l.getValue());
-		getWarehouseInfo(l.getM_Warehouse_ID());
+		getWarehouseInfo(l.getM_Warehouse_ID(), l.getWM_Area_ID());
 		//	Set Warehouse
 		int size = fWarehouse.getItemCount();
 		for (int i = 0; i < size; i++)
@@ -345,6 +403,7 @@ public class VLocatorDialog extends CDialog
 				continue;
 			}
 		}
+		loadWHArea(l.getM_Warehouse_ID(), l.getWM_Area_ID());
 	}	//	displayLocator
 
 	/**
@@ -353,14 +412,23 @@ public class VLocatorDialog extends CDialog
 	private void enableNew()
 	{
 		boolean sel = fCreateNew.isSelected();
+		lLocator.setVisible(!sel);
+		fLocator.setVisible(!sel);
+		lLocatorBlank.setVisible(sel);
+		fLocatorBlank.setVisible(sel);
 		lWarehouse.setVisible(sel);
 		fWarehouse.setVisible(sel);
+		lWMArea.setVisible(sel);
+		fWMArea.setVisible(sel);
 		lWarehouseInfo.setVisible(!sel);
 		fWarehouseInfo.setVisible(!sel);
+		lWMAreaInfo.setVisible(!sel);
+		fWMAreaInfo.setVisible(!sel);
 		fX.setReadWrite(sel);
 		fY.setReadWrite(sel);
 		fZ.setReadWrite(sel);
 		fValue.setReadWrite(sel);
+		
 		pack();
 	}	//	enableNew
 
@@ -368,14 +436,16 @@ public class VLocatorDialog extends CDialog
 	 *	Get Warehouse Info
 	 *  @param M_Warehouse_ID warehouse
 	 */
-	private void getWarehouseInfo (int M_Warehouse_ID)
+	private void getWarehouseInfo (int M_Warehouse_ID, int WM_Area_ID)
 	{
-		if (M_Warehouse_ID == m_M_Warehouse_ID)
+		if (M_Warehouse_ID == m_M_Warehouse_ID && WM_Area_ID == m_WM_Area_ID)
 			return;
 		//	Defaults
 		m_M_Warehouse_ID = 0;
 		m_M_WarehouseName = "";
 		m_M_WarehouseValue = "";
+		m_WM_Area_ID = 0;
+		m_WM_AreaValue = "";
 		m_Separator = ".";
 		m_AD_Client_ID = 0;
 		m_AD_Org_ID = 0;
@@ -403,6 +473,28 @@ public class VLocatorDialog extends CDialog
 		{
 			log.log(Level.SEVERE, SQL, e);
 		}
+
+		//  WM_Area
+		SQL = "SELECT WM_Area_ID, Value "
+			+ "FROM WM_Area WHERE M_Warehouse_ID=? AND WM_Area_ID=?";
+		try
+		{
+			PreparedStatement pstmt = DB.prepareStatement(SQL, null);
+			pstmt.setInt(1, M_Warehouse_ID);
+			pstmt.setInt(2, WM_Area_ID);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next())
+			{
+				m_WM_Area_ID = rs.getInt(1);
+				m_WM_AreaValue = rs.getString(2);
+			}
+			rs.close();
+			pstmt.close();
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.SEVERE, SQL, e);
+		}
 	}	//	getWarehouseInfo
 
 	/**
@@ -411,16 +503,20 @@ public class VLocatorDialog extends CDialog
 	private void createValue()
 	{
 		//	Get Warehouse Info
+		int wmArea = 0;
 		KeyNamePair pp = (KeyNamePair)fWarehouse.getSelectedItem();
 		if (pp == null)
 			return;
-		getWarehouseInfo(pp.getKey());
 		//
-		StringBuffer buf = new StringBuffer(m_M_WarehouseValue);
-		buf.append(m_Separator).append(fX.getText());
-		buf.append(m_Separator).append(fY.getText());
-		buf.append(m_Separator).append(fZ.getText());
-		fValue.setText(buf.toString());
+		KeyNamePair pa = (KeyNamePair)fWMArea.getSelectedItem();
+		if (pa != null)
+			wmArea = pa.getKey();
+		//
+		getWarehouseInfo(pp.getKey(), wmArea);
+		//
+		String value = MLocator.createValueString(m_M_WarehouseValue, m_WM_AreaValue,
+				fX.getText(), fY.getText(), fZ.getText(), m_Separator);
+		fValue.setText(value);
 	}	//	createValue
 
 	/**
@@ -431,9 +527,14 @@ public class VLocatorDialog extends CDialog
 		if (fCreateNew.isSelected())
 		{
 			//	Get Warehouse Info
+			int WM_Area_ID = 0;
+			KeyNamePair pa = (KeyNamePair)fWMArea.getSelectedItem();
+			if (pa != null)
+				WM_Area_ID = pa.getKey();
+
 			KeyNamePair pp = (KeyNamePair)fWarehouse.getSelectedItem();
 			if (pp != null)
-				getWarehouseInfo(pp.getKey());
+				getWarehouseInfo(pp.getKey(), WM_Area_ID);
 
 			//	Check mandatory values
 			String mandatoryFields = "";
@@ -453,7 +554,7 @@ public class VLocatorDialog extends CDialog
 				return;
 			}
 
-			MLocator loc = MLocator.get(Env.getCtx(), m_M_Warehouse_ID, fValue.getText(),
+			MLocator loc = MLocator.get(Env.getCtx(), m_M_Warehouse_ID, m_WM_Area_ID, fValue.getText(),
 				fX.getText(), fY.getText(), fZ.getText());
 			m_M_Locator_ID = loc.getM_Locator_ID();
 			fLocator.addItem(loc);
@@ -490,4 +591,48 @@ public class VLocatorDialog extends CDialog
 		return m_change;
 	}	//	getChange
 
+	public void loadWHArea(int M_Warehouse_ID, int WM_Area_ID) {
+		//	Load Warehouse Areas
+		// Clear the combo box
+		fWMArea.removeAllItems();
+		// Add a zero value = no assignment
+		fWMArea.addItem(new KeyNamePair(0,""));
+		String sql = "SELECT WM_Area_ID, Name FROM WM_Area";
+		if (M_Warehouse_ID != 0) {
+			sql += " WHERE M_Warehouse_ID=" + M_Warehouse_ID;
+		}
+		else { // Use the value selected in the warehouse field
+			KeyNamePair pp = (KeyNamePair) fWarehouse.getSelectedItem();
+			if (pp != null) {
+				sql += " WHERE M_Warehouse_ID=" + pp.getKey();
+			}
+		}
+		int selectedIndex = 0;
+		String selectedText = "";
+		String SQL = MRole.getDefault().addAccessSQL(
+			sql, "WM_Area", MRole.SQL_NOTQUALIFIED, MRole.SQL_RO)
+			+ " ORDER BY 2";
+		try
+		{
+			PreparedStatement pstmt = DB.prepareStatement(SQL, null);
+			ResultSet rs = pstmt.executeQuery();
+			int i = 0;  // Take into account the null entry ...
+			while (rs.next()) {
+				i++; // ...here.
+				fWMArea.addItem(new KeyNamePair(rs.getInt(1), rs.getString(2)));
+				if (rs.getInt(1) == WM_Area_ID) {
+					selectedIndex = i;
+					selectedText = rs.getString(2);
+				}
+			}
+			rs.close();
+			pstmt.close();
+			fWMArea.setSelectedIndex(selectedIndex);
+			fWMAreaInfo.setText(selectedText);
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.SEVERE, SQL, e);
+		}
+	}
 }	//	VLocatorDialog

@@ -27,6 +27,7 @@ import org.compiere.model.MAttributeSet;
 import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
+import org.compiere.model.MLocator;
 import org.compiere.model.MProduct;
 import org.compiere.model.X_I_Inventory;
 import org.compiere.util.DB;
@@ -50,6 +51,8 @@ public class ImportInventory extends SvrProcess
 	private Timestamp		p_MovementDate = null;
 	/**	Delete old Imported				*/
 	private boolean			p_DeleteOldImported = false;
+	/**	Create locators				*/
+	private boolean			p_CreateNewLocators = false;
 	
 	//@Trifon
 	/**	Update Costing					*/
@@ -95,6 +98,8 @@ public class ImportInventory extends SvrProcess
 				p_M_CostElement_ID = ((BigDecimal)para[i].getParameter()).intValue();
 			else if (name.equals("AD_OrgTrx_ID"))
 				p_AD_OrgTrx_ID = ((BigDecimal)para[i].getParameter()).intValue();
+			else if (name.equals("CreateNewLocators"))
+				p_CreateNewLocators =  "Y".equals(para[i].getParameter());
 			else
 				log.log(Level.SEVERE, "Unknown Parameter: " + name);
 		}
@@ -141,10 +146,9 @@ public class ImportInventory extends SvrProcess
 			log.fine("Delete Old Imported=" + no);
 		}
 
-		//	Set Client, Org, Location, IsActive, Created/Updated
+		//	Set Client, IsActive, Created/Updated
 		sql = new StringBuffer ("UPDATE I_Inventory "
-			  + "SET AD_Client_ID = COALESCE (AD_Client_ID,").append (p_AD_Client_ID).append ("),"
-			  + " AD_Org_ID = COALESCE (AD_Org_ID,").append (p_AD_Org_ID).append ("),");
+			  + "SET AD_Client_ID = COALESCE (AD_Client_ID,").append (p_AD_Client_ID).append ("),");
 		if (p_MovementDate != null)
 			sql.append(" MovementDate = COALESCE (MovementDate,").append (DB.TO_DATE(p_MovementDate)).append ("),");
 		sql.append(" IsActive = COALESCE (IsActive, 'Y'),"
@@ -159,50 +163,132 @@ public class ImportInventory extends SvrProcess
 		no = DB.executeUpdate (sql.toString (), get_TrxName());
 		log.info ("Reset=" + no);
 
-		sql = new StringBuffer ("UPDATE I_Inventory o "
-			+ "SET I_IsImported='E', I_ErrorMsg=I_ErrorMsg||'ERR=Invalid Org, '"
-			+ "WHERE (AD_Org_ID IS NULL OR AD_Org_ID=0"
-			+ " OR EXISTS (SELECT * FROM AD_Org oo WHERE o.AD_Org_ID=oo.AD_Org_ID AND (oo.IsSummary='Y' OR oo.IsActive='N')))"
-			+ " AND I_IsImported<>'Y'").append (clientCheck);
-		no = DB.executeUpdate (sql.toString (), get_TrxName());
-		if (no != 0)
-			log.warning ("Invalid Org=" + no);
-
-
-		//	Location
+		//  IDs, if provided, override values
+		//  As a minimum, need a warehouse with matching locator
+		//  a product and count
+		//
+		//  Locator value overrides area, x, y, z
+		//	Locator overrides warehouse
+		//	If locator is not defined, a warehouse is required
+		//	Warehouse and area, if defined, should be consistent
+		//
+		//  Can the locator be identified based on the locator value?
 		sql = new StringBuffer ("UPDATE I_Inventory i "
 			+ "SET M_Locator_ID=(SELECT MAX(M_Locator_ID) FROM M_Locator l"
-			+ " WHERE i.LocatorValue=l.Value AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ " WHERE i.LocatorValue=l.Value AND i.AD_Client_ID=l.AD_Client_ID"
+			+ " AND l.M_Locator_ID IS NOT NULL) "
 			+ "WHERE M_Locator_ID IS NULL AND LocatorValue IS NOT NULL"
 			+ " AND I_IsImported<>'Y'").append (clientCheck);
 		no = DB.executeUpdate (sql.toString (), get_TrxName());
 		log.fine("Set Locator from Value =" + no);
+		//
+		//	Set M_Warehouse_ID
+		//  Based on locator, if it is defined
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+				+ "SET M_Warehouse_ID=(SELECT M_Warehouse_ID FROM M_Locator l" 
+				+ " WHERE i.M_Locator_ID=l.M_Locator_ID AND i.AD_Client_ID=l.AD_Client_ID) "
+				+ "WHERE COALESCE(M_Warehouse_ID,0) = 0 AND COALESCE(M_Locator_ID,0) != 0"
+				+ " AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Warehouse from Locator =" + no);
+		//
+		//  Based on Warehouse value if locator is not defined
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+			+ "SET M_Warehouse_ID=(SELECT M_Warehouse_ID FROM M_Warehouse l WHERE i.WarehouseValue=l.Value"
+			+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ "WHERE COALESCE(M_Warehouse_ID,0) = 0 "
+			+ "AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Warehouse based on value =" + no);
+		//
+		//	Set WM_Area_ID
+		//  Based on locator, if it is defined
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+			+ "SET WM_Area_ID=(SELECT WM_Area_ID FROM M_Locator l WHERE i.M_Locator_ID=l.M_Locator_ID"
+			+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ "WHERE COALESCE(WM_Area_ID,0) = 0 AND M_Locator_ID IS NOT NULL "
+			+ "AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Area from Locator =" + no);
+		//
+		//  Based on Area value and warehouse, if it is defined
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+				+ "SET WM_Area_ID=(SELECT MAX(WM_Area_ID) FROM WM_Area l WHERE i.WMAreaValue=l.Value"
+				+ " AND l.M_Warehouse_ID = i.M_Warehouse_ID"
+				+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+				+ "WHERE COALESCE(WM_Area_ID,0) = 0 "
+				+ "AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Area from Locator =" + no);
+		//
+		//  Set warehouse based on Area
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+			+ "SET M_Warehouse_ID=(SELECT M_Warehouse_ID FROM WM_Area l WHERE i.M_Warehouse_ID=l.M_Warehouse_ID"
+			+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ "WHERE COALESCE(M_Warehouse_ID,0) = 0 "
+			+ "AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Warehouse based on area =" + no);
+		//
+		//  Set the locator based on the elements of the location
 		sql = new StringBuffer ("UPDATE I_Inventory i "
 			+ "SET M_Locator_ID=(SELECT MAX(M_Locator_ID) FROM M_Locator l"
-			+ " WHERE i.X=l.X AND i.Y=l.Y AND i.Z=l.Z AND i.AD_Client_ID=l.AD_Client_ID) "
-			+ "WHERE M_Locator_ID IS NULL AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
+			+ " WHERE i.M_Warehouse_ID = l.M_Warehouse_ID AND COALESCE(i.WM_Area_ID,0) = l.WM_Area_ID"
+			+ " AND i.X=l.X AND i.Y=l.Y AND i.Z=l.Z"
+			+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ "WHERE M_Locator_ID IS NULL"
+			+ " AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
+			+ " AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.fine("Set Locator from warehouse, area and X,Y,Z =" + no);
+		//
+		//  Set the locator based on the elements of the location elements not related to warehouse
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+			+ "SET M_Locator_ID=(SELECT MAX(M_Locator_ID) FROM M_Locator l"
+			+ " WHERE COALESCE(i.WM_Area_ID,0) = l.WM_Area_ID"
+			+ " AND i.X=l.X AND i.Y=l.Y AND i.Z=l.Z"
+			+ " AND i.AD_Client_ID=l.AD_Client_ID) "
+			+ "WHERE M_Locator_ID IS NULL"
+			+ " AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
 			+ " AND I_IsImported<>'Y'").append (clientCheck);
 		no = DB.executeUpdate (sql.toString (), get_TrxName());
 		log.fine("Set Locator from X,Y,Z =" + no);
-		if (p_M_Locator_ID != 0)
-		{
-			sql = new StringBuffer ("UPDATE I_Inventory "
-				+ "SET M_Locator_ID = ").append (p_M_Locator_ID).append (
-				" WHERE M_Locator_ID IS NULL"
-				+ " AND I_IsImported<>'Y'").append (clientCheck);
-			no = DB.executeUpdate (sql.toString (), get_TrxName());
-			log.fine("Set Locator from Parameter=" + no);
+		//
+		if (!p_CreateNewLocators) { // Use the defaults
+			// Use the default from the process - may set the warehouse
+			if (p_M_Locator_ID != 0)
+			{
+				sql = new StringBuffer ("UPDATE I_Inventory "
+					+ "SET M_Locator_ID = ").append (p_M_Locator_ID).append (
+					" WHERE M_Locator_ID IS NULL"
+					+ " AND I_IsImported<>'Y'").append (clientCheck);
+				no = DB.executeUpdate (sql.toString (), get_TrxName());
+				log.fine("Set Locator from Parameter=" + no);
+			}
+			// Use the default locator for that warehouse
+			sql = new StringBuffer ("UPDATE I_Inventory i "
+					+ "SET M_Locator_ID=(SELECT MAX(M_Locator_ID) FROM M_Locator l"
+					+ " WHERE i.M_Warehouse_ID = l.M_Warehouse_ID"
+					+ " AND l.IsDefault = 'Y') "
+					+ "WHERE M_Locator_ID IS NULL"
+					+ " AND I_IsImported<>'Y'").append (clientCheck);
+				no = DB.executeUpdate (sql.toString (), get_TrxName());
+				log.fine("Set Locator from default for warehouse =" + no);
+			//
+			if (!p_CreateNewLocators) {
+				sql = new StringBuffer ("UPDATE I_Inventory "
+					+ "SET I_IsImported='E', I_ErrorMsg=I_ErrorMsg||'ERR=No Location, ' "
+					+ "WHERE M_Locator_ID IS NULL"
+					+ " AND I_IsImported<>'Y'").append (clientCheck);
+				no = DB.executeUpdate (sql.toString (), get_TrxName());
+				if (no != 0)
+					log.warning ("No Location=" + no);
+			}
 		}
-		sql = new StringBuffer ("UPDATE I_Inventory "
-			+ "SET I_IsImported='E', I_ErrorMsg=I_ErrorMsg||'ERR=No Location, ' "
-			+ "WHERE M_Locator_ID IS NULL"
-			+ " AND I_IsImported<>'Y'").append (clientCheck);
-		no = DB.executeUpdate (sql.toString (), get_TrxName());
-		if (no != 0)
-			log.warning ("No Location=" + no);
+		// else assume that there is enough data to define a locator
 
 
-		//	Set M_Warehouse_ID
+		//	Set M_Warehouse_ID based on the locators - catch any that were missed
 		sql = new StringBuffer ("UPDATE I_Inventory i "
 			+ "SET M_Warehouse_ID=(SELECT M_Warehouse_ID FROM M_Locator l WHERE i.M_Locator_ID=l.M_Locator_ID) "
 			+ "WHERE M_Locator_ID IS NOT NULL"
@@ -216,6 +302,24 @@ public class ImportInventory extends SvrProcess
 		no = DB.executeUpdate (sql.toString (), get_TrxName());
 		if (no != 0)
 			log.warning ("No Warehouse=" + no);
+
+		//	Set org based on warehouse
+		sql = new StringBuffer ("UPDATE I_Inventory i "
+			  + "SET AD_Org_ID = (SELECT AD_ORG_ID FROM M_Warehouse_ID w WHERE w.M_Warehouse_ID = i.M_Warehouse_ID"
+			  + " AND w.IsActive = 'Y' AND w.AD_Client_ID = i.AD_Client_ID) "
+			  + "WHERE M_Warehouse_ID IS NOT NULL "
+			  + "AND I_IsImported<>'Y'").append (clientCheck);
+		no = DB.executeUpdate (sql.toString (), get_TrxName());
+		log.info ("Organizations set to match the warehouse=" + no);
+
+		sql = new StringBuffer ("UPDATE I_Inventory o "
+				+ "SET I_IsImported='E', I_ErrorMsg=I_ErrorMsg||'ERR=Invalid Org, '"
+				+ "WHERE (AD_Org_ID IS NULL OR AD_Org_ID=0"
+				+ " OR EXISTS (SELECT * FROM AD_Org oo WHERE o.AD_Org_ID=oo.AD_Org_ID AND (oo.IsSummary='Y' OR oo.IsActive='N')))"
+				+ " AND I_IsImported<>'Y'").append (clientCheck);
+			no = DB.executeUpdate (sql.toString (), get_TrxName());
+			if (no != 0)
+				log.warning ("Invalid Org=" + no);
 
 
 		//	Product
@@ -296,6 +400,14 @@ public class ImportInventory extends SvrProcess
 				}
 
 				//	Line
+				if (imp.getM_Locator_ID() == 0 && p_CreateNewLocators){
+					MLocator loc = MLocator.get(getCtx(), 
+							imp.getM_Warehouse_ID(), 
+							imp.getWM_Area_ID(), "",
+							imp.getX(), imp.getY(), imp.getZ());
+					imp.setM_Locator_ID(loc.getM_Locator_ID());
+					imp.saveEx();
+				}
 				int M_AttributeSetInstance_ID = 0;
 				if (imp.getLot() != null || imp.getSerNo() != null)
 				{
