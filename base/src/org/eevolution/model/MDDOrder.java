@@ -830,7 +830,18 @@ public class MDDOrder extends X_DD_Order implements DocAction
 			m_processMsg = "@LinesWithoutProductAttribute@ (" + no + ")";
 			return DocAction.STATUS_Invalid;
 		}
-		
+
+		// Reduce the qty ordered to match the qty confirmed.  Otherwise the reservations
+		// would match the qty ordered and this would never be fulfilled if the qty confirmed 
+		// was less.  Then the qty reserved in MStorage would not be accurate until the order was
+		// closed.
+		for (int i = 0; i < lines.length; i++) 
+		{
+			MDDOrderLine line = lines[i];
+			line.setQtyOrdered(line.getConfirmedQty());
+			line.saveEx();
+		}
+
 		reserveStock(lines);
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);

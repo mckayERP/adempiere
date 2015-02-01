@@ -285,7 +285,7 @@ public class LiberoValidator implements ModelValidator
 				   if(warehouse.isInTransit())
 				   {
 					   oline.setQtyInTransit(oline.getQtyInTransit().add(line.getMovementQty()));
-					   oline.setConfirmedQty(Env.ZERO);
+					   oline.setConfirmedQty(oline.getConfirmedQty().subtract(line.getMovementQty()));
 				   }
 				   else
 				   {
