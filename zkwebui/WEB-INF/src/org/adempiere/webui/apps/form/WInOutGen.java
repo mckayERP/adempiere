@@ -114,7 +114,7 @@ public class WInOutGen extends InOutGen implements IFormController, EventListene
 		row.appendChild(lDocAction.rightAlign());
 		row.appendChild(docAction.getComponent());
 		row.appendChild(new Space());
-	}	//	jbInit
+	}	//	jkInit
 
 	/**
 	 *	Fill Picks.
