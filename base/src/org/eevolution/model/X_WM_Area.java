@@ -19,11 +19,7 @@ package org.eevolution.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
-
-import org.compiere.model.I_Persistent;
-import org.compiere.model.MTable;
-import org.compiere.model.PO;
-import org.compiere.model.POInfo;
+import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Model for WM_Area
@@ -35,7 +31,7 @@ public class X_WM_Area extends PO implements I_WM_Area, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150105L;
+	private static final long serialVersionUID = 20150223L;
 
     /** Standard Constructor */
     public X_WM_Area (Properties ctx, int WM_Area_ID, String trxName)
@@ -147,23 +143,6 @@ public class X_WM_Area extends PO implements I_WM_Area, I_Persistent
     {
         return new KeyNamePair(get_ID(), getName());
     }
-
-	/** Set Search Key.
-		@param Value 
-		Search key for the record in the format required - must be unique
-	  */
-	public void setValue (String Value)
-	{
-		set_Value (COLUMNNAME_Value, Value);
-	}
-
-	/** Get Search Key.
-		@return Search key for the record in the format required - must be unique
-	  */
-	public String getValue () 
-	{
-		return (String)get_Value(COLUMNNAME_Value);
-	}
 
 	/** Set Warehouse Area.
 		@param WM_Area_ID 

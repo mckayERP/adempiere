@@ -33,7 +33,7 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150107L;
+	private static final long serialVersionUID = 20150223L;
 
     /** Standard Constructor */
     public X_I_Inventory (Properties ctx, int I_Inventory_ID, String trxName)
@@ -217,34 +217,6 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 		return (String)get_Value(COLUMNNAME_Lot);
 	}
 
-	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Inventory)MTable.get(getCtx(), org.compiere.model.I_M_Inventory.Table_Name)
-			.getPO(getM_Inventory_ID(), get_TrxName());	}
-
-	/** Set Phys.Inventory.
-		@param M_Inventory_ID 
-		Parameters for a Physical Inventory
-	  */
-	public void setM_Inventory_ID (int M_Inventory_ID)
-	{
-		if (M_Inventory_ID < 1) 
-			set_Value (COLUMNNAME_M_Inventory_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_Inventory_ID, Integer.valueOf(M_Inventory_ID));
-	}
-
-	/** Get Phys.Inventory.
-		@return Parameters for a Physical Inventory
-	  */
-	public int getM_Inventory_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_Inventory_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException
     {
 		return (org.compiere.model.I_M_InventoryLine)MTable.get(getCtx(), org.compiere.model.I_M_InventoryLine.Table_Name)
@@ -268,6 +240,34 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	public int getM_InventoryLine_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_InventoryLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Inventory)MTable.get(getCtx(), org.compiere.model.I_M_Inventory.Table_Name)
+			.getPO(getM_Inventory_ID(), get_TrxName());	}
+
+	/** Set Phys.Inventory.
+		@param M_Inventory_ID 
+		Parameters for a Physical Inventory
+	  */
+	public void setM_Inventory_ID (int M_Inventory_ID)
+	{
+		if (M_Inventory_ID < 1) 
+			set_Value (COLUMNNAME_M_Inventory_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Inventory_ID, Integer.valueOf(M_Inventory_ID));
+	}
+
+	/** Get Phys.Inventory.
+		@return Parameters for a Physical Inventory
+	  */
+	public int getM_Inventory_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Inventory_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -525,51 +525,6 @@ public class X_I_Inventory extends PO implements I_I_Inventory, I_Persistent
 	public String getWarehouseValue () 
 	{
 		return (String)get_Value(COLUMNNAME_WarehouseValue);
-	}
-
-	public org.eevolution.model.I_WM_Area getWM_Area() throws RuntimeException
-    {
-		return (org.eevolution.model.I_WM_Area)MTable.get(getCtx(), org.eevolution.model.I_WM_Area.Table_Name)
-			.getPO(getWM_Area_ID(), get_TrxName());	}
-
-	/** Set Warehouse Area.
-		@param WM_Area_ID 
-		Warehouse Area allow grouping the Warehouse Section
-	  */
-	public void setWM_Area_ID (int WM_Area_ID)
-	{
-		if (WM_Area_ID < 1) 
-			set_Value (COLUMNNAME_WM_Area_ID, null);
-		else 
-			set_Value (COLUMNNAME_WM_Area_ID, Integer.valueOf(WM_Area_ID));
-	}
-
-	/** Get Warehouse Area.
-		@return Warehouse Area allow grouping the Warehouse Section
-	  */
-	public int getWM_Area_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_WM_Area_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Warehouse Area Value.
-		@param WMAreaValue 
-		The value or search key of the warehouse area.
-	  */
-	public void setWMAreaValue (String WMAreaValue)
-	{
-		set_Value (COLUMNNAME_WMAreaValue, WMAreaValue);
-	}
-
-	/** Get Warehouse Area Value.
-		@return The value or search key of the warehouse area.
-	  */
-	public String getWMAreaValue () 
-	{
-		return (String)get_Value(COLUMNNAME_WMAreaValue);
 	}
 
 	/** Set Aisle (X).
