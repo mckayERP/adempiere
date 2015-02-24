@@ -28,6 +28,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.apps.IStatusBar;
 import org.compiere.apps.form.FormFrame;
 import org.compiere.apps.form.GenForm;
+import org.compiere.minigrid.ColumnInfo;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.minigrid.MiniTable;
@@ -40,6 +41,7 @@ import org.compiere.process.ProcessInfo;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.MDDOrder;
@@ -57,6 +59,7 @@ public class OrderDistributionReceipt extends GenForm
 	public FormFrame 		m_frame;
 	public Object 			m_DD_Order_ID = null;
 	public Object 			m_MovementDate = null;
+	private String m_sql;
 
 	/**	Logger			*/
 	private static CLogger log = CLogger.getCLogger(OrderDistributionReceipt.class);
@@ -69,58 +72,37 @@ public class OrderDistributionReceipt extends GenForm
 		setAskPrintMsg("PrintMovements");
 	}
 	
-	public void configureMiniTable(IMiniTable miniTable)
-	{
-		//  create Columns
-		miniTable.addColumn("DD_Order_ID");
-		miniTable.addColumn("QtyInTransit");
-		miniTable.addColumn("C_UOM_ID");
-		miniTable.addColumn("Value");
-		miniTable.addColumn("M_Product_ID");
-		miniTable.addColumn("M_WarehouseSource_ID");
-		miniTable.setMultiSelection(true);
-		//  set details
-		miniTable.setColumnClass(0, IDColumn.class, false, " ");
-		miniTable.setColumnClass(1, BigDecimal.class, false, Msg.translate(Env.getCtx(), "QtyInTransit")); //Qty
-		miniTable.setColumnClass(2, String.class, true, Msg.translate(Env.getCtx(), "C_UOM_ID")); //UM 
-		miniTable.setColumnClass(3, String.class, true, Msg.translate(Env.getCtx(), "M_Product_ID")); // Product 
-		miniTable.setColumnClass(4, String.class, true, Msg.translate(Env.getCtx(), "Value")); // Line
-		miniTable.setColumnClass(5, String.class, true, Msg.translate(Env.getCtx(), "WarehouseSource"));
-		miniTable.autoSize();
-	}	//	dynInit
+//	public void configureMiniTable(IMiniTable miniTable)
+//	{
+//		//  create Columns
+//		miniTable.addColumn("DD_Order_ID");
+//		miniTable.addColumn("QtyInTransit");
+//		miniTable.addColumn("C_UOM_ID");
+//		miniTable.addColumn("Value");
+//		miniTable.addColumn("M_Product_ID");
+//		miniTable.addColumn("M_WarehouseSource_ID");
+//		miniTable.setMultiSelection(true);
+//		//  set details
+//		miniTable.setColumnClass(0, IDColumn.class, false, " ");
+//		miniTable.setColumnClass(1, BigDecimal.class, false, Msg.translate(Env.getCtx(), "QtyInTransit")); //Qty
+//		miniTable.setColumnClass(2, String.class, true, Msg.translate(Env.getCtx(), "C_UOM_ID")); //UM 
+//		miniTable.setColumnClass(3, String.class, true, Msg.translate(Env.getCtx(), "M_Product_ID")); // Product 
+//		miniTable.setColumnClass(4, String.class, true, Msg.translate(Env.getCtx(), "Value")); // Line
+//		miniTable.setColumnClass(5, String.class, true, Msg.translate(Env.getCtx(), "WarehouseSource"));
+//		miniTable.autoSize();
+//	}	//	dynInit
 
-	/**
-	 * Get SQL for Orders that needs to be shipped
-	 * @return sql
-	 */
-	private String getOrderSQL()
-	{
-		// Create SQL
-        StringBuffer sql = new StringBuffer(
-            "SELECT ol.DD_OrderLine_ID, ol.QtyInTransit , uom.Name , p.Value ,p.Name  , w.Name "
-            + "FROM DD_OrderLine ol INNER JOIN DD_Order o ON (o.DD_Order_ID=ol.DD_Order_ID) INNER JOIN M_Product p ON (p.M_Product_ID=ol.M_Product_ID) "
-            + " INNER JOIN C_UOM uom  ON (uom.C_UOM_ID=ol.C_UOM_ID)"
-            + " INNER JOIN M_Locator  l ON (l.M_Locator_ID = ol.M_Locator_ID)"
-            + " INNER JOIN M_Warehouse  w ON (w.M_Warehouse_ID = l.M_Warehouse_ID)"  
-            + " WHERE o.DocStatus= 'CO' AND  ol.QtyInTransit > 0  AND  o.DD_Order_ID = ? ");
-        
-        return sql.toString();
-	}
-
-	/**
+	/*
 	 *  Query Info
 	 */
 	public void executeQuery(IMiniTable miniTable)
 	{
 		log.info("");	
-		String sql = "";
 		
-		if (m_DD_Order_ID == null)
+		if (m_DD_Order_ID == null || m_sql == null)
 			return;
 		
-		    sql = getOrderSQL();
-
-		log.fine(sql);
+		log.fine(m_sql);
 		//  reset table
 		int row = 0;
 		miniTable.setRowCount(row);
@@ -128,33 +110,19 @@ public class OrderDistributionReceipt extends GenForm
 		//  Execute
 		try
 		{
-			PreparedStatement pstmt = DB.prepareStatement(sql.toString(), null);
+			PreparedStatement pstmt = DB.prepareStatement(m_sql.toString(), null);
 			pstmt.setInt(1, Integer.parseInt(m_DD_Order_ID.toString()));
 			ResultSet rs = pstmt.executeQuery();
-			//
-			while (rs.next())
-			{
-				//  extend table
-				miniTable.setRowCount(row+1);
-				//  set values
-				miniTable.setValueAt(new IDColumn(rs.getInt(1)), row, 0);   //  DD_Order_ID
-				miniTable.setValueAt(rs.getBigDecimal(2), row, 1);          //  QtyInTransit
-				miniTable.setValueAt(rs.getString(3), row, 2);              //  C_UOM_ID
-				miniTable.setValueAt(rs.getString(4), row, 4);              //  Value
-				miniTable.setValueAt(rs.getString(5), row, 3);              //  M_Product_ID
-				miniTable.setValueAt(rs.getString(6), row, 5);           	//  WarehouseSource
-				//  prepare next
-				row++;
-			}
+			miniTable.loadTable(rs);
 			rs.close();
 			pstmt.close();
 		}
 		catch (SQLException e)
 		{
-			log.log(Level.SEVERE, sql.toString(), e);
+			log.log(Level.SEVERE, m_sql.toString(), e);
 		}
 		//
-		miniTable.autoSize();
+		//miniTable.autoSize();
 	}   //  executeQuery
 
 	/**
@@ -167,6 +135,32 @@ public class OrderDistributionReceipt extends GenForm
 		m_frame = null;
 	}	//	dispose
 
+	public void configureMiniTable(IMiniTable miniTable)
+	{
+		Properties ctx = Env.getCtx();
+		
+		m_sql = miniTable.prepareTable(new ColumnInfo[] {
+				//  0..5
+				new ColumnInfo(" ", "ol.DD_OrderLine_ID", IDColumn.class, true, false, null),
+				new ColumnInfo(Msg.translate(ctx, "QtyInTransit"), "ol.QtyInTransit", BigDecimal.class, true, true, null),
+				new ColumnInfo(Msg.translate(ctx, "C_UOM_ID"), "uom.name", String.class, true, false, "C_UOM_ID"),
+				new ColumnInfo(Msg.translate(ctx, "M_Product_ID"), "p.name", String.class, true, false, "M_Product_ID"),
+				new ColumnInfo(Msg.getMsg(ctx, "Value"), "p.value", String.class, true, false, "Value"),
+				new ColumnInfo(Msg.translate(ctx, "WarehouseSource"), "w.name", String.class, true, false, "M_WarehouseSource_ID"),
+				},
+				//	FROM
+	            "SELECT ol.DD_OrderLine_ID, ol.QtyInTransit , uom.Name , p.Value ,p.Name  , w.Name "
+	            + "FROM DD_OrderLine ol INNER JOIN DD_Order o ON (o.DD_Order_ID=ol.DD_Order_ID) INNER JOIN M_Product p ON (p.M_Product_ID=ol.M_Product_ID) "
+	            + " INNER JOIN C_UOM uom  ON (uom.C_UOM_ID=ol.C_UOM_ID)"
+	            + " INNER JOIN M_Locator  l ON (l.M_Locator_ID = ol.M_Locator_ID)"
+	            + " INNER JOIN M_Warehouse  w ON (w.M_Warehouse_ID = l.M_Warehouse_ID)",  
+				//	WHERE
+	            "o.DocStatus= 'CO' AND  ol.QtyInTransit > 0  AND  o.DD_Order_ID = ? ",
+				true, "ol");//		miniTable.setMultiSelection(true);
+		miniTable.autoSize();
+		miniTable.setMultiSelection(true);	
+	}
+	
 	/**
 	 *	Save Selection & return selecion Query or ""
 	 *  @return where clause like C_Order_ID IN (...)

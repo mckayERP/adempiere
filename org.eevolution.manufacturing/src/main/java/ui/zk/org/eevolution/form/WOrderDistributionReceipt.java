@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.VetoableChangeListener;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,16 +41,34 @@ import javax.swing.event.TableModelListener;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.plaf.AdempierePLAF;
+import org.adempiere.webui.apps.form.WGenForm;
+import org.adempiere.webui.component.Button;
+import org.adempiere.webui.component.ConfirmPanel;
+import org.adempiere.webui.component.Grid;
+import org.adempiere.webui.component.GridFactory;
+import org.adempiere.webui.component.Label;
+import org.adempiere.webui.component.ListboxFactory;
+import org.adempiere.webui.component.Panel;
+import org.adempiere.webui.component.Row;
+import org.adempiere.webui.component.Rows;
+import org.adempiere.webui.component.Tabbox;
+import org.adempiere.webui.component.Textbox;
+import org.adempiere.webui.component.WListbox;
+import org.adempiere.webui.editor.WDateEditor;
+import org.adempiere.webui.editor.WSearchEditor;
+import org.adempiere.webui.event.ValueChangeEvent;
+import org.adempiere.webui.event.ValueChangeListener;
+import org.adempiere.webui.event.WTableModelEvent;
+import org.adempiere.webui.event.WTableModelListener;
+import org.adempiere.webui.panel.ADForm;
+import org.adempiere.webui.panel.CustomForm;
+import org.adempiere.webui.panel.IFormController;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.ADialogDialog;
-import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.StatusBar;
 import org.compiere.apps.form.FormFrame;
 import org.compiere.apps.form.FormPanel;
-import org.compiere.grid.ed.VDate;
-import org.compiere.grid.ed.VLookup;
 import org.compiere.minigrid.IDColumn;
-import org.compiere.minigrid.IMiniTable;
 import org.compiere.minigrid.MiniTable;
 import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
@@ -58,15 +77,12 @@ import org.compiere.model.MLookupFactory;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.MQuery;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.PrintInfo;
 import org.compiere.plaf.CompiereColor;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.print.Viewer;
-import org.compiere.swing.CLabel;
-import org.compiere.swing.CPanel;
-import org.compiere.swing.CTabbedPane;
-import org.compiere.swing.CTextPane;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -76,6 +92,15 @@ import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zkex.zul.Borderlayout;
+import org.zkoss.zkex.zul.Center;
+import org.zkoss.zkex.zul.North;
+import org.zkoss.zkex.zul.South;
+import org.zkoss.zul.Separator;
+import org.zkoss.zul.Space;
 
 /**
  *	Create Movement for Material Receipt from Distribution Order
@@ -83,34 +108,38 @@ import org.eevolution.model.MDDOrderLine;
  *  @author victor.perez@www.e-evolution.com 
  *  @version $Id: VOrderDistributionReceipt,v 1.0 
  */
-public class VOrderDistributionReceipt extends OrderDistributionReceipt
-	implements FormPanel, ActionListener, VetoableChangeListener, 
-		ChangeListener, TableModelListener
+public class WOrderDistributionReceipt extends OrderDistributionReceipt
+	implements IFormController, EventListener, ValueChangeListener,
+	Serializable,WTableModelListener  
 {
+	
 	/**
 	 *	Initialize Panel
-	 *  @param WindowNo window
-	 *  @param frame frame
 	 */
-	public void init (int WindowNo, FormFrame frame)
+	public void WOrderDistributionReceipt ()
 	{
+		
 		log.info("");
-		m_WindowNo = WindowNo;
-		m_frame = frame;
-		Env.setContext(Env.getCtx(), m_WindowNo, "IsSOTrx", "Y");
+		
+		form = new WGenForm(this);
+		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "Y");
+		
 		try
 		{
-			fillPicks();
-			jbInit();
+			super.dynInit();
 			dynInit();
-			frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-			frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
+			zkInit();
+			
+			form.postQueryEvent();
 		}
 		catch(Exception ex)
 		{
 			log.log(Level.SEVERE, "init", ex);
 		}
 	}	//	init
+	
+
+	private WGenForm form;
 
 	/**	Window No			*/
 	private int         	m_WindowNo = 0;
@@ -122,31 +151,39 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	private Object 			m_MovementDate = null;
 
 	/**	Logger			*/
-	private static CLogger log = CLogger.getCLogger(WOrderDistributionReceipt.class);
+	private static CLogger log = CLogger.getCLogger(VOrderDistributionReceipt.class);
 	//
-	private CTabbedPane tabbedPane = new CTabbedPane();
-	private CPanel selPanel = new CPanel();
-	private CPanel selNorthPanel = new CPanel();
-	private BorderLayout selPanelLayout = new BorderLayout();
-	private CLabel lOrder = new CLabel();
-	private VLookup fOrder;
-	private VDate fMovementDate = new VDate("MovementDate", true, false, true, DisplayType.Date, "MovementDate");
-	private CLabel lMovementDate = new CLabel(Msg.translate(Env.getCtx(),"MovementDate"));
+	private Panel mainPanel = new Panel();
+	private Borderlayout mainLayout = new Borderlayout();
+	private Panel parameterPanel = new Panel();
+	private Grid parameterLayout = GridFactory.newGridLayout();
+
+	private Borderlayout selPanelLayout = new Borderlayout();
+	//
+	private Label lOrder = new Label();
+	private Label lMovementDate = new Label(Msg.translate(Env.getCtx(),"MovementDate"));
+	
+	private WSearchEditor fOrder;
+	private WDateEditor fMovementDate = new WDateEditor("MovementDate", true, false, true, "MovementDate");
 	private FlowLayout northPanelLayout = new FlowLayout();
-	private ConfirmPanel confirmPanelSel = new ConfirmPanel(true);
-	private ConfirmPanel confirmPanelGen = new ConfirmPanel(false, true, false, false, false, false, true);
 	private StatusBar statusBar = new StatusBar();
-	private CPanel genPanel = new CPanel();
+	private Panel selPanel = new Panel();
+	private Panel genPanel = new Panel();
+	private Panel southPanel = new Panel();
 	private BorderLayout genLayout = new BorderLayout();
-	private CTextPane info = new CTextPane();
-	private JScrollPane scrollPane = new JScrollPane();
-	private MiniTable miniTable = new MiniTable();
+	private Textbox info = new Textbox();
+	private Label dataStatus = new Label();
+	private WListbox miniTable;
+	private ConfirmPanel commandPanel = new ConfirmPanel(true, false, false, false, false, false, false);
+	private Button bCancel = commandPanel.getButton(ConfirmPanel.A_CANCEL);
+	private Button bGenerate = commandPanel.createButton(ConfirmPanel.A_PROCESS);
+	private Button bRefresh = commandPanel.createButton(ConfirmPanel.A_REFRESH);
 
 	/** User selection */
 	private ArrayList<Integer> selection = null;
 	
 	/**
-	 *	Static Init.
+	 *	Static Initialization of te ZK interface.
 	 *  <pre>
 	 *  selPanel (tabbed)
 	 *      fOrg, fBPartner
@@ -156,54 +193,51 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	 *  </pre>
 	 *  @throws Exception
 	 */
-	void jbInit() throws Exception
+	void zkInit() throws Exception
 	{
-//		CompiereColor.setBackground(this);
 		//
-		selPanel.setLayout(selPanelLayout);
-		lOrder.setLabelFor(fOrder);
-
-		selNorthPanel.setLayout(northPanelLayout);
-		northPanelLayout.setAlignment(FlowLayout.LEFT);
-		tabbedPane.add(selPanel, Msg.getMsg(Env.getCtx(), "Select"));
-		selPanel.add(selNorthPanel, BorderLayout.NORTH);
-		selNorthPanel.add(lOrder, null);
-		selNorthPanel.add(fOrder, null);
-		selNorthPanel.add(lMovementDate, null);
-		selNorthPanel.add(fMovementDate, null);
-		selPanel.setName("selPanel");
-		selPanel.add(confirmPanelSel, BorderLayout.SOUTH);
-		selPanel.add(scrollPane, BorderLayout.CENTER);
-		scrollPane.getViewport().add(miniTable, null);
-		confirmPanelSel.addActionListener(this);
-		//
-		tabbedPane.add(genPanel, Msg.getMsg(Env.getCtx(), "Generate"));
-		genPanel.setLayout(genLayout);
-		genPanel.add(info, BorderLayout.CENTER);
-		genPanel.setEnabled(false);
-		info.setBackground(AdempierePLAF.getFieldBackground_Inactive());
-		info.setEditable(false);
-		genPanel.add(confirmPanelGen, BorderLayout.SOUTH);
-		confirmPanelGen.addActionListener(this);
-	}	//	jbInit
-
-	/**
-	 *	Fill Picks.
-	 *		Column_ID from C_Order
-	 *  @throws Exception if Lookups cannot be initialized
-	 */
-	private void fillPicks() throws Exception
-	{
-		Language language = Language.getLoginLanguage();
-		MLookup orderL = 	MLookupFactory.get(Env.getCtx(), m_WindowNo, MColumn.getColumn_ID(MDDOrder.Table_Name,MDDOrder.COLUMNNAME_DD_Order_ID) , DisplayType.Search , language , MDDOrder.COLUMNNAME_DD_Order_ID , 0 , false, "DocStatus='CO' AND IsInTransit='Y'");
-		fOrder = new VLookup (MDDOrder.COLUMNNAME_DD_Order_ID, true, false, true, orderL);
 		lOrder.setText(Msg.translate(Env.getCtx(), MDDOrder.COLUMNNAME_DD_Order_ID));
-		fOrder.addVetoableChangeListener(this);
+		fOrder = new WSearchEditor (MDDOrder.COLUMNNAME_DD_Order_ID, true, false, true, 
+				MLookupFactory.get(Env.getCtx(), m_WindowNo, 
+						MColumn.getColumn_ID(MDDOrder.Table_Name, MDDOrder.COLUMNNAME_DD_Order_ID), 
+						DisplayType.Search, Language.getLoginLanguage(), 
+						MDDOrder.COLUMNNAME_DD_Order_ID, 0, false, 
+						"DocStatus='CO' AND IsInTransit='Y'"));
+		fOrder.addValueChangeListener(this);
+		fOrder.getComponent().setAttribute("zk_component_ID", "Lookup_Criteria_DD_Order_ID");
+		fOrder.getComponent().setAttribute("zk_component_prefix", "Lookup_");
+		fOrder.getComponent().setAttribute("IsDynamic", "False");
+		fOrder.getComponent().setAttribute("fieldName", "fOrder");
+		fOrder.getComponent().setWidth("200px");		
+		//
+		lMovementDate.setText(Msg.translate(Env.getCtx(), "MovementDate"));
 		Timestamp today = new Timestamp (System.currentTimeMillis());
 		m_MovementDate = today;
-		fMovementDate.setValue(today);
-		fMovementDate.addVetoableChangeListener(this);
-	}	//	fillPicks
+		fMovementDate.setValue(m_MovementDate);
+		fMovementDate.addValueChangeListener(this);
+		fMovementDate.getComponent().setAttribute("zk_component_ID", "Lookup_Criteria_MovementDate");
+		fMovementDate.getComponent().setAttribute("zk_component_prefix", "Lookup_");
+		fMovementDate.getComponent().setAttribute("IsDynamic", "False");
+		fMovementDate.getComponent().setAttribute("fieldName", "fMovementDate");
+		fMovementDate.getComponent().setWidth("200px");
+		//
+		form.getStatusBar().setStatusLine(Msg.getMsg(Env.getCtx(), "OrderDistGenerateReceipt"));
+		//
+		Row row = form.getParameterPanel().newRows().newRow();
+		row.appendChild(lOrder.rightAlign());
+		row.appendChild(fOrder.getComponent());
+		row.appendChild(lMovementDate.rightAlign());
+		row.appendChild(fMovementDate.getComponent());
+		//
+		//
+		row = new Row();
+		form.getParameterPanel().getRows().appendChild(row);
+		row.appendChild(bRefresh);
+		row.appendChild(new Space());
+		row.appendChild(new Space());
+		row.appendChild(new Space());
+
+	}	//	zkInit
 
 	/**
 	 *	Dynamic Init.
@@ -212,34 +246,11 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	 */
 	public void dynInit()
 	{
-		configureMiniTable((IMiniTable) miniTable);
-		//  create Columns
-		miniTable.addColumn("DD_Order_ID");
-		miniTable.addColumn("QtyInTransit");
-		miniTable.addColumn("C_UOM_ID");
-		miniTable.addColumn("Value");
-		miniTable.addColumn("M_Product_ID");
-		miniTable.addColumn("M_WarehouseSource_ID");
-		//miniTable.addColumn("TotalLines");
-		//
-		miniTable.setMultiSelection(true);
-		miniTable.setRowSelectionAllowed(true);
-		//  set details
-		miniTable.setColumnClass(0, IDColumn.class, false, " ");
-		miniTable.setColumnClass(1, BigDecimal.class, false, Msg.translate(Env.getCtx(), "QtyInTransit")); //Qty
-		miniTable.setColumnClass(2, String.class, true, Msg.translate(Env.getCtx(), "C_UOM_ID")); //UM 
-		miniTable.setColumnClass(3, String.class, true, Msg.translate(Env.getCtx(), "M_Product_ID")); // Product 
-		miniTable.setColumnClass(4, String.class, true, Msg.translate(Env.getCtx(), "Value")); // Line
-		miniTable.setColumnClass(5, String.class, true, Msg.translate(Env.getCtx(), "WarehouseSource"));
-		//miniTable.setColumnClass(6, BigDecimal.class, true, Msg.translate(Env.getCtx(), "TotalLines"));
-		//
-		miniTable.autoSize();
+		miniTable = form.getMiniTable();
+		configureMiniTable(miniTable);		
 		miniTable.getModel().addTableModelListener(this);
-		//	Info
-		statusBar.setStatusLine(Msg.getMsg(Env.getCtx(), "InOutGenerateSel"));//@@
-		statusBar.setStatusDB(" ");
 		//	Tabbed Pane Listener
-		tabbedPane.addChangeListener(this);
+		//tabbedPane.addChangeListener(this);
 	}	//	dynInit
 
 	/**
@@ -265,51 +276,7 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	 */
 	public void executeQuery()
 	{
-		log.info("");	
-		String sql = "";
-		
-		if (m_DD_Order_ID == null)
-			return;
-		
-		    sql = getOrderSQL();
-
-		log.fine(sql);
-		//  reset table
-		int row = 0;
-		miniTable.setRowCount(row);
-			
-		//  Execute
-		try
-		{
-			PreparedStatement pstmt = DB.prepareStatement(sql.toString(), null);
-			pstmt.setInt(1, Integer.parseInt(m_DD_Order_ID.toString()));
-			ResultSet rs = pstmt.executeQuery();
-			//
-			while (rs.next())
-			{
-				//  extend table
-				miniTable.setRowCount(row+1);
-				//  set values
-				miniTable.setValueAt(new IDColumn(rs.getInt(1)), row, 0);   //  DD_Order_ID
-				miniTable.setValueAt(rs.getBigDecimal(2), row, 1);              //  QtyInTransit
-				miniTable.setValueAt(rs.getString(3), row, 2);              //  C_UOM_ID
-				miniTable.setValueAt(rs.getString(4), row, 4);              //  Value
-				miniTable.setValueAt(rs.getString(5), row, 3);              //  M_Product_ID
-				miniTable.setValueAt(rs.getString(6), row, 5);           	//  WarehouseSource
-				//miniTable.setValueAt(rs.getBigDecimal(7), row, 6);          //  QtyBackOrder
-				//  prepare next
-				row++;
-			}
-			rs.close();
-			pstmt.close();
-		}
-		catch (SQLException e)
-		{
-			log.log(Level.SEVERE, sql.toString(), e);
-		}
-		//
-		miniTable.autoSize();
-	//	statusBar.setStatusDB(String.valueOf(miniTable.getRowCount()));
+		executeQuery(miniTable);
 	}   //  executeQuery
 
 	/**
@@ -363,32 +330,6 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 		executeQuery();
 	}	//	vetoableChange
 
-	/**
-	 *	Change Listener (Tab changed)
-	 *  @param e event
-	 */
-	public void stateChanged (ChangeEvent e)
-	{
-		int index = tabbedPane.getSelectedIndex();
-		m_selectionActive = (index == 0);
-	}	//	stateChanged
-
-	/**
-	 *  Table Model Listener
-	 *  @param e event
-	 */
-	public void tableChanged(TableModelEvent e)
-	{
-		int rowsSelected = 0;
-		int rows = miniTable.getRowCount();
-		for (int i = 0; i < rows; i++)
-		{
-			IDColumn id = (IDColumn)miniTable.getValueAt(i, 0);     //  ID in column 0
-			if (id != null && id.isSelected())
-				rowsSelected++;
-		}
-		statusBar.setStatusDB(" " + rowsSelected + " ");
-	}   //  tableChanged
 
 	/**
 	 *	Save Selection & return selecion Query or ""
@@ -398,7 +339,7 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	{
 		log.info("");
 		//  ID selection may be pending
-		miniTable.editingStopped(new ChangeEvent(this));
+		//miniTable.editingStopped(new ChangeEvent(this));
 		//  Array of Integers
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		selection = null;
@@ -529,7 +470,7 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	private void generateMovements_complete (MMovement movement)
 	{
 		//  Switch Tabs
-		tabbedPane.setSelectedIndex(1);
+		//tabbedPane.setSelectedIndex(1);
 		StringBuffer iText = new StringBuffer();
 		iText.append("<b>").append("")
 			.append("</b><br>")
@@ -540,38 +481,62 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 		info.setText(iText.toString());
 
 
-		confirmPanelGen.getOKButton().setEnabled(false);
+		//confirmPanelGen.getOKButton().setEnabled(false);
 		//	OK to print shipments
-		if (ADialog.ask(m_WindowNo, this.m_frame, "PrintShipments"))
-		{
-			m_frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			int retValue = ADialogDialog.A_CANCEL;	//	see also ProcessDialog.printShipments/Invoices
-			do
-			{
-
-					 MPrintFormat format = MPrintFormat.get(Env.getCtx(), MPrintFormat.getPrintFormat_ID("Inventory Move Hdr (Example)", MMovement.Table_ID,  0), false);
-					 MQuery query = new MQuery(MMovement.Table_Name);
-					 query.addRestriction(MMovement.COLUMNNAME_M_Movement_ID, MQuery.EQUAL, movement.getM_Movement_ID());
-		                                
-					//	Engine
-		             PrintInfo info = new PrintInfo(MMovement.Table_Name,MMovement.Table_ID, movement.getM_Movement_ID());               
-		             ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
-		             re.print();
-                     new Viewer(re);
-
-				
-				ADialogDialog d = new ADialogDialog (m_frame,
-					Env.getHeader(Env.getCtx(), m_WindowNo),
-					Msg.getMsg(Env.getCtx(), "PrintoutOK?"),
-					JOptionPane.QUESTION_MESSAGE);
-				retValue = d.getReturnCode();
-			}
-			while (retValue == ADialogDialog.A_CANCEL);
-			m_frame.setCursor(Cursor.getDefaultCursor());
-		}	//	OK to print shipments
+		//if (ADialog.ask(m_WindowNo, this, "PrintShipments"))
+//		{
+//			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+//			int retValue = ADialogDialog.A_CANCEL;	//	see also ProcessDialog.printShipments/Invoices
+//			do
+//			{
+//
+//					 MPrintFormat format = MPrintFormat.get(Env.getCtx(), MPrintFormat.getPrintFormat_ID("Inventory Move Hdr (Example)", MMovement.Table_ID,  0), false);
+//					 MQuery query = new MQuery(MMovement.Table_Name);
+//					 query.addRestriction(MMovement.COLUMNNAME_M_Movement_ID, MQuery.EQUAL, movement.getM_Movement_ID());
+//		                                
+//					//	Engine
+//		             PrintInfo info = new PrintInfo(MMovement.Table_Name,MMovement.Table_ID, movement.getM_Movement_ID());               
+//		             ReportEngine re = new ReportEngine(Env.getCtx(), format, query, info);
+//		             re.print();
+//                     new Viewer(re);
+//
+//				
+//				ADialogDialog d = new ADialogDialog (m_frame,
+//					Env.getHeader(Env.getCtx(), m_WindowNo),
+//					Msg.getMsg(Env.getCtx(), "PrintoutOK?"),
+//					JOptionPane.QUESTION_MESSAGE);
+//				retValue = d.getReturnCode();
+//			}
+//			while (retValue == ADialogDialog.A_CANCEL);
+//			setCursor(Cursor.getDefaultCursor());
+//		}	//	OK to print shipments
 
 		//
-		confirmPanelGen.getOKButton().setEnabled(true);
+//		confirmPanelGen.getOKButton().setEnabled(true);
 	}   //  generateMovement_complete
+
+	@Override
+	public void tableChanged(WTableModelEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void valueChange(ValueChangeEvent evt) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ADForm getForm() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }	//	VOrderDistributionReceipt
