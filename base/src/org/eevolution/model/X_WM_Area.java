@@ -144,6 +144,23 @@ public class X_WM_Area extends PO implements I_WM_Area, I_Persistent
         return new KeyNamePair(get_ID(), getName());
     }
 
+	/** Set Search Key.
+		@param Value 
+		Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value)
+	{
+		set_Value (COLUMNNAME_Value, Value);
+	}
+
+	/** Get Search Key.
+		@return Search key for the record in the format required - must be unique
+	  */
+	public String getValue () 
+	{
+		return (String)get_Value(COLUMNNAME_Value);
+	}
+
 	/** Set Warehouse Area.
 		@param WM_Area_ID 
 		Warehouse Area allow grouping the Warehouse Section

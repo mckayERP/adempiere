@@ -198,6 +198,34 @@ public class X_M_Locator extends PO implements I_M_Locator, I_Persistent
         return new KeyNamePair(get_ID(), getValue());
     }
 
+	public org.eevolution.model.I_WM_Area getWM_Area() throws RuntimeException
+    {
+		return (org.eevolution.model.I_WM_Area)MTable.get(getCtx(), org.eevolution.model.I_WM_Area.Table_Name)
+			.getPO(getWM_Area_ID(), get_TrxName());	}
+
+	/** Set Warehouse Area.
+		@param WM_Area_ID 
+		Warehouse Area allow grouping the Warehouse Section
+	  */
+	public void setWM_Area_ID (int WM_Area_ID)
+	{
+		if (WM_Area_ID < 1) 
+			set_Value (COLUMNNAME_WM_Area_ID, null);
+		else 
+			set_Value (COLUMNNAME_WM_Area_ID, Integer.valueOf(WM_Area_ID));
+	}
+
+	/** Get Warehouse Area.
+		@return Warehouse Area allow grouping the Warehouse Section
+	  */
+	public int getWM_Area_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_WM_Area_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Aisle (X).
 		@param X 
 		X dimension, e.g., Aisle
