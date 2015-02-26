@@ -59,7 +59,6 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.MQuery;
 import org.compiere.model.PrintInfo;
-import org.compiere.plaf.CompiereColor;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.print.Viewer;
@@ -122,7 +121,7 @@ public class VOrderDistributionReceipt extends OrderDistributionReceipt
 	private Object 			m_MovementDate = null;
 
 	/**	Logger			*/
-	private static CLogger log = CLogger.getCLogger(WOrderDistributionReceipt.class);
+	private static CLogger log = CLogger.getCLogger(VOrderDistributionReceipt.class);
 	//
 	private CTabbedPane tabbedPane = new CTabbedPane();
 	private CPanel selPanel = new CPanel();
