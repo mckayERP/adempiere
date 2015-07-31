@@ -397,11 +397,16 @@ public class CostEngine {
             if (costThisLevel.signum() == 0
             &&  MCostElement.COSTELEMENTTYPE_Material.equals(costElement.getCostElementType())) {
                 costThisLevel = getSeedCost(transaction.getCtx(), transaction.getM_Product_ID(), transaction.get_TrxName());
-                if (costThisLevel.signum() == 0)
+                if (costThisLevel.signum() == 0) {
                     if (model instanceof  MInOutLine && !model.isSOTrx()) {
                         MInOutLine inOutLine = (MInOutLine) model;
                         costThisLevel = inOutLine.getC_OrderLine().getPriceActual();
                     }
+                    else if (model instanceof  MInventoryLine) {
+                        MInventoryLine inventoryLine = (MInventoryLine) model;
+                        costThisLevel = inventoryLine.getCurrentCostPrice();
+                    }
+                }
                 if (costThisLevel.signum() != 0) {
                     cost.setCurrentCostPrice(costThisLevel);
                     cost.saveEx();
