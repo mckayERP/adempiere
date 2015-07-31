@@ -29,6 +29,7 @@ import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
 import org.compiere.model.MLocator;
 import org.compiere.model.MProduct;
+import org.compiere.model.MWarehouse;
 import org.compiere.model.X_I_Inventory;
 import org.compiere.util.DB;
 import org.compiere.util.TimeUtil;
@@ -305,7 +306,7 @@ public class ImportInventory extends SvrProcess
 
 		//	Set org based on warehouse
 		sql = new StringBuffer ("UPDATE I_Inventory i "
-			  + "SET AD_Org_ID = (SELECT AD_ORG_ID FROM M_Warehouse_ID w WHERE w.M_Warehouse_ID = i.M_Warehouse_ID"
+			  + "SET AD_Org_ID = (SELECT AD_ORG_ID FROM M_Warehouse w WHERE w.M_Warehouse_ID = i.M_Warehouse_ID"
 			  + " AND w.IsActive = 'Y' AND w.AD_Client_ID = i.AD_Client_ID) "
 			  + "WHERE M_Warehouse_ID IS NOT NULL "
 			  + "AND I_IsImported<>'Y'").append (clientCheck);
@@ -383,9 +384,10 @@ public class ImportInventory extends SvrProcess
 					|| imp.getM_Warehouse_ID() != x_M_Warehouse_ID
 					|| !MovementDate.equals(x_MovementDate))
 				{
+					MWarehouse wh = MWarehouse.get(getCtx(), imp.getM_Warehouse_ID());
 					inventory = new MInventory (getCtx(), 0, get_TrxName());
 					inventory.setClientOrg(imp.getAD_Client_ID(), imp.getAD_Org_ID());
-					inventory.setDescription("I " + imp.getM_Warehouse_ID() + " " + MovementDate);
+					inventory.setDescription("Import " + wh.getName() + " " + MovementDate);
 					inventory.setM_Warehouse_ID(imp.getM_Warehouse_ID());
 					inventory.setMovementDate(MovementDate);
 					//
