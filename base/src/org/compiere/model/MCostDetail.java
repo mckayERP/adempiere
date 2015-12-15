@@ -295,7 +295,7 @@ public class MCostDetail extends X_M_CostDetail
 	 */
 	public static MCostDetail getLastTransaction (MTransaction mtrx, int C_AcctSchema_ID, int M_CostType_ID,int M_CostElement_ID, String costingLevel)
 	{	
-		ArrayList<Object> params = new ArrayList();
+		ArrayList<Object> params = new ArrayList<Object>();
 		final StringBuffer whereClause = new StringBuffer(MCostDetail.COLUMNNAME_AD_Client_ID + "=? AND ");
 		params.add(mtrx.getAD_Client_ID());
 		if(MAcctSchema.COSTINGLEVEL_Organization.equals(costingLevel))
@@ -317,9 +317,11 @@ public class MCostDetail extends X_M_CostDetail
 		params.add(M_CostElement_ID);
 		whereClause.append(MCostDetail.COLUMNNAME_M_CostType_ID).append("=? AND ");
 		params.add(M_CostType_ID);
-		whereClause.append(MCostDetail.COLUMNNAME_M_Transaction_ID).append("<?  ");
-		params.add(mtrx.getM_Transaction_ID());
-
+		// Transaction_IDs are not guaranteed to be in order - use dateAcct instead
+		//whereClause.append(MCostDetail.COLUMNNAME_M_Transaction_ID).append("<?  ");
+		//params.add(mtrx.getM_Transaction_ID());
+		whereClause.append(MCostDetail.COLUMNNAME_DateAcct).append("<=? ");
+		params.add(mtrx.getMovementDate());
 			
 		return  new Query(mtrx.getCtx(), Table_Name, whereClause.toString(), mtrx.get_TrxName())
 		.setParameters(params)
