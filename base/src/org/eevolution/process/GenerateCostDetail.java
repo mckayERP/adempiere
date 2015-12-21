@@ -16,10 +16,17 @@
 
 package org.eevolution.process;
 
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.CostingMethodFactory;
 import org.adempiere.engine.StandardCostingMethod;
-import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.FillMandatoryException;
 import org.compiere.model.I_M_Cost;
 import org.compiere.model.MAcctSchema;
@@ -30,21 +37,15 @@ import org.compiere.model.MInOutLine;
 import org.compiere.model.MLandedCostAllocation;
 import org.compiere.model.MMatchInv;
 import org.compiere.model.MMatchPO;
-import org.compiere.model.MProduct;
 import org.compiere.model.MTransaction;
 import org.compiere.model.Query;
 import org.compiere.model.X_M_CostType;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Trx;
 import org.eevolution.model.MPPCostCollector;
-
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * Regenerate Cost Detail The Generate Cost Transaction process allows the
@@ -77,6 +78,7 @@ public class GenerateCostDetail extends SvrProcess {
     private StringBuffer resetCostWhereClause;
     private List<Integer> deferredTransactionIds = new ArrayList<Integer>();
     private List<Integer> deferredProductIds = new ArrayList<Integer>();
+    private KeyNamePair[] transactions;
 
     /**
      * Prepare - e.g., get Parameters.
@@ -134,6 +136,7 @@ public class GenerateCostDetail extends SvrProcess {
         sqlDelete.append(deleteCostDetailWhereClause);
         record = DB.executeUpdateEx(sqlDelete.toString(),
                 deleteParameters.toArray(), trxName);
+        log.info("Deleted " + record + " M_CostDetail records.");
     }
 
     private void resetCostDimension(String costingMethod, String trxName) throws SQLException {
@@ -154,7 +157,7 @@ public class GenerateCostDetail extends SvrProcess {
         sqlReset.append(" WHERE ").append(resetCostWhereClause);
         record = DB.executeUpdateEx(sqlReset.toString(),
                 resetCostParameters.toArray(), trxName);
-
+        log.info("Reset " + record + " M_Cost records.");
     }
 
 
@@ -194,11 +197,14 @@ public class GenerateCostDetail extends SvrProcess {
      * @param dateAccount
      */
     private void applyCriteria(int accountSchemaId, int costTypeId,
-                               int costElementId, int productId, Timestamp dateAccount, Timestamp dateAccountTo) {
+                               int costElementId, int transactionId, 
+                               int productId, Timestamp dateAccount, 
+                               Timestamp dateAccountTo) 
+    {
         deleteParameters = new ArrayList<Object>();
         resetCostParameters = new ArrayList<Object>();
         deleteCostDetailWhereClause = new StringBuffer("1=1");
-        resetCostWhereClause = new StringBuffer("1=1");
+        resetCostWhereClause = new StringBuffer("1=1");        
 
         if (accountSchemaId > 0) {
             deleteCostDetailWhereClause.append(" AND ")
@@ -236,6 +242,11 @@ public class GenerateCostDetail extends SvrProcess {
                     .append(MCostDetail.COLUMNNAME_M_Product_ID).append("=? ");
             resetCostParameters.add(productId);
         }
+        if (transactionId > 0) {
+            deleteCostDetailWhereClause.append(" AND ")
+                    .append(MCostDetail.COLUMNNAME_M_Transaction_ID).append("=? ");
+            deleteParameters.add(transactionId);
+        }
         if (dateAccount != null) {
             deleteCostDetailWhereClause.append(" AND ")
                     .append(MCostDetail.COLUMNNAME_DateAcct).append(">=? ");
@@ -244,28 +255,28 @@ public class GenerateCostDetail extends SvrProcess {
         if (dateAccountTo != null) {
             deleteCostDetailWhereClause.append(" AND ")
                     .append(MCostDetail.COLUMNNAME_DateAcct).append("<=? ");
-            deleteParameters.add(dateAccountTo);
+            deleteParameters.add(dateAccountTo); 
         }
-        //avoid rest cost dimension if not exist transaction conserve of last cost calculated
-        resetCostWhereClause.append(" AND EXISTS ( SELECT 1 FROM RV_Transaction WHERE M_Product_ID=? AND TRUNC(DateAcct)>=? AND TRUNC(DateAcct)<=?)");
-        resetCostParameters.add(productId);
-        resetCostParameters.add(dateAccount);
-        resetCostParameters.add(dateAccountTo);
         return;
     }
 
     public void generateCostDetail() {
 
-        KeyNamePair[] transactions = getTransactionIdsByDateAcct();
-       // System.out.println("Transaction to process : " + transactions.length);
-        Integer process = 0;
+        transactions = getTransactionIdsByDateAcct();
+        // System.out.println("Transaction to process : " + transactions.length);
+        
+        // Delete all the cost details affected.  This will prevent any of the old ones 
+        // being found as the lastCostDetail 
+        deleteCostDetails();
+
         Integer productId = 0;
         boolean processNewProduct = true;
         Trx dbTransaction = null;
-
+                
         try {
 
-            //Process transaction
+        	// There are 5 dimensions Product, Transaction, Schema, Cost method, Cost element
+            // Process transaction - For each product/material transaction, sorted by Product
             for (KeyNamePair keyNamePair : transactions) {
 
                 int transactionId = keyNamePair.getKey();
@@ -286,48 +297,62 @@ public class GenerateCostDetail extends SvrProcess {
                     //Create new transaction for this product
                     dbTransaction = Trx.get(productId.toString(), true);
 
-                    MProduct product = new MProduct(Env.getCtx(), productId , dbTransaction.getTrxName());
+                    generateCostCollectorNotTransaction(productId, dbTransaction.getTrxName());
+                    // product is not used.
+                    //MProduct product = new MProduct(Env.getCtx(), productId , dbTransaction.getTrxName());
                     //System.out.println("Product : " + product.getValue() + " Name :" + product.getName());
                 }
-
-
+                
                 MTransaction transaction = new MTransaction(getCtx(), transactionId, dbTransaction.getTrxName());
 
                 // for each Account Schema
                 for (MAcctSchema accountSchema : acctSchemas) {
                     // for each Cost Type
                     for (MCostType costType : costTypes) {
-                        // for each Cost Element
+                    	// for each Cost Element
                         for (MCostElement costElement : costElements) {
-                            if (processNewProduct) {
-                                applyCriteria(accountSchema.getC_AcctSchema_ID(),
-                                        costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
-                                        productId, p_DateAcct, p_DateAcctTo);
-                                deleteCostDetail(dbTransaction.getTrxName());
-                                resetCostDimension(costType.getCostingMethod(), dbTransaction.getTrxName());
-                                generateCostCollectorNotTransaction(productId, dbTransaction.getTrxName());
-                                processNewProduct = false;
 
-                                if (MCostType.COSTINGMETHOD_AverageInvoice.equals(costType.getCostingMethod())
-                                        || MCostType.COSTINGMETHOD_AveragePO.equals(costType.getCostingMethod())) {
-                                    if (IsUsedInProduction(productId, dbTransaction.getTrxName()))
-                                        deferredProductIds.add(productId);
+                        	applyCriteria(accountSchema.getC_AcctSchema_ID(),
+                                    costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
+                                    transactionId, productId, p_DateAcct, p_DateAcctTo);
+                            
+                            // The following only have to be done once per product, Schema, cost type and cost element
+                            if (processNewProduct) {
+                                resetCostDimension(costType.getCostingMethod(), dbTransaction.getTrxName());
+                            }
+
+                        	// For products used in production and for certain cost types, defer the processing of the cost details
+                            if (MCostType.COSTINGMETHOD_AverageInvoice.equals(costType.getCostingMethod())
+                                    || MCostType.COSTINGMETHOD_AveragePO.equals(costType.getCostingMethod())) {
+                                if (IsUsedInProduction(productId, dbTransaction.getTrxName())
+                                	&& !deferredProductIds.contains(transaction.getM_Product_ID())) 
+                                {
+                                    deferredProductIds.add(productId);
+                                    deferredTransactionIds.add(transactionId);
+                                    continue;
                                 }
                             }
 
-                            if (deferredProductIds.contains(transaction.getM_Product_ID())) {
+                            if (deferredProductIds.contains(transaction.getM_Product_ID())
+                            		&& !deferredTransactionIds.contains(transactionId)) {
                                 deferredTransactionIds.add(transactionId);
                                 continue;
                             }
 
-                            generateCostDetail(accountSchema, costType, costElement, transaction);
-                        }
-                    }
-                }
+                            if (deferredTransactionIds.contains(transactionId)) {
+                                continue;
+                            }
 
-                process++;
+                            generateCostDetail(accountSchema, costType, costElement, transaction);
+                        } // Cost elements
+                    } // Cost types
+                } // Schema
+
+                processNewProduct = false;
+
+                //process++;
                 //System.out.println("Transaction : " + transactionId + " Transaction Type :"+ transaction.getMovementType() + " record ..." + process);
-            }
+            } // Transaction * Product
 
             if (dbTransaction != null) {
                 dbTransaction.commit(true);
@@ -372,7 +397,7 @@ public class GenerateCostDetail extends SvrProcess {
                                     //Create new transaction for this product
                                     dbTransaction = Trx.get(productId.toString(), true);
 
-                                    MProduct product = MProduct.get(Env.getCtx(), productId);
+                                    //MProduct product = MProduct.get(Env.getCtx(), productId);
                                     //System.out.println("Deferred Product : " + product.getValue() + " Name :" + product.getName());
 
                                 }
@@ -397,6 +422,62 @@ public class GenerateCostDetail extends SvrProcess {
                 dbTransaction = null;
             }
         }
+    }
+
+    /**
+     * Delete the cost details.  The field transactions should be initialized prior to the call. 
+     */
+    private void deleteCostDetails() {
+
+        //Create new transaction for the delete
+        Trx dbTransaction = Trx.get("DeleteCostDetails", true);
+
+        try {
+
+        	// There are 5 dimensions Product, Transaction, Schema, Cost method, Cost element
+            // Process transaction - For each product/material transaction, sorted by Product
+            for (KeyNamePair keyNamePair : transactions) {
+
+                int transactionId = keyNamePair.getKey();
+                int productId = new Integer(keyNamePair.getName());
+                
+                // for each Account Schema
+                for (MAcctSchema accountSchema : acctSchemas) {
+                    // for each Cost Type
+                    for (MCostType costType : costTypes) {
+                    	// for each Cost Element
+                        for (MCostElement costElement : costElements) {
+
+                        	log.fine("Deleting and resetting cost info for\n" + 
+                        			"    acctSchema: " + accountSchema.toString() + "\n" +
+                        			"    costType: " + costType.toString() + "\n" + 
+                        			"    costElement: " + costElement.toString() + "\n" + 
+                        			"    Product ID=" + productId + "\n" +
+                        			"    Material Transaction ID =" + transactionId + "\n" +
+                        			"    DateAcct from " + p_DateAcct + " to " + p_DateAcctTo);
+                        	applyCriteria(accountSchema.getC_AcctSchema_ID(),
+                                    costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
+                                    transactionId, productId, p_DateAcct, p_DateAcctTo);
+                            deleteCostDetail(dbTransaction.getTrxName());
+                        } // Cost elements
+                    } // Cost types
+                } // Schema
+
+            } // Transaction * Product
+	    } catch (Exception e) {
+	        if (dbTransaction != null) {
+	            dbTransaction.rollback();
+	            dbTransaction.close();
+	            dbTransaction = null;
+	            e.printStackTrace();
+	        }
+	    } finally {
+	        if (dbTransaction != null) {
+	            dbTransaction.commit();
+	            dbTransaction.close();
+	            dbTransaction = null;
+	        }
+	    }
     }
 
     private boolean IsUsedInProduction(int productId, String trxName) {
@@ -511,7 +592,8 @@ public class GenerateCostDetail extends SvrProcess {
 
         sql.append("SELECT M_Transaction_ID , M_Product_ID FROM RV_Transaction ")
                 .append(whereClause)
-                .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , M_Transaction_ID , SUBSTR(MovementType,2,1) ");
+                .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , SUBSTR(MovementType,2,1) Desc ");
+        // .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , M_Transaction_ID , SUBSTR(MovementType,2,1) ");
         //.append(" ORDER BY M_Product_ID , DateAcct , M_Transaction_ID");
         //System.out.append("SQL :" + sql);
         return DB.getKeyNamePairs(get_TrxName(), sql.toString(), false, parameters.toArray());

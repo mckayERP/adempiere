@@ -56,17 +56,26 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 			this.dateAccounting = null; // Is Necessary define that happen in this case when period is close
 	}
 
+	/**
+	 * Calculate the costs prior to creating the Cost Detail record
+	 */
 	private void calculate() {
-		if (model.getReversalLine_ID() > 0)
+		// Don't create costs for reversals.
+ 		if (model.getReversalLine_ID() > 0)
 			return;
 
-		// try find the last cost detail transaction
+		// In standard costing the dimension (M_Cost) always sets the price
+		currentCostPrice = dimension.getCurrentCostPrice();
+		currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
+
+		// try find the last cost detail transaction which will provide the
+		// accumulated amounts and quantities
 		lastCostDetail = MCostDetail.getLastTransaction(model, transaction,
 				accountSchema.getC_AcctSchema_ID(), dimension.getM_CostType_ID(),
 				dimension.getM_CostElement_ID(),dateAccounting,
 				costingLevel);
 
-		// created a new instance cost detail to process calculated cost
+		// If none exists, created a new instance cost detail to process calculated cost
 		if (lastCostDetail == null) {
 			lastCostDetail = new MCostDetail(transaction,
 					accountSchema.getC_AcctSchema_ID(), dimension.getM_CostType_ID(),
@@ -74,58 +83,58 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 					Env.ZERO, transaction.get_TrxName());
 			lastCostDetail.setDateAcct(dateAccounting);
 		}
+		
+//		if (costDetail != null) {
+//			// If the transaction includes multiple documents, there may be several 
+//			// passes through the costing calculations.  Only the first pass is required.
+//			// If the lastCostDetail and the current costDetail are the same record, 
+//			// there is nothing to do.
+//			if (lastCostDetail.get_ID() == costDetail.get_ID())
+//				return;
+//		}
 
+		// The amount is simply the movement quantity times the price
+		amount = movementQuantity.multiply(currentCostPrice);
+		amountLowerLevel = movementQuantity.multiply(currentCostPriceLowerLevel);
 
-		if (movementQuantity.signum() < 0) {
-			currentCostPrice = dimension.getCurrentCostPrice();
-			currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
-			amount = movementQuantity.multiply(currentCostPrice);
-			amountLowerLevel = movementQuantity
-					.multiply(currentCostPriceLowerLevel);
-			accumulatedQuantity = dimension.getCumulatedQty().add(
-					movementQuantity);
-			accumulatedAmount = dimension.getCumulatedAmt().add(amount);
-			accumulatedAmountLowerLevel = dimension.getCumulatedAmtLL().add(amountLowerLevel);
-			return;
-		}
+		// Cost adjustments correct imbalances in the accumulated qty and accumulated amts.
+		// The cost adjustments are added to the accumulated amounts.
+		adjustCost = currentCostPrice.multiply(
+				lastCostDetail.getCumulatedQty()).subtract(
+				lastCostDetail.getCumulatedAmt());
+		adjustCostLowerLevel = currentCostPriceLowerLevel.multiply(
+				lastCostDetail.getCumulatedQty()).subtract(
+				lastCostDetail.getCumulatedAmtLL());
 
 		if (costDetail != null) {
-			amount = movementQuantity.multiply(
-					costDetail.getCurrentCostPrice());
-			amountLowerLevel = movementQuantity.multiply(
-					costDetail.getCurrentCostPriceLL());
-			accumulatedQuantity = costDetail.getCumulatedQty().add(
-					movementQuantity);
-			accumulatedAmount = costDetail.getCumulatedAmt().add(amount);
-			accumulatedAmountLowerLevel = costDetail.getCumulatedAmtLL().add(amountLowerLevel);
-			currentCostPrice = dimension.getCurrentCostPrice();
-			currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
-			adjustCost = currentCostPrice.multiply(
-					dimension.getCumulatedQty()).subtract(
-					dimension.getCumulatedAmt());
-			adjustCost = currentCostPriceLowerLevel.multiply(
-					dimension.getCumulatedQty()).subtract(
-					dimension.getCumulatedAmtLL());
-			return;
+			// Use the cost detail as the base of the update
+			accumulatedQuantity = costDetail.getCumulatedQty();
+			accumulatedAmount = costDetail.getCumulatedAmt();
+			accumulatedAmountLowerLevel = costDetail.getCumulatedAmtLL();
 		}
+		else { // Use the last Cost Detail
+			accumulatedQuantity = getNewAccumulatedQuantity(lastCostDetail);
+			accumulatedAmount = getNewAccumulatedAmount(lastCostDetail);
+			accumulatedAmountLowerLevel = getNewAccumulatedAmountLowerLevel(lastCostDetail);
+		}
+		
+		// movementQuantity will be positive for increasing inventory, negative otherwise
+		accumulatedQuantity = accumulatedQuantity
+				.add(movementQuantity);
 
-		amount = movementQuantity.multiply(
-				dimension.getCurrentCostPrice());
-		amountLowerLevel = movementQuantity.multiply(
-				dimension.getCurrentCostPriceLL());
-		accumulatedAmount = dimension.getCumulatedAmt().add(amount)
-				.add(adjustCost);
-		accumulatedAmountLowerLevel = dimension.getCumulatedAmtLL().add(amountLowerLevel)
-				.add(adjustCostLowerLevel);
-		accumulatedQuantity = dimension.getCumulatedQty().add(
-				movementQuantity);
-		currentCostPrice = dimension.getCurrentCostPrice();
-		currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
+       	accumulatedAmount = accumulatedAmount
+        		.add(amount)
+    			.add(adjustCost);
+
+       	accumulatedAmountLowerLevel = accumulatedAmountLowerLevel
+				.add(amountLowerLevel)
+       			.add(adjustCostLowerLevel);
 	}
 
 
 	private void createCostDetail() {
 		final String idColumnName = CostEngine.getIDColumnName(model);
+		
 		if (model.getReversalLine_ID() > 0) {
 			createReversalCostDetail();
 			return;
@@ -160,7 +169,20 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
                     movementQuantity, transaction.get_TrxName());
             costDetail.setDateAcct(dateAccounting);
             costDetail.setSeqNo(seqNo);
-
+    		costDetail.setCumulatedQty(getNewAccumulatedQuantity(lastCostDetail));
+    		costDetail.setCumulatedAmt(getNewAccumulatedAmount(lastCostDetail));
+    		costDetail.setCurrentCostPrice(currentCostPrice);
+    		costDetail.setCumulatedAmtLL(getNewAccumulatedAmountLowerLevel(lastCostDetail));
+    		costDetail.setCurrentCostPriceLL(currentCostPriceLowerLevel);
+    		StringBuilder description = new StringBuilder();
+    		if (!Util.isEmpty(model.getDescription(), true))
+    			description.append(model.getDescription());
+    		if (isSalesTransaction != null) {
+    			description.append(isSalesTransaction ? "(|->)" : "(|<-)");
+    		}
+    		//if (transaction != null)
+    		//	costDetail.setM_Transaction_ID(transaction.getM_Transaction_ID());
+    		costDetail.setDescription(description.toString());
 		}
 
 
@@ -205,20 +227,6 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 		if (transaction != null)
 			costDetail.setM_Transaction_ID(transaction.getM_Transaction_ID());
 
-		costDetail.setCumulatedQty(dimension.getCumulatedQty());
-		costDetail.setCumulatedAmt(dimension.getCumulatedAmt());
-		costDetail.setCurrentCostPrice(dimension.getCurrentCostPrice());
-		costDetail.setCumulatedAmtLL(dimension.getCumulatedAmtLL());
-		costDetail.setCurrentCostPriceLL(dimension.getCurrentCostPriceLL());
-		StringBuilder description = new StringBuilder();
-		if (!Util.isEmpty(model.getDescription(), true))
-			description.append(model.getDescription());
-		if (isSalesTransaction != null) {
-			description.append(isSalesTransaction ? "(|->)" : "(|<-)");
-		}
-		if (transaction != null)
-			costDetail.setM_Transaction_ID(transaction.getM_Transaction_ID());
-		costDetail.setDescription(description.toString());
 		updateAmountCost();
 		costDetail.saveEx();
 		// CostAms
@@ -238,7 +246,7 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 	}
 
 	/**
-	 * Average Invoice Get the New Current Cost Price This Level
+	 * Get the New Current Cost Price This Level
 	 * 
 	 * @param cd
 	 *            Cost Detail
@@ -257,19 +265,27 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 	}
 
 	/**
-	 * Average Invoice Get the New Cumulated Amt This Level
+	 * Get the New Cumulated Amt This Level
 	 * 
 	 * @param cd
 	 *            Cost Detail
 	 * @return New Cumulated Amt This Level
 	 */
 	public BigDecimal getNewAccumulatedAmount(MCostDetail cd) {
-		return cd.getCumulatedAmt().add(cd.getCostAmt())
-				.add(cd.getCostAdjustment());
+        if (cd.getQty().signum() > 0) {
+        	return cd.getCumulatedAmt().add(cd.getCostAmt())
+    				.add(cd.getCostAdjustment());
+        }
+        else if (cd.getQty().signum() < 0 ) {
+        	return cd.getCumulatedAmt().subtract(cd.getCostAmt())
+    				.add(cd.getCostAdjustment());
+        }
+
+		return cd.getCumulatedAmt().add(cd.getCostAdjustment());
 	}
 
 	/**
-	 * Average Invoice Get the New Current Cost Price low level
+	 * Get the New Current Cost Price low level
 	 * 
 	 * @param cd
 	 *            Cost Detail
@@ -288,7 +304,7 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 	}
 
 	/**
-	 * Average Invoice Get the new Cumulated Amt Low Level
+	 * Get the new Cumulated Amt Low Level
 	 * 
 	 * @param cd
 	 *            MCostDetail
@@ -300,7 +316,7 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 	}
 
 	/**
-	 * Average Invoice Get the new Cumulated Qty
+	 * Get the new Cumulated Qty
 	 * 
 	 * @param cd
 	 *            Cost Detail
@@ -343,8 +359,8 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
                     adjustCostLowerLevel));
         }
 
-        costDetail.setCumulatedQty(getNewAccumulatedQuantity(lastCostDetail));
-        costDetail.setCumulatedAmt(getNewAccumulatedAmount(lastCostDetail));
+        //costDetail.setCumulatedQty(getNewAccumulatedQuantity(lastCostDetail));
+        //costDetail.setCumulatedAmt(getNewAccumulatedAmount(lastCostDetail));
 
         // set the id for model
         final String idColumnName = CostEngine.getIDColumnName(model);
