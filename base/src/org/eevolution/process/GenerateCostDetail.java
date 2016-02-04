@@ -73,7 +73,9 @@ public class GenerateCostDetail extends SvrProcess {
     private ArrayList<Object> resetCostParameters;
     private List<MAcctSchema> acctSchemas = new ArrayList<MAcctSchema>();
     private List<MCostType> costTypes = new ArrayList<MCostType>();
+    private List<MCostType> costTypesDelete = new ArrayList<MCostType>();
     private List<MCostElement> costElements = new ArrayList<MCostElement>();
+    private List<MCostElement> costElementsDelete = new ArrayList<MCostElement>();
     private StringBuffer deleteCostDetailWhereClause;
     private StringBuffer resetCostWhereClause;
     private List<Integer> deferredTransactionIds = new ArrayList<Integer>();
@@ -175,16 +177,28 @@ public class GenerateCostDetail extends SvrProcess {
                     .getClientAcctSchema(getCtx(), getAD_Client_ID(),
                             get_TrxName())));
 
-        if (p_M_CostType_ID > 0)
+        if (p_M_CostType_ID > 0) {
             costTypes.add(new MCostType(getCtx(), p_M_CostType_ID,
                     get_TrxName()));
-        else
+        }
+        else {
+        	// All active cost types
             costTypes = MCostType.get(getCtx(), get_TrxName());
-
+            // All types including inactive entries
+            costTypesDelete = new Query(getCtx(), MCostType.Table_Name, null, get_TrxName())
+            		.setClient_ID()
+            		.setOrderBy(MCostType.COLUMNNAME_M_CostType_ID)
+            		.list();
+        }
         if (p_M_CostElement_ID > 0)
             costElements.add(MCostElement.get(getCtx(), p_M_CostElement_ID));
-        else
+        else {
             costElements = MCostElement.getCostElement(getCtx(), get_TrxName());
+	        costElementsDelete = new Query(getCtx(), MCostElement.Table_Name, null, get_TrxName())
+			.setClient_ID()
+			.setOrderBy(MCostElement.COLUMNNAME_M_CostElement_ID)
+			.list();
+        }
     }
 
     /**
@@ -304,7 +318,7 @@ public class GenerateCostDetail extends SvrProcess {
                 }
                 
                 MTransaction transaction = new MTransaction(getCtx(), transactionId, dbTransaction.getTrxName());
-
+                
                 // for each Account Schema
                 for (MAcctSchema accountSchema : acctSchemas) {
                     // for each Cost Type
@@ -444,9 +458,9 @@ public class GenerateCostDetail extends SvrProcess {
                 // for each Account Schema
                 for (MAcctSchema accountSchema : acctSchemas) {
                     // for each Cost Type
-                    for (MCostType costType : costTypes) {
+                    for (MCostType costType : costTypesDelete) {
                     	// for each Cost Element
-                        for (MCostElement costElement : costElements) {
+                        for (MCostElement costElement : costElementsDelete) {
 
                         	log.fine("Deleting and resetting cost info for\n" + 
                         			"    acctSchema: " + accountSchema.toString() + "\n" +
