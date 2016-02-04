@@ -434,6 +434,8 @@ public class MCostDetail extends X_M_CostDetail
 		whereClause.append(MCostDetail.COLUMNNAME_C_AcctSchema_ID).append("=? AND ");
 		whereClause.append(MCostDetail.COLUMNNAME_M_Product_ID).append("=? AND ");
 		whereClause.append(MCostDetail.COLUMNNAME_M_CostType_ID).append("=? AND ");
+		whereClause.append(MCostDetail.COLUMNNAME_M_CostElement_ID)
+				.append(" IN (SELECT M_CostElement_ID FROM M_CostElement WHERE IsActive='Y') AND ");
 		if(isExcludeLandedCost)
 			whereClause.append(MCostDetail.COLUMNNAME_C_LandedCostAllocation_ID).append(" IS NULL AND ");
 		
