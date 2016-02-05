@@ -21,6 +21,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -31,6 +33,7 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Trx;
 import org.compiere.util.Util;
 
 /**
@@ -56,6 +59,8 @@ public class MColumn extends X_AD_Column
 	 */
 	private static final long serialVersionUID = 3455817869952578951L;
 
+	public static final String SYSCONFIG_DATABASE_AUTO_SYNC="DATABASE_AUTO_SYNC";
+	
 	/**
      * Get if id column is Encrypted
      * @param columnId
@@ -156,6 +161,8 @@ public class MColumn extends X_AD_Column
 	
 	/**	Static Logger	*/
 	private static CLogger	s_log	= CLogger.getCLogger (MColumn.class);
+
+	private boolean isNewTable = false;
 	
 	/**************************************************************************
 	 * 	Standard Constructor
@@ -437,6 +444,20 @@ public class MColumn extends X_AD_Column
 	 */
 	protected boolean afterSave (boolean newRecord, boolean success)
 	{
+		// TODO - auto sync
+		// Check if we should auto-sync the column and table.
+		if ("Y".equals(MSysConfig.getValue(SYSCONFIG_DATABASE_AUTO_SYNC,"Y",Env.getAD_Client_ID(Env.getCtx())))
+				&& (newRecord
+					|| is_ValueChanged(MColumn.COLUMNNAME_ColumnName)
+					|| is_ValueChanged(MColumn.COLUMNNAME_AD_Reference_ID)
+					|| is_ValueChanged(MColumn.COLUMNNAME_FieldLength)
+					|| is_ValueChanged(MColumn.COLUMNNAME_IsMandatory)
+					|| is_ValueChanged(MColumn.COLUMNNAME_IsKey)
+					|| is_ValueChanged(MColumn.COLUMNNAME_DefaultValue)
+					|| is_ValueChanged(MColumn.COLUMNNAME_ColumnSQL))) {
+			syncDatabase((String) this.get_ValueOld(COLUMNNAME_ColumnName));
+		}
+		
 		//	Update Fields
 		if (!newRecord)
 		{
@@ -484,18 +505,99 @@ public class MColumn extends X_AD_Column
 		if ( isVirtualColumn() )
 			return null;
 		
-		StringBuffer sql = new StringBuffer ("ALTER TABLE ")
+		StringBuffer sql = null;
+		
+		// If the table is new or the field can be null, it can be added with a single statement
+		if (!isMandatory() || isNewTable) {
+			sql = new StringBuffer ("ALTER TABLE ")
+				.append(table.getTableName())
+				.append(" ADD ").append(getSQLDDL());
+		}
+		else {
+			// If the table is not new (it has existing records) and the field is mandatory
+			// then the new field values should be set to the defaults.  This takes three statements:
+			//  1. Add the field
+			//  2. Set the value
+			//  3. Make it mandatory
+			
+			// SQL to add the field
+			sql = new StringBuffer ("ALTER TABLE ")
+				.append(table.getTableName())
+				.append(" ADD ").append(getColumnName())
+				.append(" ").append(getSQLDataType());
+				//	Inline Constraint
+				if (getAD_Reference_ID() == DisplayType.YesNo)
+					sql.append(" CHECK (").append(getColumnName()).append(" IN ('Y','N'))");
+			sql.append(DB.SQLSTATEMENT_SEPARATOR);
+			
+			// Set the value
+			String defaultValue = getDefaultValueString();
+			if (isMandatory() && defaultValue != null && defaultValue.length() > 0 && !defaultValue.equals("NULL"))
+			{
+				StringBuffer sqlSet = new StringBuffer("UPDATE ")
+					.append(table.getTableName())
+					.append(" SET ").append(getColumnName())
+					.append("=").append(defaultValue)
+					.append(" WHERE ").append(getColumnName()).append(" IS NULL");
+				sql.append(sqlSet).append(DB.SQLSTATEMENT_SEPARATOR);
+
+				//  Set the column to Not Null
+				sql.append("ALTER TABLE ")
+				.append(table.getTableName())
+				.append(" ALTER ").append(getColumnName())
+				.append(" SET NOT NULL")
+				.append(DB.SQLSTATEMENT_SEPARATOR);
+			}
+			
+			// Add the constraints
+			sql.append("ALTER TABLE ")
 			.append(table.getTableName())
-			.append(" ADD ").append(getSQLDDL());
-		String constraint = getConstraint(table.getTableName());
-		if (constraint != null && constraint.length() > 0) {
-			sql.append(DB.SQLSTATEMENT_SEPARATOR).append("ALTER TABLE ")
-			.append(table.getTableName())
-			.append(" ADD ").append(constraint);
+			.append(" ALTER ").append(getColumnName())
+			.append(" SET DEFAULT ").append(getDefaultValueString())
+				.append(DB.SQLSTATEMENT_SEPARATOR);
+				
+			String constraint = getConstraint(table.getTableName());
+			if (constraint != null && constraint.length() > 0) {
+				sql.append("ALTER TABLE ")
+				.append(table.getTableName())
+				.append(" ADD ").append(constraint);
+			}
 		}
 		return sql.toString();
 	}	//	getSQLAdd
 
+	public String getDefaultValueString()
+	{
+		//	Default
+		String defaultValue = getDefaultValue();
+		if (defaultValue != null && defaultValue.length() > 0)
+		{
+			
+			if (defaultValue.indexOf('@') != -1		//	no variables
+				|| !defaultValue.startsWith("#")		//	no context - eg. #AD_Client_ID
+				|| (! (DisplayType.isID(getAD_Reference_ID()) && defaultValue.equals("-1") ) ) )  // not for ID's with default -1
+			{
+				defaultValue = "NULL";
+			}
+			else if (DisplayType.isText(getAD_Reference_ID()) 
+					|| getAD_Reference_ID() == DisplayType.List
+					|| getAD_Reference_ID() == DisplayType.YesNo
+					// Two special columns: Defined as Table but DB Type is String 
+					|| getColumnName().equals("EntityType") || getColumnName().equals("AD_Language")
+					|| (getAD_Reference_ID() == DisplayType.Button &&
+							!(getColumnName().endsWith("_ID"))))
+			{
+				if (!defaultValue.startsWith("'") && !defaultValue.endsWith("'"))
+					defaultValue = DB.TO_STRING(defaultValue);
+			}
+		}
+		else
+		{
+			// default not defined
+			defaultValue = "NULL";
+		}
+		return defaultValue;
+	}
 	/**
 	 * 	Get SQL DDL
 	 *	@return columnName datataype ..
@@ -509,31 +611,7 @@ public class MColumn extends X_AD_Column
 			.append(" ").append(getSQLDataType());
 
 		//	Default
-		String defaultValue = getDefaultValue();
-		if (defaultValue != null 
-				&& defaultValue.length() > 0
-				&& defaultValue.indexOf('@') == -1		//	no variables
-				&& ( ! (DisplayType.isID(getAD_Reference_ID()) && defaultValue.equals("-1") ) ) )  // not for ID's with default -1
-		{
-			if (DisplayType.isText(getAD_Reference_ID()) 
-					|| getAD_Reference_ID() == DisplayType.List
-					|| getAD_Reference_ID() == DisplayType.YesNo
-					// Two special columns: Defined as Table but DB Type is String 
-					|| getColumnName().equals("EntityType") || getColumnName().equals("AD_Language")
-					|| (getAD_Reference_ID() == DisplayType.Button &&
-							!(getColumnName().endsWith("_ID"))))
-			{
-				if (!defaultValue.startsWith("'") && !defaultValue.endsWith("'"))
-					defaultValue = DB.TO_STRING(defaultValue);
-			}
-			sql.append(" DEFAULT ").append(defaultValue);
-		}
-		else
-		{
-			if (! isMandatory())
-				sql.append(" DEFAULT NULL ");
-			defaultValue = null;
-		}
+			sql.append(" DEFAULT ").append(getDefaultValueString());
 
 		//	Inline Constraint
 		if (getAD_Reference_ID() == DisplayType.YesNo)
@@ -553,45 +631,49 @@ public class MColumn extends X_AD_Column
 	 */
 	public String getSQLModify (MTable table, boolean setNullOption)
 	{
+		return getSQLModify(table, null, setNullOption);
+	}
+	
+	/**
+	 * 	Get SQL Modify command
+	 *	@param table table
+	 *  @param oldColumnName the oldColumnName or null if there is no change.
+	 *	@param setNullOption generate null / not null statement
+	 *	@return sql separated by ;
+	 */
+	public String getSQLModify (MTable table, String oldColumnName, boolean setNullOption)
+	{
 		StringBuffer sql = new StringBuffer();
+		if (oldColumnName != null) {
+			// Rename the column in the database
+			sql = new StringBuffer("ALTER TABLE ")
+					.append(table.getTableName())
+					.append(" RENAME COLUMN ").append(oldColumnName).append(" TO ")
+					.append(getColumnName())
+					.append(DB.SQLSTATEMENT_SEPARATOR);
+		}
+
+		// TODO handle the constraints.  Modifying the defaults requires the drop of the constraint
+		// For now, just allow renames and ignore other changes.
+		if (this.isKey() || (getColumnName().endsWith("_ID") && getColumnName().replace("_ID", "").equals(table.get_TableName()))) {
+			if (sql.length() == 0)
+				return null;
+			return sql.toString();
+		}
+		
 		StringBuffer sqlBase = new StringBuffer ("ALTER TABLE ")
 			.append(table.getTableName())
 			.append(" MODIFY ").append(getColumnName());
 		
 		//	Default
-		StringBuffer sqlDefault = new StringBuffer(sqlBase)
-			.append(" ").append(getSQLDataType());
-		String defaultValue = getDefaultValue();
-		if (defaultValue != null 
-			&& defaultValue.length() > 0
-			&& defaultValue.indexOf('@') == -1		//	no variables
-			&& ( ! (DisplayType.isID(getAD_Reference_ID()) && defaultValue.equals("-1") ) ) )  // not for ID's with default -1
-		{
-			if (DisplayType.isText(getAD_Reference_ID()) 
-				|| getAD_Reference_ID() == DisplayType.List
-				|| getAD_Reference_ID() == DisplayType.YesNo
-				// Two special columns: Defined as Table but DB Type is String 
-				|| getColumnName().equals("EntityType") || getColumnName().equals("AD_Language")
-				|| (getAD_Reference_ID() == DisplayType.Button &&
-						!(getColumnName().endsWith("_ID"))))
-			{
-				if (!defaultValue.startsWith("'") && !defaultValue.endsWith("'"))
-					defaultValue = DB.TO_STRING(defaultValue);
-			}
-			sqlDefault.append(" DEFAULT ").append(defaultValue);
-		}
-		else
-		{
-			if (! isMandatory())
-				sqlDefault.append(" DEFAULT NULL ");
-			defaultValue = null;
-		}
-		sql.append(sqlDefault);
+		sql.append(sqlBase).append(" ").append(getSQLDataType())
+			.append(" DEFAULT ").append(getDefaultValueString());
 		
 		//	Constraint
-
+		
 		//	Null Values
-		if (isMandatory() && defaultValue != null && defaultValue.length() > 0)
+		String defaultValue = getDefaultValueString();
+		if (isMandatory() && defaultValue != null && defaultValue.length() > 0 && !defaultValue.equals("NULL"))
 		{
 			StringBuffer sqlSet = new StringBuffer("UPDATE ")
 				.append(table.getTableName())
@@ -602,10 +684,10 @@ public class MColumn extends X_AD_Column
 		}
 		
 		//	Null
-		if (setNullOption)
+		if (setNullOption)  // TODO Fails if there is a constraint on this column.
 		{
 			StringBuffer sqlNull = new StringBuffer(sqlBase);
-			if (isMandatory())
+			if (isMandatory() && defaultValue != null && defaultValue.length() > 0 && !defaultValue.equals("NULL"))
 				sqlNull.append(" NOT NULL");
 			else
 				sqlNull.append(" NULL");
@@ -742,19 +824,37 @@ public class MColumn extends X_AD_Column
 		return DB.getSQLValue(trxName, sqlStmt, AD_Column_ID);
 	}
 
-/**
+	/**
 	 * Sync this column with the database
 	 * @return
 	 */
 	public String syncDatabase()
 	{
-
+		return syncDatabase(null);
+	}
+	
+	/**
+	 * Sync this column with the database. Provide the oldColumnName when the sync action is performed 
+	 * after a save when get_ValueOld(ColumnName) will return null.
+	 * @param oldColumnName : If the column name changed, the old Column Name or null if there was no name change.
+	 * @return
+	 */
+	public String syncDatabase(String oldColumnName)
+	{
+		if (this.isVirtualColumn())
+			return "Cannot sync a virtual column"; // TODO - Delete from database if it exists?
+		
 		MTable table = new MTable(getCtx(), getAD_Table_ID(), get_TrxName());
 		if (table.isView())
 			return "Cannot sync view";
+		
 		table.set_TrxName(get_TrxName());  // otherwise table.getSQLCreate may miss current column
 		if (table.get_ID() == 0)
 			throw new AdempiereException("@NotFound@ @AD_Table_ID@ " + getAD_Table_ID());
+		
+		if (oldColumnName != null && oldColumnName.equalsIgnoreCase(getColumnName())){ // There is no name change
+			oldColumnName = null;
+		}
 
 		//	Find Column in Database
 		Connection conn = null;
@@ -774,45 +874,75 @@ public class MColumn extends X_AD_Column
 			}
 			int noColumns = 0;
 			String sql = null;
+			Boolean oldColumnExists = false;
+			Boolean currentColumnExists = false;
+			Boolean oldNotNull = false;
+			Boolean currentNotNull = false;
 			//
 			ResultSet rs = md.getColumns(catalog, schema, tableName, null);
 			while (rs.next())
 			{
 				noColumns++;
 				String columnName = rs.getString ("COLUMN_NAME");
-				if (!columnName.equalsIgnoreCase(getColumnName()))
-					continue;
-
-				//	update existing column
-				boolean notNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
-				sql = getSQLModify(table, isMandatory() != notNull);
-				break;
+				
+				if (oldColumnName != null && columnName.equalsIgnoreCase(oldColumnName)) {
+					oldColumnExists = true;
+					oldNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
+				}
+				
+				if (columnName.equalsIgnoreCase(getColumnName())) {
+					currentColumnExists = true;
+					currentNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
+				}
 			}
 			rs.close();
 			rs = null;
 
 			//	No Table
-			if (noColumns == 0)
+			if (noColumns == 0) {
+				isNewTable  = true;
 				sql = table.getSQLCreate ();
+			}
 			//	No existing column
-			else if (sql == null)
+			else if (!oldColumnExists && !currentColumnExists) {
 				sql = getSQLAdd(table);
+			}
+			// Old column name exists
+			else if (oldColumnExists && !currentColumnExists) {
+				// Update the old column
+				sql = getSQLModify(table, oldColumnName, isMandatory() != oldNotNull);
+			}
+			// New column name exists
+			else if (!oldColumnExists && currentColumnExists) {
+				// Update the current column - no name change
+				sql = getSQLModify(table, null, isMandatory() != currentNotNull); // Can return a null string
+			}
+			// Both exist - which is a problem - so throw an error
+			else if (oldColumnExists && currentColumnExists) {
+				// TODO - Translate
+				throw new AdempiereException("Can't synchronize the change of the column name. A column with that name alread exists in the table.");
+			}
+
 			
 			if ( sql == null )
-				return "No sql";
+				return "No sql. No changes made.";
+			
+			String trxName = Trx.createTrxName("SyncColumn");
 			
 			if (sql.indexOf(DB.SQLSTATEMENT_SEPARATOR) == -1)
 			{
-				DB.executeUpdateEx(sql, get_TrxName());
+				DB.executeUpdateEx(sql, trxName);
 			}
 			else
 			{
 				String statements[] = sql.split(DB.SQLSTATEMENT_SEPARATOR);
 				for (int i = 0; i < statements.length; i++)
 				{
-					DB.executeUpdateEx(statements[i], get_TrxName());
+					DB.executeUpdateEx(statements[i], trxName);
 				}
 			}
+			
+			DB.commit(true, trxName);
 			
 			// Remove the old table definition from cache 
 			POInfo.removeFromCache(getAD_Table_ID());
