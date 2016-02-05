@@ -49,7 +49,7 @@ public class MigrationApply extends SvrProcess {
 		if ( Ini.isPropertyBool(Ini.P_LOGMIGRATIONSCRIPT) )
 		{
 			addLog( Msg.getMsg(getCtx(), "LogMigrationScriptFlagIsSetMessage"));
-			return "@Error@";
+			return "@Error@ " + Msg.getMsg(getCtx(), "LogMigrationScriptFlagIsSetMessage");
 		}
 		
 			// Use a null transaction to generate a read only query

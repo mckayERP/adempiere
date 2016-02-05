@@ -46,7 +46,7 @@ public class MigrationStepApply extends SvrProcess {
 		if ( Ini.isPropertyBool(Ini.P_LOGMIGRATIONSCRIPT) )
 		{
 			addLog( Msg.getMsg(getCtx(), "LogMigrationScriptFlagIsSetMessage"));
-			return "@Error@" + Msg.getMsg(getCtx(), "LogMigrationScripFlagtIsSet");
+			return "@Error@ " + Msg.getMsg(getCtx(), "LogMigrationScriptFlagIsSetMessage");
 		}
 
 		// Find the migrationSetp. Use a null transaction to create a read-only

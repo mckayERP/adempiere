@@ -208,9 +208,6 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			return retval + "Already applied";
 		}
 
-		// Flag that a script is in progress to shut off some validation checks
-		Env.setContext(getCtx(), "MigrationStepApplyInProgress", "Y");
-
 		log.log(Level.CONFIG, "Applying migration step: " + this.toString());
 
 		if ( MMigrationStep.STEPTYPE_SQLStatement.equals(getStepType()) )
@@ -240,10 +237,10 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		setApply(apply ? MMigrationStep.APPLY_Apply : MMigrationStep.APPLY_Rollback);
         saveEx();
 
-        if (apply)
-			Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
-        else
-    		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "");
+//        if (apply)
+//			Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
+//        else
+//    		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "");
         
 		getParent().updateStatus();
 		getParent().save();
@@ -263,7 +260,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			return retCode + "Not applied, no rollback required";
 		
 		// Flag that a script is in progress to shut off some validation checks
-		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "Y");
+		//Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "Y");
 		
 		log.log(Level.CONFIG, "Rolling back migration step: " + this);
 
@@ -462,13 +459,25 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			{
 				po = table.getPO(0, get_TrxName());
 				po.set_ValueNoCheck(po.get_KeyColumns()[0], getRecord_ID() );
-				po.setIsDirectLoad(true);
+			}
+			else if (po == null && getAction().equals(MMigrationStep.ACTION_Delete))
+			{
+				// Already deleted - nothing to do.
+				setStatusCode(MMigrationStep.STATUSCODE_Applied);
+				setApply(MMigrationStep.APPLY_Rollback);
+				setErrorMsg(null);
+				saveEx();
+				return "successfully applied";
 			}
 			else if (po == null) // Action other than insert
 			{
 				// The PO has not been set and we aren't inserting a new record - something is wrong.
 				bailout("Step " + getSeqNo() + ", Record " + getRecord_ID() + " was not found in table " + table.getName() + " (" + table.get_ID() + ").");
 			}
+			
+			// Prevent normal changes that are captured as part of the 
+			// migration scripts.  
+			po.setIsDirectLoad(true);
 
 			for (MMigrationData data : m_migrationData )
 			{
@@ -519,6 +528,26 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			}
 			else
 			{
+				//  If this is a change to a table, capture the old table name before the save.
+				String oldTableName = null;
+				if ( po instanceof MTable )
+				{
+					MTable mTable = (MTable) po;
+					if (!mTable.isView()) {
+						oldTableName = (String) mTable.get_ValueOld(MTable.COLUMNNAME_TableName);
+					}
+				}
+
+				//  If this is a change to a column, capture the old column name before the save.
+				String oldColumnName = null;
+				if ( po instanceof MColumn )
+				{
+					MColumn mCol = (MColumn) po;
+					if (!mCol.isVirtualColumn()) {
+						oldColumnName = (String) mCol.get_ValueOld(MColumn.COLUMNNAME_ColumnName);
+					}
+				}
+
 				po.saveEx(get_TrxName());
 
 				//  Synchronize the AD_Column changes with the database.
@@ -527,7 +556,16 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					MColumn col = (MColumn) po;
 					if (!col.isVirtualColumn()) {
 						log.log(Level.CONFIG, "Synchronizing column: " + col.toString() + " in table: " + MTable.get(Env.getCtx(),col.getAD_Table_ID()));
-						col.syncDatabase();
+						col.syncDatabase(oldColumnName);
+					}
+				}
+				//  Synchronize the AD_Table changes with the database.
+				if ( po instanceof MTable )
+				{
+					MTable mTable = (MTable) po;
+					if (!mTable.isView()) {
+						log.log(Level.CONFIG, "Synchronizing Table: " + mTable.toString());
+						mTable.syncDatabase(oldTableName);
 					}
 				}
 			}
@@ -599,8 +637,8 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					if (!data.isActive())
 						continue;
 
-					String value = data.getBackupValue();
-					if ( data.isBackupNull() )
+					String value = data.getOldValue();
+					if ( data.isOldNull() )
 						value = null;
 
 					MColumn column = (MColumn) data.getAD_Column();
@@ -609,6 +647,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 
 					po.set_ValueNoCheck(column.getColumnName(), stringToObject(column, value));
 				}
+				po.saveEx();
 			}
 
 			// If the record was inserted, delete it.
@@ -633,6 +672,28 @@ public class MMigrationStep extends X_AD_MigrationStep {
 
 					po.set_ValueNoCheck(column.getColumnName(), stringToObject(column, value));
 				}
+				po.setIsDirectLoad(true);
+				
+				//  If this is a change to a table, capture the old table name before the save.
+				String oldTableName = "";
+				if ( po instanceof MTable )
+				{
+					MTable mTable = (MTable) po;
+					if (!mTable.isView()) {
+						oldTableName = (String) mTable.get_ValueOld(MTable.COLUMNNAME_TableName);
+					}
+				}
+				
+				//  If this is a change to a column, capture the old column name before the save.
+				String oldColumnName = null;
+				if ( po instanceof MColumn )
+				{
+					MColumn mCol = (MColumn) po;
+					if (!mCol.isVirtualColumn()) {
+						oldColumnName = (String) mCol.get_ValueOld(MColumn.COLUMNNAME_ColumnName);
+					}
+				}
+
 				po.saveEx();
 				
 				//  Synchronize the AD_Column changes with the database.
@@ -641,7 +702,16 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					MColumn col = (MColumn) po;
 					if (!col.isVirtualColumn()) {
 						log.log(Level.CONFIG, "Synchronizing column: " + col.toString() + " in table: " + MTable.get(Env.getCtx(),col.getAD_Table_ID()));
-						col.syncDatabase();
+						col.syncDatabase(oldColumnName);
+					}
+				}
+				//  Synchronize the AD_Table changes with the database.
+				if ( po instanceof MTable )
+				{
+					MTable mTable = (MTable) po;
+					if (!mTable.isView()) {
+						log.log(Level.CONFIG, "Synchronizing Table: " + mTable.toString());
+						mTable.syncDatabase(oldTableName);
 					}
 				}
 			}
@@ -787,6 +857,12 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		return parent;
 	}
 	
+	/**
+	 * Set parent migration
+	 */
+	public void setParent(MMigration parent) {
+		this.parent = parent;
+	}
 	/**
 	 * 	Before Delete
 	 *	@return true of it can be deleted

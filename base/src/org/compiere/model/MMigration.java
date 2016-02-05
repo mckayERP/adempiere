@@ -55,6 +55,11 @@ public class MMigration extends X_AD_Migration {
 
 	private boolean isFailOnError = true;
 
+	/**
+	 * Set to prevent status updates after each migration step is run.
+	 */
+	private boolean isBatchInProgress = false;
+
 	public MMigration(Properties ctx, int AD_Migration_ID, String trxName) {
 		super(ctx, AD_Migration_ID, trxName);		
 	}
@@ -77,7 +82,7 @@ public class MMigration extends X_AD_Migration {
 		// These values should have been set by default or by previous actions.  Valid
 		// values are (status/action):
 		//    STATUSCODE_APPLIED/APPLY_Rollback
-		//    STATUSCODE_PartiallyApplied/APPLY_Rollback
+		//    STATUSCODE_PartiallyApplied/(could be either apply or rollback - leave as is)
 		//    STATUSCODE_Unapplied/APPLY_Apply
 		
 		// The status code may have been changed by the user.  Check/reset it:
@@ -92,8 +97,7 @@ public class MMigration extends X_AD_Migration {
 			setApply(X_AD_Migration.APPLY_Apply);
 
 		// Fix improperly set status and actions based on the status code
-		if ((getStatusCode().equals(X_AD_Migration.STATUSCODE_Applied)
-			 || getStatusCode().equals(X_AD_Migration.STATUSCODE_PartiallyApplied)) 
+		if ((getStatusCode().equals(X_AD_Migration.STATUSCODE_Applied)) 
 			&& !getApply().equals(X_AD_Migration.APPLY_Rollback))
 		{
 			setApply(X_AD_Migration.APPLY_Rollback);
@@ -105,37 +109,42 @@ public class MMigration extends X_AD_Migration {
 		}
 		
 		// Determine whether to apply or rollback the migration
-		if (getStatusCode().equals(X_AD_Migration.STATUSCODE_Unapplied))
+		if (getStatusCode().equals(X_AD_Migration.STATUSCODE_Unapplied)) {
 			apply = true;
+		}
+		else if (getStatusCode().equals(X_AD_Migration.STATUSCODE_PartiallyApplied)) {
+			apply = getApply().equals(X_AD_Migration.APPLY_Apply);
+		}
 
 		String retVal = toString();
 
 		try{
 			//  Apply the Migration Steps
 			//  Set a flag to prevent migration status updates
-			Env.setContext(Env.getCtx() , "MigrationScriptBatchInProgress", "Y");
-			
+			isBatchInProgress = true;
+						
 			// Get the set of active steps and apply each in order
-			for ( int stepId : getStepIds(!apply) )
+			for ( int stepId : getStepIds(false, !apply) )
 			{
 				MMigrationStep step = new MMigrationStep(getCtx(), stepId, get_TrxName());
 				
 				// The migration will only be applied if all steps are unapplied.  Any partially
 				// applied migration will need to be rolled back first.
-				/*
+				
 				if (apply && MMigrationStep.STATUSCODE_Applied.equals(step.getStatusCode())) 
 				{
 					log.log(Level.CONFIG, step.toString() + " ---> Migration Step already applied - skipping.");
 					continue;
 				}
 				else
-				*/ 
+				 
 				if (!apply && MMigrationStep.STATUSCODE_Unapplied.equals(step.getStatusCode())) 
 				{
 						log.log(Level.CONFIG, step.toString() + " ---> Migration Step unapplied - skipping.");
 						continue;
 				}
 
+				step.setParent(this);
 				step.apply();
 			}
 		}
@@ -147,8 +156,8 @@ public class MMigration extends X_AD_Migration {
 				if (apply) // Try to rollback the transaction
 				{
 					// Set the status code to trigger a rollback
-					setStatusCode(X_AD_Migration.STATUSCODE_Failed);
-					apply();  // Apply/rollback
+					//setStatusCode(X_AD_Migration.STATUSCODE_Failed);
+					//apply();  // Apply/rollback
 				}
 				throw new AdempiereException(e.getMessage() , e);
 			}
@@ -156,7 +165,8 @@ public class MMigration extends X_AD_Migration {
 		finally
 		{			
 			// Unset a flag to prevent migration status updates
-			Env.setContext(Env.getCtx() , "MigrationScriptBatchInProgress", "");
+			isBatchInProgress = false;
+			
 			// Update the status of the migration
 			updateStatus();
 			
@@ -201,7 +211,7 @@ public class MMigration extends X_AD_Migration {
 	 */
 	public void updateStatus() {
 		// Don't update in the middle of a batch
-		if (Env.getContext(getCtx(), "MigrationScriptBatchInProgress").equals("Y") )
+		if (isBatchInProgress )
 			return;
 
 		StringBuilder whereBase = new StringBuilder();
@@ -243,7 +253,7 @@ public class MMigration extends X_AD_Migration {
 		else if ( total > applied && applied > 0 )
 		{
 			setStatusCode(MMigration.STATUSCODE_PartiallyApplied);
-			setApply(MMigration.APPLY_Rollback);
+			//setApply(MMigration.APPLY_Rollback);
 			status = "Partially Applied";
 		}
 
@@ -251,8 +261,11 @@ public class MMigration extends X_AD_Migration {
 		log.log(Level.CONFIG, this.toString() + " ---> " + status + " (" + getStatusCode() + ")");
 	}
 	
-	private int[] getStepIds(boolean rollback) {
+	private int[] getStepIds(boolean all, boolean rollback) {
 		String where = "AD_Migration_ID = " + getAD_Migration_ID();
+		if (!all) {
+			where += " AND statuscode != " + DB.TO_STRING(rollback ? "U" : "A");
+		}
 		String order = rollback ? "SeqNo DESC" : "SeqNo ASC";
 		return MTable.get(getCtx(), MMigrationStep.Table_ID)
 		.createQuery(where, null)  // Use a null Trx to generate a readonly query
@@ -339,7 +352,7 @@ public class MMigration extends X_AD_Migration {
 		} 
 		
 		
-		for ( int stepId : getStepIds(false) )
+		for ( int stepId : getStepIds(true, false) )
 		{
 			MMigrationStep step = new MMigrationStep(getCtx(), stepId, get_TrxName());
 			log.log(Level.FINE, "Exporting step: " + step);
@@ -373,7 +386,7 @@ public class MMigration extends X_AD_Migration {
 	 */
 	protected boolean beforeDelete ()
 	{
-		for ( int stepID : getStepIds(false) )
+		for ( int stepID : getStepIds(true, false) )
 		{
 			MMigrationStep step = new MMigrationStep(getCtx(), stepID, get_TrxName());
 			step.deleteEx(true);
@@ -413,7 +426,7 @@ public class MMigration extends X_AD_Migration {
 
 			this.setProcessed(true);
 			
-			for ( int stepId : getStepIds(false) )
+			for ( int stepId : getStepIds(true, false) )
 			{
 				MMigrationStep step = new MMigrationStep(getCtx(), stepId, get_TrxName());
 				log.log(Level.CONFIG, "   Deleting step: " + step.toString());
