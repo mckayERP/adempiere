@@ -1367,7 +1367,7 @@ public class GridTable extends AbstractTableModel
 		{
 			log.config("NoNeed - Changed=" + m_changed + ", Row=" + m_rowChanged);
 		//	return SAVE_ERROR;
-			if (!manualCmd)
+		//	if (!manualCmd)
 				return SAVE_OK;
 		}
 		//  Value not changed
