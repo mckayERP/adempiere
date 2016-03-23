@@ -165,14 +165,7 @@ public class MAttributeSet extends X_M_AttributeSet
 				m_productAttributes = new MAttribute[list.size()];
 				list.toArray (m_productAttributes);
 			}
-		}
-		//
-		if (instanceAttributes)
-		{
-			if (isInstanceAttribute() != m_instanceAttributes.length > 0)
-				setIsInstanceAttribute(m_instanceAttributes.length > 0);
-		}
-		
+		}		
 		//	Return
 		if (instanceAttributes)
 			return m_instanceAttributes;
