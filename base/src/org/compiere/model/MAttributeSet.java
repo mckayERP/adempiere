@@ -277,7 +277,8 @@ public class MAttributeSet extends X_M_AttributeSet
 	public boolean isExcludeSerNo (int AD_Column_ID, boolean isSOTrx)
 	{
 		if (getM_SerNoCtl_ID() == 0)
-			return true;
+			return false;  // serial numbers could be manually entered.
+		
 		if (m_excludeSerNos == null)
 		{
 			final String whereClause = X_M_SerNoCtlExclude.COLUMNNAME_M_SerNoCtl_ID+"=?";
