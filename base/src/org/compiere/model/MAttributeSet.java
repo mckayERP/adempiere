@@ -114,7 +114,27 @@ public class MAttributeSet extends X_M_AttributeSet
 	private X_M_SerNoCtlExclude[]	m_excludeSerNos = null;
 
 	/**
-	 * 	Get Attribute Array
+	 * 	Get Attribute Array 
+	 *	@return attribute array
+	 */
+	public MAttribute[] getMAttributes ()
+	{
+		getMAttributes(true);
+		getMAttributes(false);
+		
+		int instanceLength = m_instanceAttributes.length;
+		int productLength = m_productAttributes.length;
+		
+		// Order is important - instance first, then product.
+		MAttribute[] allAttributes = new MAttribute[instanceLength + productLength];
+		System.arraycopy(m_instanceAttributes, 0, allAttributes, 0, instanceLength);
+		System.arraycopy(m_productAttributes, 0, allAttributes, instanceLength, productLength);
+		
+		return allAttributes;
+	}
+	
+	/**
+	 * 	Get Attribute Array in order of attribute use sequence
 	 * 	@param instanceAttributes true if for instance
 	 *	@return instance or product attribute array
 	 */
