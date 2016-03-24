@@ -42,6 +42,12 @@ import org.compiere.util.TimeUtil;
  *
  * @author Teo Sarca, www.arhipac.ro
  *			<li>BF [ 2675699 ] MAttributeSetInstance.create should create Lot/Serial/Guaran
+ *
+ *  @author mckayERP, www.mckayerp.com
+ *  		<li>MAttributeSetInstance Improvements:
+ *  		<li>  #258 Reduce duplication.
+ *  		<li>  #260 Determine if all mandatory requirements are met
+ *  		<li>  #261 Add beforeSave function
  */
 public class MAttributeSetInstance extends X_M_AttributeSetInstance
 {
