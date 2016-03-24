@@ -35,6 +35,11 @@ import org.compiere.util.DB;
  *
  * @author Teo Sarca, www.arhipac.ro
  *			<li>FR [ 2214883 ] Remove SQL code and Replace for Query
+ *
+ *  @author mckayERP, www.mckayerp.com
+ *  		<li> #254 MAttributeSet.getMAttributes sets isInstanceAttribute incorrectly 
+ *  		<li> #255 MAttributeSet.isExcludeSerNo returns incorrect value
+ *  		<li> #256 MAttributeSet add convenience function to return all attributes of a set. 
  */
 public class MAttributeSet extends X_M_AttributeSet
 {
