@@ -16,17 +16,21 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
+import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.TimeUtil;
 
@@ -404,4 +408,175 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		asi.saveEx();
 		return asi;
 	}
+	
+	/**
+	 * 	Called before Save for Pre-Save Operation.   
+	 * 	@param newRecord new record
+	 *  @return true if record can be saved
+	 */
+	protected boolean beforeSave(boolean newRecord)
+	{
+		// Fix description
+		if (newRecord)
+			return true;
+		
+		if ( getDescription() == get_ValueOld("Description") )
+		{
+			setDescription();
+		}
+
+		return true;
+	}	//	beforeSave
+
+	/**
+	 * Determines if the values of an attribute set instance match the provided set of values.
+	 * @param values in the order provided by MAttributeSet.getMAttributes()
+	 * @return true if the values provided match those of this attribute set.
+	 */
+	public boolean hasValues(Object[] values) {
+		
+		if (values == null)
+			return false;
+		
+		MAttributeSet as = this.getMAttributeSet();
+		if (as == null)
+			return false;
+		
+		MAttribute[] attributes = as.getMAttributes();
+		
+		if (attributes.length != values.length)
+			return false;
+		
+		for (int i = 0; i < attributes.length; i++) {
+			MAttribute attribute = attributes[i];
+			Object value = values[i];
+			
+			if (attribute == null  && value == null)
+				continue;
+			else if (attribute == null && value != null)
+				return false;
+				
+			log.finest(attribute.getName());
+			MAttributeInstance instance = attribute.getMAttributeInstance (getM_AttributeSetInstance_ID());
+
+			if (value != null && instance == null 
+				|| value == null && instance != null)
+				return false;
+			
+			if (value == null && instance == null)
+				continue;
+			
+			// Check if the values match
+			if (MAttribute.ATTRIBUTEVALUETYPE_List.equals(attribute.getAttributeValueType()))
+			{
+				if (((MAttributeValue) value).getM_AttributeValue_ID() != instance.getM_AttributeValue_ID()) {
+					return false;
+				}
+			}
+			else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(attribute.getAttributeValueType()))
+			{
+				if (((BigDecimal) value).compareTo(instance.getValueNumber()) != 0) {
+					return false;
+				}
+			}
+			else	//	Text Field
+			{
+				if (!((String) value).equals(instance.getValue())) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Finds an existing Attribute Set Instance that is identical to the provided set
+	 * of values.  The match looks at the M_AttributeSetInstance and the 
+	 * M_AttributeInstance tables for duplicates across the main fields. 
+	 * 
+	 * @return The M_AttributeSetInstance_ID of the first matching instance is returned.
+	 */
+	public int findMatchingASI(Object[] values) {
+		// Test main ASI fields
+		
+		List<Object> parameters = new ArrayList<Object>();
+		
+		String where =  MAttributeSetInstance.COLUMNNAME_AD_Org_ID + "=?";
+		parameters.add(this.getAD_Org_ID());
+		//
+		where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
+		parameters.add(this.getM_AttributeSet_ID());
+		//
+		if (this.getGuaranteeDate() != null) {
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_GuaranteeDate + "=?" ;
+			parameters.add(this.getGuaranteeDate());
+		}
+		else
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_GuaranteeDate + " is null";
+		//
+		if (this.getLot() != null) {
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_Lot + "=?" ;
+			parameters.add(this.getLot());
+		}
+		else
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_Lot + " is null";
+		//
+		if (this.getSerNo() != null) {
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_SerNo + "=?" ;
+			parameters.add(this.getSerNo());
+		}
+		else
+			where += " AND " + MAttributeSetInstance.COLUMNNAME_SerNo + " is null";
+		//
+		where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSetInstance_ID + "!=?";			
+		parameters.add(this.getM_AttributeSetInstance_ID());
+		
+		List<MAttributeSetInstance> matchingASIs = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
+						.setClient_ID()
+						.setParameters(parameters)
+						.setOrderBy(COLUMNNAME_M_AttributeSetInstance_ID + " ASC")
+						.list();
+		
+		if (matchingASIs.size() == 0) {
+			// No match of the Attribute Set Instance fields.  No need to test the values.
+			return 0;
+		}
+		
+		//  There is one or more matching ASIs. Test each for same attribute values
+		//  and return the ID of the first match.
+		for (MAttributeSetInstance match : matchingASIs) {
+			if (match.hasValues(values))
+				return match.getM_AttributeSetInstance_ID();
+		}
+		return 0;
+	}
+
+	/**
+	 * Determines if the mandatory attributes of an attribute set are included in this instance.
+	 * @return true if the mandatory attributes values exist.
+	 */
+	public boolean hasMandatoryValues() {
+		
+		MAttributeSet as = this.getMAttributeSet();
+		if (as == null)
+			return false;
+		
+		MAttribute[] attributes = as.getMAttributes();
+		
+		for (int i = 0; i < attributes.length; i++) {
+			MAttribute attribute = attributes[i];
+			
+			if (attribute == null || !attribute.isMandatory())
+				continue;
+				
+			log.finest(attribute.getName());
+			MAttributeInstance instance = attribute.getMAttributeInstance (getM_AttributeSetInstance_ID());
+
+			if (instance == null)
+				return false;
+		}
+
+		// Else - assume the values are set
+		return true;
+	}	
 }	//	MAttributeSetInstance
