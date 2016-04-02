@@ -36,6 +36,9 @@ import org.compiere.util.Util;
  *
  *	@author Jorg Janke
  *	@version $Id: MStorage.java,v 1.3 2006/07/30 00:51:05 jjanke Exp $
+ *
+ *  @author mckayERP www.mckayERP.com
+ *  			<li> #282 MStorage.getQtyAvailable does not ignore the warehouse if M_Warehouse_ID = 0
  */
 public class MStorage extends X_M_Storage
 {
@@ -658,17 +661,22 @@ public class MStorage extends X_M_Storage
 		ArrayList<Object> params = new ArrayList<Object>();
 		StringBuffer sql = new StringBuffer("SELECT COALESCE(SUM(s.QtyOnHand-s.QtyReserved),0)")
 								.append(" FROM M_Storage s")
-								.append(" WHERE s.M_Product_ID=?");
+								.append(" WHERE AD_Client_ID = ?")
+								.append(" AND s.M_Product_ID=?");
+		params.add(Env.getAD_Client_ID(Env.getCtx()));
 		params.add(M_Product_ID);
-		// Warehouse level
-		if (M_Locator_ID == 0) {
-			sql.append(" AND EXISTS (SELECT 1 FROM M_Locator l WHERE s.M_Locator_ID=l.M_Locator_ID AND l.M_Warehouse_ID=?)");
-			params.add(M_Warehouse_ID);
-		}
-		// Locator level
-		else {
-			sql.append(" AND s.M_Locator_ID=?");
-			params.add(M_Locator_ID);
+		
+		if (M_Warehouse_ID != 0) {
+			// Warehouse level
+			if (M_Locator_ID == 0) {
+				sql.append(" AND EXISTS (SELECT 1 FROM M_Locator l WHERE s.M_Locator_ID=l.M_Locator_ID AND l.M_Warehouse_ID=?)");
+				params.add(M_Warehouse_ID);
+			}
+			// Locator level
+			else {
+				sql.append(" AND s.M_Locator_ID=?");
+				params.add(M_Locator_ID);
+			}
 		}
 		// With ASI
 		if (M_AttributeSetInstance_ID != 0) {
