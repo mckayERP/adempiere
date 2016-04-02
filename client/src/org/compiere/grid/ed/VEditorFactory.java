@@ -23,7 +23,7 @@ import org.compiere.model.GridTab;
 import org.compiere.model.MAccountLookup;
 import org.compiere.model.MLocationLookup;
 import org.compiere.model.MLocatorLookup;
-import org.compiere.model.MPAttributeLookup;
+import org.compiere.model.MLookup;
 import org.compiere.swing.CLabel;
 import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
@@ -35,9 +35,10 @@ import org.compiere.util.DisplayType;
  *  @author  Jorg Janked
  *  @version $Id: VEditorFactory.java,v 1.3 2006/07/30 00:51:28 jjanke Exp $
  *  
- *  @author Michael McKay, 
+ *  @author Michael McKay, mckayERP www.mckayERP.com
  * 				<li>ADEMPIERE-72 VLookup and Info Window improvements
  * 					https://adempiere.atlassian.net/browse/ADEMPIERE-72
+ * 				<li>#278 Enable zoom in ASI fields
  */
 public class VEditorFactory
 {
@@ -135,7 +136,7 @@ public class VEditorFactory
 		}
 
 		//	Lookup
-		else if (DisplayType.isLookup(displayType) || displayType == DisplayType.ID)
+		else if ((DisplayType.isLookup(displayType) && displayType != DisplayType.PAttribute) || displayType == DisplayType.ID)
 		{
 			VLookup vl = new VLookup(columnName, mandatory, readOnly, updateable,
 				mField.getLookup());
@@ -272,7 +273,7 @@ public class VEditorFactory
 		else if (displayType == DisplayType.PAttribute)
 		{
 			VPAttribute attrib = new VPAttribute (mTab, mandatory, readOnly, updateable, WindowNo,
-				(MPAttributeLookup)mField.getLookup(), false);
+				(MLookup)mField.getLookup(), false);
 			attrib.setName(columnName);
 			attrib.setField (mField);
 			editor = attrib;

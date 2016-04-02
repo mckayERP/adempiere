@@ -46,6 +46,9 @@ import org.compiere.util.ValueNamePair;
  *  </pre>
  * 	@author 	Jorg Janke
  * 	@version 	$Id: MLookup.java,v 1.4 2006/10/07 00:58:57 jjanke Exp $
+ * 
+ *  @author mckayERP www.mckayERP.com
+ * 				<li>#278 Enable zoom in ASI fields
  */
 public final class MLookup extends Lookup implements Serializable
 {
@@ -78,6 +81,11 @@ public final class MLookup extends Lookup implements Serializable
 		{
 			m_hasInactive = true;		//	creates focus listener for dynamic loading
 			return;						//	required when parent needs to be selected (e.g. price from product)
+		}
+		
+		// Set the MPAttributeLookup
+		if(m_info.DisplayType == DisplayType.PAttribute) {
+			setMPAttributeLookup(new MPAttributeLookup(Env.getCtx(), this.getWindowNo()));
 		}
 		//
 		//m_loader = new MLoader();
@@ -116,6 +124,9 @@ public final class MLookup extends Lookup implements Serializable
 	/** Next Read for Parent			*/
 	private long				m_nextRead = 0;
 	
+	/** MPAttributeLookup model */
+	private MPAttributeLookup	m_PAttributeLookup = null;
+	
 	/**
 	 *  Dispose
 	 */
@@ -133,6 +144,9 @@ public final class MLookup extends Lookup implements Serializable
 		if (m_lookupDirect != null)
 			m_lookupDirect.clear();
 		m_lookupDirect = null;
+		if (m_PAttributeLookup != null)
+			m_PAttributeLookup.dispose();
+		m_PAttributeLookup = null;
 		//
 		m_info = null;
 		//
@@ -238,6 +252,12 @@ public final class MLookup extends Lookup implements Serializable
 	{
 		if (key == null)
 			return "";
+		
+		// AttributeSetInstances use a different display approach
+		if(this.getDisplayType() == DisplayType.PAttribute && getMPAttributeLookup() != null) {
+			return getMPAttributeLookup().getDisplay(key);
+		}
+		
 		//
 		Object display = get (key);
 		if (display == null)
@@ -807,6 +827,14 @@ public final class MLookup extends Lookup implements Serializable
 
 	public boolean isAlert() {
 		return m_info.IsAlert;
+	}
+
+	public MPAttributeLookup getMPAttributeLookup() {
+		return m_PAttributeLookup;
+	}
+
+	public void setMPAttributeLookup(MPAttributeLookup mPAttributeLookup) {
+		this.m_PAttributeLookup = mPAttributeLookup;
 	}
 
 

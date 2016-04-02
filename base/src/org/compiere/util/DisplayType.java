@@ -33,6 +33,9 @@ import java.util.logging.Level;
  * 
  * @author Teo Sarca, SC ARHIPAC SERVICE SRL
  * 				<li>BF [ 1810632 ] PricePrecision error in InfoProduct (and similar)
+ * 
+ *  @author mckayERP www.mckayERP.com
+ * 				<li>#278 Enable zoom in ASI fields
  */
 public final class DisplayType
 {
@@ -221,7 +224,8 @@ public final class DisplayType
 	public static boolean isLookup(int displayType)
 	{
 		if (displayType == List || displayType == Table
-			|| displayType == TableDir || displayType == Search)
+			|| displayType == TableDir || displayType == Search
+			|| displayType == PAttribute)
 			return true;
 		return false;
 	}	//	isLookup

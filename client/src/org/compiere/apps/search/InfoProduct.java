@@ -49,6 +49,7 @@ import org.compiere.minigrid.IDColumn;
 import org.compiere.minigrid.MiniTable;
 import org.compiere.model.GridTab;
 import org.compiere.model.MAttributeSet;
+import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MColumn;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPAttributeLookup;
@@ -83,6 +84,7 @@ import org.compiere.util.Util;
  * @author Michael McKay, 
  * 				<li>ADEMPIERE-72 VLookup and Info Window improvements
  * 					https://adempiere.atlassian.net/browse/ADEMPIERE-72
+ * 				<li>#278 Enable zoom in ASI fields
  */
 public class InfoProduct extends Info implements ActionListener, ChangeListener
 {
@@ -296,8 +298,10 @@ public class InfoProduct extends Info implements ActionListener, ChangeListener
 		fAS_ID.addActionListener(this);
 		//
 		labelASI.setText(Msg.translate(Env.getCtx(), "M_AttributeSetInstance_ID"));
-		MPAttributeLookup mpaLookup = new MPAttributeLookup(Env.getCtx(), p_WindowNo);
-		fASI_ID = new VPAttribute((GridTab) null, false, false, true, p_WindowNo, mpaLookup, true);
+		fASI_ID = new VPAttribute((GridTab) null, false, false, true, p_WindowNo, 
+				MLookupFactory.get (Env.getCtx(), p_WindowNo, 0, 
+						MColumn.getColumn_ID(MAttributeSetInstance.Table_Name, MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID),
+						DisplayType.PAttribute), true);
 		fASI_ID.setBackground(AdempierePLAF.getInfoBackground());
 		fASI_ID.addActionListener(this);
 
