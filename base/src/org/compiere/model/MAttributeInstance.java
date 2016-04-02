@@ -25,6 +25,9 @@ import java.util.Properties;
  *
  *	@author Jorg Janke
  *	@version $Id: MAttributeInstance.java,v 1.3 2006/07/30 00:51:02 jjanke Exp $
+ *
+ *	@author mckayERP www.mckayERP.com
+ *				<li> #272 Provide method to copy Attribute Instance values from one Attribute Set Instance to another. 
  */
 public class MAttributeInstance extends X_M_AttributeInstance
 {
@@ -59,7 +62,7 @@ public class MAttributeInstance extends X_M_AttributeInstance
 	}	//	MAttributeInstance
 
 	/**
-	 * 	String Value Constructior
+	 * 	String Value Constructor
 	 *	@param ctx context
 	 *	@param M_Attribute_ID attribute
 	 *	@param M_AttributeSetInstance_ID instance
@@ -164,4 +167,51 @@ public class MAttributeInstance extends X_M_AttributeInstance
 		return getValue();
 	}	//	toString
 
+	/**
+	 * Copy a set of Attribute Instance values from one Attribute Set Instance to another. The
+	 * new set of Attribute Instances are created and saved.
+	 * 
+	 * @param ctx - the context properties to use
+	 * @param M_AttributeSetInstance_ID - the target Attribute Set Instance
+	 * @param from_M_AttributeSetInstance_ID - the Attribute Set Instance to take the values from.
+	 * @param trxName - the transaction to use for the save.
+	 */
+	public static void copy(Properties ctx, int M_AttributeSetInstance_ID, 
+			int from_M_AttributeSetInstance_ID, String trxName)
+	{
+
+		if (M_AttributeSetInstance_ID == 0 
+				|| from_M_AttributeSetInstance_ID == 0)
+			return;
+		
+		MAttributeSetInstance fromASI = MAttributeSetInstance.get(ctx, from_M_AttributeSetInstance_ID, 0);
+		if (fromASI == null)
+			return;
+		
+		MAttributeSet as = fromASI.getMAttributeSet();
+		
+		MAttribute[] attributes = as.getMAttributes();
+		
+		for (MAttribute attribute: attributes) {
+			
+			MAttributeInstance fromInstance = null;
+			MAttributeInstance toInstance = null;
+			
+			fromInstance = attribute.getMAttributeInstance (from_M_AttributeSetInstance_ID);
+			
+			if (fromInstance != null) {
+				toInstance = new MAttributeInstance(ctx,0,trxName);
+				toInstance.setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+				// 
+				toInstance.setM_Attribute_ID (fromInstance.getM_Attribute_ID());
+				toInstance.setM_AttributeValue_ID (fromInstance.getM_AttributeValue_ID());
+				toInstance.setValueNumber(fromInstance.getValueNumber());
+				toInstance.setValue (fromInstance.getValue());
+				//
+				toInstance.saveEx();
+			}
+		}
+
+		return;
+	}
 }	//	MAttributeInstance
