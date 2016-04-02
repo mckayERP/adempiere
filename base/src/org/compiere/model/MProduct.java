@@ -43,6 +43,9 @@ import org.compiere.util.Msg;
  * 
  * @author Mark Ostermann (mark_o), metas consult GmbH
  * 			<li>BF [ 2814628 ] Wrong evaluation of Product inactive in beforeSave()
+ * 
+ * @author mckayERP www.mckayERP.com
+ * 			<li>#281 Provide methods to test validity of ASI values
  */
 public class MProduct extends X_M_Product
 {
@@ -897,10 +900,13 @@ public class MProduct extends X_M_Product
 		//
 		// Check Attribute Set settings
 		int M_AttributeSet_ID = getM_AttributeSet_ID();
+		int M_AttributeSetInstance_ID = getM_AttributeSetInstance_ID();
 		if (M_AttributeSet_ID != 0)
 		{
 			MAttributeSet mas = MAttributeSet.get(getCtx(), M_AttributeSet_ID);
-			if (mas == null || !mas.isInstanceAttribute())
+			// Not mandatory if there is no attribute set, or the attribute set has no instance attributes
+			// and there is no product attribute set instance defined.
+			if (mas == null || (!mas.isInstanceAttribute() && M_AttributeSetInstance_ID == 0))
 				return false;
 			// Outgoing transaction
 			else if (isSOTrx)
@@ -995,34 +1001,240 @@ public class MProduct extends X_M_Product
 
 	/**
 	 * Get the Attribute Set Instance.  This is called by callouts to fill the M_AttributeSetInstance_ID
-	 * field.  The ASI should override the context if the product has a defined ASI or if the 
-	 * context ASI does not use the same attribute set.
+	 * field.  The product ASI should override the context if the product has a defined 
+	 * non-instance ASI or if the context ASI does not use the same attribute set.
+	 * Deprecated. Please use {@link #getEnvAttributeSetInstance(Properties, int, int)}. See #281.
 	 * @param ctx
 	 * @param WindowNo number
+	 * @return The Attribute Set Instance ID or zero
 	 */
+	@Deprecated
 	public Integer getEnvAttributeSetInstance(Properties ctx, int WindowNo)
 	{
-		Integer M_AttributeSetInstance_ID = 0;
+		Integer M_AttributeSetInstance_ID = I_ZERO;
 
-		//	Set Attribute Instance from the context
-		M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID");
-		//	Get Model and check if it has a product attribute instance
-		if (getM_AttributeSetInstance_ID() > 0)
-		{
-			//  If the product has a product instance associated with it. Use it regardless of the context.
-			//  Product Attributes and Instance Attributes are exclusive
+		if (getM_AttributeSet_ID() == 0)  // Product has no attribute set
+			return I_ZERO;
+		
+		MAttributeSet as = getAttributeSet();
+		if (as == null)
+			return I_ZERO;
+				
+		if (!as.isInstanceAttribute()) { 
+			// The product has a non-instance attribute set
+			// If it also has a ASI defined, use it everywhere
+			if (getM_AttributeSetInstance_ID() > 0)
 				M_AttributeSetInstance_ID = new Integer(getM_AttributeSetInstance_ID());
-		} 
-		else if (getM_AttributeSet_ID() > 0 && M_AttributeSetInstance_ID > 0)
+		}
+		
+		// If the ASI has not been set, it has to be selected or created
+		if (M_AttributeSetInstance_ID.equals(I_ZERO))
+		{  // Instance attributes which have to be selected or created
+			//	Set Attribute Instance from the context
+			M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID");
+			if (getM_AttributeSet_ID() > 0 && M_AttributeSetInstance_ID > 0)
+			{
+				// Check compatibility of the instance with the product - they have to use the same set.
+				MAttributeSetInstance masi = MAttributeSetInstance.get(Env.getCtx(),M_AttributeSetInstance_ID,this.getM_Product_ID());
+				if (masi.getMAttributeSet().get_ID() != this.getAttributeSet().get_ID())
+					M_AttributeSetInstance_ID = I_ZERO;  
+			}
+		}
+		
+		if (M_AttributeSetInstance_ID == null)
+			return I_ZERO;
+		
+		return M_AttributeSetInstance_ID;
+	}
+
+	/**
+	 * Get the Attribute Set Instance.  This is called by callouts to fill the M_AttributeSetInstance_ID
+	 * field.  It will return zero if the column is excluded in the product's Attribute Set.
+	 * (See #281)
+	 * @param ctx the current context
+	 * @param windowNo number
+	 * @param AD_Column_ID the ID of the column being set.  This is used to test to see if the column 
+	 * is excluded by the Attribute Set.
+	 * @return The Attribute Set Instance ID or zero
+	 */
+	public Integer getEnvAttributeSetInstance(Properties ctx, int windowNo, int AD_Column_ID) {
+
+		if (getM_AttributeSet_ID() == 0)  // Product has no attribute set so no ASI
+			return I_ZERO;
+
+		//	Get Attribute Set
+		MAttributeSet as = getAttributeSet();
+		if (as == null)
+			return I_ZERO;
+
+		boolean isSOTrx = Env.getContext(ctx, windowNo, 0, "IsSOTrx").equals("Y")?true:false;
+		
+		//  Test excludes on this column/transaction type
+		if (as.excludeEntry(AD_Column_ID, isSOTrx))
+			return I_ZERO;
+
+		if (!as.isInstanceAttribute()) {
+			// The product has a non-instance attribute set - no instance attributes, lot, serial no. etc...
+			// If the product also has an ASI defined, use the product ASI everywhere
+			if (getM_AttributeSetInstance_ID() > 0)
+				return new Integer(getM_AttributeSetInstance_ID());
+		}
+		
+		//  An ASI has to be selected or created
+		//	Check the context for an ASI value
+		Integer M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, windowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID");
+
+		if (M_AttributeSetInstance_ID == null)
+			return I_ZERO;
+
+		//  Check if the value is valid
+		if (M_AttributeSetInstance_ID > 0)
 		{
-			// Check compatibility of the instance with the product - they have to use the same set.
+			//  Check compatibility of the instance with the product - they have to use the same set.
 			MAttributeSetInstance masi = MAttributeSetInstance.get(Env.getCtx(),M_AttributeSetInstance_ID,this.getM_Product_ID());
 			if (masi.getMAttributeSet().get_ID() != this.getAttributeSet().get_ID())
-				M_AttributeSetInstance_ID = 0;  
+				M_AttributeSetInstance_ID = I_ZERO;
+			
+			//  For instance attribute sets, don't use the product ASI outside the product window. In this 
+			//  case, the ASI has to be set or selected to include the instance attributes.
+			if (as.isInstanceAttribute() && getM_AttributeSetInstance_ID() > 0 && M_AttributeSetInstance_ID > 0) {
+				// It is unlikely that the this routine will be called from the product window but test 
+				// the window just in case
+				Boolean isProductWindow = AD_Column_ID == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID);
+				if (!isProductWindow && M_AttributeSetInstance_ID == this.getM_AttributeSetInstance_ID())
+					M_AttributeSetInstance_ID = I_ZERO;
+			}
 		}
-		if (M_AttributeSetInstance_ID != 0)
-			return M_AttributeSetInstance_ID;
-		else
-			return null;
+		
+		return M_AttributeSetInstance_ID;
 	}
+
+	/**
+	 * Test the provided Attribute Set Instance for validity and completeness.  This test determines 
+	 * if the attribute set instance has all mandatory value instances where the values and attribute
+	 * set instance itself are not excluded. (See #281)
+	 * @param ctx
+	 * @param windowNo
+	 * @param AD_Column_ID
+	 * @param m_AttributeSetInstance_ID 
+	 * @return Return true if the Attribute Set Instance is valid, not excluded and complete, otherwise false.
+	 */
+	public boolean isValidAttributeSetInstance(Properties ctx, boolean isSOTrx, int AD_Column_ID, Integer M_AttributeSetInstance_ID) {
+		
+		// Return false if there are errors.
+		
+		if (M_AttributeSetInstance_ID == null) 
+			M_AttributeSetInstance_ID = I_ZERO;
+		
+		// Product has no attribute set. Return false if there is an instance
+		if (getM_AttributeSet_ID() == 0  && M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0)  
+			return false;
+
+		MAttributeSet as = getAttributeSet();
+		if (as == null) {
+			if (M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0) {
+				return false;
+			}
+			else
+				return true;
+		}
+
+		//  Check compatibility of the instance with the product - they have to use the same set.
+		MAttributeSetInstance masi = MAttributeSetInstance.get(Env.getCtx(),M_AttributeSetInstance_ID,0);
+		if (masi != null && masi.getMAttributeSet().get_ID() != this.getM_AttributeSet_ID())
+			return false;
+
+		//  Test excludes on this column/transaction type
+		//  TODO should excludes be forced or left to the users discretion?  False is forced.
+		if (as.excludeEntry(AD_Column_ID, isSOTrx)) {
+			if (M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0)
+				return false;
+			else
+				return true;  // Excluded and zero.
+		}
+		
+		//  If the product has a instance attribute set - instance attributes, lot, serial no. etc...
+		//  and the window is not the Product window, check that the instance values are set.
+		Boolean isProductWindow = AD_Column_ID == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID);
+		if (isProductWindow)
+			return true;  // In the product window, anything goes as long as there is a match in the attribute set.
+		
+		// Not in the product window - instances are possible
+		if (!as.isInstanceAttribute()) {
+			// If the product also has an ASI defined, should use the product ASI
+			if (getM_AttributeSetInstance_ID() > 0 && M_AttributeSetInstance_ID != getM_AttributeSetInstance_ID())
+				return false;
+			else
+				return true;
+		}
+		else {  // Instances exist
+			// Check lot, serial number, guarantee date
+			if (as.isLot() && as.isLotMandatory() && !as.isExcludeLot(AD_Column_ID, isSOTrx)) {
+				if (masi == null || masi.getLot() == null || masi.getLot().isEmpty())
+					return false;
+			}
+			if (as.isSerNo() && as.isSerNoMandatory() && !as.isExcludeSerNo(AD_Column_ID, isSOTrx)) {
+				// TODO test the serial number for validity
+				if (masi == null || masi.getSerNo() == null || masi.getSerNo().isEmpty())
+					return false;
+			}
+			if (as.isGuaranteeDate() && as.isGuaranteeDateMandatory()) {
+				// TODO test the date validity
+				if (masi == null || masi.getGuaranteeDate() == null)
+					return false;
+			}
+			
+			if (isASIMandatory(isSOTrx, this.getAD_Org_ID())) {
+				if (masi == null || !masi.hasMandatoryValues())
+					return false;
+			}
+			// TODO Check for mandatory attributes
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if the serial number will not violate uniqueness rules.  Assumes
+	 * the attribute set instance is valid for the column and product. (See #281)
+	 * @param ctx
+	 * @param isSOTrx
+	 * @param AD_Column_ID
+	 * @param M_AttributeSetInstance_ID
+	 * @param movementQty
+	 * @return
+	 */
+	public boolean isUniqueAttributeSetInstance(Properties ctx, boolean isSOTrx,
+			int AD_Column_ID, int M_AttributeSetInstance_ID,
+			BigDecimal movementQty) {
+		//	Enforce unique serial numbers.
+		
+		if (getM_Product_ID() != 0 
+			&& M_AttributeSetInstance_ID != 0	
+			&& movementQty.signum() != 0)
+		{
+			MAttributeSet as = getAttributeSet();
+			MAttributeSetInstance asi = MAttributeSetInstance.get(ctx, M_AttributeSetInstance_ID, 0);
+			if (isStocked() 
+			 && as != null
+			 && as.isSerNo() && as.isSerNoMandatory())
+			{
+				// Serial numbers products can only have movements of unit quantity
+				if (movementQty.abs().compareTo(Env.ONE) != 0) {
+					return false;
+				}
+				
+				if (!isSOTrx) { // Incoming transaction
+					// Don't receive or move to a serial number that already exists in stock
+					BigDecimal available = MStorage.getQtyAvailable
+						(0, 0, getM_Product_ID(), M_AttributeSetInstance_ID, null);
+					if (available == null)
+						available = Env.ZERO;
+					if (available.signum() > 0)
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
 }	//	MProduct
