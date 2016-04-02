@@ -48,6 +48,9 @@ import org.compiere.util.Trx;
  *			<li>BF [ 1935093 ] SvrProcess.unlock() is setting invalid result
  *			<li>FR [ 2788006 ] SvrProcess: change access to some methods
  *				https://sourceforge.net/tracker/?func=detail&aid=2788006&group_id=176962&atid=879335
+ *
+ * @author mckayERP www.mckayERP.com
+ * 			<li> #285 Message in SvrProcess can cause null pointer exception. 
  */
 public abstract class SvrProcess implements ProcessCall
 {
@@ -139,7 +142,7 @@ public abstract class SvrProcess implements ProcessCall
 	 */
 	private boolean process()
 	{
-		String msg = null;
+		String msg = "";  //#285
 		boolean success = true;
 		try
 		{
@@ -160,7 +163,7 @@ public abstract class SvrProcess implements ProcessCall
 		}
 		
 		//transaction should rollback if there are error in process
-		if (msg.contains("@Error@"))
+		if (msg != null && msg.contains("@Error@")) // #285 msg could be null
 			success = false;
 		
 		//	Parse Variables
