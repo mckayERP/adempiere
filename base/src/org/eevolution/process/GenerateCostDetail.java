@@ -54,6 +54,9 @@ import org.eevolution.model.MPPCostCollector;
  * period's end in order to fix the cost layers.
  *
  * @author victor.perez@e-evolution.com, www.e-evolution.com
+ * 
+ * @author mckayERP www.mckayERP.com
+ * 			<li> #167 Fix Order of treating documents when generating cost details
  */
 public class GenerateCostDetail extends SvrProcess {
     /**
@@ -606,7 +609,7 @@ public class GenerateCostDetail extends SvrProcess {
 
         sql.append("SELECT M_Transaction_ID , M_Product_ID FROM RV_Transaction ")
                 .append(whereClause)
-                .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , SUBSTR(MovementType,2,1) Desc ");
+                .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , reversalline_id , SUBSTR(MovementType,2,1) Desc ");
         // .append(" ORDER BY M_Product_ID ,  TRUNC( DateAcct ) , M_Transaction_ID , SUBSTR(MovementType,2,1) ");
         //.append(" ORDER BY M_Product_ID , DateAcct , M_Transaction_ID");
         //System.out.append("SQL :" + sql);
