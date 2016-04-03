@@ -69,6 +69,9 @@ import bsh.This;
  *	@author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *			<li> FR [ 94 ] "IsDocument" flag in table for create default columns
  *			@see https://github.com/adempiere/adempiere/issues/94
+ *  @author mckayERP www.mckayERP.com
+ *  		<li> #213 Support for application dictionary changes 
+ *  			 and configurable automatic syncing with the database
  *  @version $Id: MTable.java,v 1.3 2006/07/30 00:58:04 jjanke Exp $
  */
 public class MTable extends X_AD_Table
@@ -993,9 +996,10 @@ public class MTable extends X_AD_Table
 	{
 		if (isView())
 			return "Cannot sync view";
+						
 		if (get_ID() == 0)
 			throw new AdempiereException("@NotFound@ @AD_Table_ID@ " + getAD_Table_ID());
-
+		
 		// Check if the database table name changed.
 		// String oldTableName = (String) get_ValueOld(MTable.COLUMNNAME_TableName);
 		if (oldTableName == null 
@@ -1009,15 +1013,20 @@ public class MTable extends X_AD_Table
 		
 		//	Find the table in Database
 		Connection conn = null;
+		ResultSet rs = null;
 		
 		try {
+						
+			//String trxName = Trx.createTrxName("SyncTable");
+			String trxName = get_TrxName();
+
 			conn = DB.getConnectionRO();
 			DatabaseMetaData md = conn.getMetaData();
-			ResultSet rs;
 			String catalog = DB.getDatabase().getCatalog();
 			String schema = DB.getDatabase().getSchema();
 			String[] tableTypes = {"TABLE"};
 			String tableName = oldTableName;
+
 			// Find the old table
 			if (oldTableName != null ) {
 				if (md.storesUpperCaseIdentifiers())
@@ -1079,7 +1088,7 @@ public class MTable extends X_AD_Table
 			if ("Y".equals(MSysConfig.getValue(MColumn.SYSCONFIG_DATABASE_AUTO_SYNC,"Y",Env.getAD_Client_ID(Env.getCtx())))) {
 				if (sql.indexOf(DB.SQLSTATEMENT_SEPARATOR) == -1)
 				{
-					DB.executeUpdateEx(sql, get_TrxName());
+					DB.executeUpdateEx(sql, trxName);
 				}
 				else
 				{
@@ -1087,11 +1096,12 @@ public class MTable extends X_AD_Table
 					for (int i = 0; i < statements.length; i++)
 					{
 						log.config(statements[i]);
-						DB.executeUpdateEx(statements[i], get_TrxName());
+						DB.executeUpdateEx(statements[i], trxName);
 					}
 				}
 			}
 			
+			DB.commit(true, trxName);
 			// Remove the old table definition from cache 
 			POInfo.removeFromCache(getAD_Table_ID());
 			return sql;
@@ -1100,6 +1110,8 @@ public class MTable extends X_AD_Table
 			throw new AdempiereException(e);
 		}
 		finally {
+			DB.close(rs);
+			rs = null;
 			if (conn != null) {
 				try {
 					conn.close();

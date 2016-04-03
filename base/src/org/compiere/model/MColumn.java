@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.exceptions.DBException;
 import org.compiere.util.CCache;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -49,6 +50,9 @@ import org.compiere.util.Util;
  *  	<li> BR [ 9223372036854775807 ] Lookup for search view not show button
  *  	<li> Add default length to Yes No Display Type
  *  	@see https://adempiere.atlassian.net/browse/ADEMPIERE-447
+ *  @author mckayERP www.mckayERP.com
+ *  	<li> #213 Support for application dictionary changes 
+ *  		 and configurable automatic syncing with the database
  */
 public class MColumn extends X_AD_Column
 {
@@ -514,7 +518,7 @@ public class MColumn extends X_AD_Column
 				.append(" ADD ").append(getSQLDDL());
 		}
 		else {
-			// If the table is not new (it has existing records) and the field is mandatory
+			// If the table is not new (it has existing fields) and the field is mandatory
 			// then the new field values should be set to the defaults.  This takes three statements:
 			//  1. Add the field
 			//  2. Set the value
@@ -844,7 +848,8 @@ public class MColumn extends X_AD_Column
 		if (this.isVirtualColumn())
 			return "Cannot sync a virtual column"; // TODO - Delete from database if it exists?
 		
-		MTable table = new MTable(getCtx(), getAD_Table_ID(), get_TrxName());
+		MTable table = MTable.get(getCtx(), getAD_Table_ID());
+		
 		if (table.isView())
 			return "Cannot sync view";
 		
@@ -858,7 +863,9 @@ public class MColumn extends X_AD_Column
 
 		//	Find Column in Database
 		Connection conn = null;
+		ResultSet rs= null;
 		try {
+			// This will not see tables or columns added in the current transaction.
 			conn = DB.getConnectionRO();
 			DatabaseMetaData md = conn.getMetaData();
 			String catalog = DB.getDatabase().getCatalog();
@@ -879,55 +886,66 @@ public class MColumn extends X_AD_Column
 			Boolean oldNotNull = false;
 			Boolean currentNotNull = false;
 			//
-			ResultSet rs = md.getColumns(catalog, schema, tableName, null);
+			// Find the table.  Tables can be new with no columns assigned.
+			isNewTable = true;
+			rs = md.getTables(catalog, schema, tableName, null);
 			while (rs.next())
 			{
-				noColumns++;
-				String columnName = rs.getString ("COLUMN_NAME");
-				
-				if (oldColumnName != null && columnName.equalsIgnoreCase(oldColumnName)) {
-					oldColumnExists = true;
-					oldNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
-				}
-				
-				if (columnName.equalsIgnoreCase(getColumnName())) {
-					currentColumnExists = true;
-					currentNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
-				}
+				isNewTable = false;
 			}
 			rs.close();
-			rs = null;
-
+			
 			//	No Table
-			if (noColumns == 0) {
-				isNewTable  = true;
+			if (isNewTable) {
 				sql = table.getSQLCreate ();
 			}
-			//	No existing column
-			else if (!oldColumnExists && !currentColumnExists) {
-				sql = getSQLAdd(table);
+			else {
+				rs = md.getColumns(catalog, schema, tableName, null);
+				while (rs.next())
+				{
+					noColumns++;
+					String columnName = rs.getString ("COLUMN_NAME");
+					
+					if (oldColumnName != null && columnName.equalsIgnoreCase(oldColumnName)) {
+						oldColumnExists = true;
+						oldNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
+					}
+					
+					if (columnName.equalsIgnoreCase(getColumnName())) {
+						currentColumnExists = true;
+						currentNotNull = DatabaseMetaData.columnNoNulls == rs.getInt("NULLABLE");
+					}
+				}
+				rs.close();
+				rs = null;
+			
+				//	No existing column
+				if (!oldColumnExists && !currentColumnExists) {
+					sql = getSQLAdd(table);
+				}
+				// Old column name exists
+				else if (oldColumnExists && !currentColumnExists) {
+					// Update the old column
+					sql = getSQLModify(table, oldColumnName, isMandatory() != oldNotNull);
+				}
+				// New column name exists
+				else if (!oldColumnExists && currentColumnExists) {
+					// Update the current column - no name change
+					sql = getSQLModify(table, null, isMandatory() != currentNotNull); // Can return a null string
+				}
+				// Both exist - which is a problem - so throw an error
+				else if (oldColumnExists && currentColumnExists) {
+					// TODO - Translate
+					throw new AdempiereException("Can't synchronize the change of the column name. A column with that name alread exists in the table.");
+				}
 			}
-			// Old column name exists
-			else if (oldColumnExists && !currentColumnExists) {
-				// Update the old column
-				sql = getSQLModify(table, oldColumnName, isMandatory() != oldNotNull);
-			}
-			// New column name exists
-			else if (!oldColumnExists && currentColumnExists) {
-				// Update the current column - no name change
-				sql = getSQLModify(table, null, isMandatory() != currentNotNull); // Can return a null string
-			}
-			// Both exist - which is a problem - so throw an error
-			else if (oldColumnExists && currentColumnExists) {
-				// TODO - Translate
-				throw new AdempiereException("Can't synchronize the change of the column name. A column with that name alread exists in the table.");
-			}
-
 			
 			if ( sql == null )
 				return "No sql. No changes made.";
-			
-			String trxName = Trx.createTrxName("SyncColumn");
+
+			String trxName = get_TrxName();
+			if (!isDirectLoad())
+				trxName = Trx.createTrxName("SyncColumn");
 			
 			if (sql.indexOf(DB.SQLSTATEMENT_SEPARATOR) == -1)
 			{
@@ -938,7 +956,18 @@ public class MColumn extends X_AD_Column
 				String statements[] = sql.split(DB.SQLSTATEMENT_SEPARATOR);
 				for (int i = 0; i < statements.length; i++)
 				{
-					DB.executeUpdateEx(statements[i], trxName);
+//					try {
+						DB.executeUpdateEx(statements[i], trxName);
+//					}
+//					catch (DBException e) {
+//						if (e.getMessage()!= null && e.getMessage().contains("already exists")) {
+//							// ignore the error
+//							return "Column already exists. Probably just added.";
+//						}
+//						else {	
+//							throw e;
+//						}
+//					}
 				}
 			}
 			
@@ -949,10 +978,17 @@ public class MColumn extends X_AD_Column
 			return sql;
 
 		} 
-		catch (SQLException e) {
-			throw new AdempiereException(e);
+		catch (SQLException|DBException e ) {
+			if (e.getMessage()!= null && e.getMessage().contains("already exists")) {
+				// ignore the error
+				return "Column already exists. Probably just added.";
+			}
+			else {	
+				throw new AdempiereException(e);
+			}
 		}
 		finally {
+			DB.close(rs);
 			if (conn != null) {
 				try {
 					conn.close();
