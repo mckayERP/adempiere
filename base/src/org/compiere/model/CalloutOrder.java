@@ -40,6 +40,7 @@ import org.compiere.util.Msg;
  *  @author Michael McKay (mjmckay)
  *  		<li> BF3468458 - Attribute Set Instance not filled on Orders when product lookup not used.
  *  			 See https://sourceforge.net/tracker/?func=detail&aid=3468458&group_id=176962&atid=879332
+ *  		<li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutOrder extends CalloutEngine
 {
@@ -703,7 +704,6 @@ public class CalloutOrder extends CalloutEngine
 		if (M_Product_ID == null || M_Product_ID.intValue() == 0)
 		{
 			//  If the product information is deleted, zero the other items as well
-			mTab.setValue("M_AttributeSetInstance_ID", null);
 			mTab.setValue("PriceList", new BigDecimal(0));
 			mTab.setValue("PriceLimit", new BigDecimal(0));
 			mTab.setValue("PriceActual", new BigDecimal(0));
@@ -711,24 +711,20 @@ public class CalloutOrder extends CalloutEngine
 			mTab.setValue("C_Currency_ID", null);
 			mTab.setValue("Discount", new BigDecimal(0));
 			mTab.setValue("C_UOM_ID", null);
+			setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+						"M_AttributeSetInstance_ID", null, null);
 			return "";
 		}
 		if (steps) log.warning("init");
 
 		MProduct product = MProduct.get (ctx, M_Product_ID.intValue());
-		I_M_AttributeSetInstance asi = product.getM_AttributeSetInstance();
 		//
 		mTab.setValue("C_Charge_ID", null);
 		//	Set Attribute from context or, if null, from the Product
 		//	Get Model and check the Attribute Set Instance from the context
-		MProduct m_product = MProduct.get(Env.getCtx(), M_Product_ID);
-		mTab.setValue("M_AttributeSetInstance_ID", m_product.getEnvAttributeSetInstance(ctx, WindowNo));
-		if (Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Product_ID") == M_Product_ID.intValue()
-			&& Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID") != 0)
-			mTab.setValue("M_AttributeSetInstance_ID", Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID"));
-		else {
-			mTab.setValue("M_AttributeSetInstance_ID", asi.getM_AttributeSetInstance_ID());
-		}
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+				"M_AttributeSetInstance_ID", product, null);
+
 		/*****	Price Calculation see also qty	****/
 		int C_BPartner_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_ID");
 		BigDecimal Qty = (BigDecimal)mTab.getValue("QtyOrdered");
@@ -785,7 +781,7 @@ public class CalloutOrder extends CalloutEngine
 				int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
 				M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo, "M_AttributeSetInstance_ID");
 				BigDecimal available = MStorage.getQtyAvailable
-					(M_Warehouse_ID, M_Product_ID.intValue(), M_AttributeSetInstance_ID, null);
+					(M_Warehouse_ID, 0, M_Product_ID.intValue(), M_AttributeSetInstance_ID, null);
 				if (available == null)
 					available = Env.ZERO;
 				if (available.signum() == 0)
@@ -1260,7 +1256,7 @@ public class CalloutOrder extends CalloutEngine
 				int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
 				int M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo, "M_AttributeSetInstance_ID");
 				BigDecimal available = MStorage.getQtyAvailable
-					(M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, null);
+					(M_Warehouse_ID, 0, M_Product_ID, M_AttributeSetInstance_ID, null);
 				if (available == null)
 					available = Env.ZERO;
 				if (available.signum() == 0)
@@ -1290,7 +1286,6 @@ public class CalloutOrder extends CalloutEngine
 		}
 		//
 		return "";
-	}	//	qty
-	
+	}	//	qty	
 }	//	CalloutOrder
 

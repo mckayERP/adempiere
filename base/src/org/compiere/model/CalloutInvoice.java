@@ -34,6 +34,9 @@ import org.compiere.util.Env;
  *	
  *  @author Jorg Janke
  *  @version $Id: CalloutInvoice.java,v 1.4 2006/07/30 00:51:03 jjanke Exp $
+ *  
+ *  @author mckayERP www.mckayERP.com
+ *  		<li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutInvoice extends CalloutEngine
 {
@@ -302,15 +305,16 @@ public class CalloutInvoice extends CalloutEngine
 	public String product (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
 	{
 		Integer M_Product_ID = (Integer)value;
-		Integer M_AttributeSetInstance_ID = 0;
 
-		if (M_Product_ID == null || M_Product_ID.intValue() == 0)
-			return "";
+		if (M_Product_ID == null)
+			M_Product_ID = Integer.valueOf(0);
+		
 		mTab.setValue("C_Charge_ID", null);
 				
 		//	Get Model and check the Attribute Set Instance from the context
 		MProduct m_product = MProduct.get(Env.getCtx(), M_Product_ID);
-		mTab.setValue("M_AttributeSetInstance_ID", m_product.getEnvAttributeSetInstance(ctx, WindowNo));
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+				"M_AttributeSetInstance_ID", m_product, null);
 
 		/*****	Price Calculation see also qty	****/
 		boolean IsSOTrx = Env.getContext(ctx, WindowNo, "IsSOTrx").equals("Y");
@@ -819,6 +823,4 @@ public class CalloutInvoice extends CalloutEngine
 		//
 		return "";
 	}	//	qty
-	
-	
 }	//	CalloutInvoice

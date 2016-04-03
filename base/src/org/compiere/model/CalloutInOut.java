@@ -34,6 +34,9 @@ import org.compiere.util.Env;
  *  @author Jorg Janke
  *  @version $Id: CalloutInOut.java,v 1.7 2006/07/30 00:51:05 jjanke Exp $
  *  @author victor.perez@e-evolution.com www.e-evolution.com [ 1867464 ] http://sourceforge.net/tracker/index.php?func=detail&aid=1867464&group_id=176962&atid=879332
+ *  
+ *  @author mckayERP www.mckayERP.com
+ *  		<li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutInOut extends CalloutEngine
 {
@@ -447,7 +450,7 @@ public class CalloutInOut extends CalloutEngine
 			}
 			else {
 				mTab.setValue("M_Product_ID", new Integer(rl.getM_Product_ID()));
-				mTab.setValue("M_AttributeSetInstance_ID", new Integer(rl.getM_AttributeSetInstance_ID()));
+				setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", MProduct.get(ctx,rl.getM_Product_ID()), new Integer(rl.getM_AttributeSetInstance_ID()));
 			}
 			//
 			mTab.setValue("C_UOM_ID", new Integer(rl.getC_UOM_ID()));
@@ -481,33 +484,40 @@ public class CalloutInOut extends CalloutEngine
 	{
 		if (isCalloutActive())
 			return "";
+		
 		Integer M_Product_ID = (Integer)value;
-		if (M_Product_ID == null || M_Product_ID.intValue() == 0)
-			return "";
+		if (M_Product_ID == null)
+			M_Product_ID = Integer.valueOf(0);
 
-		//	Set Attribute & Locator
-		int M_Locator_ID = 0;
-		if (Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Product_ID") == M_Product_ID.intValue()
-			&& Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID") != 0)
-		{
-			mTab.setValue("M_AttributeSetInstance_ID",
-				new Integer(Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID")));
-			M_Locator_ID = Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Locator_ID");
-			if (M_Locator_ID != 0)
-				mTab.setValue("M_Locator_ID", new Integer(M_Locator_ID));
+		MProduct product = MProduct.get(ctx, M_Product_ID.intValue());
+		// If the product is null, also clear the attribute set instance
+		if (product == null) {
+			setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, 0);
+			return "";
 		}
-		else
-			mTab.setValue("M_AttributeSetInstance_ID", null);
+
+		//	Set Attribute to the default for the product
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, null);		
+		
+		// Set the product locator
+		int M_Locator_ID = 0;
+		if (Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Product_ID") == M_Product_ID.intValue())
+		{
+			M_Locator_ID = Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Locator_ID");
+			if (M_Locator_ID != 0) {
+				mTab.setValue("M_Locator_ID", new Integer(M_Locator_ID));
+			}
+		}
 		//
-		int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
-		boolean IsSOTrx = "Y".equals(Env.getContext(ctx, WindowNo, "IsSOTrx"));
+		boolean IsSOTrx = Env.isSOTrx(ctx, WindowNo);
 		if (IsSOTrx)
 		{
 			return "";
 		}
 
+		// In-bound transaction - use the default locator
 		//	Set UOM/Locator/Qty
-		MProduct product = MProduct.get(ctx, M_Product_ID.intValue());
+		int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
 		mTab.setValue("C_UOM_ID", new Integer (product.getC_UOM_ID()));
 		BigDecimal QtyEntered = (BigDecimal)mTab.getValue("QtyEntered");
 		mTab.setValue("MovementQty", QtyEntered);
@@ -543,8 +553,7 @@ public class CalloutInOut extends CalloutEngine
 			return "";
 
 		int M_Product_ID = Env.getContextAsInt(ctx, WindowNo, "M_Product_ID");
-		//	log.log(Level.WARNING,"qty - init - M_Product_ID=" + M_Product_ID);
-		BigDecimal MovementQty, QtyEntered;
+		BigDecimal MovementQty = Env.ZERO, QtyEntered;
 
 		//	No Product
 		if (M_Product_ID == 0)
@@ -634,46 +643,12 @@ public class CalloutInOut extends CalloutEngine
 			Env.setContext(ctx, WindowNo, "UOMConversion", conversion ? "Y" : "N");
 			mTab.setValue("QtyEntered", QtyEntered);
 		}
+		
+		if (MovementQty == null) {
+			MovementQty = Env.ZERO;
+		}
+
 		//
 		return "";
 	}	//	qty
-
-	/**
-	 *	M_InOutLine - ASI.
-	 *	@param ctx context
-	 *	@param WindowNo window no
-	 *	@param mTab tab model
-	 *	@param mField field model
-	 *	@param value new value
-	 *	@return error message or ""
-	 */
-	public String asi (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
-	{
-		if (isCalloutActive())
-			return "";
-		Integer M_ASI_ID = (Integer)value;
-		if (M_ASI_ID == null || M_ASI_ID.intValue() == 0)
-			return "";
-		//
-		int M_Product_ID = Env.getContextAsInt(ctx, WindowNo, "M_Product_ID");
-		int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
-		int M_Locator_ID = Env.getContextAsInt(ctx, WindowNo, "M_Locator_ID");
-		log.fine("M_Product_ID=" + M_Product_ID
-			+ ", M_ASI_ID=" + M_ASI_ID
-			+ " - M_Warehouse_ID=" + M_Warehouse_ID
-			+ ", M_Locator_ID=" + M_Locator_ID);
-		//	Check Selection
-		int M_AttributeSetInstance_ID =	Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID");
-		if (M_ASI_ID.intValue() == M_AttributeSetInstance_ID)
-		{
-			int selectedM_Locator_ID = Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_Locator_ID");
-			if (selectedM_Locator_ID != 0)
-			{
-				log.fine("Selected M_Locator_ID=" + selectedM_Locator_ID);
-				mTab.setValue("M_Locator_ID", new Integer (selectedM_Locator_ID));
-			}
-		}
-		return "";
-	}	//	asi
-
 }	//	CalloutInOut

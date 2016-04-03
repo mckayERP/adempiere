@@ -33,6 +33,9 @@ import org.compiere.util.Env;
  *  
  *  @author Teo Sarca, SC ARHIPAC SERVICE SRL
  *  		<li>BF [ 2104021 ] CalloutEngine returns null if the exception has null message
+ *  
+ *  @author mckayERP www.mckayERP.com
+ *  		<li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutEngine implements Callout
 {
@@ -280,5 +283,134 @@ public class CalloutEngine implements Callout
 	{
 		return m_mField;
 	}
+
+	/**
+	 * Called by callouts, this procedure will test the value of a field "fieldName" for the correct
+	 * value of the Attribute Set Instance (ASI) for the given product and window.  If no existing 
+	 * ASI ID is provided, an ASI will be proposed.  The field error (background color) will be set
+	 * if the ASI is missing required information.
+	 * @param ctx The Context
+	 * @param WindowNo The Window Number in the Context
+	 * @param isSOTrx True if the window represents a sales or outgoing transaction
+	 * @param mTab The GridTab of the relevant tab
+	 * @param fieldName The name of the field, typically "M_AttributeSetInstance_ID"
+	 * @param product The product model.  If null, the ASI field will be set to zero.
+	 * @param existingASI_ID If null, the default ASI will be used from the context, otherwise the
+	 * provided ASI will be tested.
+	 */
+	public static void setAndTestASI(Properties ctx, int WindowNo, Boolean isSOTrx, GridTab mTab, String fieldName, 
+			MProduct product, Integer existingASI_ID) {
+		int AD_Column_ID = 0;
+		Integer M_AttributeSetInstance_ID = Integer.valueOf(0);
+		
+		if (mTab == null)
+			return;
+				
+		GridField column = mTab.getField(fieldName);
+		if (column != null) {  // The column is found
+			AD_Column_ID = column.getAD_Column_ID();
+			if (product != null) {
+				if (existingASI_ID == null) { // Set the ASI
+					M_AttributeSetInstance_ID = product.getEnvAttributeSetInstance(ctx, WindowNo, AD_Column_ID);
+					mTab.setValue(fieldName, M_AttributeSetInstance_ID);
+				}
+				else {  // Don't set, just test the existing
+					M_AttributeSetInstance_ID = existingASI_ID;
+				}
+				// Set column error if the ASI is mandatory 
+				column.setError(!product.isValidAttributeSetInstance(ctx, Env.isSOTrx(ctx, WindowNo), AD_Column_ID, M_AttributeSetInstance_ID));
+//				MAttributeSet as = product.getAttributeSet();
+//				// Hide the ASI if not attribute set applies.
+//				if (as != null) {
+//					column.setDisplayed(!as.excludeEntry(AD_Column_ID, Env.isSOTrx(ctx, WindowNo)));
+//				}
+			}
+			else { // No product - so no ASI
+				mTab.setValue(fieldName, 0);
+				column.setError(false);
+				//column.setDisplayed(false);
+			}
+		}
+	}
+
+	/**
+	 * Standard callout for M_AttributeSetInstance_ID field.
+	 * @param ctx
+	 * @param WindowNo
+	 * @param mTab
+	 * @param mField
+	 * @param value
+	 * @return
+	 */
+	public String attributeSetInstance (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
+	{
+		if (isCalloutActive())
+			return "";
+		
+		Integer M_ASI_ID = 0;
+		if (value != null)
+			M_ASI_ID = (Integer) value;
+		
+		int M_Product_ID = 0;
+		if (mTab.getValue("M_Product_ID") != null)
+			M_Product_ID = ((Integer)mTab.getValue("M_Product_ID")).intValue();
+		MProduct product = MProduct.get(ctx, M_Product_ID);
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+				"M_AttributeSetInstance_ID", product, M_ASI_ID);
+
+		//	Check the locator selection - it may have changed
+		if (mTab.getField("M_Locator_ID") != null) {	
+			int M_AttributeSetInstance_ID =	Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID");
+			if (M_ASI_ID.intValue() == M_AttributeSetInstance_ID)
+			{
+				int selectedM_Locator_ID = Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_Locator_ID");
+				if (selectedM_Locator_ID != 0)
+				{
+					log.fine("Selected M_Locator_ID=" + selectedM_Locator_ID);
+					mTab.setValue("M_Locator_ID", new Integer (selectedM_Locator_ID));
+				}
+			}
+		}
+
+		return "";
+	}	//	attributeSetInstance
+	/**
+	 * Standard callout for M_AttributeSetInstanceTo_ID field.
+	 * @param ctx
+	 * @param WindowNo
+	 * @param mTab
+	 * @param mField
+	 * @param value
+	 * @return
+	 */
+	public String attributeSetInstanceTo (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
+	{
+		if (isCalloutActive())
+			return "";
+		
+		Integer M_ASITo_ID = 0;
+		if (value != null)
+			M_ASITo_ID = (Integer) value;
+		
+		MProduct product = MProduct.get(ctx, (Integer)mTab.getValue("M_Product_ID"));
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+				"M_AttributeSetInstanceTo_ID", product, M_ASITo_ID);
+
+		//	Check the locator selection - it may have changed
+		if (mTab.getField("M_Locator_ID") != null) {	
+			int M_AttributeSetInstanceTo_ID =	Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_AttributeSetInstanceTo_ID");
+			if (M_ASITo_ID.intValue() == M_AttributeSetInstanceTo_ID)
+			{
+				int selectedM_Locator_ID = Env.getContextAsInt(Env.getCtx(), WindowNo, Env.TAB_INFO, "M_LocatorTo_ID");
+				if (selectedM_Locator_ID != 0)
+				{
+					log.fine("Selected M_LocatorTo_ID=" + selectedM_Locator_ID);
+					mTab.setValue("M_LocatorTo_ID", new Integer (selectedM_Locator_ID));
+				}
+			}
+		}
+
+		return "";
+	}	//	attributeSetInstanceTo
 
 }	//	CalloutEngine
