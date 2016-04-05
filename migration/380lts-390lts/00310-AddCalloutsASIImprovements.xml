@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add callouts to fields for ASI Improvements" ReleaseNo="3.9.0" SeqNo="310">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="3592" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isOldNull="true">org.compiere.model.CalloutMovement.locator</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="3591" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isOldNull="true">org.compiere.model.CalloutMovement.locator</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="8551" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isOldNull="true">org.compiere.model.CalloutMovement.attributeSetInstance</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="14006" Table="AD_Column">
+        <Data AD_Column_ID="1692" Column="Callout" isOldNull="true">org.compiere.model.CalloutMovement.attributeSetInstance</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="14006" Table="AD_Column">
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isOldNull="true">@M_Locator_ID@!@M_LocatorTo_ID@</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
