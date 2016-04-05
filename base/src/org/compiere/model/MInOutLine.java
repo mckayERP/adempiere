@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.FillMandatoryException;
 import org.adempiere.exceptions.WarehouseLocatorConflictException;
 import org.compiere.util.CCache;
@@ -42,6 +43,8 @@ import org.compiere.util.Util;
  *  			https://sourceforge.net/tracker/?func=detail&aid=2784194&group_id=176962&atid=879332
  *  		<li>BF [ 2797938 ] Receipt should not allow lines with Qty=0
  *  			https://sourceforge.net/tracker/?func=detail&atid=879332&aid=2797938&group_id=176962
+ *  @author mckayERP www.mckayERP.com
+ *  		<li>#281 Improve tests of validity of ASI values
  */
 public class MInOutLine extends X_M_InOutLine
 implements IDocumentLine
@@ -536,14 +539,48 @@ implements IDocumentLine
 			log.saveError("ParentComplete", Msg.translate(getCtx(), "M_InOutLine"));
 			return false;
 		}
-		// Locator is mandatory if no charge is defined - teo_sarca BF [ 2757978 ]
-		if(getProduct() != null && MProduct.PRODUCTTYPE_Item.equals(getProduct().getProductType()))
-		{
-			if (getM_Locator_ID() <= 0 && getC_Charge_ID() <= 0)
+		
+		MProduct product = getProduct();
+		
+		if (product != null) {
+			// Locator is mandatory if no charge is defined - teo_sarca BF [ 2757978 ]
+			if(MProduct.PRODUCTTYPE_Item.equals(product.getProductType()))
 			{
-				throw new FillMandatoryException(COLUMNNAME_M_Locator_ID);
+				if (getM_Locator_ID() <= 0 && getC_Charge_ID() <= 0)
+				{
+					throw new FillMandatoryException(COLUMNNAME_M_Locator_ID);
+				}
 			}
-		}
+			
+			// Test the ASI for validity
+			int AD_Column_ID = MColumn.getColumn_ID(MInOutLine.Table_Name, MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID);
+			if (!product.isValidAttributeSetInstance(getCtx(), isSOTrx(), AD_Column_ID, getM_AttributeSetInstance_ID())) {
+				throw new AdempiereException("@NotValid@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );
+			}
+			
+			// Test the qty and ASI - enforce unique serial numbers
+			if (!product.isUniqueAttributeSetInstance(getCtx(), isSOTrx(), AD_Column_ID, 
+									getM_AttributeSetInstance_ID(), getMovementQty())) {
+				throw new AdempiereException("@NotUnique@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );
+			}
+			
+			// Check the other lines for this attribute set instance
+			MAttributeSet as = (MAttributeSet) product.getM_AttributeSet();
+			if (as != null && as.isSerNo() && as.isSerNoMandatory() && product.isASIMandatory(isSOTrx(), getAD_Org_ID())) {
+				String where = "M_InOut_ID=? AND M_AttributeSetInstance_ID=?"
+						+ " AND M_InOutLine_ID!=?";
+				int count = new Query(getCtx(), Table_Name, where, get_TrxName())
+								.setClient_ID()
+								.setOnlyActiveRecords(true)
+								.setParameters(getM_InOut_ID(), 
+										getM_AttributeSetInstance_ID(),
+										getM_InOutLine_ID())
+								.count();
+				if (count > 0) {
+					throw new AdempiereException("@NotUnique@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );				
+				}
+			}
+		}		
 
 		//	Get Line No
 		if (getLine() == 0)
@@ -567,6 +604,7 @@ implements IDocumentLine
 		if (newRecord || is_ValueChanged("MovementQty"))
 			setMovementQty(getMovementQty());
 
+		
 		//	Order/RMA Line
 		if (getC_OrderLine_ID() == 0 && getM_RMALine_ID() == 0)
 		{
@@ -594,6 +632,7 @@ implements IDocumentLine
 						getLine());
 			}
 		}
+
 
 	//	if (getC_Charge_ID() == 0 && getM_Product_ID() == 0)
 	//		;
