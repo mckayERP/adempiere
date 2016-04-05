@@ -219,7 +219,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			bailout("Unknown step type.");
 		}
 		// Unset flag that a script is in progress to shut off some validation checks
-		Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
+		//Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
 
 		log.log(Level.CONFIG, retval);
 		getParent().updateStatus();
@@ -304,10 +304,11 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		    || (DB.isOracle() && getDBType().equals(MMigrationStep.DBTYPE_Oracle))
 		    || (DB.isPostgreSQL() && getDBType().equals(MMigrationStep.DBTYPE_Postgres))) 
         {
-		     Connection conn = DB.getConnectionRW();
+		     Connection conn = null;
 		     Statement stmt = null;
+		     boolean rollbackOnError = true;
 		     try {
-		
+		    	 conn = DB.getConnectionRW();
 		         conn.setAutoCommit(false);
 		         stmt = conn.createStatement();
 		
@@ -329,19 +330,10 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		         setStatusCode(rollback ? MMigrationStep.STATUSCODE_Unapplied : MMigrationStep.STATUSCODE_Applied);
 		         setApply(rollback ? MMigrationStep.APPLY_Apply : MMigrationStep.APPLY_Rollback);
 		         setErrorMsg(null);
-		         conn.close();
+		         rollbackOnError = false;
 		     } catch (SQLException e) {
 		         java.sql.SQLException ne = e.getNextException();
-		
-		         // Try to close the connection.  If not failing on error and there are
-		         // many errors, we could be left with a lot of hanging connections.
-		         try {
-		             conn.rollback();
-		             conn.close();
-		         } catch (SQLException se) {
-		             ;  // all out of luck
-		         }
-		         
+		         		         
 		         setErrorMsg(rollback ? "Rollback failed. ":"Application failed. ");
 		         if (ne != null) {
 		             setErrorMsg(getErrorMsg() + ne.toString());
@@ -358,7 +350,19 @@ public class MMigrationStep extends X_AD_MigrationStep {
 
 		     } finally {
 		         DB.close(stmt);
-		         saveEx(null);
+		         // Try to close the connection.  If not failing on error and there are
+		         // many errors, we could be left with a lot of hanging connections.
+		         if (conn!= null) {
+			         try {
+			        	 // rollbackOnError will be true unless the try block above completed successfully.
+			        	 if (rollbackOnError)
+			        		 conn.rollback();
+			             conn.close();
+			         } catch (SQLException se) {
+			             ;  // all out of luck
+			         }
+		         }
+		         saveEx();
 		     }
 		 }
         else 
@@ -366,7 +370,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 	         setStatusCode(rollback ? MMigrationStep.STATUSCODE_Unapplied : MMigrationStep.STATUSCODE_Applied);
 	         setApply(rollback ? MMigrationStep.APPLY_Apply : MMigrationStep.APPLY_Rollback);
 	         setErrorMsg(null);
-	         saveEx(null);
+	         saveEx();
         }
 		return rollback ? "successfully rolled back" : "successfully applied";
 	}

@@ -81,8 +81,8 @@ public class MigrationLoader {
 				ServerProcessCtl migrationProcess = new ServerProcessCtl(null, pi, Trx.get(trxName, false));
 				migrationProcess.run();
 				log.log(Level.CONFIG, "Process=" + pi.getTitle() + " Error="+pi.isError() + " Summary=" + pi.getSummary());
-				//if (failOnError && pi.isError())
-				//	throw new AdempiereException(pi.getSummary());
+				if (failOnError && pi.isError())
+					throw new AdempiereException(pi.getSummary());
 			});
 			
 			// Run the post processes.
