@@ -187,6 +187,13 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine
 			return false;
 		}
 
+		 //either movement between locator or movement between lot
+		if (getM_Locator_ID() != getM_LocatorTo_ID() && getM_AttributeSetInstance_ID() != getM_AttributeSetInstanceTo_ID())
+		{
+			log.saveError("Error", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ != @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ != @M_AttributeSetInstanceTo_ID@"));
+			return false;
+		}
+
 		if (getMovementQty().signum() == 0)
 		{
 			if (   MMovement.DOCACTION_Void.equals(getParent().getDocAction())
