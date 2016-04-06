@@ -50,6 +50,8 @@ import org.compiere.util.Util;
  *  	<li> BR [ 9223372036854775807 ] Lookup for search view not show button
  *  	<li> Add default length to Yes No Display Type
  *  	@see https://adempiere.atlassian.net/browse/ADEMPIERE-447
+ *  	<li> BR [ 185 ] Fixed error with validation in beforeSave method for MColumn 
+ *  	@see https://github.com/adempiere/adempiere/issues/185
  *  @author mckayERP www.mckayERP.com
  *  	<li> #213 Support for application dictionary changes 
  *  		 and configurable automatic syncing with the database
@@ -418,8 +420,8 @@ public class MColumn extends X_AD_Column
 			return;
 		} else {
 			String m_TableName = p_ColumnName.replace("_ID", "");
-			if(p_AD_Reference_ID == DisplayType.TableDir
-					/*|| p_AD_Reference_ID == DisplayType.Search */ ) {
+			//	BR [ 185 ]
+			if(p_AD_Reference_ID == DisplayType.TableDir) {
 				if(!p_ColumnName.endsWith("_ID"))
 					throw new AdempiereException("@Reference@ @of@ @ColumnName@ @NotValid@");
 				//	Valid Table
@@ -469,10 +471,11 @@ public class MColumn extends X_AD_Column
 				|| is_ValueChanged(MColumn.COLUMNNAME_Description)
 				|| is_ValueChanged(MColumn.COLUMNNAME_Help)
 				) {
-				StringBuffer whereClause = new StringBuffer("AD_Column_ID =?")
-												.append(" AND IsCentrallyMaintained='Y'"); 
-				List<Object> parameters = new ArrayList<Object>();
+				StringBuffer whereClause = new StringBuffer("AD_Column_ID=? ")
+								.append(" AND IsCentrallyMaintained=? ");
+				List<Object> parameters = new ArrayList<>();
 				parameters.add(this.getAD_Column_ID());
+				parameters.add(true);
 				List<MField> fields = new Query(getCtx(), MField.Table_Name, whereClause.toString(), get_TrxName())
 						.setParameters(parameters)
 						.list();
@@ -780,16 +783,15 @@ public class MColumn extends X_AD_Column
 		sb.append (get_ID()).append ("-").append (getColumnName()).append ("]");
 		return sb.toString ();
 	}	//	toString
-	
-	//begin vpj-cd e-evolution
+
 	/**
 	 * 	get Column ID
-	 *  @param String windowName
-	 *	@param String columnName
-	 *	@return int retValue
-	 */
-	public static int getColumn_ID(String TableName,String columnName) {
-		int m_table_id = MTable.getTable_ID(TableName);
+	 * @param tableName
+	 * @param columnName
+     * @return
+     */
+	public static int getColumn_ID(String tableName,String columnName) {
+		int m_table_id = MTable.getTable_ID(tableName);
 		if (m_table_id == 0)
 			return 0;
 			
