@@ -459,7 +459,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 				.firstOnly();
 			}
 			
-			if ( po == null && getAction().equals(MMigrationStep.ACTION_Insert) )
+			if ((po == null || po.get_ID() == 0) && getAction().equals(MMigrationStep.ACTION_Insert) )
 			{
 				po = table.getPO(0, get_TrxName());
 				po.set_ValueNoCheck(po.get_KeyColumns()[0], getRecord_ID() );
