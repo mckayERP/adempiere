@@ -180,7 +180,7 @@ public class GenerateCostDetail extends SvrProcess {
                     .getClientAcctSchema(getCtx(), getAD_Client_ID(),
                             get_TrxName())));
 
-        if (p_M_CostType_ID > 0) {
+        if (costTypeId > 0) {
             costTypes.add(new MCostType(getCtx(), costTypeId,
                     get_TrxName()));
         }
@@ -193,8 +193,8 @@ public class GenerateCostDetail extends SvrProcess {
             		.setOrderBy(MCostType.COLUMNNAME_M_CostType_ID)
             		.list();
         }
-        if (p_M_CostElement_ID > 0)
-            costElements.add(MCostElement.get(getCtx(), p_M_CostElement_ID));
+        if (costElementId > 0)
+            costElements.add(MCostElement.get(getCtx(), costElementId));
         else {
             costElements = MCostElement.getCostElement(getCtx(), get_TrxName());
 	        costElementsDelete = new Query(getCtx(), MCostElement.Table_Name, null, get_TrxName())
@@ -328,7 +328,7 @@ public class GenerateCostDetail extends SvrProcess {
 
                         	applyCriteria(accountSchema.getC_AcctSchema_ID(),
                                     costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
-                                    transactionId, productId, p_DateAcct, p_DateAcctTo);
+                                    transactionId, productId, dateAccount, dateAccountTo);
                             
                             // The following only have to be done once per product, Schema, cost type and cost element
                             if (processNewProduct) {
@@ -469,10 +469,10 @@ public class GenerateCostDetail extends SvrProcess {
                         			"    costElement: " + costElement.toString() + "\n" + 
                         			"    Product ID=" + productId + "\n" +
                         			"    Material Transaction ID =" + transactionId + "\n" +
-                        			"    DateAcct from " + p_DateAcct + " to " + p_DateAcctTo);
+                        			"    DateAcct from " + dateAccount + " to " + dateAccountTo);
                         	applyCriteria(accountSchema.getC_AcctSchema_ID(),
                                     costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
-                                    transactionId, productId, p_DateAcct, p_DateAcctTo);
+                                    transactionId, productId, dateAccount, dateAccountTo);
                             deleteCostDetail(dbTransaction.getTrxName());
                         } // Cost elements
                     } // Cost types
