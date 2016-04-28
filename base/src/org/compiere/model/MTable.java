@@ -69,6 +69,8 @@ import bsh.This;
  *	@author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *			<li> FR [ 94 ] "IsDocument" flag in table for create default columns
  *			@see https://github.com/adempiere/adempiere/issues/94
+ *			<li> BR [ 304 ] Is Document Attriute in table create columns with bad size
+ *			@see https://github.com/adempiere/adempiere/issues/304
  *  @author mckayERP www.mckayERP.com
  *  		<li> #213 Support for application dictionary changes 
  *  			 and configurable automatic syncing with the database
@@ -1334,7 +1336,7 @@ public class MTable extends X_AD_Table
 			//	Processed
 			columnName = "Processed";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
-				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "");
+				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "N");
 				column.setIsDirectLoad(true);
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
@@ -1343,7 +1345,7 @@ public class MTable extends X_AD_Table
 			//	Approved
 			columnName = "IsApproved";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
-				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "");
+				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "N");
 				column.setIsDirectLoad(true);
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
@@ -1362,7 +1364,7 @@ public class MTable extends X_AD_Table
 			//	Document Status
 			columnName = "DocStatus";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
-				column = new MColumn(this, columnName, 1, DisplayType.List, "DR");
+				column = new MColumn(this, columnName, 2, DisplayType.List, "DR");
 				column.setIsDirectLoad(true);
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
@@ -1372,7 +1374,7 @@ public class MTable extends X_AD_Table
 			//	Document Action
 			columnName = "DocAction";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
-				column = new MColumn(this, columnName, 1, DisplayType.Button, "CO");
+				column = new MColumn(this, columnName, 2, DisplayType.Button, "CO");
 				column.setIsDirectLoad(true);
 				column.setIsMandatory(true);
 				column.setUpdateable(false);

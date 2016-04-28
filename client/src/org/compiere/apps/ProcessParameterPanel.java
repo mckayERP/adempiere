@@ -51,6 +51,8 @@ import org.compiere.swing.CPanel;
  * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *			<li>FR [ 265 ] ProcessParameterPanel is not MVC
  *			@see https://github.com/adempiere/adempiere/issues/265
+ *			<li>FR [ 349 ] GridFieldVO attribute is ambiguous
+ * 			@see https://github.com/adempiere/adempiere/issues/349
  */
 public class ProcessParameterPanel extends ProcessParameter implements VetoableChangeListener {
 
@@ -159,9 +161,9 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 		centerPanel.add (dash, new ALayoutConstraint(row, cols++));
 		m_separators.add(dash);
 		//	The Editor
-		VEditor vEditor2 = VEditorFactory.getEditor(field, false);
+		VEditor vEditor2 = VEditorFactory.getEditor(field_To, false);
 		//  New Field value to be updated to editor
-		field.addPropertyChangeListener(vEditor2);
+		field_To.addPropertyChangeListener(vEditor2);
 		//	Set Default Value
 		Object defaultObject2 = field_To.getDefault();
 		vEditor2.setValue(defaultObject2);
@@ -225,13 +227,33 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 						// context
 						if (!comp.isVisible()) {
 							comp.setVisible(true); // visibility
+							//	FR [ 349 ]
 							if (field.isRange())
 								m_separators.get(index).setText(" - ");
 						}
+						Object value = field.getValue();
+						Object defaultValue = field.getDefault();
+						if ((value == null || value.toString().length() == 0)
+								&& defaultValue != null) {
+							field.setValue(defaultValue, true);
+							m_vEditors.get(index).setValue(defaultValue);
+						}
 						boolean rw = field.isEditablePara(true); // r/w - check if field is Editable
 						m_vEditors.get(index).setReadWrite(rw);
-						if (field.isRange())
+
+						if (field.isRange()) {
 							m_vEditors_To.get(index).setReadWrite(rw);
+							GridField gridFieldTo = m_vEditors_To.get(index).getField();
+							Object valueTo = gridFieldTo.getValue();
+							Object defaultValueTo = gridFieldTo.getDefault();
+							if ((valueTo == null || valueTo.toString().length() == 0)
+									&& defaultValueTo != null) {
+								gridFieldTo.setValue(defaultValueTo, true);
+								m_vEditors_To.get(index).setValue(defaultValue);
+							}
+							rw = gridFieldTo.isEditablePara(true);
+							m_vEditors_To.get(index).setReadWrite(rw);
+						}
 					} else {
 						if (comp.isVisible()) {
 							comp.setVisible(false);
@@ -248,8 +270,16 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 	public void refreshContext() {
 		for(int i = 0; i < m_vEditors.size(); i++) {
 			VEditor editor = m_vEditors.get(i);
-			GridField mField = editor.getField();
-			editor.setValue(mField.getDefault());
+			GridField field = editor.getField();
+			Object value = field.getValue();
+			Object defaultValue = field.getDefault();
+			if ((value == null || value.toString().length() == 0)
+					&& defaultValue != null) {
+				m_vEditors.get(i).setValue(defaultValue);
+				field.setValue(defaultValue, true);
+			}
+			boolean rw = field.isEditablePara(true); // r/w - check if field is Editable
+			m_vEditors.get(i).setReadWrite(rw);
 		}
  	}
 	

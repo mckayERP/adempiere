@@ -46,11 +46,9 @@ import javax.swing.event.TableModelListener;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MBrowse;
-import org.adempiere.model.MBrowseField;
 import org.compiere.Adempiere;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.AEnv;
-import org.compiere.apps.ALayout;
 import org.compiere.apps.AppsAction;
 import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.ProcessCtl;
@@ -77,8 +75,9 @@ import org.compiere.util.Ini;
 import org.compiere.util.Login;
 import org.compiere.util.Msg;
 import org.compiere.util.Splash;
-import org.eevolution.grid.BrowserTable;
 import org.eevolution.grid.Browser;
+import org.eevolution.grid.BrowserSearch;
+import org.eevolution.grid.BrowserTable;
 
 /**
  * UI Browser
@@ -108,20 +107,21 @@ public class VBrowser extends Browser implements ActionListener,
 		TableModelListener, ASyncProcess {
 	/**
 	 * get Browse
-	 * @param browse_ID
+	 * @param windowNo
+	 * @param browserId
+	 * @param whereClause
 	 */
-	public static CFrame openBrowse(int browse_ID) {
-		MBrowse browse = new MBrowse(Env.getCtx(), browse_ID , null);
-		boolean modal = true;
-		int WindowNo = 0;
+	public static CFrame openBrowse(int windowNo , int browserId, String whereClause) {
+		MBrowse browse = new MBrowse(Env.getCtx(), browserId , null);
+		boolean modal = false;
+		if (windowNo > 0 )
+			modal = true;
 		String value = "";
 		String keyColumn = "";
 		boolean multiSelection = true;
-		String whereClause = null;
-		FormFrame ff = new FormFrame(WindowNo);
-		return new VBrowser(ff, modal , WindowNo, value, browse, keyColumn,multiSelection, whereClause)
+		FormFrame ff = new FormFrame(windowNo);
+		return new VBrowser(ff, modal , windowNo, value, browse, keyColumn,multiSelection, whereClause)
 		.getFrame();
-		
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class VBrowser extends Browser implements ActionListener,
 		setStatusDB(Integer.toString(no));
 		//	
 		if (isExecuteQueryByDefault()
-				&& evaluateMandatoryFilter() == null)
+				&& searchPanel.validateParameters() == null)
 			executeQuery();
 	}
 	
@@ -217,27 +217,7 @@ public class VBrowser extends Browser implements ActionListener,
 	 * Static Setup - add fields to parameterPanel (GridLayout)
 	 */
 	private void statInit() {
-		searchPanel.setLayout(new ALayout());
-		int cols = 0;
-		int col = 2;
-		int row = 0;
-		for (MBrowseField field : m_Browse.getCriteriaFields()) {
-			String title = field.getName();
-			String name = field.getAD_View_Column().getColumnName();
-			searchPanel.addField(field, row, cols, name, title);
-			cols = cols + col;
-
-			if (field.isRange())
-				cols = cols + col;
-
-			if (cols >= 4) {
-				cols = 0;
-				row++;
-			}
-		}
-		
-		searchPanel.dynamicDisplay();
-		
+		//	
 		if (m_Browse.getAD_Process_ID() > 0) {
 			//	FR [ 245 ]
 			initProcessInfo();
@@ -281,7 +261,7 @@ public class VBrowser extends Browser implements ActionListener,
 	 */
 	protected void executeQuery() {
 		//	FR [ 245 ]
-		String errorMsg = evaluateMandatoryFilter();
+		String errorMsg = searchPanel.validateParameters();
 		if (errorMsg == null) {
 			if (getAD_Window_ID() > 1)
 				bZoom.setEnabled(true);
@@ -314,7 +294,7 @@ public class VBrowser extends Browser implements ActionListener,
 			m_worker = new Worker();
 			m_worker.start();
 		} else {
-			ADialog.error(windowNo, getForm().getContentPane(), 
+			ADialog.error(windowNo, m_frame.getContentPane(), 
 					"FillMandatory", Msg.parseTranslation(Env.getCtx(), errorMsg));
 		}
 	} // executeQuery
@@ -439,7 +419,10 @@ public class VBrowser extends Browser implements ActionListener,
 		tabsPanel = new javax.swing.JTabbedPane();
 		searchTab = new CPanel();
 		topPanel = new CPanel();
-		searchPanel = new VBrowserSearch(getWindowNo());
+		//	FR [ 344 ]
+		searchPanel = new VBrowserSearch(getWindowNo(), getAD_Browse_ID(), BrowserSearch.COLUMNS_2);
+		searchPanel.init();
+		//	
 		buttonSearchPanel = new CPanel();
 		centerPanel = new javax.swing.JScrollPane();
 		detail = new BrowserTable(this);
@@ -492,11 +475,9 @@ public class VBrowser extends Browser implements ActionListener,
 		searchTab.setLayout(new java.awt.BorderLayout());
 
 		topPanel.setLayout(new java.awt.BorderLayout());
-
-		searchPanel.setLayout(new java.awt.GridBagLayout());
 		
 		collapsibleSearch = new CollapsiblePanel(Msg.getMsg(Env.getCtx(),("SearchCriteria")));
-		collapsibleSearch.add(searchPanel);
+		collapsibleSearch.add(searchPanel.getPanel());		
 		topPanel.add(collapsibleSearch, java.awt.BorderLayout.NORTH);
 
 		bSearch.setText(Msg.getMsg(Env.getCtx(), "StartSearch"));
@@ -511,12 +492,8 @@ public class VBrowser extends Browser implements ActionListener,
 		searchTab.add(centerPanel, java.awt.BorderLayout.CENTER);
 
 		footPanel.setLayout(new java.awt.BorderLayout());
-
-//		bCancel.setText(Msg.getMsg(Env.getCtx(), "Cancel").replaceAll("[&]",""));
 		
 		footButtonPanel.add(bCancel);
-
-//		bOk.setText(Msg.getMsg(Env.getCtx(), "Ok").replaceAll("[&]",""));
 		
 		footButtonPanel.add(bOk);
 
@@ -530,10 +507,6 @@ public class VBrowser extends Browser implements ActionListener,
 		tabsPanel.addTab(Msg.getMsg(Env.getCtx(), "Search"), searchTab);
 
 		graphPanel.setLayout(new java.awt.BorderLayout());
-		
-		//	Instance Table
-//		detail = new BrowseTable(this);
-//		centerPanel.setViewportView(detail);
 		
 		m_frame.getContentPane().add(tabsPanel, java.awt.BorderLayout.CENTER);
 	}
@@ -700,8 +673,6 @@ public class VBrowser extends Browser implements ActionListener,
 			//no = detail.getRowCount();
 			log.fine("#" + no + " - " + (System.currentTimeMillis() - start)
 					+ "ms");
-			if (detail.isShowTotals())
-				detail.addTotals();
 			detail.autoSize();
 			//
 			m_frame.setCursor(Cursor.getDefaultCursor());

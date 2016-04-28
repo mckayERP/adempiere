@@ -253,8 +253,16 @@ public class ProcessParameterPanel extends ProcessParameter implements ValueChan
 	public void refreshContext() {
 		for(int i = 0; i < m_wEditors.size(); i++) {
 			WEditor editor = m_wEditors.get(i);
-			GridField mField = editor.getGridField();
-			editor.setValue(mField.getDefault());
+			GridField field = editor.getGridField();
+			Object value = field.getValue();
+			Object defaultValue = field.getDefault();
+			if ((value == null || value.toString().length() == 0)
+					&& defaultValue != null) {
+				m_wEditors.get(i).setValue(defaultValue);
+				field.setValue(defaultValue, true);
+			}
+			boolean rw = field.isEditablePara(true); // r/w - check if field is Editable
+			m_wEditors.get(i).setReadWrite(rw);
 		}
  	}
 
@@ -300,21 +308,39 @@ public class ProcessParameterPanel extends ProcessParameter implements ValueChan
 			if (mField.isDisplayed(true)) {
 				if (!editor.isVisible()) {
 					editor.setVisible(true);
-					if (mField.getVO().isRange) {
+					if (mField.getVO().IsRange) {
 						m_separators.get(i).setVisible(true);
 						m_wEditors_To.get(i).setVisible(true);
 					}
 				}
+
+				Object value = mField.getValue();
+				Object defaultValue = mField.getDefault();
+				if ((value == null || value.toString().length() == 0)
+						&& defaultValue != null) {
+					mField.setValue(defaultValue, true);
+					m_wEditors.get(i).setValue(defaultValue);
+				}
 				boolean rw = mField.isEditablePara(true); // r/w - check if field is Editable
+				m_wEditors.get(i).setReadWrite(rw);
 				editor.setReadWrite(rw);
 				editor.dynamicDisplay();
-				if (mField.getVO().isRange) {
+				if (mField.getVO().IsRange) {
+					GridField gridFieldTo = m_wEditors_To.get(i).getGridField();
+					Object valueTo = gridFieldTo.getValue();
+					Object defaultValueTo = gridFieldTo.getDefault();
+					if ((valueTo == null || valueTo.toString().length() == 0)
+							&& defaultValueTo != null) {
+						gridFieldTo.setValue(defaultValueTo, true);
+						m_wEditors_To.get(i).setValue(defaultValueTo);
+					}
+					rw = gridFieldTo.isEditablePara(true); // r/w - check if field is Editable
 					m_wEditors_To.get(i).setReadWrite(rw);
 					m_wEditors_To.get(i).dynamicDisplay();
 				}
 			} else if (editor.isVisible()) {
 				editor.setVisible(false);
-				if (mField.getVO().isRange) {
+				if (mField.getVO().IsRange) {
 					m_separators.get(i).setVisible(false);
 					m_wEditors_To.get(i).setVisible(false);
 				}

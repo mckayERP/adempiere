@@ -2699,8 +2699,8 @@ public final class APanel extends CPanel
 					this, m_curWindowNo, vButton.getProcess_ID(), table_ID,
 					record_ID, startWOasking);
 			//	FR [ 265 ]
-			if (dialog.isValidDialog())
-			{
+			//	BR [ 323 ]
+			if(!startWOasking) {
 				dialog.validate();
 				dialog.pack();
 				AEnv.showCenterWindow(Env.getWindow(m_curWindowNo), dialog);

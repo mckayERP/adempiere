@@ -62,12 +62,12 @@ public class GenerateCostDetail extends SvrProcess {
     /**
      * Parameters *
      */
-    private int p_M_Product_ID;
-    private int p_M_CostElement_ID;
-    private int p_M_CostType_ID;
-    private int p_C_AcctSchema_ID;
-    private Timestamp p_DateAcct;
-    private Timestamp p_DateAcctTo;
+    private int productId;
+    private int costElementId;
+    private int costTypeId;
+    private int accountSchemaId;
+    private Timestamp dateAccount;
+    private Timestamp dateAccountTo;
 
     /**
      * Variables *
@@ -96,24 +96,24 @@ public class GenerateCostDetail extends SvrProcess {
                 ;
 
             if (name.equals(MCostDetail.COLUMNNAME_C_AcctSchema_ID)) {
-                p_C_AcctSchema_ID = parameter.getParameterAsInt();
+                accountSchemaId = parameter.getParameterAsInt();
             } else if (name.equals(MCostDetail.COLUMNNAME_M_CostType_ID)) {
-                p_M_CostType_ID = parameter.getParameterAsInt();
+                costTypeId = parameter.getParameterAsInt();
             } else if (name.equals(MCostDetail.COLUMNNAME_M_CostElement_ID)) {
-                p_M_CostElement_ID = parameter.getParameterAsInt();
+                costElementId = parameter.getParameterAsInt();
             } else if (name.equals(MCostDetail.COLUMNNAME_M_Product_ID)) {
-                p_M_Product_ID = parameter.getParameterAsInt();
+                productId = parameter.getParameterAsInt();
             } else if (name.equals(MCostDetail.COLUMNNAME_DateAcct)) {
-                p_DateAcct = (Timestamp) parameter.getParameter();
-                if (p_DateAcct == null)
+                dateAccount = (Timestamp) parameter.getParameter();
+                if (dateAccount == null)
                     throw new FillMandatoryException(
                             MCostDetail.COLUMNNAME_DateAcct);
-                p_DateAcctTo = (Timestamp) parameter.getParameter_To();
-                if (p_DateAcctTo == null)
-                    p_DateAcctTo = new Timestamp(System.currentTimeMillis());
+                dateAccountTo = (Timestamp) parameter.getParameter_To();
+                if (dateAccountTo == null)
+                    dateAccountTo = new Timestamp(System.currentTimeMillis());
             }
         }
-        if (p_DateAcct != null) {
+        if (dateAccount != null) {
             setup();
         }
 
@@ -173,15 +173,15 @@ public class GenerateCostDetail extends SvrProcess {
      */
     private void setup() {
 
-        if (p_C_AcctSchema_ID > 0)
-            acctSchemas.add(MAcctSchema.get(getCtx(), p_C_AcctSchema_ID, get_TrxName()));
+        if (accountSchemaId > 0)
+            acctSchemas.add(MAcctSchema.get(getCtx(), accountSchemaId, get_TrxName()));
         else
             acctSchemas = new ArrayList(Arrays.asList(MAcctSchema
                     .getClientAcctSchema(getCtx(), getAD_Client_ID(),
                             get_TrxName())));
 
         if (p_M_CostType_ID > 0) {
-            costTypes.add(new MCostType(getCtx(), p_M_CostType_ID,
+            costTypes.add(new MCostType(getCtx(), costTypeId,
                     get_TrxName()));
         }
         else {
@@ -315,9 +315,6 @@ public class GenerateCostDetail extends SvrProcess {
                     dbTransaction = Trx.get(productId.toString(), true);
 
                     generateCostCollectorNotTransaction(productId, dbTransaction.getTrxName());
-                    // product is not used.
-                    //MProduct product = new MProduct(Env.getCtx(), productId , dbTransaction.getTrxName());
-                    //System.out.println("Product : " + product.getValue() + " Name :" + product.getName());
                 }
                 
                 MTransaction transaction = new MTransaction(getCtx(), transactionId, dbTransaction.getTrxName());
@@ -431,6 +428,7 @@ public class GenerateCostDetail extends SvrProcess {
                 dbTransaction.close();
                 dbTransaction = null;
                 e.printStackTrace();
+                addLog(e.getMessage());
             }
         } finally {
             if (dbTransaction != null) {
@@ -529,7 +527,9 @@ public class GenerateCostDetail extends SvrProcess {
                 List<MMatchPO> orderMatches = MMatchPO
                         .getInOutLine(line);
                 for (MMatchPO match : orderMatches) {
-                    if (match.getM_Product_ID() == transaction.getM_Product_ID()) {
+                    if (match.getM_Product_ID() == transaction.getM_Product_ID()
+                    && match.getDateAcct().after(dateAccount)
+                    && match.getDateAcct().before(dateAccountTo)) {
                         CostEngineFactory.getCostEngine(
                                 accountSchema.getAD_Client_ID())
                                 .createCostDetail(accountSchema, costType, costElement, transaction,
@@ -540,7 +540,9 @@ public class GenerateCostDetail extends SvrProcess {
                 List<MMatchInv> invoiceMatches = MMatchInv
                         .getInOutLine(line);
                 for (MMatchInv match : invoiceMatches) {
-                    if (match.getM_Product_ID() == transaction.getM_Product_ID()) {
+                    if (match.getM_Product_ID() == transaction.getM_Product_ID()
+                    && match.getDateAcct().after(dateAccount)
+                    && match.getDateAcct().before(dateAccountTo)) {
                         CostEngineFactory.getCostEngine(
                                 accountSchema.getAD_Client_ID())
                                 .createCostDetail(accountSchema, costType, costElement, transaction,
@@ -550,10 +552,9 @@ public class GenerateCostDetail extends SvrProcess {
             }
 
             //get landed allocation cost
-            for (MLandedCostAllocation allocation : MLandedCostAllocation
-                    .getOfInOuline(line,
-                            costElement.getM_CostElement_ID())) {
-                //System.out.println("Allocation : " + allocation.getC_LandedCostAllocation_ID() +  " Amount:" +  allocation.getAmt());
+            for (MLandedCostAllocation allocation : MLandedCostAllocation.getOfInOuline(line, costElement.getM_CostElement_ID())) {
+                if (allocation.getDateAcct().after(dateAccount)
+                 && allocation.getDateAcct().before(dateAccountTo))
                 CostEngineFactory
                         .getCostEngine(accountSchema.getAD_Client_ID())
                         .createCostDetail(accountSchema, costType, costElement, transaction, allocation, true);
@@ -564,8 +565,7 @@ public class GenerateCostDetail extends SvrProcess {
     private void generateCostCollectorNotTransaction(int productId, String trxName)
             throws SQLException {
         List<MPPCostCollector> costCollectors = MPPCostCollector
-                .getCostCollectorNotTransaction(getCtx(), productId,
-                        getAD_Client_ID(), p_DateAcct, trxName);
+                .getCostCollectorNotTransaction(getCtx(), productId, dateAccount, dateAccountTo, trxName);
         // Process Collector Cost Manufacturing
         for (MPPCostCollector costCollector : costCollectors) {
             for (MCostDetail costDetail : MCostDetail.getByCollectorCost(costCollector)) {
@@ -594,17 +594,17 @@ public class GenerateCostDetail extends SvrProcess {
         StringBuilder whereClause = new StringBuilder("WHERE ");
         whereClause.append(MCostDetail.COLUMNNAME_AD_Client_ID).append("=")
                 .append(getAD_Client_ID()).append(" AND ");
-        if (p_M_Product_ID > 0) {
+        if (productId > 0) {
             whereClause.append(MCostDetail.COLUMNNAME_M_Product_ID)
                     .append("=?").append(" AND ");
-            parameters.add(p_M_Product_ID);
+            parameters.add(productId);
         }
         whereClause.append("TRUNC(").append(MCostDetail.COLUMNNAME_DateAcct).append(")>=?");
-        parameters.add(p_DateAcct);
+        parameters.add(dateAccount);
 
-        if (p_DateAcctTo != null) {
+        if (dateAccountTo != null) {
             whereClause.append(" AND TRUNC(").append(MCostDetail.COLUMNNAME_DateAcct).append(")<=?");
-            parameters.add(p_DateAcctTo);
+            parameters.add(dateAccountTo);
         }
 
         sql.append("SELECT M_Transaction_ID , M_Product_ID FROM RV_Transaction ")
