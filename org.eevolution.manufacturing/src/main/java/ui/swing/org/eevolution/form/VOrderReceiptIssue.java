@@ -253,8 +253,12 @@ public class VOrderReceiptIssue extends OrderReceiptIssue implements FormPanel,
 		locatorField = new VLocator("M_Locator_ID", true, false, true,
 				locatorL, m_WindowNo);
 
-		MPAttributeLookup attributeL = new MPAttributeLookup(ctx, m_WindowNo);
-		attribute = new VPAttribute(false, false, true, m_WindowNo, attributeL, false);
+		//MPAttributeLookup attributeL = new MPAttributeLookup(ctx, m_WindowNo);
+		MLookup asiLookup = MLookupFactory.get(ctx, m_WindowNo, 0,
+				MColumn.getColumn_ID(MPPOrder.Table_Name,
+						MPPOrder.COLUMNNAME_M_AttributeSetInstance_ID), DisplayType.PAttribute);
+		
+		attribute = new VPAttribute(false, false, true, m_WindowNo, asiLookup, false);
 		attribute.setValue(0);
 		// Tab, Window
 		int m_Window = MWindow.getWindow_ID("Manufacturing Order");
