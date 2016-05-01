@@ -117,7 +117,7 @@ public class ProcessInfoParameter implements Serializable
 	public int getParameterAsInt ()
 	{
 		if (m_Parameter == null)
-			return 0;
+			return -1;
 		if (m_Parameter instanceof Number)
 			return ((Number)m_Parameter).intValue();
 		BigDecimal bd = new BigDecimal(m_Parameter.toString());
