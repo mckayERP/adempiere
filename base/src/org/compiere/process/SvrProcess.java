@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -30,7 +31,6 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
 import org.compiere.model.MProcessPara;
-import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -212,7 +212,14 @@ public abstract class SvrProcess implements ProcessCall
 				if(infoParameter == null
 						|| infoParameter.getParameter() == null
 						|| (DisplayType.isID(parameter.getAD_Reference_ID()) 
-								&& infoParameter.getParameterAsInt() < 0)
+								&& (
+									(infoParameter.getParameter() instanceof String 
+											&& infoParameter.getParameterAsString() == null)
+									||
+									(infoParameter.getParameter() instanceof Number 
+											&& infoParameter.getParameterAsInt() < 0)
+								)
+							)
 						|| (DisplayType.isText(parameter.getAD_Reference_ID()) 
 								&& (infoParameter.getParameterAsString() == null 
 										|| infoParameter.getParameterAsString().length() == 0))
@@ -248,6 +255,19 @@ public abstract class SvrProcess implements ProcessCall
 	 *  getParameterToAsInt(String parameterName);
 	 *  getParameterToAsString(String parameterName);
 	 *  getParameterToAsTimestamp(String parameterName);
+	 *  </pre>
+	 *  For a simple Selection based in keys
+	 *  <pre>
+	 *  getSelectionKeys();
+	 *  </pre>
+	 *  For Smart Browser
+	 *  <pre>
+	 *  getSelection(int key, String columnName);
+	 *  getSelectionAsBigDecimal(int key, String columnName);
+	 *  getSelectionAsBoolean(int key, String columnName);
+	 *  getSelectionAsInt(int key, String columnName);
+	 *  getSelectionAsString(int key, String columnName);
+	 *  getSelectionAsTimestamp(int key, String columnName);
 	 *  </pre>
 	 *  The old implementation
 	 *  <pre>
@@ -488,7 +508,37 @@ public abstract class SvrProcess implements ProcessCall
 	public List<Integer> getSelectionKeys() {
 		return processInfo.getSelectionKeys();
 	}
-	
+
+	/**
+	 * Get Selection values from process info
+	 * @return
+	 */
+	public LinkedHashMap<Integer, LinkedHashMap<String, Object>> getSelectionValues() {
+		return processInfo.getSelectionValues();
+	}
+
+	/**
+	 * get instances from table id of process info
+	 * @param trxName
+	 * @return
+	 * @throws AdempiereException
+	 */
+	public List<?> getInstances(String trxName) throws AdempiereException
+	{
+		return processInfo.getInstances(trxName);
+	}
+
+	/**
+	 * get intance from table id of process info
+	 * @param trxName
+	 * @return
+	 * @throws AdempiereException
+	 */
+	public PO getInstance(String trxName) throws AdempiereException
+	{
+		return  processInfo.getInstance(trxName);
+	}
+
 	/**************************************************************************
 	 * 	Get Parameter
 	 *	@return parameter
@@ -817,7 +867,7 @@ public abstract class SvrProcess implements ProcessCall
 	// metas: begin
 	public String getTableName()
 	{
-		return MTable.getTableName(getCtx(), getTable_ID());
+		return processInfo.getTableName();
 	}
 	// metas: end
 	

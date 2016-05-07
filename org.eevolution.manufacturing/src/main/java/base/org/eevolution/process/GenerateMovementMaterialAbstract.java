@@ -14,50 +14,41 @@
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 
-package org.compiere.process;
+package org.eevolution.process;
 
 import java.sql.Timestamp;
+import org.compiere.process.SvrProcess;
 
 
-/** Generated Process for (Create Periods )
+/** Generated Process for (Movement Material Receipt from Distribution Order)
  *  @author ADempiere (generated) 
  *  @version Release 3.8.0
  */
-public abstract class YearCreatePeriodsAbstract extends SvrProcess
+public abstract class GenerateMovementMaterialAbstract extends SvrProcess
 {
 	/** Process Value 	*/
-	private static final String VALUE = "C_Year Create Periods";
+	private static final String VALUE = "M_Movement Material Receipt";
 	/** Process Name 	*/
-	private static final String NAME = "Create Periods";
+	private static final String NAME = "Movement Material Receipt from Distribution Order";
 	/** Process Id 	*/
-	private static final int ID = 100;
+	private static final int ID = 53736;
  
-	/**	Parameter Name for StartDate	*/
-	public static final String StartDate = "StartDate";
-	/**	Parameter Name for DateFormat	*/
-	public static final String DateFormat = "DateFormat";
+	/**	Parameter Name for MovementDate	*/
+	public static final String MovementDate = "MovementDate";
 
-	/**	Parameter Value for startDate	*/
-	private Timestamp startDate;
-	/**	Parameter Value for dateFormat	*/
-	private String dateFormat;
+	/**	Parameter Value for movementDate	*/
+	private Timestamp movementDate;
  
 
 	@Override
 	protected void prepare()
 	{
-		startDate = getParameterAsTimestamp(StartDate);
-		dateFormat = getParameterAsString(DateFormat);
+		movementDate = getParameterAsTimestamp(MovementDate);
 	}
 
-	/**	 Getter Parameter Value for startDate	*/
-	protected Timestamp getStartDate() {
-		return startDate;
-	}
-
-	/**	 Getter Parameter Value for dateFormat	*/
-	protected String getDateFormat() {
-		return dateFormat;
+	/**	 Getter Parameter Value for movementDate	*/
+	protected Timestamp getMovementDate() {
+		return movementDate;
 	}
 
 	/**	 Getter Parameter Value for Process ID	*/
