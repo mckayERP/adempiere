@@ -38,6 +38,11 @@ import org.compiere.util.Env;
  *  @author Carlos Ruiz, qss FR [1877902]
  *  @author Juan David Arboleda (arboleda), GlobalQSS, [ 1795398 ] Process Parameter: add display and readonly logic
  *  @see  http://sourceforge.net/tracker/?func=detail&atid=879335&aid=1877902&group_id=176962 to FR [1877902]
+ *  @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<li>BR [ 344 ] Smart Browse Search View is not MVC
+ * 		@see https://github.com/adempiere/adempiere/issues/344
+ * 		<li>FR [ 349 ] GridFieldVO attribute is ambiguous
+ * 		@see https://github.com/adempiere/adempiere/issues/349
  *  @version  $Id: GridFieldVO.java,v 1.3 2006/07/30 00:58:04 jjanke Exp $
  */
 public class GridFieldVO implements Serializable
@@ -194,7 +199,7 @@ public class GridFieldVO implements Serializable
 				else if (columnName.equalsIgnoreCase(I_AD_Field.COLUMNNAME_IsAllowCopy))
 					vo.IsAllowsCopy = "Y".equals(rs.getString(i));
 				else if (columnName.equalsIgnoreCase("IsRange"))
-					vo.IsRange = "Y".equals(rs.getString (i));
+					vo.IsRangeLookup = "Y".equals(rs.getString (i));
 				else if (columnName.equalsIgnoreCase("isEmbedded"))
 					vo.isEmbedded = "Y".equals(rs.getString (i));
 			}
@@ -253,7 +258,7 @@ public class GridFieldVO implements Serializable
 			vo.VFormat = rs.getString("VFormat");
 			vo.ValueMin = rs.getString("ValueMin");
 			vo.ValueMax = rs.getString("ValueMax");
-			vo.isRange = rs.getString("IsRange").equals("Y");
+			vo.IsRange = rs.getString("IsRange").equals("Y");
 			//
 			vo.AD_Reference_Value_ID = rs.getInt("AD_Reference_Value_ID");
 			vo.ValidationCode = rs.getString("ValidationCode");
@@ -301,12 +306,13 @@ public class GridFieldVO implements Serializable
 		voT.VFormat = voF.VFormat;
 		voT.ValueMin = voF.ValueMin;
 		voT.ValueMax = voF.ValueMax;
-		voT.isRange = voF.isRange;
+		voT.IsRange = voF.IsRange;
 		voT.isEmbedded= voF.isEmbedded;
 		voT.DisplayLogic = voF.DisplayLogic;
 		voT.ReadOnlyLogic = voF.ReadOnlyLogic;
 		voT.ValidationCode = voF.ValidationCode;
 		voT.InfoFactoryClass = voF.InfoFactoryClass;
+		voT.ColumnNameAlias = voF.ColumnNameAlias;
 		
 		//
 		// Genied: For a range parameter the second field 
@@ -378,7 +384,8 @@ public class GridFieldVO implements Serializable
 	
 	
 	/** RangeLookup     */	
-	public boolean      IsRange = false;
+	//	FR [ 349 ]
+	public boolean      IsRangeLookup = false;
 	/** isEmbedded **/
 	public boolean      isEmbedded = false;	
 	/** Window No                   */
@@ -484,7 +491,7 @@ public class GridFieldVO implements Serializable
 	public int			AD_Reference_Value_ID = 0;
 
 	/**	Process Parameter Range		*/
-	public boolean      isRange = false;
+	public boolean      IsRange = false;
 	/**	Process Parameter Value2	*/
 	public String       DefaultValue2 = "";
 
@@ -499,6 +506,11 @@ public class GridFieldVO implements Serializable
 	public boolean IsCollapsedByDefault = false;
 	/**  Autocompletion for textfields - Feature Request FR [ 1757088 ] */
 	public boolean IsAutocomplete = false;
+	/** Define alias by smart browser */
+	public String ColumnNameAlias = "";
+	//	FR [ 344 ]
+	/**	Is ColumnSQL like reference	*/
+	public boolean IsColumnSQLReference = false;
 	
 	/**
 	 *  Set Context including contained elements
@@ -535,6 +547,8 @@ public class GridFieldVO implements Serializable
 			ReadOnlyLogic = "";
 		if (MandatoryLogic == null)
 			MandatoryLogic = "";
+		if (ColumnNameAlias == null)
+			ColumnNameAlias = "";
 
 
 		//  Create Lookup, if not ID
@@ -621,9 +635,12 @@ public class GridFieldVO implements Serializable
 		clone.lookupInfo = lookupInfo;
 
 		//  Process Parameter
-		clone.isRange = isRange;
+		clone.IsRange = IsRange;
+		//	FR [ 349 ]
+		clone.IsRangeLookup = IsRangeLookup;
 		clone.isEmbedded = isEmbedded;
 		clone.DefaultValue2 = DefaultValue2;
+		clone.ColumnNameAlias = ColumnNameAlias;
 
 		return clone;
 	}	//	clone

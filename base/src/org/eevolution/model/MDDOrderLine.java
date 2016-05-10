@@ -19,6 +19,7 @@ package org.eevolution.model;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.compiere.model.MAttributeSet;
@@ -605,7 +606,7 @@ public class MDDOrderLine extends X_DD_OrderLine
 		//	Get Line No
 		if (getLine() == 0)
 		{
-			String sql = "SELECT COALESCE(MAX(Line),0)+10 FROM C_OrderLine WHERE C_Order_ID=?";
+			String sql = "SELECT COALESCE(MAX(Line),0)+10 FROM DD_OrderLine WHERE DD_Order_ID=?";
 			int ii = DB.getSQLValue (get_TrxName(), sql, getDD_Order_ID());
 			setLine (ii);
 		}
@@ -670,5 +671,37 @@ public class MDDOrderLine extends X_DD_OrderLine
 	public BigDecimal getQtyToDeliver()
 	{
 		return getQtyOrdered().subtract(getQtyInTransit()).subtract(getQtyDelivered());
+	}
+
+	/**
+	 * get Calculate Quantity Reserved
+	 * @return
+     */
+	public BigDecimal getCalculateQtyReserved()
+	{
+		BigDecimal reservedQuantity = getQtyOrdered()
+				.subtract(getQtyReserved())
+				.subtract(getQtyDelivered());
+		return reservedQuantity;
+	}
+
+	/**
+	 * get Weigth of Line
+	 * @return
+     */
+	public BigDecimal getWeight()
+	{
+		return Optional.ofNullable(getProduct().getWeight())
+				.orElse(BigDecimal.ZERO);
+	}
+
+	/**
+	 * get Volume of Line
+	 * @return
+	 */
+	public BigDecimal getVolume()
+	{
+		return Optional.ofNullable(getProduct().getVolume())
+				.orElse(BigDecimal.ZERO);
 	}
 }	//	MDDOrderLine

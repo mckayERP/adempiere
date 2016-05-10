@@ -103,7 +103,7 @@ public class MCostDetail extends X_M_CostDetail
         parameters.add(costTypeId);
         whereClause.append(I_M_CostDetail.COLUMNNAME_M_CostElement_ID).append("=? AND ");
         parameters.add(costElementId);
-        whereClause.append(I_M_CostDetail.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND");
+        whereClause.append(I_M_CostDetail.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ");
         parameters.add(attributeSetInstanceId);
         whereClause.append(I_M_CostDetail.COLUMNNAME_SeqNo).append("<=?");
         parameters.add(seqNo);
@@ -384,8 +384,15 @@ public class MCostDetail extends X_M_CostDetail
 		params.add(M_CostType_ID);
 		whereClause.append(MCostDetail.COLUMNNAME_M_Transaction_ID ).append( "=? ");
 		params.add(mtrx.getM_Transaction_ID());
-		
-		if(model instanceof MMatchInv)
+
+		if(model instanceof MMatchPO)
+		{
+			MMatchPO matchInv = (MMatchPO) model;
+			whereClause.append(" AND ").append(MCostDetail.COLUMNNAME_C_OrderLine_ID).append( "=? ");
+			params.add(matchInv.getC_OrderLine_ID());
+			//whereClause.append(MCostDetail.COLUMNNAME_Qty).append("=0 ");
+		}
+		else if(model instanceof MMatchInv)
 		{	
 			MMatchInv matchInv = (MMatchInv) model;
 			whereClause.append(" AND ").append(MCostDetail.COLUMNNAME_C_InvoiceLine_ID).append( "=? AND ");
@@ -434,7 +441,6 @@ public class MCostDetail extends X_M_CostDetail
 				docLine.getAD_Client_ID(),
                 accountSchemaId,
 				docLine.getM_Product_ID(),
-				//docLine.getM_AttributeSetInstance_ID(),
                 costTypeId,
 				docLine.get_ID())
 		.list();
@@ -510,7 +516,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if created
 	 */
-	public static boolean createOrder (MAcctSchema as, int AD_Org_ID, 
+	/*public static boolean createOrder (MAcctSchema as, int AD_Org_ID,
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int C_OrderLine_ID, int M_CostElement_ID, 
 		BigDecimal Amt, BigDecimal Qty,
@@ -562,6 +568,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createOrder
+	*/
 
 	
 	/**
@@ -579,7 +586,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if created
 	 */
-	public static boolean createInvoice (MAcctSchema as, int AD_Org_ID, 
+	/*public static boolean createInvoice (MAcctSchema as, int AD_Org_ID,
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int C_InvoiceLine_ID, int M_CostElement_ID, 
 		BigDecimal Amt, BigDecimal Qty,
@@ -631,6 +638,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createInvoice
+	*/
 	
 	/**
 	 * 	Create New Shipment Cost Detail for SO Shipments.
@@ -648,7 +656,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if no error
 	 */
-	public static boolean createShipment (MAcctSchema as, int AD_Org_ID, 
+	/*public static boolean createShipment (MAcctSchema as, int AD_Org_ID,
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int M_InOutLine_ID, int M_CostElement_ID, 
 		BigDecimal Amt, BigDecimal Qty,
@@ -701,6 +709,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createShipment
+	*/
 
 	/**
 	 * 	Create New Order Cost Detail for Physical Inventory.
@@ -717,6 +726,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if no error
 	 */
+	/*
 	public static boolean createInventory (MAcctSchema as, int AD_Org_ID, 
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int M_InventoryLine_ID, int M_CostElement_ID, 
@@ -769,6 +779,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createInventory
+	*/
 	
 	/**
 	 * 	Create New Order Cost Detail for Movements.
@@ -786,7 +797,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if no error
 	 */
-	public static boolean createMovement (MAcctSchema as, int AD_Org_ID, 
+	/*public static boolean createMovement (MAcctSchema as, int AD_Org_ID,
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int M_MovementLine_ID, int M_CostElement_ID, 
 		BigDecimal Amt, BigDecimal Qty, boolean from,
@@ -841,6 +852,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createMovement
+	*/
 
 	/**
 	 * 	Create New Order Cost Detail for Production.
@@ -857,7 +869,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if no error
 	 */
-	public static boolean createProduction (MAcctSchema as, int AD_Org_ID, 
+	/*public static boolean createProduction (MAcctSchema as, int AD_Org_ID,
 		int M_Product_ID, int M_AttributeSetInstance_ID,
 		int M_ProductionLine_ID, int M_CostElement_ID, 
 		BigDecimal Amt, BigDecimal Qty,
@@ -909,6 +921,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("(" + ok + ") " + cd);
 		return ok;
 	}	//	createProduction
+	*/
 	
 	/**************************************************************************
 	 * 	Get Cost Detail
@@ -986,7 +999,7 @@ public class MCostDetail extends X_M_CostDetail
 	 *	@param trxName transaction
 	 *	@return true if no error
 	 */
-	public static boolean processProduct (MProduct product, String trxName)
+	/*public static boolean processProduct (MProduct product, String trxName)
 	{
 		final String whereClause = I_M_CostDetail.COLUMNNAME_M_Product_ID+"=?"
 			+ " AND "+I_M_CostDetail.COLUMNNAME_Processed+"=?";
@@ -1005,6 +1018,7 @@ public class MCostDetail extends X_M_CostDetail
 		s_log.config("OK=" + counterOK + ", Errors=" + counterError);
 		return counterError == 0;
 	}	//	processProduct
+	*/
 	
 	/**	Logger	*/
 	private static CLogger 	s_log = CLogger.getCLogger (MCostDetail.class);
@@ -1108,6 +1122,8 @@ public class MCostDetail extends X_M_CostDetail
 		setAmt(amt);
 		setAmtLL(amtLL);
 		setQty(qty);
+		setCostAmt(BigDecimal.ZERO);
+		setCostAmtLL(BigDecimal.ZERO);
 		setCostAdjustment(Env.ZERO);
 		setCostAdjustmentLL(Env.ZERO);
 		setCumulatedQty(Env.ZERO);
@@ -1289,6 +1305,7 @@ public class MCostDetail extends X_M_CostDetail
 	 * 	The record is saved if processed.
 	 *	@return true if processed
 	 */
+	/*
 	public synchronized boolean process()
 	{
 		if (isProcessed())
@@ -1348,6 +1365,7 @@ public class MCostDetail extends X_M_CostDetail
 		log.info(ok + " - " + toString());
 		return ok;
 	}	//	process
+	*/
 
 
     /**
@@ -1578,21 +1596,25 @@ public class MCostDetail extends X_M_CostDetail
 	{
 		StringBuffer whereClause = new StringBuffer();
 		whereClause.append(COLUMNNAME_AD_Client_ID).append("=? AND ")
-				   .append(COLUMNNAME_C_AcctSchema_ID).append("=? AND ")
-				   .append(COLUMNNAME_M_Product_ID).append("=? AND ")
-				   .append(COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ")
-				   .append(COLUMNNAME_M_CostType_ID).append("=? AND ")
-				   .append(COLUMNNAME_C_InvoiceLine_ID).append("=? AND ")
-				   .append(COLUMNNAME_M_InOutLine_ID).append("=? ");
+				   	.append(COLUMNNAME_C_AcctSchema_ID).append("=? AND ")
+				   	.append(COLUMNNAME_M_Product_ID).append("=? AND ")
+				   	.append(COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ")
+				   	.append(COLUMNNAME_M_CostType_ID).append("=? AND ")
+				   	.append(COLUMNNAME_M_CostElement_ID).append("=? AND ")
+				   	.append(COLUMNNAME_C_InvoiceLine_ID).append("=? AND ")
+					.append(COLUMNNAME_M_InOutLine_ID).append("=? AND ")
+				   	.append(COLUMNNAME_C_LandedCostAllocation_ID).append("=? ");
 		return new Query (landedCostAllocation.getCtx(), Table_Name, whereClause.toString() , landedCostAllocation.get_TrxName())
 		.setParameters(
 				landedCostAllocation.getAD_Client_ID(),
 				acctSchemaId,
 				landedCostAllocation.getM_Product_ID(),
+				landedCostAllocation.getM_AttributeSetInstance_ID(),
 				costTypeId,
+				landedCostAllocation.getM_CostElement_ID(),
 				landedCostAllocation.getC_InvoiceLine_ID(),
-				landedCostAllocation.getM_InOutLine_ID())
-		
+				landedCostAllocation.getM_InOutLine_ID(),
+				landedCostAllocation.getC_LandedCostAllocation_ID())
 		.aggregate(COLUMNNAME_CostAmt + " + " +
 				COLUMNNAME_CostAdjustment + " + " +
 				COLUMNNAME_CostAmtLL + " + " +
@@ -1622,6 +1644,7 @@ public class MCostDetail extends X_M_CostDetail
 				invoiceLine.getAD_Client_ID(),
 				acctSchemaId,
 				invoiceLine.getM_Product_ID(),
+				invoiceLine.getM_AttributeSetInstance_ID(),
 				costTypeId,
 				invoiceLine.getC_InvoiceLine_ID(),
 				inOutLine.getM_InOutLine_ID())

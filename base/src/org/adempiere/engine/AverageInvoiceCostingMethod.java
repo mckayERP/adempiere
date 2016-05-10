@@ -23,6 +23,7 @@ import org.compiere.model.MProduct;
 import org.compiere.model.MTransaction;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 import org.eevolution.model.MPPCostCollector;
 
 /**
@@ -66,10 +67,10 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
         //Setting Date Accounting based on Open Period
         if (this.isOpenPeriod)
             this.dateAccounting = model.getDateAcct();
-        else if (model instanceof MLandedCostAllocation )
+        /*else if (model instanceof MLandedCostAllocation )
                 this.dateAccounting = ((MLandedCostAllocation) model).getC_InvoiceLine().getC_Invoice().getDateAcct();
-        else if (model instanceof MMatchInv)
-			this.dateAccounting = ((MMatchInv) model).getC_InvoiceLine().getC_Invoice().getDateAcct();
+        //else if (model instanceof MMatchInv)
+		//	this.dateAccounting = ((MMatchInv) model).getC_InvoiceLine().getC_Invoice().getDateAcct();*/
         else
             this.dateAccounting = null; // Is Necessary define that happen in this case when period is close
 
@@ -314,7 +315,7 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 				&& costDetail == null) {
 			// set Movement Qty in Zero because is a adjustment
 			// if exist adjustment cost for Landed Cost Allocation or Match Inv then set the movement qty to zero
-			if (adjustCost.add(adjustCostLowerLevel).signum() != 0
+			if ((adjustCost.add(adjustCostLowerLevel).signum() != 0 && costDetail != null)
 			|| (model instanceof MLandedCostAllocation || model instanceof MMatchInv))
 				movementQuantity = Env.ZERO;
 
@@ -333,9 +334,9 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 			if (transaction != null)
 				costDetail.setM_Transaction_ID(transaction.getM_Transaction_ID());
 			// set if transaction is sales order type or not
-			if (isSalesTransaction != null)
+			if (isSalesTransaction != null && isSalesTransaction)
 				costDetail.setIsSOTrx(isSalesTransaction);
-			else
+			else if (isSalesTransaction != null && !isSalesTransaction)
 				costDetail.setIsSOTrx(model.isSOTrx());
 
 			if (adjustCost.signum() != 0 || adjustCostLowerLevel.signum() != 0) {
@@ -345,11 +346,10 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 				if (adjustCost.signum() != 0) {
 					costDetail.setCostAdjustmentDate(model.getDateAcct());
 					costDetail.setCostAdjustment(adjustCost);
-					//costDetail.setCostAmt(BigDecimal.ZERO);
+					costDetail.setCostAmt(BigDecimal.ZERO);
 					costDetail.setAmt(costDetail.getAmt().add(
 							costDetail.getCostAdjustment()));
-					costDetail.setDescription(description + " Adjust Cost:"
-							+ adjustCost);
+					costDetail.setDescription(description + Msg.parseTranslation(Env.getCtx() , "@CostAdjustment@ ") + adjustCost);
 				}
 				// update adjustment cost lower level
 				if (adjustCostLowerLevel.signum() != 0) {
@@ -357,11 +357,10 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 							.getDescription() : "";
 					costDetail.setCostAdjustmentDateLL(model.getDateAcct());
 					costDetail.setCostAdjustmentLL(adjustCostLowerLevel);
-					//costDetail.setCostAmtLL(BigDecimal.ZERO);
+					costDetail.setCostAmtLL(BigDecimal.ZERO);
 					costDetail.setAmt(costDetail.getCostAmtLL().add(
 							costDetail.getCostAdjustmentLL()));
-					costDetail.setDescription(description
-							+ " Adjust Cost LL:" + adjustCost);
+					costDetail.setDescription(description + Msg.parseTranslation(Env.getCtx() , "@CostAdjustmentLL@ ")+ adjustCost);
 				}
 			}
 
@@ -426,9 +425,9 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 		}
 	}
 
-	@Override
+	/*@Override
 	public void processCostDetail(MCostDetail costDetail) {
-	}
+	}*/
 
 	@Override
 	protected List<CostComponent> getCalculatedCosts() {
@@ -659,7 +658,7 @@ public class AverageInvoiceCostingMethod extends AbstractCostingMethod
 
 			//get landed allocation cost
 			for (MLandedCostAllocation allocation : 
-				MLandedCostAllocation.getOfInOuline(line,
+				MLandedCostAllocation.getOfInOutline(line,
 							costElement.getM_CostElement_ID()))
 			{
 				//System.out.println("Allocation : " + allocation.getC_LandedCostAllocation_ID() +  " Amount:" +  allocation.getAmt());

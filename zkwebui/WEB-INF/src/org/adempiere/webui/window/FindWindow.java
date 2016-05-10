@@ -913,11 +913,9 @@ public class FindWindow extends Window implements EventListener<Event>,ValueChan
 		//  Editor
 		WEditor editor 	= null;
 		Label label 	= null;
-		Row panel 		= new Row ();
 
-		contentSimpleRows.appendChild(panel);
 
-		if ( mField.isRange() ) {
+		if ( mField.isRangeLookup() ) {
 			Hbox box = new Hbox();
 			editor = WebEditorFactory.getEditor(mField, false);
 			label = editor.getLabel();
@@ -952,6 +950,9 @@ public class FindWindow extends Window implements EventListener<Event>,ValueChan
 
         panel.appendChild(ThemeUtils.makeRightAlign(label));
         panel.appendChild(box);
+
+        contentSimpleRows.appendChild(panel);
+
         fieldLabel.addEventListener(Events.ON_OK,this);
         fieldLabel1.addEventListener(Events.ON_OK,this);
         }
@@ -963,12 +964,21 @@ public class FindWindow extends Window implements EventListener<Event>,ValueChan
             editor.dynamicDisplay();
             Component fieldLabel = editor.getComponent();
 
-			//
-			if (displayLength > 0)      //  set it back
-				mField.setDisplayLength(displayLength);
-			//
-			panel.appendChild(ThemeUtils.makeRightAlign(label));
-			panel.appendChild(fieldLabel);
+            if (displayLength > 0)      //  set it back
+                mField.setDisplayLength(displayLength);
+            //
+            if(isTwoColumns)
+            {
+                if(!isPair)
+                    panel = new Row();
+            }
+            else
+                panel = new Row();
+
+            panel.appendChild(ThemeUtils.makeRightAlign(label));
+            panel.appendChild(fieldLabel);
+            contentSimpleRows.appendChild(panel);
+
 			fieldLabel.addEventListener(Events.ON_OK,this);
 
 			m_sEditors2.add (null);
@@ -1726,11 +1736,11 @@ public class FindWindow extends Window implements EventListener<Event>,ValueChan
 				else
 					modifiedvalue = value;
 				//
-				if ( modifiedvalue.toString().indexOf('%') != -1 && !field.isRange() )
+				if ( modifiedvalue.toString().indexOf('%') != -1 && !field.isRangeLookup() )
 					m_query.addRestriction(ColumnSQL, MQuery.LIKE, modifiedvalue, ColumnName, wed.getDisplay());
 				else if (isProductCategoryField && value instanceof Integer)
 					m_query.addRestriction(getSubCategoryWhereClause(((Integer) value).intValue()));
-				else if ( ! field.isRange()  )																//20121115
+				else if ( ! field.isRangeLookup()  )																//20121115
 					m_query.addRestriction(ColumnSQL, MQuery.EQUAL, value, ColumnName, wed.getDisplay());
 				/*
                 if (value.toString().indexOf('%') != -1)
@@ -1741,7 +1751,7 @@ public class FindWindow extends Window implements EventListener<Event>,ValueChan
 				// end globalqss patch
 			}
 
-			if (field.isRange() ){
+			if (field.isRangeLookup() ){
 
 				WEditor toRangeEditor = (WEditor)m_sEditors2.get(i);
 				Object value2 = null;

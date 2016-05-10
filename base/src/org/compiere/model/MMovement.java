@@ -29,6 +29,7 @@ import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.eevolution.model.MDDOrder;
 
 /**
  *	Inventory Movement Model
@@ -84,6 +85,45 @@ public class MMovement extends X_M_Movement implements DocAction
 	{
 		super(ctx, rs, trxName);
 	}	//	MMovement
+
+	/**
+	 * Created an instance based Distribution Order
+	 * @param order
+	 * @param movementDate
+     */
+	public MMovement(MDDOrder order , Timestamp movementDate)
+	{
+		super(order.getCtx() , 0 , order.get_TrxName());
+		setDD_Order_ID(order.getDD_Order_ID());
+		setAD_User_ID(order.getAD_User_ID());
+		setPOReference(order.getPOReference());
+		setReversal_ID(0);
+		setM_Shipper_ID(order.getM_Shipper_ID());
+		setDescription(order.getDescription());
+		setC_BPartner_ID(order.getC_BPartner_ID());
+		setC_BPartner_Location_ID(order.getC_BPartner_Location_ID());
+		setAD_Org_ID(order.getAD_Org_ID());
+		setAD_OrgTrx_ID(order.getAD_OrgTrx_ID());
+		setAD_User_ID(order.getAD_User_ID());
+		setC_Activity_ID(order.getC_Activity_ID());
+		setC_Charge_ID(order.getC_Charge_ID());
+		setChargeAmt(order.getChargeAmt());
+		setC_Campaign_ID(order.getC_Campaign_ID());
+		setC_Project_ID(order.getC_Project_ID());
+		setAD_OrgTrx_ID(order.getAD_OrgTrx_ID());
+		setUser1_ID(order.getUser1_ID());
+		setUser2_ID(order.getUser2_ID());
+		setPriorityRule(order.getPriorityRule());
+		if (movementDate != null)
+			setMovementDate (movementDate);
+		setDeliveryRule(order.getDeliveryRule());
+		setDeliveryViaRule(order.getDeliveryViaRule());
+		setDocStatus(MMovement.DOCSTATUS_Drafted);
+		setDocAction(MMovement.ACTION_Prepare);
+		setFreightCostRule (order.getFreightCostRule());
+		setFreightAmt(order.getFreightAmt());
+		setSalesRep_ID(order.getSalesRep_ID());
+	}
 
 	/**	Lines						*/
 	private MMovementLine[]		m_lines = null;
@@ -399,6 +439,7 @@ public class MMovement extends X_M_Movement implements DocAction
 						MMovementLineMA ma = mas[j];
 						//
 						MLocator locator = new MLocator (getCtx(), line.getM_Locator_ID(), get_TrxName());
+						MLocator locatorTo = new MLocator (getCtx(), line.getM_LocatorTo_ID(), get_TrxName());
 						//Update Storage 
 						if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
 								line.getM_Locator_ID(),
@@ -417,7 +458,7 @@ public class MMovement extends X_M_Movement implements DocAction
 							M_AttributeSetInstanceTo_ID = ma.getM_AttributeSetInstance_ID();
 						}
 						//Update Storage 
-						if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
+						if (!MStorage.add(getCtx(),locatorTo.getM_Warehouse_ID(),
 								line.getM_LocatorTo_ID(),
 								line.getM_Product_ID(), 
 								M_AttributeSetInstanceTo_ID, 0, 
@@ -438,8 +479,6 @@ public class MMovement extends X_M_Movement implements DocAction
 							m_processMsg = "Transaction From not inserted (MA)";
 							return DocAction.STATUS_Invalid;
 						}
-						//
-						MLocator locatorTo = new MLocator (getCtx(), line.getM_LocatorTo_ID(), get_TrxName());
 						MTransaction trxTo = new MTransaction (getCtx(), locatorTo.getAD_Org_ID(), 
 								MTransaction.MOVEMENTTYPE_MovementTo,
 								line.getM_LocatorTo_ID(), line.getM_Product_ID(), M_AttributeSetInstanceTo_ID,
@@ -457,6 +496,7 @@ public class MMovement extends X_M_Movement implements DocAction
 				if (trxFrom == null)
 				{
 					MLocator locator = new MLocator (getCtx(), line.getM_Locator_ID(), get_TrxName());
+					MLocator locatorTo = new MLocator (getCtx(), line.getM_LocatorTo_ID(), get_TrxName());
 					//Update Storage 
 					if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
 							line.getM_Locator_ID(),
@@ -469,7 +509,7 @@ public class MMovement extends X_M_Movement implements DocAction
 					}
 
 					//Update Storage 
-					if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
+					if (!MStorage.add(getCtx(),locatorTo.getM_Warehouse_ID(),
 							line.getM_LocatorTo_ID(),
 							line.getM_Product_ID(), 
 							line.getM_AttributeSetInstanceTo_ID(), 0, 
@@ -480,7 +520,7 @@ public class MMovement extends X_M_Movement implements DocAction
 					}
 
 					//
-					trxFrom = new MTransaction (getCtx(), line.getAD_Org_ID(), 
+					trxFrom = new MTransaction (getCtx(), locator.getAD_Org_ID(),
 							MTransaction.MOVEMENTTYPE_MovementFrom,
 							line.getM_Locator_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
 							line.getMovementQty().negate(), getMovementDate(), get_TrxName());
@@ -490,9 +530,8 @@ public class MMovement extends X_M_Movement implements DocAction
 						m_processMsg = "Transaction From not inserted";
 						return DocAction.STATUS_Invalid;
 					}
-					//
-					MLocator locatorTo = new MLocator (getCtx(), line.getM_LocatorTo_ID(), get_TrxName());
-					MTransaction trxTo = new MTransaction (getCtx(), line.getAD_Org_ID(), 
+
+					MTransaction trxTo = new MTransaction (getCtx(), locatorTo.getAD_Org_ID(),
 							MTransaction.MOVEMENTTYPE_MovementTo,
 							line.getM_LocatorTo_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstanceTo_ID(),
 							line.getMovementQty(), getMovementDate(), get_TrxName());
