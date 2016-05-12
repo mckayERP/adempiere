@@ -77,6 +77,7 @@ public class WStringEditor extends WEditor implements ContextMenuListener
     {
         super(gridField.isAutocomplete() ? new Combobox() : new Textbox(), gridField);
         ThemeUtils.addSclass("ad-wstringeditor", this.getComponent());
+        this.getComponent().setAttribute("zk_component_prefix", "Field_" + gridField.getColumnName() + "_" + gridField.getAD_Tab_ID() + "_" + gridField.getWindowNo() + "_");
         this.tableEditor = tableEditor;
         init(gridField.getObscureType());
     }
@@ -95,14 +96,14 @@ public class WStringEditor extends WEditor implements ContextMenuListener
     public WStringEditor(String columnName, boolean mandatory, boolean isReadOnly, boolean isUpdateable,
     		int displayLength, int fieldLength, String vFormat, String obscureType)
     {
-    	super(new Textbox(), columnName, null, null, mandatory, isReadOnly,isUpdateable);
         ThemeUtils.addSclass("ad-wstringeditor", this.getComponent());
+    	super(new StringBox(), columnName, null, null, mandatory, isReadOnly,isUpdateable);    	
     	init(obscureType);
     }
 
     @Override
     public org.zkoss.zul.Textbox getComponent() {
-    	return (org.zkoss.zul.Textbox) component;
+    	return (org.zkoss.zul.Textbox) (((StringBox)component).getTextBox());
     }
 
     @Override
@@ -144,8 +145,8 @@ public class WStringEditor extends WEditor implements ContextMenuListener
 	            getComponent().setRows(8);
 	        }
 
-	        if (getComponent() instanceof Textbox)
-	        	((Textbox)getComponent()).setObscureType(obscureType);
+	        if (getComponent() instanceof org.zkoss.zul.api.Textbox)
+	        	((StringBox)component).setObscureType(obscureType);
 
 	        popupMenu = new WEditorPopupMenu(false, false, true);
 	        Menuitem editor = new Menuitem(Msg.getMsg(Env.getCtx(), "Editor"), ServletFns.resolveThemeURL("~./images/Editor16.png"));
