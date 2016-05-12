@@ -1132,24 +1132,20 @@ public class ZkReportViewer extends Window implements EventListener {
 		if (dialog.isValid()) {
 			dialog.setPosition("center");
 			dialog.setSizable(true);
-			try {
-				dialog.setPage(this.getPage());
-				dialog.doModal();
-				//	Valid
-				if(dialog.isOK()) {
-					//	execute
-					ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
-					//synchrous
-					worker.run();
-					//	
-					ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
-					//	
-					m_reportEngine.setQuery(re.getQuery());
-					//	
-					return true;
-				}
-			}
-			catch (InterruptedException e) {
+			dialog.setPage(this.getPage());
+			dialog.doModal();
+			//	Valid
+			if(dialog.isOK()) {
+				//	execute
+				ProcessCtl worker = new ProcessCtl(null, m_WindowNo, pi, true, null);
+				//synchrous
+				worker.run();
+				//	
+				ReportEngine re = ReportEngine.get(Env.getCtx(), pi);
+				//	
+				m_reportEngine.setQuery(re.getQuery());
+				//	
+				return true;
 			}
 		}
 		//	Default

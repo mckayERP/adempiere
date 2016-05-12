@@ -18,6 +18,7 @@ package org.adempiere.webui.window;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 
 import org.adempiere.webui.apps.AEnv;
@@ -185,7 +186,7 @@ public class WRecordInfo extends RecordInfoController implements EventListener
 		//	Instance Table
 		table.appendChild(listhead);
 		List<Object> list = new ArrayList<Object>();
-		for (Vector<String> data : m_data)
+		for (Vector<String> data : getData())
 		{
 			list.add(data.toString());
 		}

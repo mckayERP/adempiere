@@ -453,27 +453,13 @@ ValueChangeListener,Serializable,WTableModelListener
 		{
 			if (getMovementDate() == null)
 			{
-					try
-					{
 					Messagebox.show( Msg.parseTranslation(Env.getCtx(), "@MovementDate@ @NotFound@"), "Info",Messagebox.OK, Messagebox.INFORMATION);
-					}
-					catch (InterruptedException ex)
-					{
-						throw new AdempiereException (ex);
-					}
 				return;
 			}
 
 			if ((isOnlyReceipt() || isBackflush()) && getM_Locator_ID() <= 0) 
 			{
-				try
-				{
 				Messagebox.show(Msg.parseTranslation(Env.getCtx(), "@MLocator_ID@ @NotFound@"),"Info", Messagebox.OK, Messagebox.INFORMATION);
-				}
-				catch (InterruptedException ex)
-				{
-					throw new AdempiereException (ex);
-				}
 				return;
 			}
 
@@ -482,18 +468,9 @@ ValueChangeListener,Serializable,WTableModelListener
 			
 			generateSummaryTable();
 			int result = -1;
-			try
-			{
 			result = Messagebox.show(Msg.getMsg(Env.getCtx(), "Update"),"",Messagebox.OK|Messagebox.CANCEL,Messagebox.QUESTION);
-			}
-			catch (InterruptedException ex)
-			{
-				throw new AdempiereException(ex);
-			}
 			if ( result == Messagebox.OK)
 			{				
-				try
-				{
 				final boolean isCloseDocument = (Messagebox.show(Msg.parseTranslation(Env.getCtx(),"@IsCloseDocument@ : "+  getPP_Order().getDocumentNo()),"",Messagebox.OK|Messagebox.CANCEL,Messagebox.QUESTION) == Messagebox.OK);
 
 				if (cmd_process(isCloseDocument, issue))
@@ -501,12 +478,7 @@ ValueChangeListener,Serializable,WTableModelListener
 					dispose();
 					return;
 				}
-				}
-				catch (InterruptedException ex)
-				{
-					throw new AdempiereException(ex);
-				}
-                Clients.showBusy(null, false);
+                Clients.clearBusy();
 			}
 			TabsReceiptsIssue.setSelectedIndex(0);
 		}	
