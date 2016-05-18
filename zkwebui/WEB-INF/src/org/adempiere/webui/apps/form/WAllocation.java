@@ -247,7 +247,7 @@ public class WAllocation extends Allocation
 		Center center = new Center();
 		paymentLayout.appendChild(center);
 		center.appendChild(paymentTable);
-		paymentTable.setWidth("99%");
+		//paymentTable.setWidth("99%");
 		paymentTable.setHeight("99%");
 		paymentTable.setMultiSelection(true);
 		center.setStyle("border: none");
@@ -263,31 +263,33 @@ public class WAllocation extends Allocation
 		center = new Center();
 		invoiceLayout.appendChild(center);
 		center.appendChild(invoiceTable);
-		invoiceTable.setWidth("99%");
-		invoiceTable.setHeight("99%");
+		//invoiceTable.setWidth("99%");
+		//invoiceTable.setHeight("99%");
 		invoiceTable.setMultiSelection(true);
 		center.setStyle("border: none");
 		//
 		center = new Center();
-		center.setHflex("true");
+		//center.setHflex("true");
+		center.setHeight("100%");
 		center.setVflex("true");
 		mainLayout.appendChild(center);
 		center.appendChild(infoPanel);
 		
 		infoPanel.setStyle("border: none");
-		infoPanel.setWidth("100%");
+		infoPanel.setWidth("300px");
 		infoPanel.setHeight("100%");
 		
 		north = new North();
 		north.setStyle("border: none");
-		north.setHeight("49%");
+		north.setHeight("50%");
 		infoPanel.appendChild(north);
 		north.appendChild(paymentPanel);
 		north.setSplittable(true);
 		center = new Center();
 		center.setStyle("border: none");
-		center.setHflex("true");
-		center.setVflex("true");
+		center.setHeight("50%");
+		//center.setHflex("true");
+		//center.setVflex("true");
 		infoPanel.appendChild(center);
 		center.appendChild(invoicePanel);
 	}   //  jbInit
