@@ -127,7 +127,7 @@ public class ProcessAbstractClassGenerator {
 				createGetterParameter(parameter, true);
 			}
 		}
-		//	Add Process gett
+		//	Add Process get
 		createGetterParameter();
 	}
 
@@ -161,10 +161,6 @@ public class ProcessAbstractClassGenerator {
 		header.append(ModelInterfaceGenerator.NL);
 		//	Import Class
 		header.append(getImportClass());
-		//	New line
-		header.append(ModelInterfaceGenerator.NL);
-		//	New line
-		header.append(ModelInterfaceGenerator.NL);
 		//	Add comments
 		header.append("\n/** Generated Process for (").append(processName).append(")\n")
 		 	.append(" *  @author ADempiere (generated) \n")
@@ -222,12 +218,13 @@ public class ProcessAbstractClassGenerator {
 	private void createParameterName(MProcessPara parameter) {
 		//	Add new Line
 		parametersName.append(ModelInterfaceGenerator.NL);
+		String staticName =  parameter.getColumnName().replace(" ", "");
 		//	Add Comment
 		parametersName
-			.append("\t/**\tParameter Name for ").append(parameter.getColumnName()).append("\t*/")
+			.append("\t/**\tParameter Name for ").append(staticName).append("\t*/")
 			.append(ModelInterfaceGenerator.NL)
-			.append("\tpublic static final String ").append(parameter.getColumnName())
-			.append(" = ").append("\"").append(parameter.getColumnName())
+			.append("\tpublic static final String ").append(staticName)
+			.append(" = ").append("\"").append(staticName)
 			.append("\";");
 	}
 	
@@ -312,12 +309,13 @@ public class ProcessAbstractClassGenerator {
 		//	Add new Line
 		parametersFill.append(ModelInterfaceGenerator.NL);
 		String variableName = getVariableName(parameter);
+		String staticName =  parameter.getColumnName().replace(" ", "");
 		//	Add Comment
 		parametersFill
 			.append("\t\t").append(variableName)
 			.append(isTo ? "To": "")
 			.append(" = ").append(getProcessMethod(parameter, isTo))
-			.append("(").append(parameter.getColumnName()).append(")")
+			.append("(").append(staticName).append(")")
 			.append(";");
 	}
 
@@ -331,14 +329,17 @@ public class ProcessAbstractClassGenerator {
 		String parameterName = getParameterName(parameter);
 		StringBuilder variableName = new StringBuilder();
 		if ((DisplayType.List == parameter.getAD_Reference_ID() 
-				&& 319 == parameter.getAD_Reference_Value_ID()) 
-				|| DisplayType.YesNo == parameter.getAD_Reference_ID())
+				&& 319 == parameter.getAD_Reference_Value_ID()))
 			variableName.append("is").append(parameterName);
+		else if (DisplayType.YesNo == parameter.getAD_Reference_ID())
+			variableName.append("is").append(parameterName.substring(2));
 		else
 			variableName
 					.append(parameterName.substring(0 ,1).toLowerCase())
 					.append(parameterName.substring(1,getParameterName(parameter).length()));
-		if (DisplayType.isLookup(parameter.getAD_Reference_ID()) && DisplayType.List != parameter.getAD_Reference_ID())
+		if (DisplayType.Location == parameter.getAD_Reference_ID()
+		|| DisplayType.Locator == parameter.getAD_Reference_ID()
+		|| (DisplayType.isLookup(parameter.getAD_Reference_ID()) && DisplayType.List != parameter.getAD_Reference_ID()))
 			variableName.append("Id");
 
 		return variableName.toString();
@@ -354,13 +355,16 @@ public class ProcessAbstractClassGenerator {
 		String parameterName = getParameterName(parameter);
 		StringBuilder variableName = new StringBuilder();
 		if ((DisplayType.List == parameter.getAD_Reference_ID() 
-				&& 319 == parameter.getAD_Reference_Value_ID()) 
-				|| DisplayType.YesNo == parameter.getAD_Reference_ID())
+				&& 319 == parameter.getAD_Reference_Value_ID()))
 			variableName.append("is").append(parameterName);
+		else if (DisplayType.YesNo == parameter.getAD_Reference_ID())
+			variableName.append("is").append(parameterName.substring(2));
 		else
 			variableName.append("get").append(parameterName);
-		if (DisplayType.isLookup(parameter.getAD_Reference_ID()) 
-				&& DisplayType.List != parameter.getAD_Reference_ID())
+		if (DisplayType.Location == parameter.getAD_Reference_ID()
+		|| DisplayType.Locator == parameter.getAD_Reference_ID()
+		|| (DisplayType.isLookup(parameter.getAD_Reference_ID())
+				&& DisplayType.List != parameter.getAD_Reference_ID()))
 			variableName.append("Id");
 
 		return variableName.toString();
@@ -507,7 +511,7 @@ public class ProcessAbstractClassGenerator {
 	 */
 	private String  getParameterName(MProcessPara processParameter)
 	{
-		String parameterName = processParameter.getName().replaceAll("\\s", "").replaceAll("_", "").replaceAll("/","");
+		String parameterName = processParameter.getName().replaceAll("\\s", "").replaceAll("_", "").replaceAll(" ", "").replaceAll("/","");
 		return parameterName;
 	}
 }

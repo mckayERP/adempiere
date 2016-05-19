@@ -522,11 +522,10 @@ public class GenerateCostDetail extends SvrProcess {
             MInOutLine line = (MInOutLine) transaction.getDocumentLine();
 
             if (MCostElement.COSTELEMENTTYPE_Material.equals(costElement.getCostElementType())) {
-
                 //get purchase matches
                 List<MMatchPO> orderMatches = MMatchPO
                         .getInOutLine(line);
-                for (MMatchPO match : orderMatches) {
+                orderMatches.stream().forEach(match -> {
                     if (match.getM_Product_ID() == transaction.getM_Product_ID()
                     && match.getDateAcct().after(dateAccount)
                     && match.getDateAcct().before(dateAccountTo)) {
@@ -535,11 +534,11 @@ public class GenerateCostDetail extends SvrProcess {
                                 .createCostDetail(accountSchema, costType, costElement, transaction,
                                         match, true);
                     }
-                }
+                });
                 //get invoice matches
                 List<MMatchInv> invoiceMatches = MMatchInv
                         .getInOutLine(line);
-                for (MMatchInv match : invoiceMatches) {
+               invoiceMatches.forEach(match -> {
                     if (match.getM_Product_ID() == transaction.getM_Product_ID()
                     && match.getDateAcct().after(dateAccount)
                     && match.getDateAcct().before(dateAccountTo)) {
@@ -548,17 +547,17 @@ public class GenerateCostDetail extends SvrProcess {
                                 .createCostDetail(accountSchema, costType, costElement, transaction,
                                         match, true);
                     }
-                }
+                });
             }
 
             //get landed allocation cost
-            for (MLandedCostAllocation allocation : MLandedCostAllocation.getOfInOuline(line, costElement.getM_CostElement_ID())) {
+            MLandedCostAllocation.getOfInOutline(line, costElement.getM_CostElement_ID()).stream().forEach(allocation -> {
                 if (allocation.getDateAcct().after(dateAccount)
                  && allocation.getDateAcct().before(dateAccountTo))
                 CostEngineFactory
                         .getCostEngine(accountSchema.getAD_Client_ID())
                         .createCostDetail(accountSchema, costType, costElement, transaction, allocation, true);
-            }
+            });
         }
     }
 
