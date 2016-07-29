@@ -1127,7 +1127,9 @@ public final class APanel extends CPanel
 	 */
 	private boolean isFirstTab()
 	{
-		return m_curWinTab.getSelectedIndex() == 0;
+		if (m_curWinTab != null)
+			return m_curWinTab.getSelectedIndex() == 0;
+		return false;
 	}   //  isFirstTab
 
 	/**
