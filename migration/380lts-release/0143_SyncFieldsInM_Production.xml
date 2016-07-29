@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Sync fields in M_Production" ReleaseNo="3.8.0#002" SeqNo="144">
+    <Step DBType="ALL" Parse="Y" SeqNo="10" StepType="SQL">
+      <Comments>Sync DocumentNo</Comments>
+      <SQLStatement>ALTER TABLE M_Production ADD COLUMN DocumentNo character varying(30);
+ALTER TABLE M_Production ALTER COLUMN DocumentNo SET DEFAULT NULL::character varying;
+</SQLStatement>
+      <RollbackStatement>ALTER TABLE M_Production DROP COLUMN DocumentNo;</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="20" StepType="SQL">
+      <Comments>Sync M_Product_ID</Comments>
+      <SQLStatement>ALTER TABLE M_Production ADD COLUMN M_Product_ID numeric(10,0);
+ALTER TABLE M_Production ALTER COLUMN M_Product_ID SET DEFAULT NULL::numeric;
+</SQLStatement>
+      <RollbackStatement>ALTER TABLE M_Production DROP COLUMN M_Product_ID;</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="30" StepType="SQL">
+      <Comments>Add M_Locator_ID</Comments>
+      <SQLStatement>ALTER TABLE M_Production ADD COLUMN M_Locator_ID numeric(10,0);
+ALTER TABLE M_Production ALTER COLUMN M_Locator_ID SET DEFAULT NULL::numeric;
+</SQLStatement>
+      <RollbackStatement>ALTER TABLE M_Production DROP COLUMN M_Locator_ID;
+</RollbackStatement>
+    </Step>
+  </Migration>
+</Migrations>
