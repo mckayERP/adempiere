@@ -823,55 +823,7 @@ public class DataEngine
 				//	Check Group Change ----------------------------------------
 				if (m_group.getGroupColumnCount() > 1)	//	one is GRANDTOTAL_
 				{
-					//	Check Columns for Function Columns
-					for (int i = pd.getColumnInfo().length-1; i >= 0; i--)	//	backwards (leaset group first)
-					{
-						PrintDataColumn group_pdc = pd.getColumnInfo()[i];
-						if (!m_group.isGroupColumn(group_pdc.getColumnName()))
-							continue;
-						
-						//	Group change
-						Object value = m_group.groupChange(group_pdc.getColumnName(), rs.getObject(group_pdc.getAlias()));
-						if (value != null)	//	Group change
-						{
-							char[] functions = m_group.getFunctions(group_pdc.getColumnName());
-							for (int f = 0; f < functions.length; f++)
-							{
-								printRunningTotal(pd, levelNo, rowNo++);
-								pd.addRow(true, levelNo);
-								//	get columns
-								for (int c = 0; c < pd.getColumnInfo().length; c++)
-								{
-									pdc = pd.getColumnInfo()[c];
-								//	log.fine("loadPrintData - PageBreak = " + pdc.isPageBreak());
-
-									if (group_pdc.getColumnName().equals(pdc.getColumnName()))
-									{
-										String valueString = value.toString();
-										if (value instanceof Timestamp)
-											valueString = DisplayType.getDateFormat(pdc.getDisplayType(), m_language).format(value);
-										valueString	+= PrintDataFunction.getFunctionSymbol(functions[f]);
-										pd.addNode(new PrintDataElement(pdc.getColumnName(),
-											valueString, DisplayType.String, false, pdc.isPageBreak(), pdc.getFormatPattern()));
-									}
-									else if (m_group.isFunctionColumn(pdc.getColumnName(), functions[f]))
-									{
-										pd.addNode(new PrintDataElement(pdc.getColumnName(),
-											m_group.getValue(group_pdc.getColumnName(), 
-												pdc.getColumnName(), functions[f]), 
-											PrintDataFunction.getFunctionDisplayType(functions[f], pdc.getDisplayType()), 
-												false, pdc.isPageBreak(), pdc.getFormatPattern()));
-									}
-								}	//	 for all columns
-							}	//	for all functions
-							//	Reset Group Values
-							for (int c = 0; c < pd.getColumnInfo().length; c++)
-							{
-								pdc = pd.getColumnInfo()[c];
-								m_group.reset(group_pdc.getColumnName(), pdc.getColumnName());
-							}
-						}	//	Group change
-					}	//	for all columns
+					rowNo = checkGroupChange(0, pd, rs, false, levelNo, rowNo); // Check for changes and add summary rows
 				}	//	group change
 
 				//	new row ---------------------------------------------------
@@ -1113,6 +1065,73 @@ public class DataEngine
 			log.info("Rows=" + pd.getRowCount()
 				+ " - ms=" + (System.currentTimeMillis()-m_startTime));
 	}	//	loadPrintData
+
+	private int checkGroupChange(int columnIndex, PrintData pd, ResultSet rs, boolean forceChange, int levelNo, int rowNo) throws SQLException {
+		//	Recursively Check Columns for Function Columns
+		
+		// Check if we have exceeded the number of columns.
+		if (columnIndex >= pd.getColumnInfo().length)
+			return rowNo;
+
+		// Check if this is not a group column and move on
+		PrintDataColumn group_pdc = pd.getColumnInfo()[columnIndex];
+		PrintDataColumn pdc = null;
+		if (!m_group.isGroupColumn(group_pdc.getColumnName())) {
+			return checkGroupChange(++columnIndex, pd, rs, forceChange, levelNo, rowNo);
+		}
+
+		// Check if this column has a change, if so, force the change in the lower groups.
+		Object value = m_group.groupChange(group_pdc.getColumnName(), rs.getObject(group_pdc.getAlias()));
+		forceChange = forceChange || (value!=null);
+
+		rowNo = checkGroupChange(++columnIndex, pd, rs, forceChange, levelNo, rowNo);
+		
+		if (forceChange)	//	Group change. forceChange on value change or if a higher group changed.
+		{
+			char[] functions = m_group.getFunctions(group_pdc.getColumnName());
+			for (int f = 0; f < functions.length; f++)
+			{
+				printRunningTotal(pd, levelNo, rowNo++);
+				pd.addRow(true, levelNo);
+				//	get columns
+				for (int c = 0; c < pd.getColumnInfo().length; c++)
+				{
+					pdc = pd.getColumnInfo()[c];
+				//	log.fine("loadPrintData - PageBreak = " + pdc.isPageBreak());
+
+					if (group_pdc.getColumnName().equals(pdc.getColumnName()))
+					{
+						if (value == null) { // Indicates no change in value
+							value = rs.getObject(group_pdc.getAlias());  // Use the current value
+							if (value == null)
+								value = "";
+						}
+						String valueString = value.toString();
+						if (value instanceof Timestamp)
+							valueString = DisplayType.getDateFormat(pdc.getDisplayType(), m_language).format(value);
+						valueString	+= PrintDataFunction.getFunctionSymbol(functions[f]);
+						pd.addNode(new PrintDataElement(pdc.getColumnName(),
+							valueString, DisplayType.String, false, pdc.isPageBreak(), pdc.getFormatPattern()));
+					}
+					else if (m_group.isFunctionColumn(pdc.getColumnName(), functions[f]))
+					{
+						pd.addNode(new PrintDataElement(pdc.getColumnName(),
+							m_group.getValue(group_pdc.getColumnName(), 
+								pdc.getColumnName(), functions[f]), 
+							PrintDataFunction.getFunctionDisplayType(functions[f], pdc.getDisplayType()), 
+								false, pdc.isPageBreak(), pdc.getFormatPattern()));
+					}
+				}	//	 for all columns
+			}	//	for all functions
+			//	Reset Group Values
+			for (int c = 0; c < pd.getColumnInfo().length; c++)
+			{
+				pdc = pd.getColumnInfo()[c];
+				m_group.reset(group_pdc.getColumnName(), pdc.getColumnName());
+			}
+		}
+		return rowNo;
+	}
 
 	/**
 	 * 	Print Running Total
