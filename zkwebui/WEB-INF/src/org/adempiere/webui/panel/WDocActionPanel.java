@@ -154,12 +154,6 @@ public class WDocActionPanel extends Window implements EventListener
 		index = DocumentEngine.getValidActions(DocStatus, Processing, OrderType, IsSOTrx,
 				m_AD_Table_ID, docActionHolder, options);
 
-		MTable table = MTable.get(Env.getCtx(), m_AD_Table_ID);
-		PO po = table.getPO(gridTab.getRecord_ID(), null);
-		if (po instanceof DocOptions)
-			index = ((DocOptions) po).customizeValidActions(DocStatus, Processing, OrderType, IsSOTrx,
-					m_AD_Table_ID, docActionHolder, options, index);
-
 		Integer doctypeId = (Integer)gridTab.getValue("C_DocType_ID");
 		if(doctypeId==null || doctypeId.intValue()==0){
 			doctypeId = (Integer)gridTab.getValue("C_DocTypeTarget_ID");
