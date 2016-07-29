@@ -388,14 +388,15 @@ public final class VNumber extends JComponent
 	 */
 	public void setValue(Object value)
 	{
+		//	only set when not updated here
+		if (m_setting)
+			return;
+
 		log.finest("Value=" + value);
 		if (value == null)
 			m_oldText = "";
 		else
 			m_oldText = m_format.format(value);
-		//	only set when not updated here
-		if (m_setting)
-			return;
 		m_text.setText (m_oldText);
 		m_initialText = m_oldText;
 		m_modified = false;
@@ -575,11 +576,11 @@ public final class VNumber extends JComponent
 			String str = startCalculator(this, m_text.getText(), m_format, m_displayType, m_title, ' ');
 			m_text.setText(str);
 			m_button.setEnabled(true);
-			try
-			{
-				fireVetoableChange (m_columnName, m_oldText, getValue());
-			}
-			catch (PropertyVetoException pve)	{}
+//			try
+//			{
+//				fireVetoableChange (m_columnName, m_oldText, getValue());
+//			}
+//			catch (PropertyVetoException pve)	{}
 			m_text.requestFocus();
 		}
 	}	//	actionPerformed
@@ -608,11 +609,11 @@ public final class VNumber extends JComponent
 		
 		m_modified = true;
 		m_setting = true;
-		try
-		{
+//		try
+//		{
 			if (e.getKeyCode() == KeyEvent.VK_ENTER)	//	10
 			{
-				fireVetoableChange (m_columnName, m_oldText, getValue());
+				//fireVetoableChange (m_columnName, m_oldText, getValue());
 				fireActionPerformed();
 			}
 			// else	
@@ -620,8 +621,8 @@ public final class VNumber extends JComponent
 				//	indicate change
 				// fireVetoableChange (m_columnName, m_oldText, null);
 			// }
-		}
-		catch (PropertyVetoException pve)	{}
+//		}
+//		catch (PropertyVetoException pve)	{}
 		m_setting = false;
 	}	//	keyReleased
 
@@ -653,7 +654,14 @@ public final class VNumber extends JComponent
 	}   //  focusLost
 
 	public void commitChanges() {
+		
+		// Check for changes.  If no change, don't fire events.
+		if ((m_initialText == null && (m_text.getText() == null || m_text.getText().isEmpty())) 
+				|| (m_initialText != null && m_text.getText() != null && m_initialText.equals(m_text.getText())))
+			return;
+		
 		Object oo = getValue();
+		
 		if (m_rangeSet)
 		{
 			String error = null;
