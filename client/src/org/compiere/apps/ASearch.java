@@ -138,7 +138,7 @@ public class ASearch implements ActionListener
 		MUserQuery[] search = MUserQuery.get(Env.getCtx(), m_AD_Tab_ID);
 		KeyNamePair pp = null;
 		
-		if(search.length == 0  || MSysConfig.getValue(ASEARCH_SHOW_POPUP,"N",Env.getAD_Client_ID(Env.getCtx())).equals("N"))
+		if(search.length == 0  || MSysConfig.getValue(ASEARCH_SHOW_POPUP,"Y",Env.getAD_Client_ID(Env.getCtx())).equals("N"))
 		{
 			find();
 			return;
