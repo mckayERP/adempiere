@@ -327,7 +327,7 @@ public class DB_PostgreSQL implements AdempiereDatabase
 			if (!oraStatement.equals(retValue[0]) && retValue[0].indexOf("AD_Error") == -1)
 			{
 				//begin vpj-cd 24/06/2005 e-evolution
-				log.log(Level.FINE, "PostgreSQL =>" + retValue[0] + "<= <" + oraStatement + ">");
+				//log.log(Level.FINE, "PostgreSQL =>" + retValue[0] + "<= <" + oraStatement + ">");
 			}
 		}
 		    //end vpj-cd 24/06/2005 e-evolution
@@ -573,7 +573,7 @@ public class DB_PostgreSQL implements AdempiereDatabase
             {
                 cpds.setInitialPoolSize(1);
                 cpds.setMinPoolSize(1);
-                cpds.setMaxPoolSize(15);
+                cpds.setMaxPoolSize(20);
                 cpds.setMaxIdleTimeExcessConnections(1200);
                 cpds.setMaxIdleTime(900);
                 m_maxbusyconnections = 10;
