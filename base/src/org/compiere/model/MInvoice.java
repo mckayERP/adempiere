@@ -2142,7 +2142,7 @@ public class MInvoice extends X_C_Invoice implements DocAction
 			}
 		}
 		reversal.setC_Order_ID(getC_Order_ID());
-		reversal.addDescription("{->" + getDocumentNo() + ")");
+		reversal.addDescription("(->" + getDocumentNo() + ")");
 		//FR1948157
 		reversal.setReversal_ID(getC_Invoice_ID());
 		reversal.saveEx(get_TrxName());
@@ -2173,7 +2173,7 @@ public class MInvoice extends X_C_Invoice implements DocAction
 				MInOutLine ioLine = new MInOutLine(getCtx(), iLine.getM_InOutLine_ID(), get_TrxName());
 				ioLine.setIsInvoiced(false);
 				ioLine.save(get_TrxName());
-				//	Reconsiliation
+				//	Reconciliation
 				iLine.setM_InOutLine_ID(0);
 				iLine.save(get_TrxName());
 			}
