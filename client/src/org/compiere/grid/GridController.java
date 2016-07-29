@@ -33,6 +33,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -398,6 +399,8 @@ public class GridController extends CPanel
 	{
 		//  Set up Multi Row Table
 		vTable.setModel(m_mTab.getTableModel());
+		vTable.setGridTab(m_mTab);
+		vTable.setGridController(this);
 
 		//  Update Table Info -------------------------------------------------
 		int size = setupVTable (m_aPanel, m_mTab, vTable);
@@ -598,8 +601,12 @@ public class GridController extends CPanel
 					//  need to set CellEditor explicitly as default editor based on class causes problem (YesNo-> Boolean)
 					if (mField.isDisplayed() && mField.isDisplayedGrid () )
 					{
-						tc.setCellRenderer (new VCellRenderer (mField));
+						VCellRenderer vcr = new VCellRenderer (mField);
+						mField.addPropertyChangeListener(vcr);
+						tc.setCellRenderer (vcr);
 						VCellEditor ce = new VCellEditor (mField);
+						ce.addVetoableChangeListener(this);  // Required for multi-selection support
+						mField.addPropertyChangeListener(ce);
 						tc.setCellEditor (ce);
 						//
 						tc.setHeaderValue (mField.getHeader ());
@@ -738,8 +745,9 @@ public class GridController extends CPanel
 		stopEditor(true);
 		if (m_singleRow)
 			switchMultiRow();
-		else
+		else {
 			switchSingleRow();
+		}
 	}   //  switchRowPresentation
 
 	/**
@@ -751,7 +759,12 @@ public class GridController extends CPanel
 			return;
 		cardLayout.first(cardPanel);
 		m_singleRow = true;
+		
+		// update the field values - especially the embedded tabs - and fire the events
+		m_mTab.dataRefresh(m_mTab.getCurrentRow());
+
 		dynamicDisplay(0);
+		
 	//	vPanel.requestFocus();
 	}   //  switchSingleRow
 
@@ -984,6 +997,7 @@ public class GridController extends CPanel
 			return;
 		if (!m_mTab.isOpen())
 			return;
+				
 		//  Selective
 		if (col > 0)
 		{
@@ -1030,7 +1044,7 @@ public class GridController extends CPanel
 			{
 				((VChart) comp).createChart();
 			}
-
+			
 			if (columnName != null && columnName.length() > 0)
 			{
 				GridField mField = m_mTab.getField(columnName);
@@ -1119,7 +1133,7 @@ public class GridController extends CPanel
 		//
 
 		log.config(m_mTab.toString() + " - fini - "
-				+ (col <= 0 ? "complete" : "seletive"));
+				+ (col <= 0 ? "complete" : "selective"));
 	}   //  dynamicDisplay
 
 	/**
@@ -1220,7 +1234,7 @@ public class GridController extends CPanel
 				return;
 			}
 		}	//	processed
-		log.config("(" + m_mTab.toString() + ") "
+		log.config("(" + m_mTab.toString() + " current row=" + m_mTab.getCurrentRow() + ") "
 			+ e.getPropertyName() + "=" + e.getNewValue() + " (" + e.getOldValue() + ") "
 			+ (e.getOldValue() == null ? "" : e.getOldValue().getClass().getName()));
 
@@ -1294,7 +1308,8 @@ public class GridController extends CPanel
 				throw new PropertyVetoException("Multiple Selection values not available for this field", e);
 			}
 
-			mTable.setValueAt (newValue, row, col);	//	-> dataStatusChanged -> dynamicDisplay
+			if (newValue != null && !newValue.equals(e.getOldValue()))		//	some editors return "" instead of null
+				mTable.setValueAt (newValue, row, col);	//	-> dataStatusChanged -> dynamicDisplay
 
 			//	Force Callout
 			if (e.getPropertyName().equals("S_ResourceAssignment_ID"))
@@ -1492,7 +1507,7 @@ public class GridController extends CPanel
 		if (isSingleRow())
 		{
 			Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-			if (c != null && this.isAncestorOf(c))
+			if (c != null && c.getParent() != null)
 			{
 				Component t = c;
 				while (t != null && t != this)
