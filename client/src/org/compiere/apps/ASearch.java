@@ -31,6 +31,7 @@ import org.compiere.grid.GridController;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.MQuery;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MUserQuery;
 import org.compiere.print.ReportEngine;
 import org.compiere.print.Viewer;
@@ -49,6 +50,7 @@ import org.compiere.util.Msg;
 public class ASearch implements ActionListener
 {
 	
+	private static final String ASEARCH_SHOW_POPUP = "ASEARCH_SHOW_POPUP";
 	private GridField[]		m_findFields;
 	
 	/**
@@ -136,7 +138,7 @@ public class ASearch implements ActionListener
 		MUserQuery[] search = MUserQuery.get(Env.getCtx(), m_AD_Tab_ID);
 		KeyNamePair pp = null;
 		
-		if(search.length == 0)
+		if(search.length == 0  || MSysConfig.getValue(ASEARCH_SHOW_POPUP,"N",Env.getAD_Client_ID(Env.getCtx())).equals("N"))
 		{
 			find();
 			return;
