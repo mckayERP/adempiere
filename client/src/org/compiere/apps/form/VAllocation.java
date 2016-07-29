@@ -39,7 +39,9 @@ import javax.swing.table.DefaultTableModel;
 
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.apps.ADialog;
+import org.compiere.apps.ConfirmPanel;
 import org.compiere.apps.StatusBar;
+import org.compiere.grid.ed.VComboBox;
 import org.compiere.grid.ed.VDate;
 import org.compiere.grid.ed.VLookup;
 import org.compiere.minigrid.MiniTable;
@@ -81,7 +83,7 @@ public class VAllocation extends Allocation
 			super.dynInit();
 			dynInit();
 			jbInit();
-			calculate();
+			//calculate();
 			frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
 			frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 		}
@@ -132,6 +134,10 @@ public class VAllocation extends Allocation
 	private JCheckBox autoWriteOff = new JCheckBox();
 	private JLabel organizationLabel = new JLabel();
 	private VLookup organizationPick = null;
+	private boolean isBusy;
+	private boolean isProcessingVetoableChange;
+	private boolean m_isProcessingAction;
+	private JButton refreshButton = new JButton();
 	
 	/**
 	 *  Static Init
@@ -144,6 +150,10 @@ public class VAllocation extends Allocation
 		paymentTable.setMultiSelection(true);  // Should be performed before the class is set.
 		invoiceTable.setMultiSelection(true);  // Should be performed before the class is set.
 		invoiceTable.setSurrendersFocusOnKeystroke(true);
+		//
+		refreshButton = ConfirmPanel.createRefreshButton(false);
+		refreshButton.addActionListener(this);
+		refreshButton.setEnabled(true);
 		//
 		mainPanel.setLayout(mainLayout);
 		dateLabel.setText(Msg.getMsg(Env.getCtx(), "Date"));
@@ -177,6 +187,7 @@ public class VAllocation extends Allocation
 		differenceField.setHorizontalAlignment(SwingConstants.RIGHT);
 		allocateButton.setText(Msg.getMsg(Env.getCtx(), "Process"));
 		allocateButton.addActionListener(this);
+		allocateButton.setEnabled(false);
 		currencyLabel.setText(Msg.translate(Env.getCtx(), "C_Currency_ID"));
 		multiCurrency.setText(Msg.getMsg(Env.getCtx(), "MultiCurrency"));
 		multiCurrency.addActionListener(this);
@@ -187,27 +198,40 @@ public class VAllocation extends Allocation
 		
 		//org filter
 		organizationLabel.setText(Msg.translate(Env.getCtx(), "AD_Org_ID"));
-		parameterPanel.add(organizationLabel, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+		
+		int row = 0;
+		int col = 0;
+		parameterPanel.add(refreshButton,new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+				,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		parameterPanel.add(bpartnerLabel, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		parameterPanel.add(bpartnerSearch, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
+		parameterPanel.add(dateLabel, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		parameterPanel.add(dateField, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
+		parameterPanel.add(organizationLabel, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
 				,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5,5,5,5), 0, 0));
-		parameterPanel.add(organizationPick, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+		parameterPanel.add(organizationPick, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5,5,5,5), 0, 0));
 		
-		parameterPanel.add(bpartnerLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+		row=1;
+		col=1;
+		parameterPanel.add(currencyLabel, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		parameterPanel.add(bpartnerSearch, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+		parameterPanel.add(currencyPick, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
 			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
-		parameterPanel.add(dateLabel, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+		parameterPanel.add(multiCurrency, new GridBagConstraints(col++, row, 1, 1, 0.0, 0.0
+			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
+		
+		//row=2;
+		//col=2;
+		// Skip a column
+		parameterPanel.add(autoWriteOff, new GridBagConstraints(++col, row, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		parameterPanel.add(dateField, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
-		parameterPanel.add(currencyLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		parameterPanel.add(currencyPick, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
-		parameterPanel.add(multiCurrency, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 5), 0, 0));
-		parameterPanel.add(autoWriteOff, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-			,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		
+		// allocation panel
 		mainPanel.add(allocationPanel, BorderLayout.SOUTH);
 		allocationPanel.add(differenceLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 			,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 0), 0, 0));
@@ -297,7 +321,8 @@ public class VAllocation extends Allocation
 
 		chargePick.setValue(new Integer(m_C_Charge_ID));
 
-		chargePick.addVetoableChangeListener(this);
+		//chargePick.addVetoableChangeListener(this);
+		chargePick.addActionListener(this);
 	}   //  dynInit
 	
 	/**************************************************************************
@@ -308,9 +333,20 @@ public class VAllocation extends Allocation
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		if (m_isProcessingAction)
+			return;
+		
+		m_isProcessingAction = true;
+		
 		log.config("");
+		log.fine(e.toString());
 		if (e.getSource().equals(multiCurrency))
 			loadBPartner();
+		//	refresh
+		else if (e.getSource().equals(refreshButton))
+		{
+			loadBPartner();
+		}
 		//	Allocate
 		else if (e.getSource().equals(allocateButton))
 		{
@@ -319,6 +355,20 @@ public class VAllocation extends Allocation
 			loadBPartner();
 			allocateButton.setEnabled(true);
 		}
+		else if (e.getSource() instanceof VComboBox) {
+			VComboBox cb = (VComboBox) e.getSource();
+			if (cb.getParent() != null && cb.getParent().equals(chargePick)) {
+				if (chargePick.getValue() == null) {
+					m_C_Charge_ID = 0;
+				}
+				else {
+					m_C_Charge_ID = ((Integer) chargePick.getValue()).intValue();
+				}
+			}
+			setAllocateButton();
+		}
+		
+		m_isProcessingAction = false;
 	}   //  actionPerformed
 
 	/**
@@ -328,6 +378,11 @@ public class VAllocation extends Allocation
 	 */
 	public void tableChanged(TableModelEvent e)
 	{
+		if (isBusy)
+			return;
+		
+		isBusy = true;
+		
 		boolean isUpdate = (e.getType() == TableModelEvent.UPDATE);
 		//  Not a table update
 		if (!isUpdate)
@@ -346,6 +401,8 @@ public class VAllocation extends Allocation
 			ADialog.warn(m_WindowNo, panel, "AllocationWriteOffWarn");
 		
 		calculate();
+		
+		isBusy = false;
 	}   //  tableChanged
 
 	/**
@@ -357,12 +414,17 @@ public class VAllocation extends Allocation
 	 */
 	public void vetoableChange (PropertyChangeEvent e)
 	{
+		if (isProcessingVetoableChange)
+			return;
+		
+		isProcessingVetoableChange = true;
+		
 		String name = e.getPropertyName();
 		Object value = e.getNewValue();
 		log.config(name + "=" + value);
 		
-		if (value == null)
-			return;
+//		if (value == null)
+//			return;
 		
 		// Organization
 		if (name.equals("AD_Org_ID"))
@@ -375,24 +437,20 @@ public class VAllocation extends Allocation
 			loadBPartner();
 		}
 		
-		else if (name.equals("C_Charge_ID")) {
-
-			if (value == null){
-
-				m_C_Charge_ID = 0;
-			}
-
-			else{
-
-				m_C_Charge_ID = ((Integer) value).intValue();
-			}
-
-			setAllocateButton();
-
-		}
+//		else if (name.equals("C_Charge_ID")) {
+//
+//			chargePick.setValue(value);
+//			if (value == null) {
+//				m_C_Charge_ID = Integer.valueOf(0);
+//			}
+//			else {
+//				m_C_Charge_ID = ((Integer) value).intValue();
+//			}
+//			setAllocateButton();
+//		}
 
 		//  BPartner
-		if (name.equals("C_BPartner_ID"))
+		else if (name.equals("C_BPartner_ID"))
 		{
 			bpartnerSearch.setValue(value);
 			m_C_BPartner_ID = ((Integer)value).intValue();
@@ -407,6 +465,9 @@ public class VAllocation extends Allocation
 		//	Date for Multi-Currency
 		else if (name.equals("Date") && multiCurrency.isSelected())
 			loadBPartner();
+
+		isProcessingVetoableChange = false;
+
 	}   //  vetoableChange
 	
 	public void loadBPartner()
@@ -461,33 +522,56 @@ public class VAllocation extends Allocation
 		//  Difference
 		totalDiff = totalPay.subtract(totalInv);
 		differenceField.setText(format.format(totalDiff));
+		
+		setAllocateButton();
 				
 	}
 	
+	/**
+	 * Enable or disable the Allocate process button.
+	 * The table models need to be loaded before this function
+	 * is called.
+	 */
 	private void setAllocateButton() {
 
-		if (totalDiff.compareTo(new BigDecimal(0.0)) == 0 ^ m_C_Charge_ID > 0)
+		// The charge combo box should only be enabled and have a value if the total difference is 
+		// not zero.
+		if (totalDiff.compareTo(new BigDecimal(0.0)) == 0) {
+			m_isProcessingAction = true;
+			chargePick.setValue(null);
+			m_C_Charge_ID = 0;
+			m_isProcessingAction = false;
+			chargePick.setEnabled(false);
+			chargePick.setReadWrite(false);
+//			VComboBox combo = (VComboBox) chargePick.getCombo();
+//			combo.setEnabled(false);
+//			combo.setReadWrite(false);
+//			combo.setPopupVisible(false);
+			// TODO stop the popup when the user left clicks the mouse in the text field.  Harmless but annoying.
+		}
+		else {
+			chargePick.setEnabled(true);
+			chargePick.setReadWrite(true);
+//			VComboBox combo = (VComboBox) chargePick.getCombo();
+//			combo.setEnabled(true);
+//			combo.setReadWrite(true);
+		}
 
-		{
+		// The button is enabled if there is at least two rows in either 
+		// table selected and the total difference is zero or there is only one row selected and there 
+		// is a charge selected.
+		int countSelected = paymentTable.getSelectedKeys().size() 
+				+ invoiceTable.getSelectedKeys().size();
+		
+		if (countSelected >= 1 && (totalDiff.compareTo(new BigDecimal(0.0)) == 0 ^ m_C_Charge_ID > 0)) {
+			
 			allocateButton.setEnabled(true);
 
 			// chargePick.setValue(m_C_Charge_ID);
-
+	
 		}
-		else
-		{
-
+		else {
 			allocateButton.setEnabled(false);
-
-		}
-
-		if (totalDiff.compareTo(new BigDecimal(0.0)) == 0)
-		{
-
-			chargePick.setValue(null);
-
-			m_C_Charge_ID = 0;
-
 		}
 
 	}
