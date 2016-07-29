@@ -1128,7 +1128,8 @@ public class MProduct extends X_M_Product
 		
 		// Product has no attribute set. Return false if there is an instance
 		if (getM_AttributeSet_ID() == 0  && M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0)  
-			return false;
+			//return false;  
+			return true;  // Hold my nose.  Needed to make the FIFO/LIFO work.
 
 		MAttributeSet as = getAttributeSet();
 		if (as == null) {
