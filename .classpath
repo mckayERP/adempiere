@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="base/src"/>
+	<classpathentry kind="src" path="mobile/WEB-INF/src"/>
 	<classpathentry kind="src" path="glassfishfacet/src"/>
 	<classpathentry kind="src" path="jbossfacet/src"/>
 	<classpathentry kind="src" path="client/src"/>

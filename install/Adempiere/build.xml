@@ -126,6 +126,9 @@
 	<target name="backupWebuiOriginal" unless="webuiOriginal.exists">
 		<copy file="lib/webui.war" tofile="lib/webuiOriginal.war" overwrite="yes" />
 	</target>
+    <target name="backupAdempiereRootOriginal" unless="adempiereRootOriginal.exists">
+        <copy file="lib/AdempiereRoot.jar" tofile="lib/AdempiereRootOriginal.jar" overwrite="yes" />
+    </target>
 
 	<!-- rebuild Adempiere.jar and webui.war to include possible customization and patches -->
 	<target name="setupALib" depends="setupInit, backupAdempiereOriginal">
@@ -340,11 +343,52 @@
 		<delete file="lib/adempiereApps1.jar"/>
 	</target>
 
+    <!-- rebuild AdempiereRoot.jar to include possible customization -->
+    <target name="setupAdempiereRoot" depends="setupInit, backupAdempiereRootOriginal">
+        <jar jarfile="lib/AdempiereRoot1.jar" index="yes" duplicate="preserve">
+            <!-- pack serverCustomization.jar into AdempiereRoot.jar -->
+            <zipfileset src="lib/serverCustomization.jar" >
+                <patternset refid="manifest.exclude"/>
+            </zipfileset>
+            <zipfileset src="lib/AdempiereRootOriginal.jar" >
+                <patternset refid="manifest.exclude"/>
+            </zipfileset>
+            <indexjars>
+                <pathelement path="lib/AdempiereCLib.jar"/>
+                <pathelement path="lib/CompiereJasperReqs.jar"/>
+            </indexjars>
+            <manifest>
+                <attribute name="Specification-Title" value="AdempiereRoot"/>
+                <attribute name="Specification-Version" value="${env.ADEMPIERE_VERSION}"/>
+                <attribute name="Specification-Vendor" value="Adempiere"/>
+                <attribute name="Implementation-Title" value="AdempiereRoot ${env.ADEMPIERE_VERSION}"/>
+                <attribute name="Implementation-Version" value="${env.ADEMPIERE_VERSION} ${DSTAMP}-${TSTAMP}"/>
+                <attribute name="Implementation-Vendor" value="${env.ADEMPIERE_VENDOR}"/>
+                <attribute name="Implementation-URL" value="http://www.adempiere.com"/>
+                <attribute name="Class-Path" value="Adempiere.jar AdempiereSLib.jar"/>
+            </manifest>
+        </jar>
 
+        <!-- Sign Adempiere Jar -->
+        <signjar jar="lib/AdempiereRoot1.jar" alias="${ADEMPIERE_KEYSTORECODEALIAS}"
+            storepass="${ADEMPIERE_KEYSTOREPASS}" keystore="${ADEMPIERE_KEYSTORE}" />
+        <copy file="lib/AdempiereRoot1.jar" tofile="lib/AdempiereRoot.jar" overwrite="yes" />
+
+        <!-- Sign serverCustomization Jar -->
+        <copy file="lib/serverCustomization.jar" tofile="lib/serverCustomization1.jar" overwrite="yes" />
+        <signjar jar="lib/serverCustomization1.jar" alias="${ADEMPIERE_KEYSTORECODEALIAS}"
+            storepass="${ADEMPIERE_KEYSTOREPASS}" keystore="${ADEMPIERE_KEYSTORE}" />
+        <copy file="lib/serverCustomization1.jar" tofile="lib/serverCustomization.jar" overwrite="yes" />
+
+        <!-- clean up -->
+        <delete  file="lib/AdempiereRoot1.jar"/>
+        <delete  file="lib/serverCustomization1.jar"/>
+    </target>
+	
 	<!-- ==================================================== -->
 	<!-- Setup Lib                                            -->
 	<!-- ==================================================== -->
-	<target name="setupLib" depends="setupInit, setupWin, setupNonWin, setupCLib, setupSLib, setupALib, setupWLib, signOtherJars"
+	<target name="setupLib" depends="setupInit, setupWin, setupNonWin, setupCLib, setupSLib, setupALib, setupWLib, setupAdempiereRoot, signOtherJars"
 		description="Setup Adempiere Lib directory">
 
 		<!--	Filter files Overwrite			-->

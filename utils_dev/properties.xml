@@ -8,7 +8,7 @@
     </description> 
     
     <dirname property="adempiere.base" file="${ant.file.properties}/.."/>
-    <property file="${user.home}/.adempiere.properties"/>
+    <!-- property file="${user.home}/.adempiere.properties"/ -->
     <property file="${adempiere.base}/utils_dev/mybuild.properties"/>
     <property file="${adempiere.base}/utils_dev/build.properties"/>
 
