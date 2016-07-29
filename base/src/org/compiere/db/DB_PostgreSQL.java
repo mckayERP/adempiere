@@ -31,6 +31,7 @@ import javax.sql.ConnectionPoolDataSource;
 import javax.sql.DataSource;
 import javax.sql.RowSet;
 
+import org.compiere.Adempiere;
 import org.compiere.dbPort.Convert;
 import org.compiere.dbPort.Convert_PostgreSQL;
 import org.compiere.util.CLogger;
@@ -220,10 +221,11 @@ public class DB_PostgreSQL implements AdempiereDatabase
 	{
 		//	vpj-cd e-evolution 03/04/2005
 		//	BR [ 391 ]
-		if (m_userName != null)
-            return m_userName;
-        log.severe("User Name not set (yet) - call getConnectionURL first");
-        return null;
+		if (m_userName == null) {
+			CConnection cconn = CConnection.get(Adempiere.getCodeBaseHost());
+			m_userName = cconn.getDbUid();
+		}
+		return m_userName;
 	}	//	getSchema
 
 	/**
