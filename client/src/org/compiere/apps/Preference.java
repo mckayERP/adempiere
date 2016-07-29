@@ -695,10 +695,11 @@ public final class Preference extends CDialog
 	 */
 	private void cmd_errorEMail()
 	{
+		MSystem sys = new MSystem(Env.getCtx(), 0, null);
 		EMailDialog emd = new EMailDialog(this, 
 			"EMail Trace", 
 			MUser.get(Env.getCtx()), 
-			"",			//	to 
+			sys.getSupportEMail(),			//	to 
 			"Adempiere Trace Info", 
 			CLogErrorBuffer.get(true).getErrorInfo(Env.getCtx(), bErrorsOnly.isSelected()), 
 			null);
