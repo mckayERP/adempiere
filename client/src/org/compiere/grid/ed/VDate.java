@@ -502,38 +502,36 @@ public class VDate extends JComponent
 	 */
 	public void focusLost (FocusEvent e)
 	{
-		m_setting = true;
-		try
-		{
-			Timestamp ts = getTimestamp();		//	getValue
-			if (ts == null)						//	format error - just indicate change
-				fireVetoableChange (m_columnName, m_oldText, null);
-			else
-				fireVetoableChange (m_columnName, m_oldText, ts);
-		}
-		catch (PropertyVetoException pve)	{}
-		m_setting = false;
-		
 		//  did not get Focus first
 		if (e.isTemporary())
 			return;
-	//	log.config( "VDate.focusLost");
-		if (m_text == null || m_text.getText() == null)
-			return;
-		Object value = getValue();
+		
+		Object value = getTimestamp();  // Same as getValue();
+		
 		if (value == null && isMandatory() ) {
 			// teo_sarca [ 1660595 ] Date field: incorrect functionality on paste
 			// setValue(startCalendar(this, getTimestamp(), m_format, m_displayType, m_title));
-			Timestamp ts = startCalendar(this, getTimestamp(), m_format, m_displayType, m_title);
+			Timestamp ts = startCalendar(this, null, m_format, m_displayType, m_title);
 			if (ts != null) {
-				setValue(ts);
+				value = ts;
 			}
 			else {
-				setValue(m_oldText);
+				value = m_oldText;  // can't save null into a mandatory field
 			}
 		}
-		else
-			setValue(value);
+
+//		m_setting = true;
+		try
+		{
+			fireVetoableChange (m_columnName, m_oldText, value);  // calls setValue();
+		}
+		catch (PropertyVetoException pve)	{}
+//		m_setting = false;
+		
+//	//	log.config( "VDate.focusLost");
+//		if (m_text == null || m_text.getText() == null)
+//			return;
+//		Object value = getValue();
 	}	//	focusLost
 
 	/**
