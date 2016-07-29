@@ -643,7 +643,7 @@ public class VLookup extends JComponent
 	{
 		log.fine(m_columnName + "=" + value);
 		m_settingValue = true;		//	disable actions
-		m_value = value;
+		m_value = value;			//  record the value - important for vetoable change
 
 		//	Set both for switching
 		if (value == null)
@@ -910,7 +910,7 @@ public class VLookup extends JComponent
 		try
 		{
 			// -> GridController.vetoableChange
-			fireVetoableChange (m_columnName, null, value);
+			fireVetoableChange (m_columnName, m_value, value);
 		}
 		catch (PropertyVetoException pve)
 		{
