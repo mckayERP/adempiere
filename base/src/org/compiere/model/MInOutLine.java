@@ -608,7 +608,7 @@ implements IDocumentLine
 		//	Order/RMA Line
 		if (getC_OrderLine_ID() == 0 && getM_RMALine_ID() == 0)
 		{
-			if (getParent().isSOTrx())
+			if (getParent().isSOTrx() && !(getParent().getDocStatus().equals("RE") || getParent().getDocStatus().equals("VO")))
 			{
 				log.saveError("FillMandatory", Msg.translate(getCtx(), "C_Order_ID"));
 				return false;
