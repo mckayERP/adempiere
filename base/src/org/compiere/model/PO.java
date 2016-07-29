@@ -2257,16 +2257,16 @@ public abstract class PO
 	 */
 	private boolean saveFinish (boolean newRecord, boolean success)
 	{
-		//	Translations
-		if (success)
-		{
-			if (newRecord)
-				insertTranslations();
-			else
-				updateTranslations();
-		}
 		if (!isDirectLoad)
 		{
+			//	Translations
+			if (success)
+			{
+				if (newRecord)
+					insertTranslations();
+				else
+					updateTranslations();
+			}
 			//
 			try
 			{
@@ -3225,6 +3225,10 @@ public abstract class PO
 	 */
 	public boolean insertTranslations() {
 		//	Not a translation table
+		
+		if (isDirectLoad())
+			return true;
+		
 		if (m_IDs.length > 1
 			|| m_IDs[0].equals(I_ZERO)
 			|| !p_info.isTranslated()
@@ -3284,6 +3288,10 @@ public abstract class PO
 	 * 	@return false if error (true if no translation or success)
 	 */
 	private boolean updateTranslations() {
+		
+		if (isDirectLoad())
+			return true;
+		
 		//	Not a translation table
 		if (m_IDs.length > 1
 			|| m_IDs[0].equals(I_ZERO)
