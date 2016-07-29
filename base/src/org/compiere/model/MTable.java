@@ -706,7 +706,7 @@ public class MTable extends X_AD_Table
 	protected boolean afterSave (boolean newRecord, boolean success)
 	{
 		// Add to cache
-		s_cache.put(this.get_Table_ID(), this);
+		s_cache.put(this.getAD_Table_ID(), this);
 		
 		if (isView())
 			return success;
@@ -1131,35 +1131,31 @@ public class MTable extends X_AD_Table
 	 */
 	public void createMandatoryColumns()
 	{		
+		if (isDirectLoad())
+			return;
+		
 		MColumn column = null;
 		//M_Element.get(getCtx(),COLUMNNAME_AD_Client_ID);
 		
 		column = new MColumn(this, COLUMNNAME_AD_Client_ID	, 22 , DisplayType.TableDir , "@#AD_Client_ID@");
-		column.setIsDirectLoad(true);
 		column.setUpdateable(false);
 		column.setAD_Val_Rule_ID(129);
 		column.saveEx();
 		column = new MColumn(this, COLUMNNAME_AD_Org_ID	, 22 , DisplayType.TableDir , "@#AD_Org_ID@");
-		column.setIsDirectLoad(true);
 		column.setUpdateable(true);
 		column.setAD_Val_Rule_ID(104);
 		column.saveEx();
 		column = new MColumn(this, COLUMNNAME_IsActive	, 1 , DisplayType.YesNo , "Y");
-		column.setIsDirectLoad(true);
 		column.setUpdateable(true);
 		column.saveEx();
 		column = new MColumn(this, COLUMNNAME_Created	, 7 , DisplayType.DateTime , "");
-		column.setIsDirectLoad(true);
 		column.saveEx();		
 		column = new MColumn(this, COLUMNNAME_Updated	, 7 , DisplayType.DateTime , "");
-		column.setIsDirectLoad(true);
 		column.saveEx();
 		column = new MColumn(this, COLUMNNAME_CreatedBy	, 22 , DisplayType.Table, "");
-		column.setIsDirectLoad(true);
 		column.setAD_Reference_Value_ID(110);
 		column.saveEx();
 		column = new MColumn(this, COLUMNNAME_UpdatedBy	, 22 , DisplayType.Table, "");
-		column.setIsDirectLoad(true);
 		column.setAD_Reference_Value_ID(110);
 		column.saveEx();
 		if(!isView())
@@ -1178,7 +1174,6 @@ public class MTable extends X_AD_Table
 			element.saveEx();
 			
 			column = new MColumn(this, element.getColumnName(), 22 , DisplayType.ID, "");
-			column.setIsDirectLoad(true);
 			column.setAD_Element_ID(element.get_ID());
 			column.setIsKey(true);
 			column.setUpdateable(false);
@@ -1267,6 +1262,10 @@ public class MTable extends X_AD_Table
 	 * Create Standard columns for tables marks like Document
 	 */
 	private void createMandatoryDocumentColumns() {
+
+		if (isDirectLoad())
+			return;
+		
 		//	Yamel Senih, 2015-11-14
 		//	Add Default Columns for Document Tables
 		if(isDocument()) {
@@ -1275,7 +1274,7 @@ public class MTable extends X_AD_Table
 			String columnName = "C_DocType_ID";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 22, DisplayType.TableDir, "");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.saveEx();
@@ -1284,7 +1283,7 @@ public class MTable extends X_AD_Table
 			columnName = "DocumentNo";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 60, DisplayType.String, "");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.saveEx();
@@ -1293,7 +1292,7 @@ public class MTable extends X_AD_Table
 			columnName = "DateDoc";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 7, DisplayType.Date, "@#Date@");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.saveEx();
@@ -1302,7 +1301,7 @@ public class MTable extends X_AD_Table
 			columnName = "Processed";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "N");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.saveEx();
@@ -1311,7 +1310,7 @@ public class MTable extends X_AD_Table
 			columnName = "IsApproved";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 1, DisplayType.YesNo, "N");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.saveEx();
@@ -1320,7 +1319,7 @@ public class MTable extends X_AD_Table
 			columnName = "Description";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 1, DisplayType.Text, "");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(false);
 				column.setUpdateable(true);
 				column.setIsAlwaysUpdateable(true);
@@ -1330,7 +1329,7 @@ public class MTable extends X_AD_Table
 			columnName = "DocStatus";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 2, DisplayType.List, "DR");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.setAD_Reference_Value_ID(131);
@@ -1340,7 +1339,7 @@ public class MTable extends X_AD_Table
 			columnName = "DocAction";
 			if(MColumn.getColumn_ID(getTableName(), columnName) <= 0) {
 				column = new MColumn(this, columnName, 2, DisplayType.Button, "CO");
-				column.setIsDirectLoad(true);
+				column.setIsDirectLoad(this.isDirectLoad());
 				column.setIsMandatory(true);
 				column.setUpdateable(false);
 				column.setAD_Reference_Value_ID(135);
