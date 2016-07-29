@@ -463,7 +463,7 @@ public final class DisplayType
 				return "BLOB";
 			//	ID, CreatedBy/UpdatedBy, Acct
 			else if (columnName.endsWith("_ID") 
-				|| columnName.endsWith("tedBy") 
+				|| columnName.endsWith("edBy") 
 				|| columnName.endsWith("_Acct") )
 				return "NUMBER(10)";
 			else if (fieldLength < 4)
