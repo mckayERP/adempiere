@@ -6,7 +6,6 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.Adempiere;
-import org.compiere.process.*;
 import org.compiere.process.ProcessInfo;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
