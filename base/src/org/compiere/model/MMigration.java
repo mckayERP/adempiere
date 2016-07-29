@@ -302,8 +302,8 @@ public class MMigration extends X_AD_Migration {
 		
 		String where = "TRIM(both from Name) = ?"
 			+ " AND SeqNo = ?"
-			+ " AND TRIM(both from EntityType) = ?"
-			+ " AND TRIM(both from ReleaseNo) = ?";
+			+ " AND TRIM(both from COALESCE(EntityType,'')) = ?"
+			+ " AND TRIM(both from COALESCE(ReleaseNo, '')) = ?";
 //		MMigration mmigration = new Query(ctx, MMigration.Table_Name, where, trxName) // Locks migrationtable
 		MMigration mmigration = new Query(ctx, MMigration.Table_Name, where, null)
 		.setParameters(name, Integer.parseInt(seqNo), entityType, releaseNo).firstOnly();
