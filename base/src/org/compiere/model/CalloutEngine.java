@@ -298,13 +298,13 @@ public class CalloutEngine implements Callout
 	 * @param existingASI_ID If null, the default ASI will be used from the context, otherwise the
 	 * provided ASI will be tested.
 	 */
-	public static void setAndTestASI(Properties ctx, int WindowNo, Boolean isSOTrx, GridTab mTab, String fieldName, 
+	public static Integer setAndTestASI(Properties ctx, int WindowNo, Boolean isSOTrx, GridTab mTab, String fieldName, 
 			MProduct product, Integer existingASI_ID) {
 		int AD_Column_ID = 0;
 		Integer M_AttributeSetInstance_ID = Integer.valueOf(0);
 		
 		if (mTab == null)
-			return;
+			return M_AttributeSetInstance_ID;
 				
 		GridField column = mTab.getField(fieldName);
 		if (column != null) {  // The column is found
@@ -331,6 +331,7 @@ public class CalloutEngine implements Callout
 				//column.setDisplayed(false);
 			}
 		}
+		return M_AttributeSetInstance_ID;
 	}
 
 	/**

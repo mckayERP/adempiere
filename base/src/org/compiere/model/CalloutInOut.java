@@ -492,12 +492,12 @@ public class CalloutInOut extends CalloutEngine
 		MProduct product = MProduct.get(ctx, M_Product_ID.intValue());
 		// If the product is null, also clear the attribute set instance
 		if (product == null) {
-			setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, 0);
+			CalloutEngine.setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, 0);
 			return "";
 		}
 
 		//	Set Attribute to the default for the product
-		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, null);		
+		CalloutEngine.setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, "M_AttributeSetInstance_ID", product, null);		
 		
 		// Set the product locator
 		int M_Locator_ID = 0;
