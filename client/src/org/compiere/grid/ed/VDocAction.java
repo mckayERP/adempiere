@@ -87,7 +87,11 @@ public class VDocAction extends CDialog
 		}
 
 		//	dynamic init preparation
-		m_AD_Table_ID = Env.getContextAsInt(Env.getCtx(), WindowNo, "BaseTable_ID");
+		m_AD_Table_ID = mTab.getAD_Table_ID();
+		MTable table = MTable.get(Env.getCtx(), m_AD_Table_ID);
+		if (!table.isDocument())
+			m_AD_Table_ID = Env.getContextAsInt(Env.getCtx(), WindowNo, "BaseTable_ID");
+		
 		if (s_value == null)
 			readReference();
 		//
@@ -234,12 +238,6 @@ public class VDocAction extends CDialog
 		String[] docActionHolder = new String[] {DocAction};
 		index = DocumentEngine.getValidActions(DocStatus, Processing, OrderType, IsSOTrx, m_AD_Table_ID, 
 				docActionHolder, options);
-
-		MTable table = MTable.get(Env.getCtx(), m_AD_Table_ID);
-		PO po = table.getPO(Record_ID, null);
-		if (po instanceof DocOptions)
-			index = ((DocOptions) po).customizeValidActions(DocStatus, Processing, OrderType, IsSOTrx,
-					m_AD_Table_ID, docActionHolder, options, index);
 
 		Integer doctypeId = (Integer)m_mTab.getValue("C_DocType_ID");
 		if(doctypeId==null || doctypeId.intValue()==0){
