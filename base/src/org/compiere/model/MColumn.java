@@ -850,6 +850,7 @@ public class MColumn extends X_AD_Column
 		if (this.isVirtualColumn())
 			return "Cannot sync a virtual column"; // TODO - Delete from database if it exists?
 		
+		// The table has to be in the cache or a new table will be created
 		MTable table = MTable.get(getCtx(), getAD_Table_ID());
 		
 		if (table.isView())
