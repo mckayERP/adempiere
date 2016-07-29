@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.util.EventObject;
 
@@ -50,7 +51,7 @@ import org.compiere.util.CLogger;
  *  @version 	$Id: VCellEditor.java,v 1.2 2006/07/30 00:51:28 jjanke Exp $
  */
 public final class VCellEditor extends AbstractCellEditor
-	implements TableCellEditor, VetoableChangeListener, ActionListener
+	implements TableCellEditor, VetoableChangeListener, ActionListener, PropertyChangeListener
 {
 
 	/**
@@ -79,6 +80,10 @@ public final class VCellEditor extends AbstractCellEditor
 	private ActionListener buttonListener;
 	private ActionListener actionListener;
 	
+	// Used to hold the gridController. Set when the editor is
+	// defined.
+	private VetoableChangeListener m_vetoableChangeListener;   
+	
 	/** ClickCount              */
 	private static int      CLICK_TO_START = 1;
 	/**	Logger			*/
@@ -91,8 +96,9 @@ public final class VCellEditor extends AbstractCellEditor
 	{
 		m_editor = VEditorFactory.getEditor(m_mField, true);
 		m_editor.addVetoableChangeListener(this);
+		if (m_vetoableChangeListener != null)
+			m_editor.addVetoableChangeListener(m_vetoableChangeListener);
 		m_editor.addActionListener(this);
-				
 	}   //  createEditor
 
 	/**
@@ -262,4 +268,17 @@ public final class VCellEditor extends AbstractCellEditor
 	public void setActionListener(ActionListener listener) {
 		actionListener = listener;
 	}
-}	//	VCellEditor
+
+	public void addVetoableChangeListener(VetoableChangeListener listener) {
+		m_vetoableChangeListener = listener;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(org.compiere.model.GridField.PROPERTY)) {
+			VEditor ed = getEditor();
+			if (ed != null) 
+				ed.setValue(evt.getNewValue());		
+		}
+	}
+}	//	VCellEditors

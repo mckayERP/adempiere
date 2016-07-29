@@ -52,6 +52,8 @@ public final class VTable extends CTable
 	 */
 	private static final long serialVersionUID = -2655102084935019329L;
 	private final static String PACK_ALL_COMMAND = CColumnControlButton.COLUMN_CONTROL_MARKER + "packAll";
+	private GridTab m_tab;
+	private GridController m_gridController;
 	
 	/**
 	 *	Default Constructor
@@ -200,10 +202,28 @@ public final class VTable extends CTable
 	
 	public void changeSelection(final int row, final int column, boolean toggle, boolean extend)
     {
+		log.fine("Changing selection: From row=" + getSelectedRow() + " to row=" + row);
+		if (m_tab != null && m_gridController != null) {
+			if (row != getSelectedRow()) {
+				removeEditor();
+				m_gridController.acceptEditorChanges();
+				m_tab.navigate(row);
+			}
+		}
+		
         super.changeSelection(row, column, toggle, extend);
         if (isCellEditable(row, column)) {
         	this.editCellAt(row, column);
         	this.transferFocus();
         }
     }
-}	//	VTable
+
+	public void setGridTab(GridTab tab) {
+		m_tab = tab;
+	}	//	VTable
+
+
+	public void setGridController(GridController gridController) {
+		m_gridController = gridController;
+	}
+}
