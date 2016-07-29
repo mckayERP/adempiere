@@ -1505,9 +1505,14 @@ public class MOrder extends X_C_Order implements DocAction
 						line.getM_AttributeSetInstance_ID(), line.getM_AttributeSetInstance_ID(),
 						Env.ZERO, reserved, ordered, get_TrxName()))
 						return false;
+
+					line.setQtyReserved(line.getQtyReserved().add(difference));
 				}	//	stockec
+				else {
+					line.setQtyReserved(Env.ZERO);
+					line.setQtyDelivered(Env.ZERO);
+				}
 				//	update line
-				line.setQtyReserved(line.getQtyReserved().add(difference));
 				if (!line.save(get_TrxName()))
 					return false;
 				//
