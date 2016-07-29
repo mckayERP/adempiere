@@ -641,10 +641,18 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					if (!data.isActive())
 						continue;
 
-					String value = data.getOldValue();
-					if ( data.isOldNull() )
-						value = null;
-
+					String value = "";					
+					if (data.getBackupValue() != null || data.isBackupNull()) {
+						value = data.getBackupValue();
+						if ( data.isBackupNull() )
+							value = null;						
+					}
+					else {
+						value = data.getOldValue();
+						if ( data.isOldNull() )
+							value = null;
+					}
+					
 					MColumn column = (MColumn) data.getAD_Column();
                     if(column == null)
                         continue;
@@ -657,8 +665,36 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			// If the record was inserted, delete it.
 			if ( getAction().equals(MMigrationStep.ACTION_Insert) && po != null) 
 			{
-				// force delete to remove processed records.
-				po.deleteEx(true, get_TrxName());
+				//  If there is backup data, the record existed before the insert
+				boolean existed= false;
+				// Recover the back up values of the deleted record
+				for (MMigrationData data : m_migrationData )
+				{
+					if (!data.isActive())
+						continue;
+
+					String value = "";
+					
+					if (data.getBackupValue() != null || data.isBackupNull()) {
+						existed = true;
+						value = data.getBackupValue();
+						if ( data.isBackupNull() )
+							value = null;						
+					
+						MColumn column = (MColumn) data.getAD_Column();
+	                    if(column == null)
+	                        continue;
+	
+						po.set_ValueNoCheck(column.getColumnName(), stringToObject(column, value));
+					}
+				}
+				if (existed) {
+					po.saveEx();					
+				}
+				else {
+					// force delete to remove processed records.
+					po.deleteEx(true, get_TrxName());
+				}
 				//TODO column sync database?
 			}
 			// If the record was updated, set the values back to the old values.
@@ -666,9 +702,17 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			{
 				for (MMigrationData data : m_migrationData )
 				{
-					String value = data.getOldValue();
-					if ( data.isOldNull() )
-						value = null;
+					String value = "";					
+					if (data.getBackupValue() != null || data.isBackupNull()) {
+						value = data.getBackupValue();
+						if ( data.isBackupNull() )
+							value = null;						
+					}
+					else {
+						value = data.getOldValue();
+						if ( data.isOldNull() )
+							value = null;
+					}
 
 					MColumn column = (MColumn) data.getAD_Column();
                     if(column == null)
