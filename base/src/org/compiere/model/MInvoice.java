@@ -2185,6 +2185,7 @@ public class MInvoice extends X_C_Invoice implements DocAction
 		setDocAction(DOCACTION_None);
 		setC_Payment_ID(0);
 		setIsPaid(true);
+		saveEx();
 
 		//	Create Allocation
 		MAllocationHdr alloc = new MAllocationHdr(getCtx(), false, getDateAcct(),
