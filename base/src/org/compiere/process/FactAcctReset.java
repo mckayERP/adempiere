@@ -175,18 +175,17 @@ public class FactAcctReset extends SvrProcess
 
 		resetUpdate = new StringBuilder();
 		resetUpdate.append("UPDATE ").append(TableName)
-				 .append(" SET Posted='N' WHERE AD_Client_ID=").append(p_AD_Client_ID)
-				 .append(" AND (Posted NOT IN ('Y','N') OR Posted IS NULL ");
-
-		resetUpdate.append(" OR NOT EXISTS (SELECT 1 FROM Fact_Acct fa INNER JOIN C_PeriodControl pc ON (fa.C_Period_ID=pc.C_Period_ID) WHERE AD_Table_ID=")
-				 .append(AD_Table_ID).append(" AND Record_ID=")
-				 .append(TableName).append(".")
-				 .append(TableName).append("_ID ");
-
+				 .append(" SET Posted='N' WHERE AD_Client_ID=").append(p_AD_Client_ID);
+		
 		if ( !autoPeriod )
-			resetUpdate.append("  AND pc.PeriodStatus = 'O' ").append(docBaseType).append(" AND fa.C_Period_ID=pc.C_Period_ID))");
-		else
-			resetUpdate.append(" AND fa.C_Period_ID=pc.C_Period_ID))");
+			resetUpdate.append(" AND EXISTS (SELECT 1 FROM C_PeriodControl pc INNER JOIN C_Period p ON pc.C_Period_ID = p.C_Period_ID")
+				 .append(" WHERE pc.PeriodStatus = 'O' AND pc.AD_Client_ID=").append(p_AD_Client_ID)
+				 .append(docBaseType).append(" AND ")
+				 .append(TableName).append(".").append("DateAcct BETWEEN p.StartDate AND p.EndDate)");  // Assumes all tables with a 'Posted' column have a DateAcct column
+		
+		resetUpdate.append(" AND (Posted NOT IN ('Y','N') OR Posted IS NULL ")
+				.append(" OR NOT EXISTS (SELECT 1 FROM Fact_Acct fa WHERE fa.AD_Table_ID=").append(AD_Table_ID)
+				.append(" AND Record_ID=").append(TableName).append(".").append(TableName).append("_ID))");
 
 		int invalid = DB.executeUpdate(resetUpdate.toString(), get_TrxName());
 		//
