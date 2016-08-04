@@ -2238,6 +2238,10 @@ public class GridTable extends AbstractTableModel
 	 */
 	private String getWhereClause (Object[] rowData)
 	{
+		// Prevent NPE errors if rowData is null - e.g. when a record is deleted.
+		if (rowData == null)
+			return null;
+		
 		int size = m_fields.size();
 		StringBuffer singleRowWHERE = null;
 		StringBuffer multiRowWHERE = null;
