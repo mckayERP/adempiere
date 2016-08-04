@@ -665,9 +665,9 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			// If the record was inserted, delete it.
 			if ( getAction().equals(MMigrationStep.ACTION_Insert) && po != null) 
 			{
-				//  If there is backup data, the record existed before the insert
+				//  If there is backup data, the record existed before the insert.
+				//  Try to recover the previous values from the backup
 				boolean existed= false;
-				// Recover the back up values of the deleted record
 				for (MMigrationData data : m_migrationData )
 				{
 					if (!data.isActive())
