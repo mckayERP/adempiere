@@ -26,6 +26,7 @@ import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MTransaction;
+import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -163,11 +164,11 @@ public abstract class AbstractCostingMethod implements ICostingMethod {
 		
 		costDetail = new MCostDetail(model.getCtx(), 0, transaction.get_TrxName());
 		// Qty Transaction
-		lastCostDetail = MCostDetail.getByTransaction(originalTransaction.getDocumentLine(),
+		MCostDetail originalCostDetail = MCostDetail.getByTransaction(originalTransaction.getDocumentLine(),
                 originalTransaction, accountSchema.getC_AcctSchema_ID(),
                 dimension.getM_CostType_ID(),
                 dimension.getM_CostElement_ID());
-		if (lastCostDetail == null)
+		if (originalCostDetail == null)
 		{	
 			/*lastCostDetail = MCostDetail.getByTransaction(model,
 					original_trx, accountSchema.getC_AcctSchema_ID(),
@@ -180,15 +181,18 @@ public abstract class AbstractCostingMethod implements ICostingMethod {
 			return;
 		}
 
-            costDetail.copyValues(lastCostDetail, costDetail);
-			costDetail.setAD_Org_ID(lastCostDetail.getAD_Org_ID());
-			costDetail.setM_Warehouse_ID(lastCostDetail.getM_Warehouse_ID());
-
-			
-			setReversalCostDetail();
-			
+            PO.copyValues(originalCostDetail, costDetail);
+			costDetail.setAD_Org_ID(originalCostDetail.getAD_Org_ID());
+			costDetail.setM_Warehouse_ID(originalCostDetail.getM_Warehouse_ID());
 			costDetail.setM_AttributeSetInstance_ID(transaction
                     .getM_AttributeSetInstance_ID());
+
+			setReversalCostDetail();  // Based on last cost detail
+
+			// Update with the original quantities and amounts.
+			costDetail.setQty(originalCostDetail.getQty().negate());
+			costDetail.setAmt(originalCostDetail.getAmt());
+			costDetail.setCostAmt(originalCostDetail.getCostAmt());
 
 			costDetail.setDateAcct(this.model.getDateAcct());
 			//costDetail.setProcessing(false); not should change so that be costing re processing by early transaction
@@ -199,12 +203,15 @@ public abstract class AbstractCostingMethod implements ICostingMethod {
 			costDetail.saveEx();
 
 			// Update the original cost detail
-			lastCostDetail
-					.setDescription(lastCostDetail.getDescription() != null ? lastCostDetail
+			originalCostDetail
+					.setDescription(originalCostDetail.getDescription() != null ? originalCostDetail
                             .getDescription() : "" + "|Reversal "
                             + costDetail.getM_Transaction_ID());
-			lastCostDetail.setIsReversal(true);
-			lastCostDetail.saveEx(transaction.get_TrxName());
+			originalCostDetail.setIsReversal(true);
+			originalCostDetail.saveEx(transaction.get_TrxName());
+			
+			// Update the cost record
+			updateAmountCost();
 			
 		// Only uncomment to debug Trx.get(costDetail.get_TrxName(),
 		// false).commit();
@@ -227,9 +234,9 @@ public abstract class AbstractCostingMethod implements ICostingMethod {
 		costDetail.setAmtLL(Env.ZERO);
 		costDetail.setCostAmtLL(Env.ZERO);
 		costDetail.setCostAdjustmentLL(Env.ZERO);
-		costDetail.setCumulatedAmt(Env.ZERO);
-		costDetail.setCumulatedAmtLL(Env.ZERO);
-		costDetail.setCumulatedQty(Env.ZERO);
+		costDetail.setCumulatedAmt(getNewAccumulatedAmount(lastCostDetail));
+		costDetail.setCumulatedAmtLL(getNewAccumulatedAmountLowerLevel(lastCostDetail));
+		costDetail.setCumulatedQty(getNewAccumulatedQuantity(lastCostDetail));
         costDetail.setM_Transaction_ID(transaction.getM_Transaction_ID());
 		
 		costDetail.setSeqNo(lastCostDetail.getSeqNo() + 10);
@@ -244,7 +251,7 @@ public abstract class AbstractCostingMethod implements ICostingMethod {
 		currentCostPrice = lastCostDetail.getCurrentCostPrice();
 		currentCostPriceLowerLevel = lastCostDetail.getCurrentCostPriceLL();
 		
-		updateAmountCost();
+		//  updateAmountCost(); too early - need to save the cost detail first.
 		
 		// Update the new cost detail
 		accumulatedQuantity = getNewAccumulatedQuantity(costDetail);

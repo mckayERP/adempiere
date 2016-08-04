@@ -183,6 +183,7 @@ public class GenerateCostDetail extends SvrProcess {
         if (costTypeId > 0) {
             costTypes.add(new MCostType(getCtx(), costTypeId,
                     get_TrxName()));
+            costTypesDelete = costTypes;
         }
         else {
         	// All active cost types
@@ -193,8 +194,10 @@ public class GenerateCostDetail extends SvrProcess {
             		.setOrderBy(MCostType.COLUMNNAME_M_CostType_ID)
             		.list();
         }
-        if (costElementId > 0)
+        if (costElementId > 0) {
             costElements.add(MCostElement.get(getCtx(), costElementId));
+            costElementsDelete = costElements;
+        }
         else {
             costElements = MCostElement.getCostElement(getCtx(), get_TrxName());
 	        costElementsDelete = new Query(getCtx(), MCostElement.Table_Name, null, get_TrxName())

@@ -60,13 +60,6 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 	 * Calculate the costs prior to creating the Cost Detail record
 	 */
 	private void calculate() {
-		// Don't create costs for reversals.
- 		if (model.getReversalLine_ID() > 0)
-			return;
-
-		// In standard costing the dimension (M_Cost) always sets the price
-		currentCostPrice = dimension.getCurrentCostPrice();
-		currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
 
 		// try find the last cost detail transaction which will provide the
 		// accumulated amounts and quantities
@@ -83,6 +76,14 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 					Env.ZERO, transaction.get_TrxName());
 			lastCostDetail.setDateAcct(dateAccounting);
 		}
+		
+		// Don't create costs for reversals.
+ 		if (model.getReversalLine_ID() > 0)
+			return;
+
+		// In standard costing the dimension (M_Cost) always sets the price
+		currentCostPrice = dimension.getCurrentCostPrice();
+		currentCostPriceLowerLevel = dimension.getCurrentCostPriceLL();
 		
 //		if (costDetail != null) {
 //			// If the transaction includes multiple documents, there may be several 
