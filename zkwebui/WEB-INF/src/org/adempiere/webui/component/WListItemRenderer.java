@@ -258,7 +258,7 @@ public class WListItemRenderer implements ListitemRenderer, EventListener, Listi
 			}
 			else if (field instanceof Number)
 			{
-				DecimalFormat format = field instanceof BigDecimal
+				DecimalFormat format = (field instanceof BigDecimal || field instanceof Double)
 					? DisplayType.getNumberFormat(DisplayType.Amount, AEnv.getLanguage(Env.getCtx()))
 				    : DisplayType.getNumberFormat(DisplayType.Integer, AEnv.getLanguage(Env.getCtx()));
 

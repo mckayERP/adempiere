@@ -494,7 +494,7 @@ public class VMatch extends Match
 			}
 		}
 		//  update quantities
-		m_xMatchedTo = new BigDecimal(qty);
+		m_xMatchedTo = BigDecimal.valueOf(qty); // Preferred method of converting a double to BigDecimal
 		xMatchedTo.setValue(m_xMatchedTo);
 		difference.setValue(m_xMatched.subtract(m_xMatchedTo));
 		bProcess.setEnabled(noRows != 0);
