@@ -187,6 +187,8 @@ public class FactAcctReset extends SvrProcess
 				.append(" OR NOT EXISTS (SELECT 1 FROM Fact_Acct fa WHERE fa.AD_Table_ID=").append(AD_Table_ID)
 				.append(" AND Record_ID=").append(TableName).append(".").append(TableName).append("_ID))");
 
+		log.fine(resetUpdate.toString());
+		
 		int invalid = DB.executeUpdate(resetUpdate.toString(), get_TrxName());
 		//
 		if (unlocked + invalid != 0)
