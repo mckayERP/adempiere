@@ -69,7 +69,13 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 	}	//	PP_Order_BOMLine_ID
 
 
-	public MPPOrderBOMLine(Properties ctx, ResultSet rs,String trxName)
+	/**
+	 * Constructor
+	 * @param ctx
+	 * @param rs
+	 * @param trxName
+     */
+	public MPPOrderBOMLine(Properties ctx, ResultSet rs, String trxName)
 	{
 		super (ctx, rs,trxName);
 	}	//	MOrderLine
@@ -194,12 +200,8 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 	protected boolean beforeDelete()
 	{
 		// Release Reservation
-		if(MPPOrder.DOCSTATUS_InProgress.equals(getParent().getDocStatus()) || 
-		   MPPOrder.DOCSTATUS_Completed.equals(getParent().getDocStatus()))
-		{	
-			setQtyRequired(Env.ZERO);
-			reserveStock();
-		}			
+		setQtyRequired(Env.ZERO);
+		reserveStock();
 		return true;
 	}
 

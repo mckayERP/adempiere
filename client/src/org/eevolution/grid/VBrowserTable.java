@@ -60,8 +60,10 @@ import org.eevolution.form.VBrowser;
  * 		@see https://github.com/adempiere/adempiere/issues/245
  * 		<li>BR [ 257 ] Smart Browse does not get the hidden fields in Selection Browse
  * 		@see https://github.com/adempiere/adempiere/issues/257
+ * 		<li>BR [ 456 ] Smart Browser fill bad value for search
+ * 		@see https://github.com/adempiere/adempiere/issues/456
  */
-public class BrowserTable extends CTable implements IBrowserTable {
+public class VBrowserTable extends CTable implements IBrowserTable {
     /**
      *
      */
@@ -70,7 +72,7 @@ public class BrowserTable extends CTable implements IBrowserTable {
     /**
      * Logger.
      */
-    private static CLogger log = CLogger.getCLogger(BrowserTable.class);
+    private static CLogger log = CLogger.getCLogger(VBrowserTable.class);
     /**	Rows				*/
     private BrowserRow browserRows = null;
     /**	Current Row			*/
@@ -112,7 +114,7 @@ public class BrowserTable extends CTable implements IBrowserTable {
     /**
      * Default Constructor
      */
-    public BrowserTable(VBrowser browser) {
+    public VBrowserTable(VBrowser browser) {
         super();
         browserRows = new BrowserRow(this);
         setCellSelectionEnabled(false);
@@ -211,14 +213,21 @@ public class BrowserTable extends CTable implements IBrowserTable {
      */
     public boolean isCellEditable(int row, int column) {
         //  if the first column is a boolean and it is false, it is not editable
-        if (column != 0
-                && getValueAt(row, 0) instanceof Boolean
-                && !((Boolean) getValueAt(row, 0)).booleanValue())
-            return false;
-
+    	//	Get Selected
+        boolean isSelected = false;
+        Object value = getValueAt(row, 0);
+        if(value instanceof Boolean) {
+        	isSelected = ((Boolean) getValueAt(row, 0)).booleanValue();
+        } else if(value instanceof IDColumn) {
+        	isSelected = ((IDColumn) value).isSelected();
+        }
         //  is the column RW?
-        if (m_readWriteColumn.contains(new Integer(column)))
-            return true;
+        if (column == 0 
+        		|| (isSelected
+        				&& m_readWriteColumn.contains(new Integer(column)))) {
+        	return true;
+        }
+        //	Default
         return false;
     }   //  isCellEditable
 
@@ -590,7 +599,7 @@ public class BrowserTable extends CTable implements IBrowserTable {
      * @return BrowserRows
      * @author <a href="mailto:carlosaparadam@gmail.com">Carlos Parada</a> 15/10/2013, 10:01:47
      */
-    public IBrowserRow getData() {
+    public BrowserRow getData() {
         return browserRows;
     }
 
@@ -690,11 +699,8 @@ public class BrowserTable extends CTable implements IBrowserTable {
                     &&  DisplayType.isNumeric(field.getAD_Reference_ID())
                     && field.getAD_View_Column().getColumnSQL().equals("'Row' AS \"Row\""))
 						value  = new IDColumn(no);
-					else if (DisplayType.TableDir == field.getAD_Reference_ID()
-						  || DisplayType.Table == field.getAD_Reference_ID()
-						  || DisplayType.Integer == field.getAD_Reference_ID()
-						  || DisplayType.PAttribute == field.getAD_Reference_ID()
-						  || DisplayType.Account == field.getAD_Reference_ID()) {
+					else if (DisplayType.isID(field.getAD_Reference_ID())
+							|| field.getAD_Reference_ID() == DisplayType.Integer) {
 						Integer id = rs.getInt(column + colOffset);
 						value = id != 0 ? id : null;
 					}
@@ -749,5 +755,4 @@ public class BrowserTable extends CTable implements IBrowserTable {
 	public GridField getGridFieldAt(int row, int column) {
 		return browserRows.getValue(row, browserRows.getTableIndex(column));
 	}
-
 }   //  BrowseTable

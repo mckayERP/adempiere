@@ -81,6 +81,8 @@ import org.compiere.util.Msg;
  * 		@see https://github.com/adempiere/adempiere/issues/344
  * 		<li>FR [ 352 ] T_Selection is better send to process like a HashMap instead read from disk
  *		@see https://github.com/adempiere/adempiere/issues/352 * 
+ * 		<li>BR [ 456 ] Smart Browser fill bad value for search
+ * 		@see https://github.com/adempiere/adempiere/issues/456
  */
 public abstract class Browser {
 	static public LinkedHashMap<String, Object> getBrowseValues(
@@ -652,7 +654,7 @@ public abstract class Browser {
 		//	Verify if is Multi-Selection
 		if (p_multiSelection) {
 			int rows = browserTable.getRowCount();
-			IBrowserRow browserRows = browserTable.getData();
+			BrowserRow browserRows = browserTable.getData();
 			m_values = new LinkedHashMap<Integer,LinkedHashMap<String,Object>>();
 			//	BR [ 257 ]
 			List <MBrowseField> fields = m_Browse.getFields();
@@ -669,7 +671,7 @@ public abstract class Browser {
 						LinkedHashMap<String, Object> values = new LinkedHashMap<String, Object>();
 						for(MBrowseField field : fields)
 						{
-							if (!field.isReadOnly() || field.isIdentifier())
+							if (!field.isReadOnly() || field.isIdentifier() || field.isKey())
 							{
 								GridField gridField = (GridField) browserRows.getValueOfColumn(row, field.getAD_View_Column().getColumnName());
 								if (gridField != null) {
@@ -1537,10 +1539,11 @@ public abstract class Browser {
 									.getString(colIndex)));
 						else if (DisplayType.isDate(field.getAD_Reference_ID()))
 							data = m_rs.getTimestamp(colIndex);
+						else if(DisplayType.isID(field.getAD_Reference_ID())
+								|| DisplayType.Integer == field.getAD_Reference_ID())
+							data = new Integer(m_rs.getInt(colIndex));
 						else if (DisplayType.isNumeric(field.getAD_Reference_ID()))
 							data = m_rs.getBigDecimal(colIndex);
-						else if (DisplayType.Integer == field.getAD_Reference_ID())
-							data = new Integer(m_rs.getInt(colIndex));
 						/*else if (c == KeyNamePair.class) {
 							String display = m_rs.getString(colIndex);
 							int key = m_rs.getInt(colIndex + 1);
