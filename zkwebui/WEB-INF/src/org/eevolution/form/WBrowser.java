@@ -28,6 +28,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MBrowse;
+import org.adempiere.model.MViewDefinition;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.apps.BusyDialog;
 import org.adempiere.webui.apps.ProcessParameterPanel;
@@ -127,9 +128,10 @@ public class WBrowser extends Browser implements IFormController,
 	 * @param windowNo
 	 * @param browserId
 	 * @param whereClause
+	 * @param isSOTrx
 	 * @return
 	 */
-	public static CustomForm openBrowse(int windowNo , int browserId , String whereClause) {
+	public static CustomForm openBrowse(int windowNo , int browserId , String whereClause, Boolean isSOTrx) {
 		MBrowse browse = new MBrowse(Env.getCtx(), browserId , null);
 		boolean modal = false;
 		if (windowNo > 0)
@@ -137,7 +139,7 @@ public class WBrowser extends Browser implements IFormController,
 		String value = "";
 		String keyColumn = "";
 		boolean multiSelection = true;
-		return new WBrowser(modal, windowNo, value, browse, keyColumn, multiSelection, whereClause).getForm();
+		return new WBrowser(modal, windowNo, value, browse, keyColumn, multiSelection, whereClause,isSOTrx).getForm();
 	}
 	
 	/**
@@ -149,9 +151,10 @@ public class WBrowser extends Browser implements IFormController,
 	 * @param keyColumn
 	 * @param multiSelection
 	 * @param whereClause
+	 * @param isSOTrx
 	 */
 	public WBrowser(boolean modal, int WindowNo, String value, MBrowse browse,
-			String keyColumn, boolean multiSelection, String whereClause) {
+			String keyColumn, boolean multiSelection, String whereClause, Boolean isSOTrx) {
 		
 		super(modal, WindowNo, value, browse, keyColumn, multiSelection,
 				whereClause);
@@ -167,6 +170,7 @@ public class WBrowser extends Browser implements IFormController,
 			}
 		};
 		windowNo = SessionManager.getAppDesktop().registerWindow(this);
+		Env.setContext(Env.getCtx(), windowNo, "IsSOTrx", isSOTrx ? "Y" : "N");
 		copyWinContext();
 		setContextWhere(whereClause);
 		//	Init Smart Browse
@@ -638,8 +642,11 @@ public class WBrowser extends Browser implements IFormController,
 				if(parameterPanel.saveParameters() == null) {
 					//	Get Process Info
 					ProcessInfo pi = parameterPanel.getProcessInfo();
-					if (getFieldKey() != null && getFieldKey().get_ID() > 0)
-						pi.setTable_ID(getFieldKey().getAD_View_Column().getAD_View_Definition().getAD_Table_ID());
+					if (getFieldKey() != null && getFieldKey().get_ID() > 0) {
+						MViewDefinition viewDefinition = (MViewDefinition) getFieldKey().getAD_View_Column().getAD_View_Definition();
+						pi.setAliasForTableSelection(viewDefinition.getTableAlias());
+						pi.setTableSelectionId(viewDefinition.getAD_Table_ID());
+					}
 					//	Set Selected Values
 					pi.setSelectionValues(getSelectedValues());
 					//	
