@@ -1364,20 +1364,15 @@ public class GridTable extends AbstractTableModel
 			log.warning ("Error - Open=" + m_open);
 			return SAVE_ERROR;
 		}
-		//	no need - not changed - row not positioned - no Value changed
-		if (m_rowChanged == -1)
-		{
-			log.config("NoNeed - Changed=" + m_changed + ", Row=" + m_rowChanged);
-		//	return SAVE_ERROR;
-		//	if (!manualCmd)
-				return SAVE_OK;
-		}
+
 		//  Value not changed
 		if (m_rowData == null)
 		{
 			//reset out of sync variable
 			m_rowChanged = -1;
 			log.fine("No Changes");
+			if (!manualCmd)  // Ignore the save - could be closing the window
+				return SAVE_OK;			
 			return SAVE_ERROR;
 		}
 
@@ -1392,10 +1387,12 @@ public class GridTable extends AbstractTableModel
 		//	row not positioned - no Value changed
 		if (m_rowChanged == -1)
 		{
-			if (m_newRow != -1)     //  new row and nothing changed - might be OK
+			if (m_newRow != -1)     //  new row and nothing changed - might be OK (acceptable defaults)
 				m_rowChanged = m_newRow;
 			else
 			{
+				if (!manualCmd)  // Ignore the save
+					return SAVE_OK;
 				fireDataStatusEEvent("SaveErrorNoChange", "", true);
 				return SAVE_ERROR;
 			}
