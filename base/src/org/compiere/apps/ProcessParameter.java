@@ -359,7 +359,6 @@ public abstract class ProcessParameter {
 	 * @param propertyName
 	 */
 	public void fieldChange(GridField field, Object newValue, String propertyName) {
-		//	set new value
 		if(field != null) {
 			//	Process dependences
 			processDependencies (field);
@@ -433,7 +432,7 @@ public abstract class ProcessParameter {
 		else
 			Env.setContext(Env.getCtx(), m_WindowNo, name, value.toString());
 
-		dynamicDisplay();
+		//dynamicDisplay();
 	}
 
 	/**
