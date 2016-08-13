@@ -217,15 +217,19 @@ public class DB_PostgreSQL implements AdempiereDatabase
 	 * 	Get JDBC Schema
 	 *	@return schema (dbo)
 	 */
-	public String getSchema()
-	{
+	public String getSchema() {
 		//	vpj-cd e-evolution 03/04/2005
 		//	BR [ 391 ]
 		if (m_userName == null) {
-			CConnection cconn = CConnection.get(Adempiere.getCodeBaseHost());
-			m_userName = cconn.getDbUid();
-		}
-		return m_userName;
+	        CConnection cconn = CConnection.get(Adempiere.getCodeBaseHost());
+	        m_userName = cconn.getDbUid();
+	    }
+    	//	Validate
+        if (m_userName == null) {
+        	log.severe("User Name not set (yet) - call getConnectionURL first");
+        	return null;
+        }
+	    return m_userName;
 	}	//	getSchema
 
 	/**
@@ -295,22 +299,19 @@ public class DB_PostgreSQL implements AdempiereDatabase
 	public String convertStatement (String oraStatement)
 	{
 		String retValue[] = m_convert.convert(oraStatement);
-		
+		//	begin vpj-cd 24/06/2005 e-evolution
+		if (retValue == null) {	
+			log.log(Level.SEVERE,("DB_PostgreSQL.convertStatement - Not Converted (" + oraStatement + ") - "
+					+ m_convert.getConversionError()));
+			throw new IllegalArgumentException
+			("DB_PostgreSQL.convertStatement - Not Converted (" + oraStatement + ") - "
+					+ m_convert.getConversionError());
+		}
+		//	end vpj-cd 24/06/2005 e-evolution
         //begin vpj-cd e-evolution 03/14/2005
 		if (retValue.length == 0 )
 			return  oraStatement;
         //end vpj-cd e-evolution 03/14/2005
-		
-		if (retValue == null)
-        //begin vpj-cd 24/06/2005 e-evolution	
-		{	
-			log.log(Level.SEVERE,("DB_PostgreSQL.convertStatement - Not Converted (" + oraStatement + ") - "
-					+ m_convert.getConversionError()));
-			throw new IllegalArgumentException
-				("DB_PostgreSQL.convertStatement - Not Converted (" + oraStatement + ") - "
-					+ m_convert.getConversionError());
-		}
-		//		end vpj-cd 24/06/2005 e-evolution
 		if (retValue.length != 1)
 			//begin vpj-cd 24/06/2005 e-evolution
 			{
@@ -327,7 +328,7 @@ public class DB_PostgreSQL implements AdempiereDatabase
 			if (!oraStatement.equals(retValue[0]) && retValue[0].indexOf("AD_Error") == -1)
 			{
 				//begin vpj-cd 24/06/2005 e-evolution
-				//log.log(Level.FINE, "PostgreSQL =>" + retValue[0] + "<= <" + oraStatement + ">");
+				log.log(Level.FINE, "PostgreSQL =>" + retValue[0] + "<= <" + oraStatement + ">");
 			}
 		}
 		    //end vpj-cd 24/06/2005 e-evolution
@@ -371,8 +372,8 @@ public class DB_PostgreSQL implements AdempiereDatabase
 		if (time == null)
 		{
 			if (dayOnly)
-				return "current_date()";
-			return "current_date()";
+				return "current_date";
+			return "current_date";
 		}
 
 		StringBuffer dateString = new StringBuffer("TO_DATE('");

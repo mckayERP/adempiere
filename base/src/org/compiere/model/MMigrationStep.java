@@ -40,7 +40,11 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author paul
- *
+ * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<li> BR [ 425 ] Table ad_reportview_trl with wrong primary key
+ *		@see https://github.com/adempiere/adempiere/issues/425
+ *		<li> BR [ 440 ] Translation tables does not support rollback in Migration
+ *		@see https://github.com/adempiere/adempiere/issues/440
  */
 public class MMigrationStep extends X_AD_MigrationStep {
 
@@ -55,6 +59,8 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			.getCLogger(MMigrationStep.class);
 
 	private boolean apply = true;
+	/**	Is All Migration for Apply	*/
+	private boolean isAllMigration = false;
 
 	/**
 	 * @param ctx
@@ -227,15 +233,24 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		return retval;
 	}
 
+	/**
+	 * Bailout
+	 * @param error
+	 */
 	private void bailout(String error) {
 		bailout(error, null);
 	}
 
+	/**
+	 * Bailout
+	 * @param error
+	 * @param e
+	 */
 	private void bailout(String error, Exception e) {
-        setErrorMsg(error);
-        setStatusCode(MMigrationStep.STATUSCODE_Failed);
+        	setErrorMsg(error);
+        	setStatusCode(MMigrationStep.STATUSCODE_Failed);
 		setApply(apply ? MMigrationStep.APPLY_Apply : MMigrationStep.APPLY_Rollback);
-        saveEx();
+        	saveEx();
 
 //        if (apply)
 //			Env.setContext(getCtx(), "MigrationStepApplyInProgress", "");
@@ -275,7 +290,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		}
 		
 		// Unset the Flag that a script is in progress to shut off some validation checks
-		Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "");
+		//Env.setContext(getCtx(), "MigrationStepRollbackInProgress", "");
 
 		log.log(Level.CONFIG, retCode);
 		getParent().updateStatus();
@@ -283,6 +298,11 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		return retCode;
 	}
 
+	/**
+	 * Apply SQL
+	 * @param rollback
+	 * @return
+	 */
 	private String applySQL(boolean rollback) {
 
 		String sqlStatements = rollback ? getRollbackStatement() : getSQLStatement();
@@ -304,11 +324,14 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		    || (DB.isOracle() && getDBType().equals(MMigrationStep.DBTYPE_Oracle))
 		    || (DB.isPostgreSQL() && getDBType().equals(MMigrationStep.DBTYPE_Postgres))) 
         {
-		     Connection conn = null;
+        	//	Synchronize column first
+        	getParent().syncColumn();
+        	//	
+		     Connection conn = DB.getConnectionRW();
 		     Statement stmt = null;
 		     boolean rollbackOnError = true;
 		     try {
-		    	 conn = DB.getConnectionRW();
+		
 		         conn.setAutoCommit(false);
 		         stmt = conn.createStatement();
 		
@@ -414,7 +437,50 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		else 
 			return null;
 	}
+	
+	/**
+	 * Get PO from Keys
+	 * @param table
+	 * @return
+	 */
+	private PO getPO(MTable table) {
+		//	Get PO from key or keys
+		PO po = null;
+		if (table.isSingleKey() && getRecord_ID() > 0) {
+			po = table.getPO( getRecord_ID(), get_TrxName() );
+		} else {
+			String where = "";
+			ArrayList<Object> params = new ArrayList<Object>();
+			boolean first = true;
+			
+			List<MMigrationData> keys = getKeyData();
+			for (MMigrationData key : keys) { 
+				if ( first )
+					first = false;
+				else
+					where += " AND ";
+				
+				MColumn column = (MColumn) key.getAD_Column();
+                if(column == null)
+                    continue;
 
+				where += column.getColumnName() + " = ? ";
+				
+				params.add(stringToObject(column, key.getNewValue()));	
+			}
+			//	Get PO from Query
+			po = new Query(getCtx(), table, where, get_TrxName())
+			.setParameters(params)
+			.firstOnly();
+		}
+		//	Return PO
+		return po;
+	}
+
+	/**
+	 * Apply Migration
+	 * @return
+	 */
 	private String applyPO() {
 
 		if ( getAD_Table_ID() == 0 )
@@ -427,42 +493,13 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			PO po = null;
 			//reset cache of persistence object
 			POInfo.removeFromCache(getAD_Table_ID());
-			if ( table.isSingleKey() && getRecord_ID() > 0 ) {
-				po = table.getPO( getRecord_ID(), get_TrxName() );
-			}
-			else 
-			{
-				String where = "";
-				ArrayList<Object> params = new ArrayList<Object>();
-				boolean first = true;
-				
-				List<MMigrationData> keys = getKeyData();
-				for ( MMigrationData key : keys )
-				{ 
-					if ( first )
-						first = false;
-					else
-						where += " AND ";
-					
-					MColumn column = (MColumn) key.getAD_Column();
-                    if(column == null)
-                        continue;
-
-					where += column.getColumnName() + " = ? ";
-					
-					params.add(stringToObject(column, key.getNewValue()));
-					
-				}
-				
-				po = new Query(getCtx(), table, where, get_TrxName())
-				.setParameters(params)
-				.firstOnly();
-			}
-			
-			if ((po == null || po.get_ID() == 0) && getAction().equals(MMigrationStep.ACTION_Insert) )
+			//	Get PO from table
+			po = getPO(table);
+			//	
+			if ( (po == null  || po.get_ID() == 0) && getAction().equals(MMigrationStep.ACTION_Insert) )
 			{
 				po = table.getPO(0, get_TrxName());
-				po.set_ValueNoCheck(po.get_KeyColumns()[0], getRecord_ID() );
+				po.set_ValueNoCheck(po.get_KeyColumns()[0], getRecord_ID());
 			}
 			else if (po == null && getAction().equals(MMigrationStep.ACTION_Delete))
 			{
@@ -472,8 +509,14 @@ public class MMigrationStep extends X_AD_MigrationStep {
 				setErrorMsg(null);
 				saveEx();
 				return "successfully applied";
-			}
-			else if (po == null) // Action other than insert
+			} else if(po == null 
+					&& table.getTableName().endsWith("_Trl")) {
+				setStatusCode(MMigrationStep.STATUSCODE_Applied);
+				setApply(MMigrationStep.APPLY_Rollback);
+				setErrorMsg(null);
+				saveEx();
+				return "successfully applied";
+			} else if (po == null) // Action other than insert
 			{
 				// The PO has not been set and we aren't inserting a new record - something is wrong.
 				bailout("Step " + getSeqNo() + ", Record " + getRecord_ID() + " was not found in table " + table.getName() + " (" + table.get_ID() + ").");
@@ -585,6 +628,10 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		return "successfully applied";
 	}
 	
+	/**
+	 * Rollback PO
+	 * @return
+	 */
 	private String rollbackPO() {
 		
 		if ( getAD_Table_ID() == 0 )
@@ -595,38 +642,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		{
 			MTable table = MTable.get( getCtx(), getAD_Table_ID() );
 			
-			PO po = null;
-			if ( table.isSingleKey() && getRecord_ID() > 0 )
-				po = table.getPO( getRecord_ID(), get_TrxName() );
-			else 
-			{
-				String where = "";
-				ArrayList<Object> params = new ArrayList<Object>();
-				boolean first = true;
-				
-				List<MMigrationData> keys = getKeyData();
-				for ( MMigrationData key : keys )
-				{ 
-					if ( first )
-						first = false;
-					else
-						where += " AND ";
-					
-					MColumn column = (MColumn) key.getAD_Column();
-                    if(column == null)
-                        continue;
-
-					where += column.getColumnName() + " = ? ";
-					
-					params.add(stringToObject(column, key.getNewValue()));
-					
-				}
-				
-				po = new Query(getCtx(), table, where, get_TrxName())
-				.setParameters(params)
-				.firstOnly();
-			}
-			
+			PO po = getPO(table);
 			//  If the record was deleted, po will be null.  Recreate the record.
 			if ( po == null && getAction().equals(MMigrationStep.ACTION_Delete) )
 			{
@@ -659,6 +675,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 
 					po.set_ValueNoCheck(column.getColumnName(), stringToObject(column, value));
 				}
+				//	Save PO BR [ 440 ]
 				po.saveEx();
 			}
 
@@ -745,11 +762,11 @@ public class MMigrationStep extends X_AD_MigrationStep {
 				po.saveEx();
 				
 				//  Synchronize the AD_Column changes with the database.
-				if ( po instanceof MColumn )
-				{
+				if ( po instanceof MColumn ) {
 					MColumn col = (MColumn) po;
 					if (!col.isVirtualColumn()) {
-						log.log(Level.CONFIG, "Synchronizing column: " + col.toString() + " in table: " + MTable.get(Env.getCtx(),col.getAD_Table_ID()));
+						log.log(Level.CONFIG, "Synchronizing column: " + col.toString() 
+								+ " in table: " + MTable.get(Env.getCtx(), col.getAD_Table_ID()));
 						col.syncDatabase(oldColumnName);
 					}
 				}
@@ -763,8 +780,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 					}
 				}
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			bailout("Rollback failed. " + e.toString(), e);
 		}
 		setStatusCode(MMigrationStep.STATUSCODE_Unapplied);
@@ -900,9 +916,23 @@ public class MMigrationStep extends X_AD_MigrationStep {
 	public MMigration getParent() {
 		
 		if (parent == null)
-			parent =  (MMigration) getAD_Migration();
-		
+			parent = (MMigration) getAD_Migration();
+		//	
 		return parent;
+	}
+	
+	/**
+	 * Set Current Parent
+	 * @param parent
+	 */
+	public void setParent(MMigration parent) {
+		//	Validate Parent
+		if(parent == null
+				|| parent.getAD_Migration_ID() != getAD_Migration_ID())
+			return;
+		//	Set Parent
+		this.parent = parent;
+		isAllMigration = true;
 	}
 	
 	/**

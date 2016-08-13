@@ -343,7 +343,6 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 		//	
 		return validError;
 	}
-
 	@Override
 	public String getDisplay(int index) {
 		VEditor editor = m_vEditors.get(index);
@@ -401,6 +400,7 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 		if (evt.getSource() instanceof GridField) {
 			changedField = ((GridField) evt.getSource());
 		}
+				//	String
 		else
 			return;
 		

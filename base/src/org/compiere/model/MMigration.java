@@ -18,6 +18,7 @@ package org.compiere.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -35,12 +36,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * @author Paul
+ * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<li> BR [ 425 ] Table ad_reportview_trl with wrong primary key
+ *		@see https://github.com/adempiere/adempiere/issues/425
+ */
 public class MMigration extends X_AD_Migration {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5145941967716336078L;
+	
+	/**	Column List to synchronizing		*/
+	private ArrayList<Integer> columnList = new ArrayList<Integer>();
 
 	/**	Logger	*/
 	private CLogger	log	= CLogger.getCLogger (MMigration.class);
@@ -127,7 +137,7 @@ public class MMigration extends X_AD_Migration {
 			for ( int stepId : getStepIds(false, !apply) )
 			{
 				MMigrationStep step = new MMigrationStep(getCtx(), stepId, get_TrxName());
-				
+				step.setParent(this);
 				// The migration will only be applied if all steps are unapplied.  Any partially
 				// applied migration will need to be rolled back first.
 				
@@ -211,7 +221,7 @@ public class MMigration extends X_AD_Migration {
 	 */
 	public void updateStatus() {
 		// Don't update in the middle of a batch
-		if (isBatchInProgress )
+		if (isBatchInProgress)
 			return;
 
 		StringBuilder whereBase = new StringBuilder();
@@ -434,5 +444,31 @@ public class MMigration extends X_AD_Migration {
 			}
 			this.saveEx();
 		}
+	}
+	
+	/**
+	 * Add column to array for next sync
+	 * @param p_AD_Column_ID
+	 */
+	public void addColumnToList(int p_AD_Column_ID) {
+		columnList.add(p_AD_Column_ID);
+	}
+	
+	/**
+	 * Synchronize the AD_Column changes with the database.
+	 */
+	public void syncColumn() {
+		//	Validate size
+		if(columnList.size() == 0)
+			return;
+		//	Iterate
+		for(int columnId : columnList) {
+			MColumn column = new MColumn(getCtx(), columnId, get_TrxName());
+			log.log(Level.CONFIG, "Synchronizing column: " + column.toString() 
+					+ " in table: " + MTable.get(Env.getCtx(), column.getAD_Table_ID()));
+			column.syncDatabase();
+		}
+		//	flush column list
+		columnList = new ArrayList<Integer>();
 	}
 }

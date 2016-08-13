@@ -28,6 +28,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MBrowse;
+import org.adempiere.model.MViewDefinition;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.apps.BusyDialog;
 import org.adempiere.webui.apps.ProcessParameterPanel;
@@ -42,10 +43,6 @@ import org.adempiere.webui.component.Tabs;
 import org.adempiere.webui.component.ToolBar;
 import org.adempiere.webui.component.WAppsAction;
 import org.adempiere.webui.editor.WEditor;
-import org.adempiere.webui.event.ValueChangeEvent;
-import org.adempiere.webui.event.ValueChangeListener;
-import org.adempiere.webui.event.WTableModelEvent;
-import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.IFormController;
 import org.adempiere.webui.panel.StatusBarPanel;
@@ -62,7 +59,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.grid.Browser;
 import org.eevolution.grid.BrowserSearch;
-import org.eevolution.grid.WBrowserListbox;
+import org.eevolution.grid.WBrowserTable;
 import org.zkoss.util.media.AMedia;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -102,7 +99,7 @@ import org.zkoss.zul.Vbox;
  *		@see https://github.com/adempiere/adempiere/issues/394
  */
 public class WBrowser extends Browser implements IFormController,
-		EventListener, WTableModelListener, ValueChangeListener, ASyncProcess {
+		EventListener, ASyncProcess {
 
 	private CustomForm m_frame = new CustomForm();
 	private ProcessParameterPanel parameterPanel;
@@ -116,7 +113,7 @@ public class WBrowser extends Browser implements IFormController,
 	private Button bZoom;
 	private Button bSelectAll;
 
-	private WBrowserListbox detail;
+	private WBrowserTable detail;
 	private WBrowserSearch searchGrid;
 	private Borderlayout searchTab;
 	private North collapsibleSeach;
@@ -131,9 +128,10 @@ public class WBrowser extends Browser implements IFormController,
 	 * @param windowNo
 	 * @param browserId
 	 * @param whereClause
+	 * @param isSOTrx
 	 * @return
 	 */
-	public static CustomForm openBrowse(int windowNo , int browserId , String whereClause) {
+	public static CustomForm openBrowse(int windowNo , int browserId , String whereClause, Boolean isSOTrx) {
 		MBrowse browse = new MBrowse(Env.getCtx(), browserId , null);
 		boolean modal = false;
 		if (windowNo > 0)
@@ -141,7 +139,7 @@ public class WBrowser extends Browser implements IFormController,
 		String value = "";
 		String keyColumn = "";
 		boolean multiSelection = true;
-		return new WBrowser(modal, windowNo, value, browse, keyColumn, multiSelection, whereClause).getForm();
+		return new WBrowser(modal, windowNo, value, browse, keyColumn, multiSelection, whereClause,isSOTrx).getForm();
 	}
 	
 	/**
@@ -153,9 +151,10 @@ public class WBrowser extends Browser implements IFormController,
 	 * @param keyColumn
 	 * @param multiSelection
 	 * @param whereClause
+	 * @param isSOTrx
 	 */
 	public WBrowser(boolean modal, int WindowNo, String value, MBrowse browse,
-			String keyColumn, boolean multiSelection, String whereClause) {
+			String keyColumn, boolean multiSelection, String whereClause, Boolean isSOTrx) {
 		
 		super(modal, WindowNo, value, browse, keyColumn, multiSelection,
 				whereClause);
@@ -171,6 +170,7 @@ public class WBrowser extends Browser implements IFormController,
 			}
 		};
 		windowNo = SessionManager.getAppDesktop().registerWindow(this);
+		Env.setContext(Env.getCtx(), windowNo, "IsSOTrx", isSOTrx ? "Y" : "N");
 		copyWinContext();
 		setContextWhere(whereClause);
 		//	Init Smart Browse
@@ -395,7 +395,8 @@ public class WBrowser extends Browser implements IFormController,
 		collapsibleSeach = new North();
 		topPanel = new Hbox();
 		searchGrid = new WBrowserSearch(getWindowNo(), getAD_Browse_ID(), BrowserSearch.COLUMNS_2);
-		detail = new WBrowserListbox(this);
+		detail = new WBrowserTable(this);
+		detail.addEventListener(Events.ON_SELECT, this);
 		bCancel = new Button();
 		bOk = new Button();
 		detailPanel= new Borderlayout();
@@ -641,8 +642,11 @@ public class WBrowser extends Browser implements IFormController,
 				if(parameterPanel.saveParameters() == null) {
 					//	Get Process Info
 					ProcessInfo pi = parameterPanel.getProcessInfo();
-					if (getFieldKey() != null && getFieldKey().get_ID() > 0)
-						pi.setTable_ID(getFieldKey().getAD_View_Column().getAD_View_Definition().getAD_Table_ID());
+					if (getFieldKey() != null && getFieldKey().get_ID() > 0) {
+						MViewDefinition viewDefinition = (MViewDefinition) getFieldKey().getAD_View_Column().getAD_View_Definition();
+						pi.setAliasForTableSelection(viewDefinition.getTableAlias());
+						pi.setTableSelectionId(viewDefinition.getAD_Table_ID());
+					}
 					//	Set Selected Values
 					pi.setSelectionValues(getSelectedValues());
 					//	
@@ -781,22 +785,23 @@ public class WBrowser extends Browser implements IFormController,
 
 	@Override
 	public void onEvent(Event event) throws Exception {
-
+		if (event == null)
+			return;
+		//	For Click
+		if (event.getTarget() == detail && Events.ON_SELECT.equals(event.getName())) {
+			//	For row
+			//click on selected row to enter edit mode
+			int index = detail.getSelectedRow();
+			if (index >= 0 ) {
+				detail.getData().setCurrentRow(index);
+			}
+			//	
+        }
 	}
 
 	@Override
 	public CustomForm getForm() {
 		return m_frame;
-	}
-
-	@Override
-	public void valueChange(ValueChangeEvent evt) {
-
-	}
-
-	@Override
-	public void tableChanged(WTableModelEvent event) {
-
 	}
 
 	@Override

@@ -25,9 +25,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,15 +34,12 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.MBrowse;
+import org.adempiere.model.MViewDefinition;
 import org.compiere.Adempiere;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.AEnv;
@@ -75,7 +69,7 @@ import org.compiere.util.Msg;
 import org.compiere.util.Splash;
 import org.eevolution.grid.Browser;
 import org.eevolution.grid.BrowserSearch;
-import org.eevolution.grid.BrowserTable;
+import org.eevolution.grid.VBrowserTable;
 
 /**
  * UI Browser
@@ -103,17 +97,18 @@ import org.eevolution.grid.BrowserTable;
  *		@see https://github.com/adempiere/adempiere/issues/352
  *		<li>BR [ 394 ] Smart browse does not reset context when windows is closed
  *		@see https://github.com/adempiere/adempiere/issues/394
+ *		<li>BR [ 460 ] Update context when you select a row in a SmartBrowser
+ *		@see https://github.com/adempiere/adempiere/issues/460
  */
-public class VBrowser extends Browser implements ActionListener,
-		VetoableChangeListener, ChangeListener, ListSelectionListener,
-		TableModelListener, ASyncProcess {
+public class VBrowser extends Browser implements ActionListener, ListSelectionListener, ASyncProcess {
 	/**
 	 * get Browse
 	 * @param windowNo
 	 * @param browserId
 	 * @param whereClause
+	 * @param isSOTrx
 	 */
-	public static CFrame openBrowse(int windowNo , int browserId, String whereClause) {
+	public static CFrame openBrowse(int windowNo , int browserId, String whereClause, Boolean isSOTrx) {
 		MBrowse browse = new MBrowse(Env.getCtx(), browserId , null);
 		boolean modal = false;
 		if (windowNo > 0 )
@@ -122,39 +117,33 @@ public class VBrowser extends Browser implements ActionListener,
 		String keyColumn = "";
 		boolean multiSelection = true;
 		FormFrame ff = new FormFrame(windowNo);
-		return new VBrowser(ff, modal , windowNo, value, browse, keyColumn,multiSelection, whereClause)
+		return new VBrowser(ff, modal , windowNo, value, browse, keyColumn,multiSelection, whereClause, isSOTrx)
 		.getFrame();
 	}
 
 	/**
 	 * Detail Protected Constructor.
 	 * 
-	 * @param frame
-	 *            parent
-	 * @param modal
-	 *            modal
-	 * @param WindowNo
-	 *            window no
-	 * @param value
-	 *            QueryValue
-	 * @param browse
-	 *            table name
-	 * @param keyColumn
-	 *            key column (ignored)
-	 * @param multiSelection
-	 *            multiple selections
-	 * @param whereClause
-	 *            where clause
+	 * @param frame parent
+	 * @param modal modal
+	 * @param WindowNo window no
+	 * @param value QueryValue
+	 * @param browse table name
+	 * @param keyColumn key column (ignored)
+	 * @param multiSelection multiple selections
+	 * @param whereClause where clause
+	 * @param isSOTrx
 	 */
 	public VBrowser(FormFrame frame, boolean modal, int WindowNo, String value,
 			MBrowse browse, String keyColumn, boolean multiSelection,
-			String whereClause) {
+			String whereClause, Boolean isSOTrx) {
 		super(modal, WindowNo, value, browse, keyColumn, multiSelection,
 				whereClause);
 		m_frame = frame;
 		m_frame.setTitle(browse.getTitle());
 		m_frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 		windowNo = Env.createWindowNo(m_frame.getContainer());
+		Env.setContext(Env.getCtx(), windowNo, "IsSOTrx", isSOTrx ? "Y" : "N");
 		setProcessInfo(frame.getProcessInfo());
 		copyWinContext();
 		setContextWhere(whereClause);
@@ -189,7 +178,7 @@ public class VBrowser extends Browser implements ActionListener,
 	private javax.swing.JToolBar toolsBar;
 	private CPanel topPanel;
 	/**	Table						*/
-	private BrowserTable detail;
+	private VBrowserTable detail;
 	private CollapsiblePanel collapsibleSearch;
 	private VBrowserSearch  searchPanel;
 	/**	Form Frame				*/
@@ -385,8 +374,9 @@ public class VBrowser extends Browser implements ActionListener,
 		//	
 		buttonSearchPanel = new CPanel();
 		centerPanel = new javax.swing.JScrollPane();
-		detail = new BrowserTable(this);
+		detail = new VBrowserTable(this);
 		detail.setRowSelectionAllowed(true);
+		detail.getSelectionModel().addListSelectionListener(this);
 		footPanel = new CPanel();
 		footButtonPanel = new CPanel(new FlowLayout(FlowLayout.CENTER));
 		processPanel = new CPanel();
@@ -500,8 +490,11 @@ public class VBrowser extends Browser implements ActionListener,
 					//	Get Process Info
 					ProcessInfo pi = processParameterPanel.getProcessInfo();
 					//	Set Selected Values
-					if (getFieldKey() != null && getFieldKey().get_ID() > 0)
-						pi.setTable_ID(getFieldKey().getAD_View_Column().getAD_View_Definition().getAD_Table_ID());
+					if (getFieldKey() != null && getFieldKey().get_ID() > 0) {
+						MViewDefinition viewDefinition = (MViewDefinition) getFieldKey().getAD_View_Column().getAD_View_Definition();
+						pi.setAliasForTableSelection(viewDefinition.getTableAlias());
+						pi.setTableSelectionId(viewDefinition.getAD_Table_ID());
+					}
 					pi.setSelectionValues(getSelectedValues());
 					//	
 					setBrowseProcessInfo(pi);
@@ -622,7 +615,6 @@ public class VBrowser extends Browser implements ActionListener,
 						+ "ms");
 				//	Load Table
 				row = detail.loadTable(m_rs);
-				
 			} catch (SQLException e) {
 				log.log(Level.SEVERE, dataSql, e);
 			}
@@ -688,7 +680,7 @@ public class VBrowser extends Browser implements ActionListener,
 		boolean multiSelection = true;
 		String whereClause = "";
 		VBrowser browser = new VBrowser(frame, modal, WindowNo, value, browse,
-				keyColumn, multiSelection, whereClause);
+				keyColumn, multiSelection, whereClause, true);
 		// browser.setPreferredSize(getPreferredSize ());
 		browser.getFrame().setVisible(true);
 		browser.getFrame().pack();
@@ -734,36 +726,46 @@ public class VBrowser extends Browser implements ActionListener,
 			cmd_zoom();
 		}		
 	}
-
-	public void vetoableChange(PropertyChangeEvent evt)
-			throws PropertyVetoException {
-		
-	}
-
-	public void stateChanged(ChangeEvent e) {
-		
-	}
-
+	
+	@Override
 	public void valueChanged(ListSelectionEvent e) {
+		//  no rows
+		if (detail.getRowCount() == 0)
+			return;
 		
+		int rowTable = detail.getSelectedRow();
+		int rowCurrent = detail.getData().getCurrentRow();
+		log.config("(" + detail.toString() + ") Row in Table=" + rowTable + ", in Model=" + rowCurrent);
+		//  nothing selected
+		if (rowTable == -1) {
+			if (rowCurrent >= 0) {
+				detail.setRowSelectionInterval(rowCurrent, rowCurrent); //  causes this method to be called again
+				return;
+			}
+		} else {
+			if (rowTable != rowCurrent) {
+				//make sure table selection is consistent with model
+				detail.getData().setCurrentRow(rowTable);
+			}
+		}
 	}
-
-	public void tableChanged(TableModelEvent e) {
-		
-	}
-
+	
+	@Override
 	public void executeASync(ProcessInfo pi) {
 		
 	}
-
+	
+	@Override
 	public boolean isUILocked() {
 		return false;
 	}
 
+	@Override
 	public void lockUI(ProcessInfo pi) {
 		
 	}
 
+	@Override
 	public void unlockUI(ProcessInfo pi) {
 		
 	}

@@ -1127,9 +1127,7 @@ public final class APanel extends CPanel
 	 */
 	private boolean isFirstTab()
 	{
-		if (m_curWinTab != null)
-			return m_curWinTab.getSelectedIndex() == 0;
-		return false;
+		return m_curWinTab.getSelectedIndex() == 0;
 	}   //  isFirstTab
 
 	/**
@@ -2688,7 +2686,7 @@ public final class APanel extends CPanel
 			FormFrame ff = new FormFrame(getWindowNo());
 			ff.setProcessInfo(pi);
 			MBrowse browse = new MBrowse(Env.getCtx(), browse_ID , null);
-			new VBrowser(ff, true , getWindowNo(), "" , browse , "" , true, "");
+			new VBrowser(ff, true , getWindowNo(), "" , browse , "" , true, "", Env.isSOTrx(Env.getCtx(), m_curWindowNo));
 			ff.pack();
 			AEnv.showCenterScreen(ff);
 			//	Yamel Senih

@@ -697,7 +697,7 @@ public class WFActivity extends CPanel
 		}
 		else if (MWFNode.ACTION_SmartBrowse.equals(node.getAction()))
 		{
-			CFrame ff =  VBrowser.openBrowse(0 , node.getAD_Browse_ID() , "");
+			CFrame ff =  VBrowser.openBrowse(0 , node.getAD_Browse_ID() , "" ,  m_activity.isSOTrx());
 			ff.pack();
 			AEnv.addToWindowManager(ff);
 			AEnv.showCenterScreen(ff);
@@ -775,6 +775,8 @@ public class WFActivity extends CPanel
 			try
 			{
 				m_activity.setUserChoice(AD_User_ID, value, dt, textMsg);
+				ADialog.info(m_WindowNo, this, "WorkflowResult" ,
+						Msg.parseTranslation(Env.getCtx(), "@AD_WF_Node_ID@") + " : "  + m_activity.getNodeName() + " -> " +  m_activity.getTextMsg());
 			}
 			catch (Exception e)
 			{
@@ -793,6 +795,8 @@ public class WFActivity extends CPanel
 			{
 				// ensure activity is ran within a transaction
 				m_activity.setUserConfirmation(AD_User_ID, textMsg);
+				ADialog.info(m_WindowNo, this, "WorkflowResult" ,
+						Msg.parseTranslation(Env.getCtx(), "@AD_WF_Node_ID@") + " : "  + m_activity.getNodeName() + " -> " +  m_activity.getTextMsg());
 			}
 			catch (Exception e)
 			{

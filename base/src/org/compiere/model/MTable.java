@@ -76,7 +76,6 @@ import bsh.This;
  *	@author Trifon Trifon
  *			<li> FR [ 356 ] Decrease verbosity of SQL statement closing lines.
  *			@see https://github.com/adempiere/adempiere/issues/356
- *  @version $Id: MTable.java,v 1.3 2006/07/30 00:58:04 jjanke Exp $
  */
 public class MTable extends X_AD_Table
 {
@@ -1355,6 +1354,10 @@ public class MTable extends X_AD_Table
 	 * @return
 	 */
 	private int getworkFlowProcess() {
+
+		if (isDirectLoad())
+			return;
+		
 		//	Search or create Work Flow
 		MWorkflow workFlow = MWorkflow
 				.getWorkFlowFromDocumentTable(getCtx(), getAD_Table_ID(), get_TrxName());
