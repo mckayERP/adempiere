@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="base/src"/>
-	<classpathentry kind="src" path="mobile/WEB-INF/src"/>
 	<classpathentry kind="src" path="glassfishfacet/src"/>
 	<classpathentry kind="src" path="jbossfacet/src"/>
 	<classpathentry kind="src" path="client/src"/>
@@ -33,6 +32,10 @@
 	<classpathentry kind="src" path="org.adempiere.test/src/test/scala"/>
 	<classpathentry kind="src" path="org.adempiere.test/src/main/scala"/>
 	<classpathentry kind="src" path="org.adempiere.test/src/test/sahi"/>
+	<classpathentry kind="src" path="org.adempiere.pos/src/main/java/base"/>
+	<classpathentry kind="src" path="org.adempiere.pos/src/main/java/ui/swing"/>
+	<classpathentry kind="src" path="org.adempiere.pos/src/main/java/ui/zk"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="tools/lib/jstl.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
@@ -342,10 +345,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SBT: javax.servlet:javax.servlet-api:3.0.1:jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SBT: org.scalatest:scalatest_2.11:2.2.4:jar"/>
 	<classpathentry kind="lib" path="tools/lib/mariadb-java-client.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_60">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
