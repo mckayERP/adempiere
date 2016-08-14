@@ -590,7 +590,7 @@ public class BrowserTable extends CTable implements IBrowserTable {
      * @return BrowserRows
      * @author <a href="mailto:carlosaparadam@gmail.com">Carlos Parada</a> 15/10/2013, 10:01:47
      */
-    public IBrowserRow getData() {
+    public BrowserRow getData() {
         return browserRows;
     }
 

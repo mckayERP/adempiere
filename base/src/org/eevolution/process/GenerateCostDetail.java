@@ -27,7 +27,6 @@ import java.util.List;
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.CostingMethodFactory;
 import org.adempiere.engine.StandardCostingMethod;
-import org.adempiere.exceptions.FillMandatoryException;
 import org.compiere.model.I_M_Cost;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MCostDetail;
@@ -40,8 +39,6 @@ import org.compiere.model.MMatchPO;
 import org.compiere.model.MTransaction;
 import org.compiere.model.Query;
 import org.compiere.model.X_M_CostType;
-import org.compiere.process.ProcessInfoParameter;
-import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Trx;
@@ -147,11 +144,11 @@ public class GenerateCostDetail extends GenerateCostDetailAbstract {
         if (getAccountingSchemaId() > 0)
             acctSchemas.add(MAcctSchema.get(getCtx(), getAccountingSchemaId() , get_TrxName()));
         else
-            acctSchemas = new ArrayList(Arrays.asList(MAcctSchema
+            acctSchemas = new ArrayList<MAcctSchema>(Arrays.asList(MAcctSchema
                     .getClientAcctSchema(getCtx(), getAD_Client_ID(),
                             get_TrxName())));
 
-        if (getCostTypeId() > 0)
+        if (getCostTypeId() > 0) {
             costTypes.add(new MCostType(getCtx(), getCostTypeId(),
                     get_TrxName()));
             costTypesDelete = costTypes;
@@ -165,8 +162,8 @@ public class GenerateCostDetail extends GenerateCostDetailAbstract {
             		.setOrderBy(MCostType.COLUMNNAME_M_CostType_ID)
             		.list();
         }
-        if (costElementId > 0) {
-            costElements.add(MCostElement.get(getCtx(), costElementId));
+        if (getCostElementId() > 0) {
+            costElements.add(MCostElement.get(getCtx(), getCostElementId()));
             costElementsDelete = costElements;
         }
         else {
@@ -302,7 +299,7 @@ public class GenerateCostDetail extends GenerateCostDetailAbstract {
 
                         	applyCriteria(accountSchema.getC_AcctSchema_ID(),
                                     costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
-                                    transactionId, productId, dateAccount, dateAccountTo);
+                                    transactionId, productId, getAccountDate(), getAccountDateTo());
                             
                             // The following only have to be done once per product, Schema, cost type and cost element
                             if (processNewProduct) {
@@ -443,10 +440,10 @@ public class GenerateCostDetail extends GenerateCostDetailAbstract {
                         			"    costElement: " + costElement.toString() + "\n" + 
                         			"    Product ID=" + productId + "\n" +
                         			"    Material Transaction ID =" + transactionId + "\n" +
-                        			"    DateAcct from " + dateAccount + " to " + dateAccountTo);
+                        			"    DateAcct from " + getAccountDate() + " to " + getAccountDateTo());
                         	applyCriteria(accountSchema.getC_AcctSchema_ID(),
                                     costType.getM_CostType_ID(), costElement.getM_CostElement_ID(),
-                                    transactionId, productId, dateAccount, dateAccountTo);
+                                    transactionId, productId, getAccountDate(), getAccountDateTo());
                             deleteCostDetail(dbTransaction.getTrxName());
                         } // Cost elements
                     } // Cost types

@@ -741,4 +741,3 @@ public abstract class ProcessParameter {
 	}
 		
 }	//	ProcessParameterPanel
-}	//	ProcessParameterPanel

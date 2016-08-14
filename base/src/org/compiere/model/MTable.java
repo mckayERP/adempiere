@@ -1356,7 +1356,7 @@ public class MTable extends X_AD_Table
 	private int getworkFlowProcess() {
 
 		if (isDirectLoad())
-			return;
+			return 0;
 		
 		//	Search or create Work Flow
 		MWorkflow workFlow = MWorkflow

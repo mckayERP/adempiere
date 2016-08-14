@@ -936,12 +936,6 @@ public class MMigrationStep extends X_AD_MigrationStep {
 	}
 	
 	/**
-	 * Set parent migration
-	 */
-	public void setParent(MMigration parent) {
-		this.parent = parent;
-	}
-	/**
 	 * 	Before Delete
 	 *	@return true of it can be deleted
 	 */
