@@ -489,6 +489,12 @@
       <invoker-mbean>default</invoker-mbean>
       <proxy-factory>org.jboss.ejb.plugins.inflow.JBossJMSMessageEndpointFactory</proxy-factory>
       <proxy-factory-config>
+        <endpoint-interceptors>
+          <interceptor>org.jboss.proxy.ClientMethodInterceptor</interceptor>
+          <interceptor>org.jboss.ejb.plugins.inflow.MessageEndpointInterceptor</interceptor>
+          <interceptor>org.jboss.proxy.TransactionInterceptor</interceptor>
+          <interceptor>org.jboss.invocation.InvokerInterceptor</interceptor>
+        </endpoint-interceptors>
         <activation-config>
            <activation-config-property>
               <activation-config-property-name>providerAdapterJNDI</activation-config-property-name>
@@ -531,12 +537,6 @@
               <activation-config-property-value>10</activation-config-property-value>
            </activation-config-property>
         </activation-config>
-        <endpoint-interceptors>
-          <interceptor>org.jboss.proxy.ClientMethodInterceptor</interceptor>
-          <interceptor>org.jboss.ejb.plugins.inflow.MessageEndpointInterceptor</interceptor>
-          <interceptor>org.jboss.proxy.TransactionInterceptor</interceptor>
-          <interceptor>org.jboss.invocation.InvokerInterceptor</interceptor>
-        </endpoint-interceptors>
       </proxy-factory-config>
     </invoker-proxy-binding>
   </invoker-proxy-bindings>
