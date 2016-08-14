@@ -5,23 +5,23 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
     version="2.0">
     
+    <description>$Id: webStore.tld,v 1.1 2006/04/21 18:07:57 jjanke Exp $</description>
 	<display-name>Adempiere WebStore</display-name>
-	<description>$Id: webStore.tld,v 1.1 2006/04/21 18:07:57 jjanke Exp $</description>
 	<tlib-version>1.1</tlib-version>
 	<short-name>cws</short-name>
 	<uri>webStore.tld</uri>
 	
 	<tag>
+        <description>Request Type Selection</description>
 		<name>requestType</name>
 		<tag-class>org.compiere.wstore.RequestTypeTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Request Type Selection</description>
 	</tag>
 	<tag>
+        <description>Request Order Reference</description>
 		<name>requestOrder</name>
 		<tag-class>org.compiere.wstore.RequestOrderRefTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Request Order Reference</description>
 		<attribute>
 			<name>bpartnerID</name>
 			<required>true</required>
@@ -29,16 +29,16 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Login Links</description>
 		<name>loginLink</name>
 		<tag-class>org.compiere.wstore.LoginLinkTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Login Links</description>
 	</tag>
 	<tag>
+        <description>CheckOut Links</description>
 		<name>checkOutLink</name>
 		<tag-class>org.compiere.wstore.CheckOutLinkTag</tag-class>
 		<body-content>empty</body-content>
-		<description>CheckOut Links</description>
 		<attribute>
 			<name>oneLine</name>
 			<required>false</required>
@@ -46,10 +46,10 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Info Links</description>
 		<name>infoLink</name>
 		<tag-class>org.compiere.wstore.InfoLinkTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Info Links</description>
 		<attribute>
 			<name>oneLine</name>
 			<required>false</required>
@@ -57,10 +57,10 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Initializes + loads Price List</description>
 		<name>priceList</name>
 		<tag-class>org.compiere.wstore.PriceListTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Initializes + loads Price List</description>
 		<attribute>
 			<name>priceList_ID</name>
 			<required>false</required>
@@ -68,16 +68,16 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Login Links</description>
 		<name>productCategoryList</name>
 		<tag-class>org.compiere.wstore.ProductCategoryListTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Login Links</description>
 	</tag>
 	<tag>
+        <description>Workflow Choices</description>
 		<name>workflow</name>
 		<tag-class>org.compiere.wstore.WorkflowTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Workflow Choices</description>
 		<attribute>
 			<name>activityID</name>
 			<required>true</required>
@@ -85,10 +85,10 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Location table rows</description>
 		<name>location</name>
 		<tag-class>org.compiere.wstore.LocationTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Location table rows</description>
 		<attribute>
 			<name>countryID</name>
 			<required>true</required>
@@ -116,10 +116,10 @@
 		</attribute>
 	</tag>
 	<tag>
+        <description>Translate Messages</description>
 		<name>message</name>
 		<tag-class>org.compiere.wstore.MessageTag</tag-class>
 		<body-content>empty</body-content>
-		<description>Translate Messages</description>
 		<attribute>
 			<name>txt</name>
 			<required>true</required>

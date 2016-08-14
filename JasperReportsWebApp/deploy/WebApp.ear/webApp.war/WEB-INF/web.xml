@@ -89,9 +89,10 @@
    <!ELEMENT form-error-page (#PCDATA)>
    -->
 
-   <ejb-ref >
+   <ejb-ref>
       <ejb-ref-name>ejb/compiere/MD5</ejb-ref-name>
       <ejb-ref-type>Session</ejb-ref-type>
+      <home/>
       <remote>org.compiere.interfaces.MD5</remote>
    </ejb-ref>
 
