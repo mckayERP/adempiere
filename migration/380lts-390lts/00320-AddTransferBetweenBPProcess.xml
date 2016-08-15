@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Create process to transfer funds between BPartners" ReleaseNo="3.9.0" SeqNo="320">
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="284" Action="I" Record_ID="53886" Table="AD_Process">
+        <Data AD_Column_ID="5790" Column="AccessLevel">3</Data>
+        <Data AD_Column_ID="50181" Column="ShowHelp">Y</Data>
+        <Data AD_Column_ID="78843" Column="GenerateClass">N</Data>
+        <Data AD_Column_ID="12458" Column="IsBetaFunctionality">false</Data>
+        <Data AD_Column_ID="14084" Column="IsServerProcess">false</Data>
+        <Data AD_Column_ID="57920" Column="CopyFromProcess">N</Data>
+        <Data AD_Column_ID="2804" Column="IsActive">true</Data>
+        <Data AD_Column_ID="11563" Column="WorkflowValue" isNewNull="true"/>
+        <Data AD_Column_ID="4023" Column="Value">TransferFundsBetweenBPartners</Data>
+        <Data AD_Column_ID="2803" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2802" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="11834" Column="AD_Workflow_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2811" Column="Help">This process provides a quick means of transferring funds from one Business Partner Account to another using an invoice and credit memo.  Both Business Partners have to be customers and the source or From account has to have a credit balance.  After the transfer is made, the invoice and credit memo can be allocated using the Payment Allocation window.</Data>
+        <Data AD_Column_ID="2801" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2806" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2807" Column="Updated">2016-08-14 15:25:52.126</Data>
+        <Data AD_Column_ID="2808" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2805" Column="Created">2016-08-14 15:25:52.126</Data>
+        <Data AD_Column_ID="4214" Column="IsDirectPrint">false</Data>
+        <Data AD_Column_ID="3371" Column="IsReport">false</Data>
+        <Data AD_Column_ID="4374" Column="AD_ReportView_ID" isNewNull="true"/>
+        <Data AD_Column_ID="6485" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6653" Column="Statistic_Seconds">0</Data>
+        <Data AD_Column_ID="6652" Column="Statistic_Count">0</Data>
+        <Data AD_Column_ID="4656" Column="Classname">com.mckayerp.ftu.process.TransferFundsBetweenBPartners</Data>
+        <Data AD_Column_ID="50182" Column="JasperReport" isNewNull="true"/>
+        <Data AD_Column_ID="56515" Column="AD_Form_ID" isNewNull="true"/>
+        <Data AD_Column_ID="7752" Column="AD_PrintFormat_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2813" Column="ProcedureName" isNewNull="true"/>
+        <Data AD_Column_ID="2810" Column="Description">Transfer funds between Business Partners in one operation by creating an invoice and credit memo.</Data>
+        <Data AD_Column_ID="2809" Column="Name">Transfer Funds Between Business Partners</Data>
+        <Data AD_Column_ID="63488" Column="AD_Browse_ID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="287" Action="I" Record_ID="0" Table="AD_Process_Trl">
+        <Data AD_Column_ID="2847" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2849" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2844" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2854" Column="Help">This process provides a quick means of transferring funds from one Business Partner Account to another using an invoice and credit memo.  Both Business Partners have to be customers and the source or From account has to have a credit balance.  After the transfer is made, the invoice and credit memo can be allocated using the Payment Allocation window.</Data>
+        <Data AD_Column_ID="2846" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2850" Column="Updated">2016-08-14 15:25:54.388</Data>
+        <Data AD_Column_ID="2848" Column="Created">2016-08-14 15:25:54.388</Data>
+        <Data AD_Column_ID="2851" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2843" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2855" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2845" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2852" Column="Name">Transfer Funds Between Business Partners</Data>
+        <Data AD_Column_ID="2853" Column="Description">Transfer funds between Business Partners in one operation by creating an invoice and credit memo.</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="285" Action="I" Record_ID="55584" Table="AD_Process_Para">
+        <Data AD_Column_ID="2824" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
+        <Data AD_Column_ID="2817" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2830" Column="IsRange">false</Data>
+        <Data AD_Column_ID="2814" Column="AD_Process_Para_ID">55584</Data>
+        <Data AD_Column_ID="2815" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="3737" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="2821" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2825" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2820" Column="Updated">2016-08-14 15:27:22.176</Data>
+        <Data AD_Column_ID="2819" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3742" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="5819" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="5593" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="3740" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="2827" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="3741" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="3736" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2826" Column="SeqNo">10</Data>
+        <Data AD_Column_ID="3738" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="2818" Column="Created">2016-08-14 15:27:22.176</Data>
+        <Data AD_Column_ID="2828" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="3739" Column="DefaultValue">@#AD_Org_ID@</Data>
+        <Data AD_Column_ID="2816" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="7728" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="56299" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56300" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="2822" Column="Name">Organization</Data>
+        <Data AD_Column_ID="4017" Column="ColumnName">AD_Org_ID</Data>
+        <Data AD_Column_ID="2823" Column="Description">Organizational entity within client</Data>
+        <Data AD_Column_ID="7729" Column="AD_Element_ID">113</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="286" Action="I" Record_ID="55584" Table="AD_Process_Para_Trl">
+        <Data AD_Column_ID="2835" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2831" Column="AD_Process_Para_ID">55584</Data>
+        <Data AD_Column_ID="2842" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2834" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2833" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2832" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2838" Column="Updated">2016-08-14 15:27:23.367</Data>
+        <Data AD_Column_ID="2836" Column="Created">2016-08-14 15:27:23.367</Data>
+        <Data AD_Column_ID="2837" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3743" Column="Help">An organization is a unit of your client or legal entity - examples are store, department. You can share data between organizations.</Data>
+        <Data AD_Column_ID="2839" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2840" Column="Name">Organization</Data>
+        <Data AD_Column_ID="2841" Column="Description">Organizational entity within client</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="285" Action="I" Record_ID="55585" Table="AD_Process_Para">
+        <Data AD_Column_ID="2824" Column="Help">The Charge indicates a type of Charge (Handling, Shipping, Restocking)</Data>
+        <Data AD_Column_ID="2817" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2830" Column="IsRange">false</Data>
+        <Data AD_Column_ID="2814" Column="AD_Process_Para_ID">55585</Data>
+        <Data AD_Column_ID="2815" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="3737" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="2821" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2825" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2820" Column="Updated">2016-08-14 15:28:13.177</Data>
+        <Data AD_Column_ID="2819" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3742" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="5819" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="5593" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="3740" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="2827" Column="AD_Reference_ID">18</Data>
+        <Data AD_Column_ID="3741" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="3736" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2826" Column="SeqNo">20</Data>
+        <Data AD_Column_ID="2818" Column="Created">2016-08-14 15:28:13.177</Data>
+        <Data AD_Column_ID="2828" Column="AD_Reference_Value_ID">200</Data>
+        <Data AD_Column_ID="3739" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="2816" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="7728" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="56299" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56300" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="2822" Column="Name">Charge</Data>
+        <Data AD_Column_ID="4017" Column="ColumnName">C_Charge_ID</Data>
+        <Data AD_Column_ID="2823" Column="Description">Additional document charges</Data>
+        <Data AD_Column_ID="7729" Column="AD_Element_ID">968</Data>
+        <Data AD_Column_ID="3738" Column="IsMandatory">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="286" Action="I" Record_ID="55585" Table="AD_Process_Para_Trl">
+        <Data AD_Column_ID="2835" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2831" Column="AD_Process_Para_ID">55585</Data>
+        <Data AD_Column_ID="2842" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2834" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2833" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2832" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2838" Column="Updated">2016-08-14 15:28:14.098</Data>
+        <Data AD_Column_ID="2836" Column="Created">2016-08-14 15:28:14.098</Data>
+        <Data AD_Column_ID="2837" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3743" Column="Help">The Charge indicates a type of Charge (Handling, Shipping, Restocking)</Data>
+        <Data AD_Column_ID="2839" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2840" Column="Name">Charge</Data>
+        <Data AD_Column_ID="2841" Column="Description">Additional document charges</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="53849" Table="AD_Reference">
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">53849</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="556" Column="Updated">2016-08-14 15:34:00.07</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="554" Column="Created">2016-08-14 15:34:00.07</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="131" Column="Description">Customers with a cash balance on their account.</Data>
+        <Data AD_Column_ID="130" Column="Name">TransferFrom_BP</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">53849</Data>
+        <Data AD_Column_ID="667" Column="Created">2016-08-14 15:34:01.051</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="669" Column="Updated">2016-08-14 15:34:01.051</Data>
+        <Data AD_Column_ID="280" Column="Name">TransferFrom_BP</Data>
+        <Data AD_Column_ID="281" Column="Description">Customers with a cash balance on their account.</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="100" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="53849" Table="AD_Ref_Table">
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="561" Column="Updated">2016-08-14 15:43:08.786</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause">C_BPartner.Name</Data>
+        <Data AD_Column_ID="559" Column="Created">2016-08-14 15:43:08.786</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">291</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">53849</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="144" Column="AD_Key">2893</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">2902</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID" isNewNull="true"/>
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="146" Column="WhereClause">C_BPartner.IsActive = 'Y' AND C_BPartner.IsCustomer = 'Y' AND C_BPartner.TotalOpenBalance &lt; 0</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL">C_BPartner.Value || ' ' || C_BPartner.Name || ' (' || to_char(-1.0*C_BPartner.TotalOpenBalance,'FMMI999G999G999.00') || ')'</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="110" StepType="AD">
+      <PO AD_Table_ID="276" Action="I" Record_ID="58991" Table="AD_Element">
+        <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2597" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">58991</Data>
+        <Data AD_Column_ID="2602" Column="ColumnName">Transfer_From_ID</Data>
+        <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2598" Column="Created">2016-08-14 15:44:34.654</Data>
+        <Data AD_Column_ID="2600" Column="Updated">2016-08-14 15:44:34.654</Data>
+        <Data AD_Column_ID="2605" Column="Help">The Transfer From Business Partner must be a customer and must have a cash balance on the account.</Data>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="6484" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2599" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2601" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2603" Column="Name">Transfer From</Data>
+        <Data AD_Column_ID="2604" Column="Description">The Business Partner to transfer funds from.</Data>
+        <Data AD_Column_ID="4299" Column="PrintName">Trx From</Data>
+        <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID">18</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength">10</Data>
+        <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID">53849</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="120" StepType="AD">
+      <PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="2641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2644" Column="Updated">2016-08-14 15:44:35.775</Data>
+        <Data AD_Column_ID="2642" Column="Created">2016-08-14 15:44:35.775</Data>
+        <Data AD_Column_ID="2643" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2645" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID">58991</Data>
+        <Data AD_Column_ID="2648" Column="Help">The Transfer From Business Partner must be a customer and must have a cash balance on the account.</Data>
+        <Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2647" Column="Description">The Business Partner to transfer funds from.</Data>
+        <Data AD_Column_ID="2646" Column="Name">Transfer From</Data>
+        <Data AD_Column_ID="4300" Column="PrintName">Trx From</Data>
+        <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="130" StepType="AD">
+      <PO AD_Table_ID="285" Action="I" Record_ID="55586" Table="AD_Process_Para">
+        <Data AD_Column_ID="5593" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="3740" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="2827" Column="AD_Reference_ID">18</Data>
+        <Data AD_Column_ID="3741" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="3736" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2826" Column="SeqNo">30</Data>
+        <Data AD_Column_ID="3738" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="2818" Column="Created">2016-08-14 15:52:36.344</Data>
+        <Data AD_Column_ID="2824" Column="Help">The Transfer From Business Partner must be a customer and must have a cash balance on the account.</Data>
+        <Data AD_Column_ID="2817" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2830" Column="IsRange">false</Data>
+        <Data AD_Column_ID="2814" Column="AD_Process_Para_ID">55586</Data>
+        <Data AD_Column_ID="2815" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="3737" Column="FieldLength">10</Data>
+        <Data AD_Column_ID="2821" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2825" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2820" Column="Updated">2016-08-14 15:52:36.344</Data>
+        <Data AD_Column_ID="2819" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3742" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="5819" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="2828" Column="AD_Reference_Value_ID">53849</Data>
+        <Data AD_Column_ID="3739" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="2816" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="7728" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="56299" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56300" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="2822" Column="Name">Transfer From</Data>
+        <Data AD_Column_ID="4017" Column="ColumnName">Transfer_From_ID</Data>
+        <Data AD_Column_ID="2823" Column="Description">The Business Partner to transfer funds from.</Data>
+        <Data AD_Column_ID="7729" Column="AD_Element_ID">58991</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="140" StepType="AD">
+      <PO AD_Table_ID="286" Action="I" Record_ID="55586" Table="AD_Process_Para_Trl">
+        <Data AD_Column_ID="2835" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2831" Column="AD_Process_Para_ID">55586</Data>
+        <Data AD_Column_ID="2842" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2834" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2833" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2832" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2838" Column="Updated">2016-08-14 15:52:37.305</Data>
+        <Data AD_Column_ID="2836" Column="Created">2016-08-14 15:52:37.305</Data>
+        <Data AD_Column_ID="2837" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3743" Column="Help">The Transfer From Business Partner must be a customer and must have a cash balance on the account.</Data>
+        <Data AD_Column_ID="2839" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2840" Column="Name">Transfer From</Data>
+        <Data AD_Column_ID="2841" Column="Description">The Business Partner to transfer funds from.</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="150" StepType="AD">
+      <PO AD_Table_ID="102" Action="I" Record_ID="53850" Table="AD_Reference">
+        <Data AD_Column_ID="553" Column="IsActive">true</Data>
+        <Data AD_Column_ID="129" Column="AD_Reference_ID">53850</Data>
+        <Data AD_Column_ID="363" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="139" Column="ValidationType">T</Data>
+        <Data AD_Column_ID="1180" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="132" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="364" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="556" Column="Updated">2016-08-14 15:55:08.359</Data>
+        <Data AD_Column_ID="555" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="554" Column="Created">2016-08-14 15:55:08.359</Data>
+        <Data AD_Column_ID="557" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6486" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="54355" Column="IsOrderByValue">false</Data>
+        <Data AD_Column_ID="131" Column="Description">Customers</Data>
+        <Data AD_Column_ID="130" Column="Name">TransferTo_BP</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="160" StepType="AD">
+      <PO AD_Table_ID="126" Action="I" Record_ID="0" Table="AD_Reference_Trl">
+        <Data AD_Column_ID="666" Column="IsActive">true</Data>
+        <Data AD_Column_ID="279" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="283" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="668" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="670" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="1202" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="278" Column="AD_Reference_ID">53850</Data>
+        <Data AD_Column_ID="667" Column="Created">2016-08-14 15:55:09.139</Data>
+        <Data AD_Column_ID="282" Column="Help" isNewNull="true"/>
+        <Data AD_Column_ID="1203" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="669" Column="Updated">2016-08-14 15:55:09.139</Data>
+        <Data AD_Column_ID="280" Column="Name">TransferTo_BP</Data>
+        <Data AD_Column_ID="281" Column="Description">Customers</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="170" StepType="AD">
+      <PO AD_Table_ID="103" Action="I" Record_ID="53850" Table="AD_Ref_Table">
+        <Data AD_Column_ID="62120" Column="IsAlert">false</Data>
+        <Data AD_Column_ID="62122" Column="IsDisplayIdentifier">false</Data>
+        <Data AD_Column_ID="558" Column="IsActive">true</Data>
+        <Data AD_Column_ID="560" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2377" Column="IsValueDisplayed">false</Data>
+        <Data AD_Column_ID="561" Column="Updated">2016-08-14 15:57:19.951</Data>
+        <Data AD_Column_ID="147" Column="OrderByClause">C_BPartner.Name</Data>
+        <Data AD_Column_ID="559" Column="Created">2016-08-14 15:57:19.951</Data>
+        <Data AD_Column_ID="562" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="367" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="143" Column="AD_Table_ID">291</Data>
+        <Data AD_Column_ID="142" Column="AD_Reference_ID">53850</Data>
+        <Data AD_Column_ID="368" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="144" Column="AD_Key">2893</Data>
+        <Data AD_Column_ID="145" Column="AD_Display">2902</Data>
+        <Data AD_Column_ID="7711" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="57270" Column="AD_Window_ID" isNewNull="true"/>
+        <Data AD_Column_ID="146" Column="WhereClause">C_BPartner.IsActive = 'Y' AND C_BPartner.IsCustomer = 'Y'</Data>
+        <Data AD_Column_ID="62121" Column="DisplaySQL">C_BPartner.Value || ' ' || C_Bpartner.Name || ' ('  || to_char(-1.0*C_BPartner.TotalOpenBalance,'FMMI999G999G990.00') || ')'</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="180" StepType="AD">
+      <PO AD_Table_ID="276" Action="I" Record_ID="58992" Table="AD_Element">
+        <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2597" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">58992</Data>
+        <Data AD_Column_ID="2602" Column="ColumnName">Transfer_To_ID</Data>
+        <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2598" Column="Created">2016-08-14 15:58:28.322</Data>
+        <Data AD_Column_ID="2600" Column="Updated">2016-08-14 15:58:28.322</Data>
+        <Data AD_Column_ID="2605" Column="Help">The Recipient must be a customer.</Data>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="6484" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2599" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2601" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2603" Column="Name">Transfer To</Data>
+        <Data AD_Column_ID="2604" Column="Description">The Business Partner who will receive the transferred money.</Data>
+        <Data AD_Column_ID="4299" Column="PrintName">Trx To</Data>
+        <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID">18</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength">10</Data>
+        <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID">53850</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="190" StepType="AD">
+      <PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="2641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2644" Column="Updated">2016-08-14 15:58:29.103</Data>
+        <Data AD_Column_ID="2642" Column="Created">2016-08-14 15:58:29.103</Data>
+        <Data AD_Column_ID="2643" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2645" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID">58992</Data>
+        <Data AD_Column_ID="2648" Column="Help">The Recipient must be a customer.</Data>
+        <Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2647" Column="Description">The Business Partner who will receive the transferred money.</Data>
+        <Data AD_Column_ID="2646" Column="Name">Transfer To</Data>
+        <Data AD_Column_ID="4300" Column="PrintName">Trx To</Data>
+        <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="200" StepType="AD">
+      <PO AD_Table_ID="285" Action="I" Record_ID="55587" Table="AD_Process_Para">
+        <Data AD_Column_ID="2824" Column="Help">The Recipient must be a customer.</Data>
+        <Data AD_Column_ID="2817" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2830" Column="IsRange">false</Data>
+        <Data AD_Column_ID="2814" Column="AD_Process_Para_ID">55587</Data>
+        <Data AD_Column_ID="2815" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="3737" Column="FieldLength">10</Data>
+        <Data AD_Column_ID="2821" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2825" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2820" Column="Updated">2016-08-14 15:58:50.815</Data>
+        <Data AD_Column_ID="2819" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3742" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="5819" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="5593" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="3740" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="2827" Column="AD_Reference_ID">18</Data>
+        <Data AD_Column_ID="3741" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="3736" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2826" Column="SeqNo">40</Data>
+        <Data AD_Column_ID="3738" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="2818" Column="Created">2016-08-14 15:58:50.815</Data>
+        <Data AD_Column_ID="2828" Column="AD_Reference_Value_ID">53850</Data>
+        <Data AD_Column_ID="3739" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="2816" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="7728" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="56299" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56300" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="2822" Column="Name">Transfer To</Data>
+        <Data AD_Column_ID="4017" Column="ColumnName">Transfer_To_ID</Data>
+        <Data AD_Column_ID="2823" Column="Description">The Business Partner who will receive the transferred money.</Data>
+        <Data AD_Column_ID="7729" Column="AD_Element_ID">58992</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="210" StepType="AD">
+      <PO AD_Table_ID="286" Action="I" Record_ID="55587" Table="AD_Process_Para_Trl">
+        <Data AD_Column_ID="2835" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2831" Column="AD_Process_Para_ID">55587</Data>
+        <Data AD_Column_ID="2842" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2834" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2833" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2832" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2838" Column="Updated">2016-08-14 15:58:51.465</Data>
+        <Data AD_Column_ID="2836" Column="Created">2016-08-14 15:58:51.465</Data>
+        <Data AD_Column_ID="2837" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3743" Column="Help">The Recipient must be a customer.</Data>
+        <Data AD_Column_ID="2839" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2840" Column="Name">Transfer To</Data>
+        <Data AD_Column_ID="2841" Column="Description">The Business Partner who will receive the transferred money.</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="220" StepType="AD">
+      <PO AD_Table_ID="285" Action="I" Record_ID="55588" Table="AD_Process_Para">
+        <Data AD_Column_ID="2824" Column="Help">The Amount indicates the amount for this document line.</Data>
+        <Data AD_Column_ID="2817" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2830" Column="IsRange">false</Data>
+        <Data AD_Column_ID="2814" Column="AD_Process_Para_ID">55588</Data>
+        <Data AD_Column_ID="2815" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="3737" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="2821" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2825" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="2820" Column="Updated">2016-08-14 15:59:36.197</Data>
+        <Data AD_Column_ID="2819" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3742" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="5819" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="5593" Column="DefaultValue2" isNewNull="true"/>
+        <Data AD_Column_ID="3740" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="2827" Column="AD_Reference_ID">12</Data>
+        <Data AD_Column_ID="3741" Column="ValueMin">0</Data>
+        <Data AD_Column_ID="3736" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2826" Column="SeqNo">50</Data>
+        <Data AD_Column_ID="3738" Column="IsMandatory">true</Data>
+        <Data AD_Column_ID="2818" Column="Created">2016-08-14 15:59:36.197</Data>
+        <Data AD_Column_ID="2828" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="3739" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="2816" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="7728" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="56299" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="56300" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="2822" Column="Name">Amount</Data>
+        <Data AD_Column_ID="4017" Column="ColumnName">Amount</Data>
+        <Data AD_Column_ID="2823" Column="Description">Amount in a defined currency</Data>
+        <Data AD_Column_ID="7729" Column="AD_Element_ID">1367</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="230" StepType="AD">
+      <PO AD_Table_ID="286" Action="I" Record_ID="55588" Table="AD_Process_Para_Trl">
+        <Data AD_Column_ID="2835" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2831" Column="AD_Process_Para_ID">55588</Data>
+        <Data AD_Column_ID="2842" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="2834" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2833" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2832" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2838" Column="Updated">2016-08-14 15:59:36.977</Data>
+        <Data AD_Column_ID="2836" Column="Created">2016-08-14 15:59:36.977</Data>
+        <Data AD_Column_ID="2837" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="3743" Column="Help">The Amount indicates the amount for this document line.</Data>
+        <Data AD_Column_ID="2839" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2840" Column="Name">Amount</Data>
+        <Data AD_Column_ID="2841" Column="Description">Amount in a defined currency</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="240" StepType="AD">
+      <PO AD_Table_ID="116" Action="I" Record_ID="54097" Table="AD_Menu">
+        <Data AD_Column_ID="598" Column="IsActive">true</Data>
+        <Data AD_Column_ID="233" Column="AD_Window_ID" isNewNull="true"/>
+        <Data AD_Column_ID="234" Column="AD_Workflow_ID" isNewNull="true"/>
+        <Data AD_Column_ID="235" Column="AD_Task_ID" isNewNull="true"/>
+        <Data AD_Column_ID="228" Column="AD_Menu_ID">54097</Data>
+        <Data AD_Column_ID="599" Column="Created">2016-08-14 16:07:29.634</Data>
+        <Data AD_Column_ID="1169" Column="IsSummary">false</Data>
+        <Data AD_Column_ID="602" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="399" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="232" Column="Action">P</Data>
+        <Data AD_Column_ID="600" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="601" Column="Updated">2016-08-14 16:07:29.634</Data>
+        <Data AD_Column_ID="6297" Column="AD_Workbench_ID" isNewNull="true"/>
+        <Data AD_Column_ID="400" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="4426" Column="IsSOTrx">false</Data>
+        <Data AD_Column_ID="6651" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="3375" Column="AD_Process_ID">53886</Data>
+        <Data AD_Column_ID="4621" Column="AD_Form_ID" isNewNull="true"/>
+        <Data AD_Column_ID="7721" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="57960" Column="AD_Browse_ID" isNewNull="true"/>
+        <Data AD_Column_ID="59134" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="229" Column="Name">Transfer Funds between Business Partners</Data>
+        <Data AD_Column_ID="230" Column="Description">Transfer Funds between two customers.</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="250" StepType="AD">
+      <PO AD_Table_ID="120" Action="I" Record_ID="54097" Table="AD_Menu_Trl">
+        <Data AD_Column_ID="636" Column="IsActive">true</Data>
+        <Data AD_Column_ID="638" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="637" Column="Created">2016-08-14 16:07:30.825</Data>
+        <Data AD_Column_ID="640" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="1194" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="639" Column="Updated">2016-08-14 16:07:30.825</Data>
+        <Data AD_Column_ID="1195" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="249" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="245" Column="AD_Menu_ID">54097</Data>
+        <Data AD_Column_ID="246" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="248" Column="Description">Transfer Funds between two customers.</Data>
+        <Data AD_Column_ID="247" Column="Name">Transfer Funds between Business Partners</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="260" StepType="AD">
+      <PO AD_Table_ID="452" Action="I" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6150" Column="IsActive">true</Data>
+        <Data AD_Column_ID="6162" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID">10</Data>
+        <Data AD_Column_ID="6152" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="6149" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6154" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6151" Column="Created">2016-08-14 16:07:31.755</Data>
+        <Data AD_Column_ID="6155" Column="Parent_ID">0</Data>
+        <Data AD_Column_ID="6153" Column="Updated">2016-08-14 16:07:31.755</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo">999</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="270" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="999">1011</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="280" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="1011">1012</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="290" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6155" Column="Parent_ID" oldValue="0">1000074</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="1012">0</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="300" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6155" Column="Parent_ID" oldValue="1000074">0</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="0">1011</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="310" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6155" Column="Parent_ID" oldValue="0">1000074</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="1011">0</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="320" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="0">1</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="54097">54097</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="330" StepType="AD">
+      <PO AD_Table_ID="452" Action="U" Record_ID="10" Table="AD_TreeNodeMM">
+        <Data AD_Column_ID="6160" Column="AD_Tree_ID" oldValue="10">10</Data>
+        <Data AD_Column_ID="6157" Column="SeqNo" oldValue="1">2</Data>
+        <Data AD_Column_ID="6161" Column="Node_ID" oldValue="1000025">1000025</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="340" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53328" Table="AD_Message">
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="591" Column="Updated">2016-08-15 15:12:50.673</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="197" Column="MsgType">I</Data>
+        <Data AD_Column_ID="198" Column="MsgText">Transfer of Funds to another Business Partner</Data>
+        <Data AD_Column_ID="199" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="589" Column="Created">2016-08-15 15:12:50.673</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53328</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6766" Column="Value">TransferFundsBetweenBPartners_SourceTransferDescription</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="350" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="343" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="609" Column="Created">2016-08-15 15:12:57.195</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="611" Column="Updated">2016-08-15 15:12:57.195</Data>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="342" Column="MsgText">Transfer of Funds to another Business Partner</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53328</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="360" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53329" Table="AD_Message">
+        <Data AD_Column_ID="197" Column="MsgType">I</Data>
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="591" Column="Updated">2016-08-15 15:13:44.122</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="198" Column="MsgText">Transfer of funds from another Business Partner</Data>
+        <Data AD_Column_ID="199" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="589" Column="Created">2016-08-15 15:13:44.122</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53329</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6766" Column="Value">TransferFundsBetweenBPartners_TargetTransferDescription</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="370" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="343" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="609" Column="Created">2016-08-15 15:13:44.834</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="611" Column="Updated">2016-08-15 15:13:44.834</Data>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="342" Column="MsgText">Transfer of funds from another Business Partner</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53329</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="380" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53330" Table="AD_Message">
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="591" Column="Updated">2016-08-15 15:15:25.4</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="197" Column="MsgType">E</Data>
+        <Data AD_Column_ID="198" Column="MsgText">Both Business Partners must be customers in order to transfer funds from one account to another.</Data>
+        <Data AD_Column_ID="199" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="589" Column="Created">2016-08-15 15:15:25.4</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53330</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6766" Column="Value">TransferFundsBetweenBPartners_BothBPsMustBeCustomers</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="390" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="343" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="609" Column="Created">2016-08-15 15:15:26.22</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="611" Column="Updated">2016-08-15 15:15:26.22</Data>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="342" Column="MsgText">Both Business Partners must be customers in order to transfer funds from one account to another.</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53330</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="400" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53331" Table="AD_Message">
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="591" Column="Updated">2016-08-15 15:19:05.114</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="197" Column="MsgType">E</Data>
+        <Data AD_Column_ID="198" Column="MsgText">The source Business Partner does not have sufficient funds to transfer.</Data>
+        <Data AD_Column_ID="199" Column="MsgTip">Transfers can only be used to transfer surplus funds on the source account.  In the Transfer From combo box, the maximum that a Business Partner can transfer is shown in brackets.</Data>
+        <Data AD_Column_ID="589" Column="Created">2016-08-15 15:19:05.114</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53331</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6766" Column="Value">TransferFundsBetweenBPartners_InsufficientFunds</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="410" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="343" Column="MsgTip">Transfers can only be used to transfer surplus funds on the source account.  In the Transfer From combo box, the maximum that a Business Partner can transfer is shown in brackets.</Data>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="609" Column="Created">2016-08-15 15:19:05.844</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="611" Column="Updated">2016-08-15 15:19:05.844</Data>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="342" Column="MsgText">The source Business Partner does not have sufficient funds to transfer.</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53331</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="420" StepType="AD">
+      <PO AD_Table_ID="109" Action="I" Record_ID="53332" Table="AD_Message">
+        <Data AD_Column_ID="588" Column="IsActive">true</Data>
+        <Data AD_Column_ID="591" Column="Updated">2016-08-15 15:21:21.772</Data>
+        <Data AD_Column_ID="391" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="392" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="590" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="197" Column="MsgType">E</Data>
+        <Data AD_Column_ID="198" Column="MsgText">One or both of the transfer invoices could not be completed. Please check the log for reasons.</Data>
+        <Data AD_Column_ID="199" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="589" Column="Created">2016-08-15 15:21:21.772</Data>
+        <Data AD_Column_ID="592" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6765" Column="AD_Message_ID">53332</Data>
+        <Data AD_Column_ID="7716" Column="EntityType">MFTU</Data>
+        <Data AD_Column_ID="6766" Column="Value">TransferFundsBetweenBPartners_CouldNotCompleteInvoice</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="430" StepType="AD">
+      <PO AD_Table_ID="119" Action="I" Record_ID="0" Table="AD_Message_Trl">
+        <Data AD_Column_ID="341" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="608" Column="IsActive">true</Data>
+        <Data AD_Column_ID="1193" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="343" Column="MsgTip" isNewNull="true"/>
+        <Data AD_Column_ID="344" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="609" Column="Created">2016-08-15 15:21:22.443</Data>
+        <Data AD_Column_ID="610" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="611" Column="Updated">2016-08-15 15:21:22.443</Data>
+        <Data AD_Column_ID="1192" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="342" Column="MsgText">One or both of the transfer invoices could not be completed. Please check the log for reasons.</Data>
+        <Data AD_Column_ID="612" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6767" Column="AD_Message_ID">53332</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
