@@ -47,12 +47,11 @@
   </path>
 
   <path id="compilezk.classpath">
-	
-	
+		
     <pathelement location="${adempiere.trunk}/zkwebui/WEB-INF/classes"/>
     
-    <fileset dir="${project.trunk}/packages/ADempierePOS/lib">
-      <include name="*.jar"/>
+    <fileset dir="${adempiere.trunk}/packages">
+      <include name="ADempierePOS.jar"/>
     </fileset>
     
     <fileset dir="${adempiere.trunk}/lib">
