@@ -407,7 +407,6 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 		//	Change Dependents
 		fieldChange(changedField, evt.getNewValue(), evt.getPropertyName());
 		
-		dynamicDisplay();
 	}
 		
 }	//	ProcessParameterPanel
