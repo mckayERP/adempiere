@@ -741,6 +741,8 @@ public final class APanel extends CPanel
 				/**
 				 *  Window Tabs
 				 */
+				
+				m_curWinTab = window;
 				int tabSize = mWindow.getTabCount();
 				boolean goSingleRow = query != null;	//	Zoom Query
 				for (int tab = 0; tab < tabSize; tab++)
@@ -885,6 +887,7 @@ public final class APanel extends CPanel
 			{
 				tabPanel.addTab(m_mWorkbench.getName(wb), m_mWorkbench.getIcon(wb), window, m_mWorkbench.getDescription(wb));
 			}
+			
 			//  Used for Env.getHeader
 			Env.setContext(m_ctx, m_curWindowNo, "WindowName", m_mWorkbench.getName(wb));
 
