@@ -400,7 +400,6 @@ public class ProcessParameterPanel extends ProcessParameter implements VetoableC
 		if (evt.getSource() instanceof GridField) {
 			changedField = ((GridField) evt.getSource());
 		}
-				//	String
 		else
 			return;
 		
