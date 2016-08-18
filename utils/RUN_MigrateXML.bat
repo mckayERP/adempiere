@@ -77,13 +77,13 @@ Echo.
 Echo It is recommended that production databases be migrated using 
 Echo RUN_Migrate.bat.
 Echo.
-Echo Usage: RUN_Migrate.bat [clean] [silent]
+Echo Usage: RUN_MigrateXML.bat [clean] [silent]
 Echo.
 Echo Optional argument "clean" will mark all dictionary migrations that have
 Echo been applied as processed and will delete the steps and data to save 
 Echo space.
 Echo.
-Echo Optional argument "silent" will run the batch file without a pause
+Echo Optional argument "silent" will run the batch file without a pause.
 Echo.
 Echo WARNING: If the database is not a fresh import of the seed, make sure 
 Echo you have a backup!

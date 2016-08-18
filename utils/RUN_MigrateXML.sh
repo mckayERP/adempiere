@@ -53,7 +53,7 @@ then
 	echo "It is recommended that production databases be migrated using "
 	echo "RUN_Migrate.sh"
 	echo
-	echo Usage: RUN_Migrate.bat
+	echo Usage: RUN_MigrateXML.sh [clean]
 	echo
 	echo Optional argument "clean" will mark all dictionary migrations that have
 	echo been applied as processed and will delete the steps and data to save 
