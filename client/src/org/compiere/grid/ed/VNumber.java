@@ -58,6 +58,7 @@ import org.compiere.swing.CTextField;
 import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 
 /**
  *	Number Control
@@ -308,7 +309,12 @@ public final class VNumber extends JComponent
 		m_displayType = displayType;
 		if (!DisplayType.isNumeric(displayType))
 			m_displayType = DisplayType.Number;
-		m_format = DisplayType.getNumberFormat(displayType);
+		String format_pattern = null;
+		if (m_mField != null && m_mField.getVO() !=null && m_mField.getVO().VFormat != null && m_mField.getVO().VFormat.length() > 0)
+			format_pattern = m_mField.getVFormat();
+		
+		Language language = Env.getLanguage(Env.getCtx());
+		m_format = DisplayType.getNumberFormat(displayType,language,format_pattern);
 		m_text.setDocument (new MDocNumber(displayType, m_format, m_text, m_title));
 	}   //  setDisplayType
 
@@ -779,8 +785,15 @@ public final class VNumber extends JComponent
 			&& MRole.getDefault().isShowPreference())
 			ValuePreference.addMenu (this, popupMenu);
 		
-		if (m_mField != null)
+		if (m_mField != null) {
 			RecordInfo.addMenu(this, popupMenu);
+		
+			// Need to reset the displayType if the gridField is set or changed
+			// The displayType sets the format and the gridField may have a 
+			// custom format string in VFormat that needs to be applied to the
+			// field format.
+			setDisplayType(m_mField.getDisplayType());
+		}
 	}   //  setField
 	
 	@Override

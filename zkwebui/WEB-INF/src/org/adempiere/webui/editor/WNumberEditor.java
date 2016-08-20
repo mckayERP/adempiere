@@ -27,10 +27,12 @@ import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.window.WRecordInfo;
+import org.compiere.grid.ed.MDocNumber;
 import org.compiere.model.GridField;
 import org.compiere.model.MRole;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 
@@ -110,6 +112,7 @@ public class WNumberEditor extends WEditor implements ContextMenuListener
 
 	private void init()
     {
+		String format_pattern = null;
 		if (gridField != null)
 		{
 			getComponent().setTooltiptext(gridField.getDescription());
@@ -119,11 +122,12 @@ public class WNumberEditor extends WEditor implements ContextMenuListener
 	        else if (displayLength <= 0 || displayLength < MIN_DISPLAY_LENGTH)
 	        	displayLength = MIN_DISPLAY_LENGTH;
 			getComponent().getDecimalbox().setCols(displayLength);
+			format_pattern = gridField.getVFormat();
 		}
 
 		if (!DisplayType.isNumeric(displayType))
 			displayType = DisplayType.Number;
-		DecimalFormat format = DisplayType.getNumberFormat(displayType, AEnv.getLanguage(Env.getCtx()));
+		DecimalFormat format = DisplayType.getNumberFormat(displayType, AEnv.getLanguage(Env.getCtx()),format_pattern);
 		getComponent().getDecimalbox().setFormat(format.toPattern());
 		
 		popupMenu = new WEditorPopupMenu(true, true, false);
