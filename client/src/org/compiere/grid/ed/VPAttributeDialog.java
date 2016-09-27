@@ -337,8 +337,9 @@ public class VPAttributeDialog extends CDialog
 				as = productASI.getMAttributeSet();
 				if (as.isInstanceAttribute() && !isProductWindow)
 					instanceASI = new MAttributeSetInstance (Env.getCtx(), 0, as.getM_AttributeSet_ID(), null);
-				else
+				else {
 					instanceASI = productASI;
+				}
 			}
 			else if (instanceASI != null) {
 				as = instanceASI.getMAttributeSet();
@@ -362,6 +363,7 @@ public class VPAttributeDialog extends CDialog
 		//  always read/write.  
 		Boolean productAttributesReadWrite = isProductWindow && m_readWrite;
 		Boolean showInstanceAttributes = !isProductWindow;
+		Boolean instanceAttributesReadWrite = m_readWrite && showInstanceAttributes && as.isInstanceAttribute();
 		
     	//  After select existing, the attributes are reset with the selected values.  
 		//  Clear the current ones, if any.
@@ -372,14 +374,15 @@ public class VPAttributeDialog extends CDialog
     	bSerNo = new CButton();
 
 		Boolean isNew = false;  // Create a new record.  False implies edit the current record.
-
+		
         if (as != null) {
         	
         	// Only add buttons and controls if readWrite
-			if (m_readWrite) {
+			if (productAttributesReadWrite || instanceAttributesReadWrite) {
 				//	New/Edit - Selection
-				if (m_attributeSetInstance_id == 0 
-					|| (m_attributeSetInstance_id > 0 && instanceASI.hasMandatoryValues())) {	//	new. Don't edit and existing ASI
+				if (m_attributeSetInstance_id >= 0) {	
+					//	Don't edit an existing ASI.  Always create a new record.  If the values
+					//  match an existing ASI, that ASI will be used.
 					cbNewEdit.setText(Msg.getMsg(Env.getCtx(), "NewRecord"));
 					isNew = true;
 				}
@@ -540,11 +543,13 @@ public class VPAttributeDialog extends CDialog
 		}
 
 		//	New/Edit Window
-		if (m_AD_Column_ID != 0 && m_readWrite)
-		{
+		if (m_AD_Column_ID != 0 && (productAttributesReadWrite || instanceAttributesReadWrite)) {
 			cbNewEdit.setSelected(m_attributeSetInstance_id == 0);
 			confirmPanel.getCancelButton().setEnabled(cbNewEdit.isSelected());
 			cmd_newEdit();
+		}
+		else {
+			confirmPanel.getCancelButton().setEnabled(false);			
 		}
 
 		//	Attribute Set Instance Description
@@ -929,11 +934,15 @@ public class VPAttributeDialog extends CDialog
 		MAttributeSet as = instanceASI.getMAttributeSet();
 		if (as == null)
 			return true;
-		
+				
 		m_changed = false;
 		String mandatory = "";
 		
 		if (!isProductWindow && !as.excludeEntry(m_AD_Column_ID, m_isSOTrx)) {
+//			if (hasProductASI && !as.isInstanceAttribute()){
+//				// use the current product ASI - no changes
+//				return true;
+//			}
 			if (as.isLot() && !as.isExcludeLot(m_AD_Column_ID, m_isSOTrx))
 			{
 				log.fine("Lot=" + fieldLotString.getText ());
@@ -966,15 +975,6 @@ public class VPAttributeDialog extends CDialog
 			instanceASI.setGuaranteeDate(null);
 		}
 		
-		//  Change org to match product.  The ASI will require the same org access
-		//  as the product.
-		if (m_product != null && instanceASI.getAD_Org_ID() != m_product.getAD_Org_ID()) {
-			instanceASI.setAD_Org_ID(m_product.getAD_Org_ID());
-		}
-		else if (m_product == null) {
-			instanceASI.setAD_Org_ID(0);
-		}
-
 		// Get the set of attribute values from the editors and check for missing
 		// mandatory fields.  The order of the attributes is set by the order that
 		// editors are created. 
