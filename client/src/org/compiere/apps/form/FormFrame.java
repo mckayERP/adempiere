@@ -71,6 +71,7 @@ import org.compiere.util.Trace;
 public class FormFrame
 	implements ActionListener 
 {
+
 	/**
 	 * @deprecated
 	 *	Create Form.
@@ -88,6 +89,7 @@ public class FormFrame
 	 */
 	public FormFrame (int p_ParentWindowNo)
 	{
+		m_parentWindowNo  = p_ParentWindowNo;
 		Frame owner = Env.getWindow(p_ParentWindowNo);
 		if(p_ParentWindowNo == 0) {
 			CFrame frame = new CFrame(owner.getGraphicsConfiguration());
@@ -105,7 +107,8 @@ public class FormFrame
 			CDialog dialog = new CDialog(owner, true);
 			dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 			m_MainContent = dialog;
-			m_WindowNo = p_ParentWindowNo;
+			//m_WindowNo = p_ParentWindowNo; // Causes the wipe of the parent window context
+			m_WindowNo = Env.createWindowNo (m_MainContent);
 		}
 		
 
@@ -139,7 +142,9 @@ public class FormFrame
 	}
 
 	private ProcessInfo  m_pi;
-	
+
+	/** Window number of the calling window */
+	private int m_parentWindowNo = 0;
 	/**	WindowNo					*/
 	private int			m_WindowNo;
 	/** The GlassPane           	*/
@@ -569,6 +574,14 @@ public class FormFrame
 		return ((Window) m_MainContent);
 	}
 	
+	/**
+	 * Get parent window number - useful to find context variables
+	 * @return
+	 */
+	public int getParentWindowNo() {
+		return m_parentWindowNo;
+	}
+
 	/**
 	 * Get Frame
 	 * @return
