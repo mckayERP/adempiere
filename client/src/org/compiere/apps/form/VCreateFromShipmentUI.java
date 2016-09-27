@@ -49,6 +49,7 @@ import org.compiere.model.MLocatorLookup;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MProduct;
+import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
 import org.compiere.process.ProcessInfo;
 import org.compiere.swing.CPanel;
@@ -117,6 +118,9 @@ public class VCreateFromShipmentUI extends CreateFromShipment
 		//  load Locator
 		MLocatorLookup locator = new MLocatorLookup(Env.getCtx(), p_WindowNo);
 		locatorField = new VLocator ("M_Locator_ID", true, false, true,	locator, p_WindowNo);
+		MWarehouse warehouse = MWarehouse.get(Env.getCtx(), Env.getContextAsInt(Env.getCtx(), v_Container.getParentWindowNo(), "M_Warehouse_ID"));
+		locatorField.setValue(warehouse.getDefaultLocator().get_ID());
+		
 		sameWarehouseCb.setSelected(true);
 		sameWarehouseCb.addActionListener(this);
 
