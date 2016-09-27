@@ -585,4 +585,8 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		// Else - assume the values are set
 		return true;
 	}	
+	
+	public String toString() {
+		return "ASI=" + this.getM_AttributeSetInstance_ID() + " AS=" + this.getM_AttributeSet_ID();
+	}
 }	//	MAttributeSetInstance
