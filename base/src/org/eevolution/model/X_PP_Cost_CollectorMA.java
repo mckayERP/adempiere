@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.eevolution.model;
@@ -32,7 +31,7 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20160823L;
 
     /** Standard Constructor */
     public X_PP_Cost_CollectorMA (Properties ctx, int PP_Cost_CollectorMA_ID, String trxName)
@@ -42,8 +41,8 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
         {
 			setM_AttributeSetInstance_ID (0);
 			setMovementQty (Env.ZERO);
-			setPP_Cost_CollectorMA_ID (0);
 			setPP_Cost_Collector_ID (0);
+			setPP_Cost_CollectorMA_ID (0);
         } */
     }
 
@@ -103,6 +102,34 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Movement Quantity.
 		@param MovementQty 
 		Quantity of a product moved.
@@ -121,26 +148,6 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
-	}
-
-	/** Set Manufacturing Order MA.
-		@param PP_Cost_CollectorMA_ID Manufacturing Order MA	  */
-	public void setPP_Cost_CollectorMA_ID (int PP_Cost_CollectorMA_ID)
-	{
-		if (PP_Cost_CollectorMA_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, Integer.valueOf(PP_Cost_CollectorMA_ID));
-	}
-
-	/** Get Manufacturing Order MA.
-		@return Manufacturing Order MA	  */
-	public int getPP_Cost_CollectorMA_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_CollectorMA_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	public org.eevolution.model.I_PP_Cost_Collector getPP_Cost_Collector() throws RuntimeException
@@ -163,6 +170,26 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 	public int getPP_Cost_Collector_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_Collector_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Manufacturing Order MA.
+		@param PP_Cost_CollectorMA_ID Manufacturing Order MA	  */
+	public void setPP_Cost_CollectorMA_ID (int PP_Cost_CollectorMA_ID)
+	{
+		if (PP_Cost_CollectorMA_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, Integer.valueOf(PP_Cost_CollectorMA_ID));
+	}
+
+	/** Get Manufacturing Order MA.
+		@return Manufacturing Order MA	  */
+	public int getPP_Cost_CollectorMA_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_CollectorMA_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

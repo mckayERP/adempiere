@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -32,7 +31,7 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20160823L;
 
     /** Standard Constructor */
     public X_M_MovementLine (Properties ctx, int M_MovementLine_ID, String trxName)
@@ -42,12 +41,12 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
         {
 			setLine (0);
 // @SQL=SELECT NVL(MAX(Line),0)+10 AS DefaultValue FROM M_MovementLine WHERE M_Movement_ID=@M_Movement_ID@
-			setM_LocatorTo_ID (0);
-// @M_LocatorTo_ID@
 			setM_Locator_ID (0);
 // @M_Locator_ID@
-			setM_MovementLine_ID (0);
+			setM_LocatorTo_ID (0);
+// @M_LocatorTo_ID@
 			setM_Movement_ID (0);
+			setM_MovementLine_ID (0);
 			setM_Product_ID (0);
 			setMovementQty (Env.ZERO);
 // 1
@@ -175,34 +174,6 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
         return new KeyNamePair(get_ID(), String.valueOf(getLine()));
     }
 
-	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException
-    {
-		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
-			.getPO(getM_AttributeSetInstanceTo_ID(), get_TrxName());	}
-
-	/** Set Attribute Set Instance To.
-		@param M_AttributeSetInstanceTo_ID 
-		Target Product Attribute Set Instance
-	  */
-	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID)
-	{
-		if (M_AttributeSetInstanceTo_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, Integer.valueOf(M_AttributeSetInstanceTo_ID));
-	}
-
-	/** Get Attribute Set Instance To.
-		@return Target Product Attribute Set Instance
-	  */
-	public int getM_AttributeSetInstanceTo_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstanceTo_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException
     {
 		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
@@ -231,29 +202,29 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return ii.intValue();
 	}
 
-	public I_M_Locator getM_LocatorTo() throws RuntimeException
+	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException
     {
-		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_Name)
-			.getPO(getM_LocatorTo_ID(), get_TrxName());	}
+		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
+			.getPO(getM_AttributeSetInstanceTo_ID(), get_TrxName());	}
 
-	/** Set Locator To.
-		@param M_LocatorTo_ID 
-		Location inventory is moved to
+	/** Set Attribute Set Instance To.
+		@param M_AttributeSetInstanceTo_ID 
+		Target Product Attribute Set Instance
 	  */
-	public void setM_LocatorTo_ID (int M_LocatorTo_ID)
+	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID)
 	{
-		if (M_LocatorTo_ID < 1) 
-			set_Value (COLUMNNAME_M_LocatorTo_ID, null);
+		if (M_AttributeSetInstanceTo_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, null);
 		else 
-			set_Value (COLUMNNAME_M_LocatorTo_ID, Integer.valueOf(M_LocatorTo_ID));
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, Integer.valueOf(M_AttributeSetInstanceTo_ID));
 	}
 
-	/** Get Locator To.
-		@return Location inventory is moved to
+	/** Get Attribute Set Instance To.
+		@return Target Product Attribute Set Instance
 	  */
-	public int getM_LocatorTo_ID () 
+	public int getM_AttributeSetInstanceTo_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_LocatorTo_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstanceTo_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -287,24 +258,29 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return ii.intValue();
 	}
 
-	/** Set Move Line.
-		@param M_MovementLine_ID 
-		Inventory Move document Line
+	public I_M_Locator getM_LocatorTo() throws RuntimeException
+    {
+		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_Name)
+			.getPO(getM_LocatorTo_ID(), get_TrxName());	}
+
+	/** Set Locator To.
+		@param M_LocatorTo_ID 
+		Location inventory is moved to
 	  */
-	public void setM_MovementLine_ID (int M_MovementLine_ID)
+	public void setM_LocatorTo_ID (int M_LocatorTo_ID)
 	{
-		if (M_MovementLine_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, null);
+		if (M_LocatorTo_ID < 1) 
+			set_Value (COLUMNNAME_M_LocatorTo_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, Integer.valueOf(M_MovementLine_ID));
+			set_Value (COLUMNNAME_M_LocatorTo_ID, Integer.valueOf(M_LocatorTo_ID));
 	}
 
-	/** Get Move Line.
-		@return Inventory Move document Line
+	/** Get Locator To.
+		@return Location inventory is moved to
 	  */
-	public int getM_MovementLine_ID () 
+	public int getM_LocatorTo_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_MovementLine_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_LocatorTo_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -333,6 +309,57 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 	public int getM_Movement_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Movement_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Move Line.
+		@param M_MovementLine_ID 
+		Inventory Move document Line
+	  */
+	public void setM_MovementLine_ID (int M_MovementLine_ID)
+	{
+		if (M_MovementLine_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, Integer.valueOf(M_MovementLine_ID));
+	}
+
+	/** Get Move Line.
+		@return Inventory Move document Line
+	  */
+	public int getM_MovementLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MovementLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

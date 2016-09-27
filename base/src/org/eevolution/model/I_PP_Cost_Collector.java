@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.eevolution.model;
 
@@ -50,19 +49,6 @@ public interface I_PP_Cost_Collector
 	  */
 	public int getAD_Client_ID();
 
-    /** Column name AD_OrgTrx_ID */
-    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
-
-	/** Set Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
-
-	/** Get Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID();
-
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
@@ -75,6 +61,19 @@ public interface I_PP_Cost_Collector
 	  * Organizational entity within client
 	  */
 	public int getAD_Org_ID();
+
+    /** Column name AD_OrgTrx_ID */
+    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
+
+	/** Set Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
+
+	/** Get Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public int getAD_OrgTrx_ID();
 
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
@@ -121,21 +120,6 @@ public interface I_PP_Cost_Collector
 
 	public org.compiere.model.I_C_Campaign getC_Campaign() throws RuntimeException;
 
-    /** Column name C_DocTypeTarget_ID */
-    public static final String COLUMNNAME_C_DocTypeTarget_ID = "C_DocTypeTarget_ID";
-
-	/** Set Target Document Type.
-	  * Target document type for conversing documents
-	  */
-	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID);
-
-	/** Get Target Document Type.
-	  * Target document type for conversing documents
-	  */
-	public int getC_DocTypeTarget_ID();
-
-	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException;
-
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
@@ -150,6 +134,21 @@ public interface I_PP_Cost_Collector
 	public int getC_DocType_ID();
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
+
+    /** Column name C_DocTypeTarget_ID */
+    public static final String COLUMNNAME_C_DocTypeTarget_ID = "C_DocTypeTarget_ID";
+
+	/** Set Target Document Type.
+	  * Target document type for conversing documents
+	  */
+	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID);
+
+	/** Get Target Document Type.
+	  * Target document type for conversing documents
+	  */
+	public int getC_DocTypeTarget_ID();
+
+	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException;
 
     /** Column name C_Project_ID */
     public static final String COLUMNNAME_C_Project_ID = "C_Project_ID";
@@ -345,6 +344,21 @@ public interface I_PP_Cost_Collector
 
 	public I_M_Locator getM_Locator() throws RuntimeException;
 
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
+
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
@@ -400,6 +414,19 @@ public interface I_PP_Cost_Collector
 	  * Quantity of a product moved.
 	  */
 	public BigDecimal getMovementQty();
+
+    /** Column name Posted */
+    public static final String COLUMNNAME_Posted = "Posted";
+
+	/** Set Posted.
+	  * Posting status
+	  */
+	public void setPosted (boolean Posted);
+
+	/** Get Posted.
+	  * Posting status
+	  */
+	public boolean isPosted();
 
     /** Column name PP_Cost_Collector_ID */
     public static final String COLUMNNAME_PP_Cost_Collector_ID = "PP_Cost_Collector_ID";
@@ -461,19 +488,6 @@ public interface I_PP_Cost_Collector
 	public int getPP_Order_Workflow_ID();
 
 	public org.eevolution.model.I_PP_Order_Workflow getPP_Order_Workflow() throws RuntimeException;
-
-    /** Column name Posted */
-    public static final String COLUMNNAME_Posted = "Posted";
-
-	/** Set Posted.
-	  * Posting status
-	  */
-	public void setPosted (boolean Posted);
-
-	/** Get Posted.
-	  * Posting status
-	  */
-	public boolean isPosted();
 
     /** Column name Processed */
     public static final String COLUMNNAME_Processed = "Processed";

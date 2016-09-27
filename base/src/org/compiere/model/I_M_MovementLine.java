@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -141,21 +140,6 @@ public interface I_M_MovementLine
 	  */
 	public int getLine();
 
-    /** Column name M_AttributeSetInstanceTo_ID */
-    public static final String COLUMNNAME_M_AttributeSetInstanceTo_ID = "M_AttributeSetInstanceTo_ID";
-
-	/** Set Attribute Set Instance To.
-	  * Target Product Attribute Set Instance
-	  */
-	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID);
-
-	/** Get Attribute Set Instance To.
-	  * Target Product Attribute Set Instance
-	  */
-	public int getM_AttributeSetInstanceTo_ID();
-
-	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException;
-
     /** Column name M_AttributeSetInstance_ID */
     public static final String COLUMNNAME_M_AttributeSetInstance_ID = "M_AttributeSetInstance_ID";
 
@@ -171,20 +155,20 @@ public interface I_M_MovementLine
 
 	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
 
-    /** Column name M_LocatorTo_ID */
-    public static final String COLUMNNAME_M_LocatorTo_ID = "M_LocatorTo_ID";
+    /** Column name M_AttributeSetInstanceTo_ID */
+    public static final String COLUMNNAME_M_AttributeSetInstanceTo_ID = "M_AttributeSetInstanceTo_ID";
 
-	/** Set Locator To.
-	  * Location inventory is moved to
+	/** Set Attribute Set Instance To.
+	  * Target Product Attribute Set Instance
 	  */
-	public void setM_LocatorTo_ID (int M_LocatorTo_ID);
+	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID);
 
-	/** Get Locator To.
-	  * Location inventory is moved to
+	/** Get Attribute Set Instance To.
+	  * Target Product Attribute Set Instance
 	  */
-	public int getM_LocatorTo_ID();
+	public int getM_AttributeSetInstanceTo_ID();
 
-	public I_M_Locator getM_LocatorTo() throws RuntimeException;
+	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException;
 
     /** Column name M_Locator_ID */
     public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
@@ -201,18 +185,20 @@ public interface I_M_MovementLine
 
 	public I_M_Locator getM_Locator() throws RuntimeException;
 
-    /** Column name M_MovementLine_ID */
-    public static final String COLUMNNAME_M_MovementLine_ID = "M_MovementLine_ID";
+    /** Column name M_LocatorTo_ID */
+    public static final String COLUMNNAME_M_LocatorTo_ID = "M_LocatorTo_ID";
 
-	/** Set Move Line.
-	  * Inventory Move document Line
+	/** Set Locator To.
+	  * Location inventory is moved to
 	  */
-	public void setM_MovementLine_ID (int M_MovementLine_ID);
+	public void setM_LocatorTo_ID (int M_LocatorTo_ID);
 
-	/** Get Move Line.
-	  * Inventory Move document Line
+	/** Get Locator To.
+	  * Location inventory is moved to
 	  */
-	public int getM_MovementLine_ID();
+	public int getM_LocatorTo_ID();
+
+	public I_M_Locator getM_LocatorTo() throws RuntimeException;
 
     /** Column name M_Movement_ID */
     public static final String COLUMNNAME_M_Movement_ID = "M_Movement_ID";
@@ -228,6 +214,34 @@ public interface I_M_MovementLine
 	public int getM_Movement_ID();
 
 	public org.compiere.model.I_M_Movement getM_Movement() throws RuntimeException;
+
+    /** Column name M_MovementLine_ID */
+    public static final String COLUMNNAME_M_MovementLine_ID = "M_MovementLine_ID";
+
+	/** Set Move Line.
+	  * Inventory Move document Line
+	  */
+	public void setM_MovementLine_ID (int M_MovementLine_ID);
+
+	/** Get Move Line.
+	  * Inventory Move document Line
+	  */
+	public int getM_MovementLine_ID();
+
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";

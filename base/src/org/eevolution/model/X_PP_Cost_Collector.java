@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.eevolution.model;
@@ -34,7 +33,7 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20160823L;
 
     /** Standard Constructor */
     public X_PP_Cost_Collector (Properties ctx, int PP_Cost_Collector_ID, String trxName)
@@ -42,9 +41,9 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
       super (ctx, PP_Cost_Collector_ID, trxName);
       /** if (PP_Cost_Collector_ID == 0)
         {
-			setC_DocTypeTarget_ID (0);
 			setC_DocType_ID (0);
 // 0
+			setC_DocTypeTarget_ID (0);
 			setCostCollectorType (null);
 			setDateAcct (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
@@ -55,9 +54,9 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 // @#Date@
 			setMovementQty (Env.ZERO);
 // 0
+			setPosted (false);
 			setPP_Cost_Collector_ID (0);
 			setPP_Order_ID (0);
-			setPosted (false);
 			setProcessed (false);
 			setS_Resource_ID (0);
         } */
@@ -198,34 +197,6 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_Name)
-			.getPO(getC_DocTypeTarget_ID(), get_TrxName());	}
-
-	/** Set Target Document Type.
-		@param C_DocTypeTarget_ID 
-		Target document type for conversing documents
-	  */
-	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID)
-	{
-		if (C_DocTypeTarget_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_DocTypeTarget_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_DocTypeTarget_ID, Integer.valueOf(C_DocTypeTarget_ID));
-	}
-
-	/** Get Target Document Type.
-		@return Target document type for conversing documents
-	  */
-	public int getC_DocTypeTarget_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocTypeTarget_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
     {
 		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_Name)
@@ -249,6 +220,34 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 	public int getC_DocType_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_Name)
+			.getPO(getC_DocTypeTarget_ID(), get_TrxName());	}
+
+	/** Set Target Document Type.
+		@param C_DocTypeTarget_ID 
+		Target document type for conversing documents
+	  */
+	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID)
+	{
+		if (C_DocTypeTarget_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_DocTypeTarget_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_DocTypeTarget_ID, Integer.valueOf(C_DocTypeTarget_ID));
+	}
+
+	/** Get Target Document Type.
+		@return Target document type for conversing documents
+	  */
+	public int getC_DocTypeTarget_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocTypeTarget_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -408,6 +407,12 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 	public static final String DOCACTION_Unlock = "XL";
 	/** Wait Complete = WC */
 	public static final String DOCACTION_WaitComplete = "WC";
+	/** Enter = ME */
+	public static final String DOCACTION_Enter = "ME";
+	/** Defer = MD */
+	public static final String DOCACTION_Defer = "MD";
+	/** Rectify = MR */
+	public static final String DOCACTION_Rectify = "MR";
 	/** Set Document Action.
 		@param DocAction 
 		The targeted status of the document
@@ -452,6 +457,12 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 	public static final String DOCSTATUS_WaitingPayment = "WP";
 	/** Waiting Confirmation = WC */
 	public static final String DOCSTATUS_WaitingConfirmation = "WC";
+	/** Entered = ME */
+	public static final String DOCSTATUS_Entered = "ME";
+	/** Rectified = MR */
+	public static final String DOCSTATUS_Rectified = "MR";
+	/** Deferred = MD */
+	public static final String DOCSTATUS_Deferred = "MD";
 	/** Set Document Status.
 		@param DocStatus 
 		The current status of the document
@@ -602,6 +613,34 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
@@ -649,7 +688,7 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 	  */
 	public void setM_Warehouse_ID (int M_Warehouse_ID)
 	{
-		if (M_Warehouse_ID < 1) 
+		if (M_Warehouse_ID < 0) 
 			set_Value (COLUMNNAME_M_Warehouse_ID, null);
 		else 
 			set_Value (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
@@ -701,6 +740,30 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Posted.
+		@param Posted 
+		Posting status
+	  */
+	public void setPosted (boolean Posted)
+	{
+		set_Value (COLUMNNAME_Posted, Boolean.valueOf(Posted));
+	}
+
+	/** Get Posted.
+		@return Posting status
+	  */
+	public boolean isPosted () 
+	{
+		Object oo = get_Value(COLUMNNAME_Posted);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Manufacturing Cost Collector.
@@ -827,30 +890,6 @@ public class X_PP_Cost_Collector extends PO implements I_PP_Cost_Collector, I_Pe
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Posted.
-		@param Posted 
-		Posting status
-	  */
-	public void setPosted (boolean Posted)
-	{
-		set_Value (COLUMNNAME_Posted, Boolean.valueOf(Posted));
-	}
-
-	/** Get Posted.
-		@return Posting status
-	  */
-	public boolean isPosted () 
-	{
-		Object oo = get_Value(COLUMNNAME_Posted);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
 	}
 
 	/** Set Processed.

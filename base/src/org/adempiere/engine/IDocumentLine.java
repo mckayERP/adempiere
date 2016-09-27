@@ -49,4 +49,6 @@ public interface IDocumentLine
 	public int getReversalLine_ID();
 	public BigDecimal getPriceActual();
 	public IDocumentLine getReversalDocumentLine();
+	public int getM_MPolicyTicket_ID();
+	public void setM_MPolicyTicket_ID(int M_MPolicyTicket_ID);
 }
