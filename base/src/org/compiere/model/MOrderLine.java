@@ -859,45 +859,54 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 		if (newRecord || is_ValueChanged("QtyOrdered"))
 			setQtyOrdered(getQtyOrdered());
 		
-		//	Qty on instance ASI for SO
-		if (getParent().isSOTrx()
-			&& getM_AttributeSetInstance_ID() != 0
-			&& (newRecord || is_ValueChanged("M_Product_ID")
-				|| is_ValueChanged("M_AttributeSetInstance_ID")
-				|| is_ValueChanged("M_Warehouse_ID")))
-		{
-			MProduct product = getProduct();
-			if (product.isStocked())
-			{
-				int M_AttributeSet_ID = product.getM_AttributeSet_ID();
-				boolean isInstance = M_AttributeSet_ID != 0;
-				if (isInstance)
-				{
-					MAttributeSet mas = MAttributeSet.get(getCtx(), M_AttributeSet_ID);
-					isInstance = mas.isInstanceAttribute();
-				}
-				//	Max
-				if (isInstance)
-				{
-					MStorage[] storages = MStorage.getWarehouse(getCtx(), 
-						getM_Warehouse_ID(), getM_Product_ID(), getM_AttributeSetInstance_ID(), 
-						M_AttributeSet_ID, false, null, true, get_TrxName());
-					BigDecimal qty = Env.ZERO;
-					for (int i = 0; i < storages.length; i++)
-					{
-						if (storages[i].getM_AttributeSetInstance_ID() == getM_AttributeSetInstance_ID())
-							qty = qty.add(storages[i].getQtyOnHand());
-					}
-					
-					if (getQtyOrdered().compareTo(qty) > 0)
-					{
-						log.warning("Qty - Stock=" + qty + ", Ordered=" + getQtyOrdered());
-						log.saveError("QtyInsufficient", "=" + qty); 
-						return false;
-					}
-				}
-			}	//	stocked
-		}	//	SO instance
+//  This chunk of code prevents the save if the ASI is not in stock. This is not
+//  what an order should do.  The order creates a demand.  Its the shipment which
+//  should be prevented if there is insufficient stock.
+//		//  For Sales Orders, check inventory for product/ASI and warn if insufficient
+//		//  The ASI could be zero, a product ASI without instance data (e.g. serial no)
+//		//  or a full ASI with instance data.  In storage, the quantity available is a
+//		//  sum of the quantities of that product with a matching or compatible ASI.
+//		if (getParent().isSOTrx() // Outgoing trx
+//			&& getM_AttributeSetInstance_ID() != 0 // With an ASI specified
+//			&& (newRecord || is_ValueChanged("M_Product_ID")
+//				|| is_ValueChanged("M_AttributeSetInstance_ID")
+//				|| is_ValueChanged("M_Warehouse_ID")
+//				|| is_ValueChanged("QtyOrdered")))
+//		{
+//			MProduct product = getProduct();
+//			if (product.isStocked())
+//			{
+//				// How precise is the ASI?
+//				int M_AttributeSet_ID = product.getM_AttributeSet_ID();
+//				boolean isInstance = M_AttributeSet_ID != 0;
+//				if (isInstance)
+//				{
+//					MAttributeSet mas = MAttributeSet.get(getCtx(), M_AttributeSet_ID);
+//					isInstance = mas.isInstanceAttribute();
+//				}
+//				//	Max
+//				if (isInstance)
+//				{
+//					MStorage[] storages = MStorage.getWarehouse(getCtx(), 
+//						getM_Warehouse_ID(), getM_Product_ID(), getM_AttributeSetInstance_ID(), 
+//						M_AttributeSet_ID, false, null, true, get_TrxName());
+//					BigDecimal qty = Env.ZERO;
+//					for (int i = 0; i < storages.length; i++)
+//					{
+//						if (storages[i].getM_AttributeSetInstance_ID() == getM_AttributeSetInstance_ID())
+//							qty = qty.add(storages[i].getQtyOnHand());
+//					}
+//					
+//					if (getQtyOrdered().compareTo(qty) > 0)
+//					{
+//						log.warning("Qty - Stock=" + qty + ", Ordered=" + getQtyOrdered());
+//						log.saveError("QtyInsufficient", "=" + qty); 
+//						return false;  	// TODO - do we really want to do this on an order?  It prevents 
+//										// creating a demand for products in the future.
+//					}
+//				}
+//			}	//	stocked
+//		}	//	SO instance
 		
 		//	FreightAmt Not used
 		if (Env.ZERO.compareTo(getFreightAmt()) != 0)
