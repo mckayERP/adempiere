@@ -482,18 +482,18 @@ public class InOutGenerate extends SvrProcess
 			int M_Locator_ID = storage.getM_Locator_ID();
 			//
 			MInOutLine line = null;
-			if (orderLine.getM_AttributeSetInstance_ID() == 0)      //      find line with Locator
-			{
+//			if (orderLine.getM_AttributeSetInstance_ID() == 0)      //      find line with Locator
+//			{
 				for (int ll = 0; ll < list.size(); ll++)
 				{
 					MInOutLine test = (MInOutLine)list.get(ll);
-					if (test.getM_Locator_ID() == M_Locator_ID && test.getM_AttributeSetInstance_ID() == 0)
+					if (test.getM_Locator_ID() == M_Locator_ID && test.getM_AttributeSetInstance_ID() == orderLine.getM_AttributeSetInstance_ID())
 					{
 						line = test;
 						break;
 					}
 				}
-			}
+//			}
 			if (line == null)	//	new line
 			{
 				line = new MInOutLine (m_shipment);
@@ -560,7 +560,7 @@ public class InOutGenerate extends SvrProcess
 		if (m_lastStorages == null)
 		{
 			m_lastStorages = MStorage.getWarehouse(getCtx(), 
-				M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,
+				M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 0,
 				minGuaranteeDate, FiFo,false, 0, get_TrxName());
 			m_map.put(m_lastPP, m_lastStorages);
 		}
