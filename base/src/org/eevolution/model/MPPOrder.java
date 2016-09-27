@@ -636,6 +636,7 @@ public class MPPOrder extends X_PP_Order implements DocAction
 		// Necessary to clear order quantities when called from closeIt - 4Layers
 		if (DOCACTION_Close.equals(getDocAction()))
 		{
+			// No material policy ticket involved
 			if (!MStorage.add(getCtx(), getM_Warehouse_ID(), M_Locator_ID,
 					getM_Product_ID(), getM_AttributeSetInstance_ID(),
 					getM_AttributeSetInstance_ID(), Env.ZERO, Env.ZERO, ordered, get_TrxName()))
@@ -646,6 +647,7 @@ public class MPPOrder extends X_PP_Order implements DocAction
 		else
 		{
 			//	Update Storage
+			//  TODO This is the same as the above. Is the if structure required?
 			if (!MStorage.add(getCtx(), getM_Warehouse_ID(), M_Locator_ID,
 					getM_Product_ID(), getM_AttributeSetInstance_ID(),
 					getM_AttributeSetInstance_ID(), Env.ZERO, Env.ZERO, ordered, get_TrxName()))

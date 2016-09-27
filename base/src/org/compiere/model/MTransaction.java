@@ -207,9 +207,33 @@ public class MTransaction extends X_M_Transaction
 	 * 	@param MovementDate optional date
 	 *	@param trxName transaction
 	 */
+	@Deprecated
 	public MTransaction (Properties ctx, int AD_Org_ID, 
 		String MovementType, 
 		int M_Locator_ID, int M_Product_ID, int M_AttributeSetInstance_ID, 
+		BigDecimal MovementQty, Timestamp MovementDate, String trxName)
+	{
+		this(ctx, AD_Org_ID, MovementType, M_Locator_ID, 
+				M_Product_ID, M_AttributeSetInstance_ID, 0,
+				MovementQty, MovementDate, trxName);
+	}
+	/**
+	 * 	Detail Constructor
+	 *	@param ctx context
+	 *	@param AD_Org_ID org
+	 * 	@param MovementType movement type
+	 * 	@param M_Locator_ID locator
+	 * 	@param M_Product_ID product
+	 * 	@param M_AttributeSetInstance_ID attribute
+	 *  @param M_MPolicyTicket_ID Material Policy Ticket
+	 * 	@param MovementQty qty
+	 * 	@param MovementDate optional date
+	 *	@param trxName transaction
+	 */
+	public MTransaction (Properties ctx, int AD_Org_ID, 
+		String MovementType, 
+		int M_Locator_ID, int M_Product_ID, int M_AttributeSetInstance_ID,
+		int M_MPolicyTicket_ID,
 		BigDecimal MovementQty, Timestamp MovementDate, String trxName)
 	{
 		super(ctx, 0, trxName);
@@ -222,6 +246,7 @@ public class MTransaction extends X_M_Transaction
 			throw new IllegalArgumentException("No Product");
 		setM_Product_ID (M_Product_ID);
 		setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		//
 		if (MovementQty != null)		//	Can be 0
 			setMovementQty (MovementQty);
@@ -277,6 +302,7 @@ public class MTransaction extends X_M_Transaction
 			.append(",Qty=").append(getMovementQty())
 			.append(",M_Product_ID=").append(getM_Product_ID())
 			.append(",ASI=").append(getM_AttributeSetInstance_ID())
+			.append(",Mat Policy Ticket=").append(getM_MPolicyTicket_ID())
 			.append ("]");
 		return sb.toString ();
 	}	//	toString

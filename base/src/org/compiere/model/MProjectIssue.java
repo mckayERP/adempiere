@@ -162,6 +162,7 @@ public class MProjectIssue extends X_C_ProjectIssue
 			getMovementQty().negate(), getMovementDate(), get_TrxName());
 		mTrx.setC_ProjectIssue_ID(getC_ProjectIssue_ID());
 		//
+		// TODO - draw from the material policy?
 		MLocator loc = MLocator.get(getCtx(), getM_Locator_ID());
 		if (MStorage.add(getCtx(), loc.getM_Warehouse_ID(), getM_Locator_ID(), 
 				getM_Product_ID(), getM_AttributeSetInstance_ID(), getM_AttributeSetInstance_ID(),

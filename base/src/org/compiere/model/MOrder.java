@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import org.adempiere.engine.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.BPartnerNoBillToAddressException;
 import org.adempiere.exceptions.BPartnerNoShipToAddressException;
@@ -1476,38 +1477,13 @@ public class MOrder extends X_C_Order implements DocAction
 				{
 					BigDecimal ordered = isSOTrx ? Env.ZERO : difference;
 					BigDecimal reserved = isSOTrx ? difference : Env.ZERO;
-					int M_Locator_ID = 0; 
-					//	Get Locator to reserve
-					if (line.getM_AttributeSetInstance_ID() != 0)	//	Get existing Location
-						M_Locator_ID = MStorage.getM_Locator_ID (line.getM_Warehouse_ID(), 
+					
+					StorageEngine.reserveOrOrderStock(getCtx(), line.getM_Warehouse_ID(), 
 							line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 
-							ordered, get_TrxName());
-					//	Get default Location
-					if (M_Locator_ID == 0)
-					{
-						// try to take default locator for product first
-						// if it is from the selected warehouse
-						MWarehouse wh = MWarehouse.get(getCtx(), line.getM_Warehouse_ID());
-						M_Locator_ID = product.getM_Locator_ID();
-						if (M_Locator_ID!=0) {
-							MLocator locator = new MLocator(getCtx(), product.getM_Locator_ID(), get_TrxName());
-							//product has default locator defined but is not from the order warehouse
-							if(locator.getM_Warehouse_ID()!=wh.get_ID()) {
-								M_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
-							}
-						} else {
-							M_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
-						}
-					}
-					//	Update Storage
-					if (!MStorage.add(getCtx(), line.getM_Warehouse_ID(), M_Locator_ID, 
-						line.getM_Product_ID(), 
-						line.getM_AttributeSetInstance_ID(), line.getM_AttributeSetInstance_ID(),
-						Env.ZERO, reserved, ordered, get_TrxName()))
-						return false;
+							ordered, reserved, get_TrxName());
 
 					line.setQtyReserved(line.getQtyReserved().add(difference));
-				}	//	stockec
+				}	//	stocked
 				else {
 					line.setQtyReserved(Env.ZERO);
 					line.setQtyDelivered(Env.ZERO);
@@ -1793,7 +1769,7 @@ public class MOrder extends X_C_Order implements DocAction
 			BigDecimal MovementQty = oLine.getQtyOrdered().subtract(oLine.getQtyDelivered()); 
 			//	Location
 			int M_Locator_ID = MStorage.getM_Locator_ID (oLine.getM_Warehouse_ID(), 
-					oLine.getM_Product_ID(), oLine.getM_AttributeSetInstance_ID(), 
+					oLine.getM_Product_ID(), oLine.getM_AttributeSetInstance_ID(), 0,
 					MovementQty, get_TrxName());
 			if (M_Locator_ID == 0)		//	Get default Location
 			{

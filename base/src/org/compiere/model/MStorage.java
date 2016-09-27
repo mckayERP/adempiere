@@ -29,7 +29,6 @@ import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.compiere.util.Util;
 
 /**
  * 	Inventory Storage Model
@@ -48,7 +47,25 @@ public class MStorage extends X_M_Storage
 	private static final long serialVersionUID = 9086223702645715061L;
 
 	/**
-	 * 	Get Storage Info
+	 * 	Get Storage Info - The entry for the locator, product and ASI where 
+	 *  there is no Material Policy Ticket
+	 *	@param ctx context
+	 *	@param M_Locator_ID locator
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID instance
+	 *	@param trxName transaction
+	 *	@return existing or null
+	 */
+	@Deprecated
+	public static MStorage get (Properties ctx, int M_Locator_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, String trxName)
+	{
+		return get(ctx, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, 0, trxName);
+	}
+
+	/**
+	 * 	Get Storage Info - The entry for the locator, product and ASI and  
+	 *  a Material Policy Ticket
 	 *	@param ctx context
 	 *	@param M_Locator_ID locator
 	 *	@param M_Product_ID product
@@ -57,15 +74,19 @@ public class MStorage extends X_M_Storage
 	 *	@return existing or null
 	 */
 	public static MStorage get (Properties ctx, int M_Locator_ID, 
-		int M_Product_ID, int M_AttributeSetInstance_ID, String trxName)
+		int M_Product_ID, int M_AttributeSetInstance_ID, int M_MPolicyTicket_ID, String trxName)
 	{
 		MStorage retValue = null;
 		String sql = "SELECT * FROM M_Storage "
-			+ "WHERE M_Locator_ID=? AND M_Product_ID=? AND ";
+			+ "WHERE M_Locator_ID=? AND M_Product_ID=?";
 		if (M_AttributeSetInstance_ID == 0)
-			sql += "(M_AttributeSetInstance_ID=? OR M_AttributeSetInstance_ID IS NULL)";
+			sql += " AND (M_AttributeSetInstance_ID=? OR M_AttributeSetInstance_ID IS NULL)";
 		else
-			sql += "M_AttributeSetInstance_ID=?";
+			sql += " AND M_AttributeSetInstance_ID=?";
+		if (M_MPolicyTicket_ID == 0)
+			sql += " AND (M_MPolicyTicket_ID = ? OR M_MPolicyTicket_ID IS NULL)";
+		else
+			sql += " AND M_MPolicyTicket_ID=?";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
@@ -74,6 +95,7 @@ public class MStorage extends X_M_Storage
 			pstmt.setInt (1, M_Locator_ID);
 			pstmt.setInt (2, M_Product_ID);
 			pstmt.setInt (3, M_AttributeSetInstance_ID);
+			pstmt.setInt (4, M_MPolicyTicket_ID);
 			rs = pstmt.executeQuery ();
 			if (rs.next ())
 				retValue = new MStorage (ctx, rs, trxName);
@@ -89,10 +111,14 @@ public class MStorage extends X_M_Storage
 		}
 		if (retValue == null)
 			s_log.fine("Not Found - M_Locator_ID=" + M_Locator_ID 
-				+ ", M_Product_ID=" + M_Product_ID + ", M_AttributeSetInstance_ID=" + M_AttributeSetInstance_ID);
+				+ ", M_Product_ID=" + M_Product_ID 
+				+ ", M_AttributeSetInstance_ID=" + M_AttributeSetInstance_ID
+				+ ", M_MPolicyTicket_ID=" + M_MPolicyTicket_ID);
 		else
 			s_log.fine("M_Locator_ID=" + M_Locator_ID 
-				+ ", M_Product_ID=" + M_Product_ID + ", M_AttributeSetInstance_ID=" + M_AttributeSetInstance_ID);
+				+ ", M_Product_ID=" + M_Product_ID 
+				+ ", M_AttributeSetInstance_ID=" + M_AttributeSetInstance_ID
+				+ ", M_MPolicyTicket_ID=" + M_MPolicyTicket_ID);
 		return retValue;
 	}	//	get
 
@@ -110,24 +136,28 @@ public class MStorage extends X_M_Storage
 		int productId, int warehouseId, int attributeSetInstanceId, String trxName)
 	{
 		final StringBuilder whereClause = new StringBuilder();
-		whereClause.append("EXISTS (SELECT 1 FROM M_Locator l WHERE l.M_Locator_ID=M_Storage.M_Locator_ID AND l.M_Warehouse_ID=? ) AND ");
-		whereClause.append(MStorage.COLUMNNAME_M_Product_ID).append("=? AND ");
-		if (attributeSetInstanceId == 0)
-			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=? OR ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append(" IS NULL ");
-		else
-			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=?");
+		whereClause.append("EXISTS (SELECT 1 FROM M_Locator l WHERE l.M_Locator_ID=M_Storage.M_Locator_ID AND l.M_Warehouse_ID=? )");
+		whereClause.append(" AND ").append(MStorage.COLUMNNAME_M_Product_ID).append("=?");
+		if (attributeSetInstanceId > 0)
+//			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=? OR ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append(" IS NULL ");
+//		else
+			whereClause.append(" AND ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=?");
 
 		whereClause.append(" AND QtyReserved <> 0");
 
-		return new Query(ctx,MStorage.Table_Name, whereClause.toString(), trxName).setClient_ID()
-		.setParameters( warehouseId , productId , attributeSetInstanceId)
-		.setOrderBy(MStorage.COLUMNNAME_QtyReserved + " Desc")
-		.first();
+		Query query = new Query(ctx,MStorage.Table_Name, whereClause.toString(), trxName).setClient_ID()
+				.setOrderBy(MStorage.COLUMNNAME_QtyReserved + " Desc");
+		if (attributeSetInstanceId > 0)
+			query.setParameters( warehouseId , productId , attributeSetInstanceId);
+		else
+			query.setParameters( warehouseId , productId);
+		return query.first();
 	}	//	get
 
 
 	/**
-	 * get Qty Ordered
+	 * get Qty Ordered of a product/ASI from a particular warehouse. The returned value is the 
+	 * highest quantity ordered. 
 	 * @param ctx
 	 * @param productId
 	 * @param warehouseId
@@ -138,20 +168,28 @@ public class MStorage extends X_M_Storage
 	public static MStorage getQtyOrdered (Properties ctx,
 		int productId, int warehouseId , int attributeSetInstanceId, String trxName)
 	{
+		// TODO - Does this need to include the M_MPolicyTicket_ID?  M_MPolicyTickets should only be 
+		// required on received/stocked storage entries.  Ordered amounts should always be listed with
+		// M_MPolicyTicket_ID = 0.
 		final StringBuilder whereClause = new StringBuilder();
 		whereClause.append("EXISTS (SELECT 1 FROM M_Locator l WHERE l.M_Locator_ID=M_Storage.M_Locator_ID AND l.M_Warehouse_ID=? ) AND ");
-		whereClause.append(MStorage.COLUMNNAME_M_Product_ID).append("=? AND ");
-		if (attributeSetInstanceId == 0)
-			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=? OR ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append(" IS NULL ");
-		else
-			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=?");
+		whereClause.append(MStorage.COLUMNNAME_M_Product_ID).append("=?");
+		if (attributeSetInstanceId > 0)
+//			whereClause.append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=? OR ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append(" IS NULL ");
+//		else
+			whereClause.append(" AND ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=?");
 
 		whereClause.append(" AND QtyOrdered <> 0");
 
-		return new Query(ctx,MStorage.Table_Name, whereClause.toString(), trxName).setClient_ID()
-		.setParameters( warehouseId , productId , attributeSetInstanceId)
-		.setOrderBy(MStorage.COLUMNNAME_QtyOrdered)
-		.first();
+		Query query = new Query(ctx,MStorage.Table_Name, whereClause.toString(), trxName).setClient_ID()
+		.setOrderBy(MStorage.COLUMNNAME_QtyOrdered);
+		
+		if (attributeSetInstanceId > 0)
+			query.setParameters( warehouseId , productId , attributeSetInstanceId);
+		else
+			query.setParameters( warehouseId , productId);
+		
+		return query.first();
 	}	//	get
 
 	/**
@@ -167,11 +205,12 @@ public class MStorage extends X_M_Storage
 		boolean FiFo, String trxName)
 	{
 		ArrayList<MStorage> list = new ArrayList<MStorage>();
-		String sql = "SELECT * FROM M_Storage "
-			+ "WHERE M_Product_ID=? AND M_Locator_ID=?"
-			+ " AND M_AttributeSetInstance_ID > 0 "
+		String sql = "SELECT * FROM M_Storage s "
+			+ "INNER JOIN M_PolicyTicket_ID p ON (s.M_MPolicyTicket_ID=p.M_MPolicyTicket_ID) "
+			+ "WHERE s.M_Product_ID=? AND s.M_Locator_ID=?"
+			+ " AND s.M_AttributeSetInstance_ID > 0 "
 			+ " AND QtyOnHand <> 0 "			
-			+ "ORDER BY M_AttributeSetInstance_ID";
+			+ "ORDER BY p.MovementDate";
 		if (!FiFo)
 			sql += " DESC";
 		PreparedStatement pstmt = null;
@@ -211,10 +250,11 @@ public class MStorage extends X_M_Storage
 		int M_Product_ID, int M_Locator_ID, String trxName)
 	{
 		ArrayList<MStorage> list = new ArrayList<MStorage>();
-		String sql = "SELECT * FROM M_Storage "
-			+ "WHERE M_Product_ID=? AND M_Locator_ID=?"
-			+ " AND QtyOnHand <> 0 "
-			+ "ORDER BY M_AttributeSetInstance_ID";
+		String sql = "SELECT * FROM M_Storage s "
+			+ "INNER JOIN M_PolicyTicket_ID p ON (s.M_MPolicyTicket_ID=p.M_MPolicyTicket_ID) "
+			+ "WHERE s.M_Product_ID=? AND s.M_Locator_ID=?"
+			+ " AND s.QtyOnHand <> 0 "
+			+ "ORDER BY p.MovementDate";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
@@ -314,9 +354,137 @@ public class MStorage extends X_M_Storage
 	 *	@param trxName transaction
 	 *	@return existing - ordered by location priority (desc) and/or guarantee date
 	 */
+	@Deprecated
 	public static MStorage[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
 		int M_Product_ID, int M_AttributeSetInstance_ID, Timestamp minGuaranteeDate,
 		boolean FiFo, boolean positiveOnly, int M_Locator_ID, String trxName)
+	{
+		return getWarehouse(ctx, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 0, 
+				minGuaranteeDate, FiFo, false, 0, trxName);
+//		if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
+//			return new MStorage[0];
+//		
+//		boolean allAttributeInstances = false;
+//		if (M_AttributeSetInstance_ID == 0)
+//			allAttributeInstances = true;		
+//		
+//		ArrayList<MStorage> list = new ArrayList<MStorage>();
+//		//	Specific Attribute Set Instance
+//		String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID, s.M_MPolicyTicket_ID,"
+//			+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+//			+ "s.QtyOnHand,s.QtyReserved,s.QtyOrdered,s.DateLastInventory "
+//			+ "FROM M_Storage s"
+//			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) ";
+//		if (M_Locator_ID > 0)
+//			sql += "WHERE l.M_Locator_ID = ?";
+//		else
+//			sql += "WHERE l.M_Warehouse_ID=?";
+//		sql += " AND s.M_Product_ID=?"
+//			 + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
+//		if (positiveOnly)
+//		{
+//			sql += " AND s.QtyOnHand > 0 ";
+//		}
+//		else
+//		{
+//			sql += " AND s.QtyOnHand <> 0 ";
+//		}
+//		sql += "ORDER BY l.PriorityNo DESC, M_AttributeSetInstance_ID";
+//		if (!FiFo)
+//			sql += " DESC";
+//		//	All Attribute Set Instances
+//		if (allAttributeInstances)
+//		{
+//			sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID, s.M_MPolicyTicket_ID, "
+//				+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+//				+ "s.QtyOnHand,s.QtyReserved,s.QtyOrdered,s.DateLastInventory "
+//				+ "FROM M_Storage s"
+//				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
+//				+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
+//			if (M_Locator_ID > 0)
+//				sql += "WHERE l.M_Locator_ID = ?";
+//			else
+//				sql += "WHERE l.M_Warehouse_ID=?";
+//			sql += " AND s.M_Product_ID=? ";
+//			if (positiveOnly)
+//			{
+//				sql += " AND s.QtyOnHand > 0 ";
+//			}
+//			else
+//			{
+//				sql += " AND s.QtyOnHand <> 0 ";
+//			}
+//			if (minGuaranteeDate != null)
+//			{
+//				sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
+//				sql += "ORDER BY l.PriorityNo DESC, " +
+//					   "asi.GuaranteeDate, M_AttributeSetInstance_ID";
+//				if (!FiFo)
+//					sql += " DESC";
+//				sql += ", s.QtyOnHand DESC";
+//			}
+//			else
+//			{
+//				sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.M_AttributeSetInstance_ID";
+//				if (!FiFo)
+//					sql += " DESC";
+//				sql += ", s.QtyOnHand DESC";
+//			}
+//		} 
+//		PreparedStatement pstmt = null;
+//		ResultSet rs = null;
+//		try
+//		{
+//			pstmt = DB.prepareStatement(sql, trxName);
+//			pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
+//			pstmt.setInt(2, M_Product_ID);
+//			if (!allAttributeInstances)
+//			{
+//				pstmt.setInt(3, M_AttributeSetInstance_ID);
+//			}
+//			else if (minGuaranteeDate != null)
+//			{
+//				pstmt.setTimestamp(3, minGuaranteeDate);
+//			}
+//			rs = pstmt.executeQuery();
+//			while (rs.next())
+//			{	
+//				if(rs.getBigDecimal(12).signum() != 0)
+//				list.add (new MStorage (ctx, rs, trxName));
+//			}	
+//		}
+//		catch (Exception e)
+//		{
+//			s_log.log(Level.SEVERE, sql, e);
+//		}
+//		finally
+//		{
+//			DB.close(rs, pstmt);
+//			rs = null; pstmt = null;
+//		}
+//		MStorage[] retValue = new MStorage[list.size()];
+//		list.toArray(retValue);
+//		return retValue;
+	}	//	getWarehouse
+
+	/**
+	 * 	Get Storage Info for Warehouse or locator
+	 *	@param ctx context
+	 *	@param M_Warehouse_ID ignore if M_Locator_ID > 0
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID instance id, 0 to retrieve all instance
+	 *  @param M_MPolicyTicket_ID FIFO/LIFO ticket ID, 0 to retrieve all available tickets
+	 *	@param minGuaranteeDate optional minimum guarantee date if all attribute instances
+	 *	@param FiFo first in-first-out
+	 *  @param positiveOnly if true, only return storage records with qtyOnHand > 0
+	 *  @param M_Locator_ID optional locator id
+	 *	@param trxName transaction
+	 *	@return existing - ordered by location priority (desc) and/or guarantee date
+	 */
+	public static MStorage[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, int M_MPolicyTicket_ID, 
+		Timestamp minGuaranteeDate, boolean FiFo, boolean positiveOnly, 
+		int M_Locator_ID, String trxName)
 	{
 		if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
 			return new MStorage[0];
@@ -324,89 +492,77 @@ public class MStorage extends X_M_Storage
 		boolean allAttributeInstances = false;
 		if (M_AttributeSetInstance_ID == 0)
 			allAttributeInstances = true;		
-		
+
+		boolean allTickets = false;
+		if (M_MPolicyTicket_ID == 0)
+			allTickets = true;		
+
 		ArrayList<MStorage> list = new ArrayList<MStorage>();
-		//	Specific Attribute Set Instance
-		String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
+
+		String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,s.M_MPolicyTicket_ID,"
 			+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
 			+ "s.QtyOnHand,s.QtyReserved,s.QtyOrdered,s.DateLastInventory "
 			+ "FROM M_Storage s"
-			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) ";
-		if (M_Locator_ID > 0)
-			sql += "WHERE l.M_Locator_ID = ?";
-		else
-			sql += "WHERE l.M_Warehouse_ID=?";
-		sql += " AND s.M_Product_ID=?"
-			 + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
-		if (positiveOnly)
-		{
-			sql += " AND s.QtyOnHand > 0 ";
-		}
-		else
-		{
-			sql += " AND s.QtyOnHand <> 0 ";
-		}
-		sql += "ORDER BY l.PriorityNo DESC, M_AttributeSetInstance_ID";
-		if (!FiFo)
-			sql += " DESC";
-		//	All Attribute Set Instances
+			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
+			+ " INNER JOIN M_MPolicyTicket p ON (s.M_MPolicyTicket_ID=p.M_MPolicyTicket_ID)";
 		if (allAttributeInstances)
-		{
-			sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
-				+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
-				+ "s.QtyOnHand,s.QtyReserved,s.QtyOrdered,s.DateLastInventory "
-				+ "FROM M_Storage s"
-				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
-				+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
-			if (M_Locator_ID > 0)
-				sql += "WHERE l.M_Locator_ID = ?";
-			else
-				sql += "WHERE l.M_Warehouse_ID=?";
-			sql += " AND s.M_Product_ID=? ";
-			if (positiveOnly)
-			{
-				sql += " AND s.QtyOnHand > 0 ";
-			}
-			else
-			{
-				sql += " AND s.QtyOnHand <> 0 ";
-			}
-			if (minGuaranteeDate != null)
-			{
-				sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
-				sql += "ORDER BY l.PriorityNo DESC, " +
-					   "asi.GuaranteeDate, M_AttributeSetInstance_ID";
-				if (!FiFo)
-					sql += " DESC";
-				sql += ", s.QtyOnHand DESC";
-			}
-			else
-			{
-				sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.M_AttributeSetInstance_ID";
-				if (!FiFo)
-					sql += " DESC";
-				sql += ", s.QtyOnHand DESC";
+			sql += " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID)";
+		if (M_Locator_ID > 0)
+			sql += " WHERE l.M_Locator_ID = ?";
+		else
+			sql += " WHERE l.M_Warehouse_ID=?";
+		sql += " AND s.M_Product_ID=?";
+		if (allAttributeInstances) {
+			if (minGuaranteeDate != null) {
+				sql += " AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?)";
 			}
 		} 
+		else
+			sql += " AND COALESCE(s.M_AttributeSetInstance_ID,0)=?";
+		if (!allTickets)
+			sql += " AND COALESCE(s.M_MPolicyTicket_ID,0)=?";
+		if (positiveOnly) {
+			sql += " AND s.QtyOnHand > 0";
+		}
+		else {
+			sql += " AND s.QtyOnHand <> 0";
+		}
+		
+		// Order By
+		sql += " ORDER BY l.PriorityNo DESC";
+		if (allAttributeInstances) {
+			sql += ", asi.GuaranteeDate";
+		}
+		if (allTickets) {
+			sql += ", p.MovementDate";			
+			if (!FiFo)
+				sql += " DESC";
+		}
+		
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
 		{
 			pstmt = DB.prepareStatement(sql, trxName);
-			pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
-			pstmt.setInt(2, M_Product_ID);
+			int i = 1;
+			pstmt.setInt(i++, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
+			pstmt.setInt(i++, M_Product_ID);
 			if (!allAttributeInstances)
 			{
-				pstmt.setInt(3, M_AttributeSetInstance_ID);
+				pstmt.setInt(i++, M_AttributeSetInstance_ID);
 			}
-			else if (minGuaranteeDate != null)
+			if (!allTickets)
 			{
-				pstmt.setTimestamp(3, minGuaranteeDate);
+				pstmt.setInt(i++, M_AttributeSetInstance_ID);
+			}
+			if (allAttributeInstances && minGuaranteeDate != null)
+			{
+				pstmt.setTimestamp(i++, minGuaranteeDate);
 			}
 			rs = pstmt.executeQuery();
 			while (rs.next())
 			{	
-				if(rs.getBigDecimal(11).signum() != 0)
+				if(rs.getBigDecimal(12).signum() != 0)
 				list.add (new MStorage (ctx, rs, trxName));
 			}	
 		}
@@ -434,32 +590,47 @@ public class MStorage extends X_M_Storage
 	 *	@param trxName transaction
 	 *	@return existing/new or null
 	 */
+	@Deprecated
 	public static MStorage getCreate (Properties ctx, int M_Locator_ID, 
 		int M_Product_ID, int M_AttributeSetInstance_ID, String trxName)
+	{
+		return getCreate(ctx, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, 0, trxName);
+	}
+	
+	/**
+	 * 	Create or Get Storage Info
+	 *	@param ctx context
+	 *	@param M_Locator_ID locator
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID instance
+	 *	@param trxName transaction
+	 *	@return existing/new or null
+	 */
+	public static MStorage getCreate (Properties ctx, int M_Locator_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, int M_MPolicyTicket_ID, String trxName)
 	{
 		if (M_Locator_ID == 0)
 			throw new IllegalArgumentException("M_Locator_ID=0");
 		if (M_Product_ID == 0)
 			throw new IllegalArgumentException("M_Product_ID=0");
-		MStorage retValue = get(ctx, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, trxName);
-		if (retValue != null)
-			return retValue;
+		MStorage storage = get(ctx, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, trxName);
+		if (storage != null)
+			return storage;
 		
 		//	Insert row based on locator
 		MLocator locator = new MLocator (ctx, M_Locator_ID, trxName);
 		if (locator.get_ID() != M_Locator_ID)
 			throw new IllegalArgumentException("Not found M_Locator_ID=" + M_Locator_ID);
 		//
-		retValue = new MStorage (locator, M_Product_ID, M_AttributeSetInstance_ID);
-		retValue.save(trxName);
-		s_log.fine("New " + retValue);
-		return retValue;
+		storage = new MStorage (ctx, locator, M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, trxName);
+		storage.saveEx();
+		s_log.fine("New " + storage);
+		return storage;
 	}	//	getCreate
 
 	
 	/**
 	 * 	Update Storage Info add.
-	 * 	Called from MProjectIssue
 	 *	@param ctx context
 	 *	@param M_Warehouse_ID warehouse
 	 *	@param M_Locator_ID locator
@@ -472,55 +643,99 @@ public class MStorage extends X_M_Storage
 	 *	@param trxName transaction
 	 *	@return true if updated
 	 */
+	@Deprecated
 	public static boolean add (Properties ctx, int M_Warehouse_ID, int M_Locator_ID, 
 		int M_Product_ID, int M_AttributeSetInstance_ID, int reservationAttributeSetInstance_ID,
 		BigDecimal diffQtyOnHand, 
 		BigDecimal diffQtyReserved, BigDecimal diffQtyOrdered, String trxName)
 	{
-		MStorage storage = null;
+		return add(ctx, M_Warehouse_ID, M_Locator_ID, 
+				M_Product_ID, M_AttributeSetInstance_ID, reservationAttributeSetInstance_ID,
+				0, // M_MPolicyTicket_ID
+				diffQtyOnHand, diffQtyReserved, diffQtyOrdered, trxName);
+	}
+	
+	/**
+	 * 	Update Storage Info by adding the difference quantity to the storage location. Only one of
+	 *  the difference quantity reserved or ordered amounts can be non-null, non-zero. 
+	 *	@param ctx context
+	 *	@param M_Warehouse_ID warehouse
+	 *	@param M_Locator_ID locator
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID AS Instance
+	 *	@param reservationAttributeSetInstance_ID reservation AS Instance
+	 *  @param M_MPolicyTicket_ID Material Policy Ticket
+	 *	@param diffQtyOnHand add on hand
+	 *	@param diffQtyReserved add reserved
+	 *	@param diffQtyOrdered add order
+	 *	@param trxName transaction
+	 *	@return true if updated
+	 */
+	public static boolean add (Properties ctx, int M_Warehouse_ID, int M_Locator_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, int reservationAttributeSetInstance_ID,
+		int M_MPolicyTicket_ID,
+		BigDecimal diffQtyOnHand, 
+		BigDecimal diffQtyReserved, BigDecimal diffQtyOrdered, String trxName)
+	{
+		if (diffQtyOnHand == null) 
+			diffQtyOnHand = Env.ZERO; 
+		if (diffQtyReserved == null) 
+			diffQtyReserved = Env.ZERO; 
+		if (diffQtyOrdered == null) 
+			diffQtyOrdered = Env.ZERO;
+		
+		if ( diffQtyReserved.compareTo(Env.ZERO) != 0 && diffQtyOrdered.compareTo(Env.ZERO) != 0 ) {
+			s_log.severe("Only one quantity reserved or ordered can be non null or non zero");
+			return false;
+		}
+			
 		StringBuffer diffText = new StringBuffer("(");
 
+		// CarlosRuiz - globalqss - Fix [ 1725383 ] QtyOrdered wrongly updated
+		// If the product has no Attribute Set, it can't have any Attribute Set Instances
+		MProduct product = new MProduct(ctx, M_Product_ID, trxName);
+		if (product.getM_AttributeSet_ID() == 0) {
+			M_AttributeSetInstance_ID = 0;
+			reservationAttributeSetInstance_ID = 0;
+		}
+
 		//	Get Storage
-		if (storage == null)
-			storage = getCreate (ctx, M_Locator_ID, 
-				M_Product_ID, M_AttributeSetInstance_ID, trxName);
+		MStorage storage = getCreate (ctx, M_Locator_ID, 
+			M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, trxName);
 		//	Verify
 		if (storage.getM_Locator_ID() != M_Locator_ID 
 			&& storage.getM_Product_ID() != M_Product_ID
-			&& storage.getM_AttributeSetInstance_ID() != M_AttributeSetInstance_ID)
+			&& storage.getM_AttributeSetInstance_ID() != M_AttributeSetInstance_ID
+			&& storage.getM_MPolicyTicket_ID() != M_MPolicyTicket_ID)
 		{
 			s_log.severe ("No Storage found - M_Locator_ID=" + M_Locator_ID 
-				+ ",M_Product_ID=" + M_Product_ID + ",ASI=" + M_AttributeSetInstance_ID);
+				+ ",M_Product_ID=" + M_Product_ID + ",ASI=" + M_AttributeSetInstance_ID
+				+ ", M_MPolicyTicket_ID=" + M_MPolicyTicket_ID);
 			return false;
 		}
 		
-		// CarlosRuiz - globalqss - Fix [ 1725383 ] QtyOrdered wrongly updated
-		MProduct prd = new MProduct(ctx, M_Product_ID, trxName);
-		if (prd.getM_AttributeSet_ID() == 0) {
-			// Product doesn't manage attribute set, always reserved with 0
-			reservationAttributeSetInstance_ID = 0;
-		}
-		//		
-		
 		MStorage storage0 = null;
-		if (M_AttributeSetInstance_ID != reservationAttributeSetInstance_ID)
-		{
-			//consumed the reserved qty storage
-			if(diffQtyReserved.signum() != 0)
-				storage0 = getQtyReserved(ctx,
-				M_Product_ID, M_Warehouse_ID , reservationAttributeSetInstance_ID, trxName);
-			if(diffQtyOrdered.signum() != 0)
-				storage0 = getQtyOrdered(ctx,
-						M_Product_ID, M_Warehouse_ID, reservationAttributeSetInstance_ID, trxName);
+		// To correct the qty reserved and ordered, we need to know the product, ASI,  and locator 
+		// used to make the reservation/order.  The reservation material policy ticket should be 
+		// zero as the ticket is only created when the material is received, so the reservation 
+		// will always be made on a different M_Storage record than the material receipt.
 
-			if (storage0 == null)	//	create if not existing - should not happen
-			{
-				MWarehouse wh = MWarehouse.get(ctx, M_Warehouse_ID);
-				int xM_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
-				storage0 = getCreate (ctx, xM_Locator_ID, 
-					M_Product_ID, reservationAttributeSetInstance_ID, trxName);
-			}
-		}		
+		// Only one of these statements will be true at a time.
+		if(diffQtyReserved.signum() != 0)
+			storage0 = getQtyReserved(ctx,
+			M_Product_ID, M_Warehouse_ID , reservationAttributeSetInstance_ID, trxName);
+		if(diffQtyOrdered.signum() != 0)
+			storage0 = getQtyOrdered(ctx,
+					M_Product_ID, M_Warehouse_ID, reservationAttributeSetInstance_ID, trxName);
+
+		if (storage0 == null)	//	create if not existing - should not happen
+		{
+			MWarehouse wh = MWarehouse.get(ctx, M_Warehouse_ID);
+			int xM_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
+			storage0 = getCreate (ctx, xM_Locator_ID, 
+				M_Product_ID, reservationAttributeSetInstance_ID, 0, trxName);
+		}
+
 		boolean changed = false;
 		if (diffQtyOnHand != null && diffQtyOnHand.signum() != 0)
 		{
@@ -558,7 +773,7 @@ public class MStorage extends X_M_Storage
 			diffText.append(") -> ").append(storage.toString());
 			s_log.fine(diffText.toString());
 			if (storage0 != null)
-				storage0.save(trxName);		//	No AttributeSetInstance (reserved/ordered)
+				storage0.save(trxName);		//	No MaterialPolicyID (reserved/ordered)
 			return storage.save (trxName);
 		}
 		
@@ -567,7 +782,8 @@ public class MStorage extends X_M_Storage
 
 	
 	/**************************************************************************
-	 * 	Get Location with highest Locator Priority and a sufficient OnHand Qty
+	 * 	Get Location with highest Locator Priority and a sufficient OnHand Qty.
+	 *  The search tries to match Product and Attribute Set Instance.
 	 * 	@param M_Warehouse_ID warehouse
 	 * 	@param M_Product_ID product
 	 * 	@param M_AttributeSetInstance_ID asi
@@ -575,31 +791,66 @@ public class MStorage extends X_M_Storage
 	 *	@param trxName transaction
 	 * 	@return id
 	 */
+	@Deprecated
 	public static int getM_Locator_ID (int M_Warehouse_ID, 
 		int M_Product_ID, int M_AttributeSetInstance_ID, BigDecimal Qty,
 		String trxName)
 	{
+		// Get the locator with the "zero" material policy ticket.
+		return getM_Locator_ID (M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 
+				0, Qty, trxName);
+	}
+
+		/**************************************************************************
+	 * 	Get Location with highest Locator Priority and a sufficient OnHand Qty.
+	 *  The search tries to match Product, Attribute Set Instance (ASI) and Material Policy
+	 *  Ticket.  If the ASI is zero, the product does not have an Attribute Set or the 
+	 *  product's Attribute Set has no instances, the quantity for all ASI values is used.  
+	 *  Similarly for the Ticket, if it is zero, the quantity of all tickets is used. 
+	 * 	@param M_Warehouse_ID warehouse
+	 * 	@param M_Product_ID product
+	 * 	@param M_AttributeSetInstance_ID asi
+	 *  @param M_MPolicyTicket_ID ticket
+	 * 	@param Qty qty
+	 *	@param trxName transaction
+	 * 	@return id
+	 */
+	public static int getM_Locator_ID (int M_Warehouse_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, int M_MPolicyTicket_ID, BigDecimal Qty,
+		String trxName)
+	{
+		if ( M_Product_ID == 0)
+			return 0;
+		
 		int M_Locator_ID = 0;
 		int firstM_Locator_ID = 0;
-		String sql = "SELECT s.M_Locator_ID, s.QtyOnHand "
+		String sql = "SELECT s.M_Locator_ID, SUM(s.QtyOnHand) as QtyOnHand "
 			+ "FROM M_Storage s"
 			+ " INNER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID)"
 			+ " INNER JOIN M_Product p ON (s.M_Product_ID=p.M_Product_ID)"
 			+ " LEFT OUTER JOIN M_AttributeSet mas ON (p.M_AttributeSet_ID=mas.M_AttributeSet_ID) "
 			+ "WHERE l.M_Warehouse_ID=?"
-			+ " AND s.M_Product_ID=?"
-			+ " AND (mas.IsInstanceAttribute IS NULL OR mas.IsInstanceAttribute='N' OR s.M_AttributeSetInstance_ID=?)"
-			+ " AND l.IsActive='Y' "
-			+ "ORDER BY l.PriorityNo DESC, s.QtyOnHand DESC";
+			+ " AND s.M_Product_ID=?";
+		if (M_AttributeSetInstance_ID != 0)
+			sql += " AND (mas.IsInstanceAttribute IS NULL OR mas.IsInstanceAttribute='N' OR s.M_AttributeSetInstance_ID=?)";  // TODO does this work for product ASI?
+		if (M_MPolicyTicket_ID != 0)
+			sql += " AND s.M_MPolicyTicket_ID=?";
+		sql	+= " AND l.IsActive='Y' "
+			+ "GROUP BY l.PriorityNo, s.M_Locator_ID " // Groupby required to sum across all Material Policy Tickets
+			+ "ORDER BY l.PriorityNo DESC, SUM(s.QtyOnHand) DESC";
 		
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
 		{
+			int i = 1;
 			pstmt = DB.prepareStatement(sql, trxName);
-			pstmt.setInt(1, M_Warehouse_ID);
-			pstmt.setInt(2, M_Product_ID);
-			pstmt.setInt(3, M_AttributeSetInstance_ID);
+			pstmt.setInt(i++, M_Warehouse_ID);
+			pstmt.setInt(i++, M_Product_ID);
+			if (M_AttributeSetInstance_ID != 0)  //TODO is this the right logic? !=0 or >= 0?  ASI can be valid zero, -1 is undefined
+				pstmt.setInt(i++, M_AttributeSetInstance_ID);
+			if (M_MPolicyTicket_ID != 0) //TODO is this the right logic? !=0 or >= 0?
+				pstmt.setInt(i++, M_MPolicyTicket_ID);
 			rs = pstmt.executeQuery();
 			while (rs.next())
 			{
@@ -721,11 +972,13 @@ public class MStorage extends X_M_Storage
 	}	//	MStorage
 
 	/**
-	 * 	Full NEW Constructor
+	 * 	Full NEW Constructor. Creates an empty storage location for this product/ASI. No quantity
+	 *  or Material Policy Ticket is assigned.
 	 *	@param locator (parent) locator
 	 *	@param M_Product_ID product
 	 *	@param M_AttributeSetInstance_ID attribute
 	 */
+	@Deprecated
 	private MStorage (MLocator locator, int M_Product_ID, int M_AttributeSetInstance_ID)
 	{
 		this (locator.getCtx(), 0, locator.get_TrxName());
@@ -733,6 +986,25 @@ public class MStorage extends X_M_Storage
 		setM_Locator_ID (locator.getM_Locator_ID());
 		setM_Product_ID (M_Product_ID);
 		setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(0);
+	}	//	MStorage
+
+	/**
+	 * 	Full NEW Constructor. Creates an empty storage location for this product/ASI. No quantity
+	 *  is assigned.
+	 *	@param locator (parent) locator
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID attribute
+	 *  @param M_MPolicyTicket_ID Material Policy Ticket
+	 */
+	private MStorage (Properties ctx, MLocator locator, int M_Product_ID, int M_AttributeSetInstance_ID, int M_MPolicyTicket_ID, String trxName)
+	{
+		this (ctx, 0, trxName);
+		setClientOrg(locator);
+		setM_Locator_ID (locator.getM_Locator_ID());
+		setM_Product_ID (M_Product_ID);
+		setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 	}	//	MStorage
 
 	/** Log								*/
@@ -779,6 +1051,7 @@ public class MStorage extends X_M_Storage
 			.append("M_Locator_ID=").append(getM_Locator_ID())
 				.append(",M_Product_ID=").append(getM_Product_ID())
 				.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+				.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append(": OnHand=").append(getQtyOnHand())
 			.append(",Reserved=").append(getQtyReserved())
 			.append(",Ordered=").append(getQtyOrdered())

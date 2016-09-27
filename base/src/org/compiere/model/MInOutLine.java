@@ -689,9 +689,10 @@ implements IDocumentLine
 	{
 		StringBuffer sb = new StringBuffer ("MInOutLine[").append (get_ID())
 			.append(",M_Product_ID=").append(getM_Product_ID())
+			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
 			.append(",QtyEntered=").append(getQtyEntered())
 			.append(",MovementQty=").append(getMovementQty())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append ("]");
 		return sb.toString ();
 	}	//	toString

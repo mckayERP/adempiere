@@ -401,6 +401,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setDateTrx (dateTrx);
 		setM_Product_ID (sLine.getM_Product_ID());
 		setM_AttributeSetInstance_ID(sLine.getM_AttributeSetInstance_ID());
+		setM_MPolicyTicket_ID(sLine.getM_MPolicyTicket_ID());
 		setQty (qty);
 		setProcessed(true);		//	auto
 	}	//	MMatchPO
@@ -422,6 +423,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setDateTrx (dateTrx);
 		setM_Product_ID (iLine.getM_Product_ID());
 		setM_AttributeSetInstance_ID(iLine.getM_AttributeSetInstance_ID());
+		setM_MPolicyTicket_ID(0); // TODO - check should an invoice line have the material policy ticket?
 		setQty (qty);
 		setProcessed(true);		//	auto
 	}	//	MMatchPO
@@ -549,12 +551,19 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				ts = getDateTrx();
 			setDateAcct (ts);
 		}
-		//	Set ASI from Receipt
-		if (getM_AttributeSetInstance_ID() == 0 && getM_InOutLine_ID() != 0)
-		{
+		
+		// Set the material policy ticket number from the Receipt
+		if (getM_InOutLine_ID() != 0) {
 			MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
-			setM_AttributeSetInstance_ID(iol.getM_AttributeSetInstance_ID());
+			setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID());
 		}
+		
+//		Set ASI from Receipt  //  ASI is no longer used for FIFO tracking
+//		if (getM_AttributeSetInstance_ID() == 0 && getM_InOutLine_ID() != 0)
+//		{
+//			MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
+//			setM_AttributeSetInstance_ID(iol.getM_AttributeSetInstance_ID());
+//		}
 		
 		// Bayu, Sistematika
 		// BF [ 2240484 ] Re MatchingPO, MMatchPO doesn't contains Invoice info
@@ -566,7 +575,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			for (MMatchInv match : matches)
 			{
 				if (match.getC_InvoiceLine_ID() != 0 && 
-						match.getM_AttributeSetInstance_ID() == getM_AttributeSetInstance_ID()) 
+						match.getM_MPolicyTicket_ID() == getM_MPolicyTicket_ID()) 
 				{
 					setC_InvoiceLine_ID(match.getC_InvoiceLine_ID());
 					break;
@@ -692,13 +701,13 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				orderLine.setDateInvoiced(getDateTrx());	//	overwrite=last
 			}
 			
-			//	Update Order ASI if full match
-			if (orderLine.getM_AttributeSetInstance_ID() == 0
+			//	Update Order material policy ticket if full match
+			if (orderLine.getM_MPolicyTicket_ID() == 0
 				&& getM_InOutLine_ID() != 0)
 			{
 				MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
 				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
-					orderLine.setM_AttributeSetInstance_ID(iol.getM_AttributeSetInstance_ID());
+					orderLine.setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID());
 			}
 			return orderLine.save();
 		}
@@ -757,8 +766,10 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			// end AZ
 			
 			MOrderLine orderLine = new MOrderLine (getCtx(), getC_OrderLine_ID(), get_TrxName());
-			if (getM_InOutLine_ID() != 0)
+			if (getM_InOutLine_ID() != 0) {
 				orderLine.setQtyDelivered(orderLine.getQtyDelivered().subtract(getQty()));
+				orderLine.setM_MPolicyTicket_ID(0);
+			}
 			if (getC_InvoiceLine_ID() != 0)
 				orderLine.setQtyInvoiced(orderLine.getQtyInvoiced().subtract(getQty()));
 			return orderLine.save(get_TrxName());

@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.engine.IInventoryAllocation;
 import org.compiere.util.DB;
 
 /**
@@ -29,7 +30,7 @@ import org.compiere.util.DB;
  *  @author Jorg Janke
  *  @version $Id: MInOutLineMA.java,v 1.3 2006/07/30 00:51:02 jjanke Exp $
  */
-public class MInOutLineMA extends X_M_InOutLineMA
+public class MInOutLineMA extends X_M_InOutLineMA implements IInventoryAllocation
 {
 	/**
 	 * 
@@ -111,13 +112,13 @@ public class MInOutLineMA extends X_M_InOutLineMA
 	 *	@param M_AttributeSetInstance_ID asi
 	 *	@param MovementQty qty
 	 */
-	public MInOutLineMA (MInOutLine parent, int M_AttributeSetInstance_ID, BigDecimal MovementQty)
+	public MInOutLineMA (MInOutLine parent, int M_MPolicyTicket_ID, BigDecimal MovementQty)
 	{
 		this (parent.getCtx(), 0, parent.get_TrxName());
 		setClientOrg(parent);
 		setM_InOutLine_ID(parent.getM_InOutLine_ID());
 		//
-		setM_AttributeSetInstance_ID(M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		setMovementQty(MovementQty);
 	}	//	MInOutLineMA
 	
@@ -129,7 +130,7 @@ public class MInOutLineMA extends X_M_InOutLineMA
 	{
 		StringBuffer sb = new StringBuffer ("MInOutLineMA[");
 		sb.append("M_InOutLine_ID=").append(getM_InOutLine_ID())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append(", Qty=").append(getMovementQty())
 			.append ("]");
 		return sb.toString ();
