@@ -34,6 +34,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.DBException;
 import org.compiere.Adempiere;
+import org.compiere.model.MColumn;
 import org.compiere.model.MTable;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
@@ -517,16 +518,20 @@ public class ModelClassGenerator
 		//	Integer
 		else if (clazz.equals(Integer.class))
 		{
-			if (columnName.endsWith("_ID"))
-			{
-				int firstOK = 1;
-				//	check special column
-				if (columnName.equals("AD_Client_ID") || columnName.equals("AD_Org_ID")
-					|| columnName.equals("Record_ID") || columnName.equals("C_DocType_ID")
-					|| columnName.equals("Node_ID") || columnName.equals("AD_Role_ID")
-					|| columnName.equals("M_AttributeSet_ID") || columnName.equals("M_AttributeSetInstance_ID")
-					|| columnName.equals("M_Warehouse_ID"))
-					firstOK = 0;
+// Moved to MColumn - getKeyColumnFirstValue(columnName)
+//			if (columnName.endsWith("_ID"))
+//			{
+//				int firstOK = 1;
+//				//	check special column
+//				if (columnName.equals("AD_Client_ID") || columnName.equals("AD_Org_ID")
+//					|| columnName.equals("Record_ID") || columnName.equals("C_DocType_ID")
+//					|| columnName.equals("Node_ID") || columnName.equals("AD_Role_ID")
+//					|| columnName.equals("M_AttributeSet_ID") || columnName.equals("M_AttributeSetInstance_ID")
+//					|| columnName.equals("M_MPolicyTicket_ID")
+//					|| columnName.equals("M_Warehouse_ID"))
+//					firstOK = 0;
+			if (MColumn.getKeyColumnFirstValue(columnName) != null) {
+				int firstOK = MColumn.getKeyColumnFirstValue(columnName).intValue();
 				//	set _ID to null if < 0 for special column or < 1 for others
 				sb.append("\t\tif (").append (columnName).append (" < ").append(firstOK).append(") ").append(NL)
 					.append("\t").append(setValue).append(" (").append ("COLUMNNAME_").append(columnName).append(", null);").append(NL)

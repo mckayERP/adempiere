@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -1018,5 +1019,33 @@ public class MColumn extends X_AD_Column
             return true;
         else
         	return false;
+	}
+	
+	/**
+	 * Determine the minimum allowable value for the KeyColumn.  Columns that end
+	 * in "_ID" typically can have values of null or > 0.  In a few tables, the value
+	 * "0" is valid.
+	 * @param columnName
+	 * @return
+	 */
+	public static Integer getKeyColumnFirstValue(String columnName) {
+
+		Integer firstOK = null;
+		
+		if (columnName.endsWith("_ID"))
+		{
+			//	check special column  TODO hard-coded. Add to AD_Column to make this configurable
+			if (columnName.equals("AD_Client_ID") || columnName.equals("AD_Org_ID")
+				|| columnName.equals("Record_ID") || columnName.equals("C_DocType_ID")
+				|| columnName.equals("Node_ID") || columnName.equals("AD_Role_ID")
+				|| columnName.equals("M_AttributeSet_ID") || columnName.equals("M_AttributeSetInstance_ID")
+				|| columnName.equals("M_MPolicyTicket_ID")
+				|| columnName.equals("M_Warehouse_ID")) {
+				firstOK = Integer.valueOf(0);
+			}
+			else
+				firstOK = Integer.valueOf(1);
+		}
+		return firstOK;
 	}
 }	//	MColumn

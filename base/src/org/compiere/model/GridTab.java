@@ -2639,9 +2639,14 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 
 		log.fine(field.getColumnName() + "=" + value + " - Row=" + m_currentRow);
 		
-		if (DisplayType.isID(field.getDisplayType()) && value instanceof Integer && ((Integer)value).intValue() < 0)
-			value = null;
-		
+		if (DisplayType.isID(field.getDisplayType())){
+			// Ensure the ID field value is null if below the first allowed value
+			Integer firstValue = MColumn.getKeyColumnFirstValue(field.getColumnName());
+			if (firstValue != null) {
+				if (value instanceof Integer && ((Integer)value).compareTo(firstValue) < 0 )
+					value = null;
+			}
+		}		
 		int col = m_mTable.findColumn(field.getColumnName());
 		m_mTable.setValueAt(value, m_currentRow, col, false);
 		//
