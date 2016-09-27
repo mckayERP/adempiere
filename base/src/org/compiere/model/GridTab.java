@@ -1160,7 +1160,7 @@ public class GridTab implements DataStatusListener, Evaluatee, Serializable
 			getField(i).refreshLookup();
 			getField(i).validateValue();
 		}
-		m_mTable.setChanged(false);
+		m_mTable.setChanged(true);  // We have a new record, allow a save of the default values.
 		
 		fireStateChangeEvent(new StateChangeEvent(this, StateChangeEvent.DATA_NEW));
 		return retValue;

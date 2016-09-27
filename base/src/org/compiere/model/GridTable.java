@@ -1387,12 +1387,15 @@ public class GridTable extends AbstractTableModel
 		//	row not positioned - no Value changed
 		if (m_rowChanged == -1)
 		{
-			if (m_newRow != -1)     //  new row and nothing changed - might be OK (acceptable defaults)
+			if (m_newRow != -1) {    //  new row and nothing changed - might be OK (acceptable defaults)
 				m_rowChanged = m_newRow;
-			else
-			{
+				if (!manualCmd)  // If not a manual command, ignore the save
+					return SAVE_OK;
+			}
+			else {
 				if (!manualCmd)  // Ignore the save
 					return SAVE_OK;
+
 				fireDataStatusEEvent("SaveErrorNoChange", "", true);
 				return SAVE_ERROR;
 			}
