@@ -310,13 +310,14 @@ public class CalloutEngine implements Callout
 		if (column != null) {  // The column is found
 			AD_Column_ID = column.getAD_Column_ID();
 			if (product != null) {
-				if (existingASI_ID == null) { // Set the ASI
+				if (existingASI_ID == null) { 
 					M_AttributeSetInstance_ID = product.getEnvAttributeSetInstance(ctx, WindowNo, AD_Column_ID);
-					mTab.setValue(fieldName, M_AttributeSetInstance_ID);
 				}
-				else {  // Don't set, just test the existing
+				else {
 					M_AttributeSetInstance_ID = existingASI_ID;
 				}
+				// Set the ASI
+				mTab.setValue(fieldName, M_AttributeSetInstance_ID);
 				// Set column error if the ASI is mandatory 
 				column.setError(!product.isValidAttributeSetInstance(ctx, Env.isSOTrx(ctx, WindowNo), AD_Column_ID, M_AttributeSetInstance_ID));
 //				MAttributeSet as = product.getAttributeSet();
@@ -326,7 +327,7 @@ public class CalloutEngine implements Callout
 //				}
 			}
 			else { // No product - so no ASI
-				mTab.setValue(fieldName, 0);
+				mTab.setValue(fieldName, null);
 				column.setError(false);
 				//column.setDisplayed(false);
 			}
