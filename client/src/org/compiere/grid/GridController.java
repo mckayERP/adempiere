@@ -488,7 +488,7 @@ public class GridController extends CPanel
 		//  Update UI
 		vTable.autoSize(true);
 
-				//  Set initial presentation
+		//  Set initial presentation
 		if (m_onlyMultiRow || !m_mTab.isSingleRow())
 			switchMultiRow();
 		else
@@ -761,7 +761,8 @@ public class GridController extends CPanel
 		m_singleRow = true;
 		
 		// update the field values - especially the embedded tabs - and fire the events
-		m_mTab.dataRefresh(m_mTab.getCurrentRow());
+		if (m_mTab.getTableModel().isOpen()) 
+			m_mTab.dataRefresh(m_mTab.getCurrentRow(), true); 
 
 		dynamicDisplay(0);
 		
