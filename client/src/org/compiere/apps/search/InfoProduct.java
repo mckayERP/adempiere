@@ -1710,8 +1710,8 @@ public class InfoProduct extends Info implements ActionListener, ChangeListener
 			//	Orders
 			sql += "SELECT ol.M_Product_ID, w.Name as warehouse, null as locator, ol.M_AttributeSetInstance_ID as ID, o.DatePromised as date,"
 				+ " null as AvailQty,"
-				+ " CASE WHEN dt.DocBaseType = 'POO' THEN ol.QtyOrdered ELSE -ol.QtyReserved END as DeltaQty,"
-				+ " CASE WHEN dt.DocBaseType = 'POO' THEN ol.QtyOrdered ELSE null END as QtyOrdered,"
+				+ " CASE WHEN dt.DocBaseType = 'POO' THEN (ol.QtyOrdered-ol.QtyDelivered) ELSE -(ol.QtyReserved-ol.QtyDelivered) END as DeltaQty,"
+				+ " CASE WHEN dt.DocBaseType = 'POO' THEN (ol.QtyOrdered-ol.QtyDelivered) ELSE null END as QtyOrdered,"
 				+ " CASE WHEN dt.DocBaseType = 'POO' THEN 0 ELSE 0 END as QtyReserved,"
 				+ " productAttribute(ol.M_AttributeSetInstance_ID) as sumPASI," 
 				+ " ol.M_AttributeSetInstance_ID as ASI,"
