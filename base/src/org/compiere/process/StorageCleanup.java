@@ -197,12 +197,13 @@ public class StorageCleanup extends SvrProcess
 	 */
 	private void eliminateReservation(MStorage target)
 	{
+		// TODO - review for FIFO/LIFO compliance
 		//	Negative Ordered / Reserved Qty
 		if (target.getQtyReserved().signum() != 0 || target.getQtyOrdered().signum() != 0)
 		{
 			int M_Locator_ID = target.getM_Locator_ID();
 			MStorage storage0 = MStorage.get(getCtx(), M_Locator_ID, 
-				target.getM_Product_ID(), 0, get_TrxName());
+				target.getM_Product_ID(), target.getM_AttributeSetInstance_ID(), get_TrxName());
 			if (storage0 == null)
 			{
 				MLocator defaultLoc = MLocator.getDefault(getCtx(), M_Locator_ID);
@@ -210,7 +211,7 @@ public class StorageCleanup extends SvrProcess
 				{
 					M_Locator_ID = defaultLoc.getM_Locator_ID();
 					storage0 = MStorage.get(getCtx(), M_Locator_ID, 
-						target.getM_Product_ID(), 0, get_TrxName());
+						target.getM_Product_ID(), target.getM_AttributeSetInstance_ID(), get_TrxName());
 				}
 			}
 			if (storage0 != null)

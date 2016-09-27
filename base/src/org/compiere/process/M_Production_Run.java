@@ -131,6 +131,7 @@ public class M_Production_Run extends SvrProcess {
 																  .setOrderBy("Line")
 															  .list();
 					
+						// TODO Check compliance with FIFO/LIFO
 						for (X_M_ProductionLine pline : production_lines)
 						{
 							MLocator locator = MLocator.get(getCtx(), pline.getM_Locator_ID());
