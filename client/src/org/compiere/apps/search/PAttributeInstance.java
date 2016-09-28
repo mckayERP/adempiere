@@ -200,18 +200,18 @@ public class PAttributeInstance extends CDialog
 	/**	From Clause							*/
 	private static String s_sqlFrom = "M_AttributeSetInstance asi"
 		+ " INNER JOIN M_AttributeSet st ON (st.M_AttributeSet_ID=asi.M_AttributeSet_ID )"
-		+ " LEFT OUTER JOIN M_Storage s ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID)"
+		+ " INNER JOIN M_Product p ON (p.M_AttributeSet_ID=st.M_AttributeSet_ID) "
+		+ " LEFT OUTER JOIN M_Storage s ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID AND s.M_Product_ID=p.M_Product_ID)"
 		+ " LEFT OUTER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID)"
-		+ " LEFT OUTER JOIN M_Product p ON (s.M_Product_ID=p.M_Product_ID) "
 		;
 		//  To see all related Attribute Sets, add OR "
 		//+                                   "(asi.M_AttributeSet_ID = p.M_AttributeSet_ID AND p.M_AttributeSetInstance_ID = 0)
 		//  to the last join clause
 	/** Where Clause						*/ 
-	private static String s_sqlWhereWithoutWarehouse = " p.M_Product_ID=?";
-	private static String s_sqlWhereSameWarehouse = " AND (? in (0, l.M_Warehouse_ID))";
+	private static String s_sqlWhereWithoutWarehouse = " (p.M_Product_ID=?)";
+	private static String s_sqlWhereSameWarehouse = " AND (? in (0, l.M_Warehouse_ID) OR l.M_Warehouse_ID is null)";
 
-	private static String	s_sqlNonZero = " AND (s.QtyOnHand<>0 OR s.QtyReserved<>0 OR s.QtyOrdered<>0)";
+	private static String	s_sqlNonZero = " AND (p.IsStocked = 'N' OR s.QtyOnHand<>0 OR s.QtyReserved<>0 OR s.QtyOrdered<>0)";
 	private static String	s_sqlMinLife = "";
 
 	/**
@@ -244,7 +244,8 @@ public class PAttributeInstance extends CDialog
 					int pct = rs.getInt(2);				//	BP_P
 					if (pct > 0)	//	overwrite
 						ShelfLifeMinDays = pct;
-					ShelfLifeMinDays = rs.getInt(3);
+					else
+						ShelfLifeMinDays = rs.getInt(3);
 				}
 			}
 			catch (Exception e)

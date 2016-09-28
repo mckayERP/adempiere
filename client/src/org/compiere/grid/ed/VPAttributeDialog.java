@@ -76,6 +76,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 
 /**
  *  Product Attribute Set Product/Instance Dialog Editor.
@@ -237,13 +238,13 @@ public class VPAttributeDialog extends CDialog
 	//	Lot
 	private VString fieldLotString = new VString ("Lot", false, false, true, 20, 20, null, null);
 	private CComboBox fieldLot = null;
-	private CButton bLot = new CButton(Msg.getMsg (Env.getCtx(), "New"));
+	private CButton bLot = new CButton(Util.cleanAmp(Msg.getMsg (Env.getCtx(), "New")));
 	//	Lot Popup
 	JPopupMenu 					popupMenu = new JPopupMenu();
 	private CMenuItem 			mZoom;
 	//	Ser No
 	private VString fieldSerNo = new VString ("SerNo", false, false, true, 20, 20, null, null);
-	private CButton bSerNo = new CButton(Msg.getMsg (Env.getCtx(), "New"));
+	private CButton bSerNo = new CButton(Util.cleanAmp(Msg.getMsg (Env.getCtx(), "New")));
 	//	Date
 	private VDate fieldGuaranteeDate = new VDate ("GuaranteeDate", false, false, true, DisplayType.Date, Msg.translate(Env.getCtx(), "GuaranteeDate"));
 	//
@@ -369,9 +370,11 @@ public class VPAttributeDialog extends CDialog
 		//  Clear the current ones, if any.
     	centerPanel.removeAll();
     	m_row = 0;
+
     	cbNewEdit = new CCheckBox();
-    	bSelect = new CButton();
-    	bSerNo = new CButton();
+    	bSelect = new CButton(Env.getImageIcon("PAttribute16.gif")); 
+    	bSerNo = new CButton(Util.cleanAmp(Msg.getMsg (Env.getCtx(), "New")));
+    	bLot = new CButton(Util.cleanAmp(Msg.getMsg (Env.getCtx(), "New")));
 
 		Boolean isNew = false;  // Create a new record.  False implies edit the current record.
 		
@@ -646,7 +649,7 @@ public class VPAttributeDialog extends CDialog
 				false, true, 20, INSTANCE_VALUE_LENGTH, null, null);
 			editor.setMandatory(attribute.isMandatory());
 			if (instance != null)
-				editor.setText(instance.getValue());
+				editor.setValue(instance.getValue());
 			label.setLabelFor(editor);
 			centerPanel.add(editor, null);
 			if (readOnly) {
@@ -682,8 +685,10 @@ public class VPAttributeDialog extends CDialog
 		//	Select Instance
 		if (e.getSource() == bSelect)
 		{
-			if (cmd_select())
+			if (cmd_select()) {
 				initAttributes();
+				centerPanel.validate();
+			}
 		}
 		//	New/Edit
 		else if (e.getSource() == cbNewEdit)

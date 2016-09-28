@@ -939,6 +939,9 @@ public class VPAttribute extends JComponent
 				}
 			}
 		}
+		else if (asiIDToFind == -2) {
+			ADialog.warn(m_WindowNo, this, "Found duplicate matches. Please select the correct value using the dialog");
+		}
 	
 		// Didn't understand the text input, couldn't find a match or found duplicates  
 		// Use the search dialog.
