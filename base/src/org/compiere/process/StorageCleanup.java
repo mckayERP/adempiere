@@ -19,12 +19,18 @@ package org.compiere.process;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.compiere.model.MClient;
+import org.compiere.model.MClientInfo;
 import org.compiere.model.MLocator;
+import org.compiere.model.MMPolicyTicket;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MStorage;
 import org.compiere.util.DB;
@@ -70,10 +76,55 @@ public class StorageCleanup extends SvrProcess
 		//	Clean up empty Storage
 		String sql = "DELETE FROM M_Storage "
 			+ "WHERE QtyOnHand = 0 AND QtyReserved = 0 AND QtyOrdered = 0"
+			+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
 			+ " AND Created < SysDate-3";
 		int no = DB.executeUpdate(sql, get_TrxName());
 		log.info("Delete Empty #" + no);
 		
+		//  Remove ASI values that have no attribute sets
+		sql = "UPDATE M_Storage s "
+				+ "SET M_AttributeSetInstance_ID = 0 "
+				+ "WHERE s.M_AttributeSetInstance_ID != 0"
+				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
+				+ " asi.M_AttributeSet_ID=0"
+				+ " AND asi.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
+		no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Set ASI values to zero where there was no Attribute Set #" + no);
+		
+		// Move/change qty on hand where M_MPolicyTicket_ID = 0 to a row with a policy ticket.
+		// As these are likely old entries, use a zero Timestamp as the move date.
+		sql = "SELECT * FROM M_Storage "
+				+ "WHERE AD_Client_ID = ?"
+				+ " AND QtyOnHand != 0 AND M_MPolicyTicket_ID = 0";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		no = 0;
+		try
+		{
+			pstmt = DB.prepareStatement (sql, get_TrxName());
+			pstmt.setInt(1, Env.getAD_Client_ID(getCtx()));
+			rs = pstmt.executeQuery ();
+			while (rs.next ())
+			{
+				no += addMissingPolicyTickets(new MStorage(getCtx(), rs, get_TrxName()));
+			}
+ 		}
+		catch (Exception e)
+		{
+			log.log (Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		
+		log.info("Added missing policy tickets where qtyOnHand != 0: " + no);
+		
+		// Consolidate qtyReserved and qtyOrdered to a single storage line with zero policy ticket
+		// for each locator/product/asi combination.
+				
 		//
 		sql = "SELECT * "
 			+ "FROM M_Storage s "
@@ -84,19 +135,22 @@ public class StorageCleanup extends SvrProcess
 		//		+ " INNER JOIN M_AttributeSet mas ON (p.M_AttributeSet_ID=mas.M_AttributeSet_ID) "
 		//		+ "WHERE s.M_Product_ID=p.M_Product_ID AND mas.IsInstanceAttribute='Y')"
 			//	Stock in same location
-			+ " AND EXISTS (SELECT * FROM M_Storage sl "
+			+ " AND (EXISTS (SELECT * FROM M_Storage sl "
 				+ "WHERE sl.QtyOnHand > 0"
 				+ " AND s.M_Product_ID=sl.M_Product_ID"
-				+ " AND s.M_Locator_ID=sl.M_Locator_ID)"
+				+ " AND s.M_Locator_ID=sl.M_Locator_ID"
+				+ " AND s.M_AttributeSetInstance_ID=sl.M_AttributeSetInstance_ID)"
 			//	Stock in same Warehouse
-			+ " AND EXISTS (SELECT * FROM M_Storage sw"
+			+ " OR EXISTS (SELECT * FROM M_Storage sw"
 				+ " INNER JOIN M_Locator swl ON (sw.M_Locator_ID=swl.M_Locator_ID), M_Locator sl "
 				+ "WHERE sw.QtyOnHand > 0"
 				+ " AND s.M_Product_ID=sw.M_Product_ID"
+				+ " AND s.M_AttributeSetInstance_ID=sw.M_AttributeSetInstance_ID"
 				+ " AND s.M_Locator_ID=sl.M_Locator_ID"
-				+ " AND sl.M_Warehouse_ID=swl.M_Warehouse_ID)";
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+				+ " AND s.M_AttributeSetInstance_ID=sw.M_AttributeSetInstance_ID"
+				+ " AND sl.M_Warehouse_ID=swl.M_Warehouse_ID))";
+		pstmt = null;
+		rs = null;
 		int lines = 0;
 		try
 		{
@@ -118,8 +172,33 @@ public class StorageCleanup extends SvrProcess
 			rs = null; pstmt = null;
 		}
 		
-		return "#" + lines;
+		return "Moves " + lines;
 	}	//	doIt
+
+	private int addMissingPolicyTickets(MStorage mStorage) {
+		// Add a policy ticket to the storage location.
+		if (mStorage.getQtyOnHand().compareTo(Env.ZERO) == 0)
+			return 0;
+		
+		MMPolicyTicket ticket = MMPolicyTicket.create(getCtx(), null, Timestamp.from(Instant.EPOCH), get_TrxName());
+		
+		MStorage newStorage = MStorage.getCreate(getCtx(), 
+				mStorage.getM_Locator_ID(), 
+				mStorage.getM_Product_ID(), 
+				mStorage.getM_AttributeSetInstance_ID(), 
+				ticket.getM_MPolicyTicket_ID(), get_TrxName());
+		newStorage.setQtyOnHand(mStorage.getQtyOnHand());
+		newStorage.saveEx();
+		
+		mStorage.setQtyOnHand(Env.ZERO);
+		
+		eliminateReservation(mStorage);
+
+		if (mStorage.getQtyOnHand().signum() == 0 && mStorage.getQtyOrdered().signum() == 0 && mStorage.getQtyReserved().signum() == 0)
+			mStorage.deleteEx(false);
+		
+		return 1;
+	}
 
 	/**
 	 * 	Move stock to location
@@ -130,65 +209,35 @@ public class StorageCleanup extends SvrProcess
 	{
 		log.info(target.toString());
 		BigDecimal qty = target.getQtyOnHand().negate();
-
-		MMovement mh = null;
-		MStorage[] sources = getSources(target.getM_Product_ID(), target.getM_Locator_ID());
 		
-		if (sources.length > 0)
-		{
-			//	Create Movement
-			mh = new MMovement (getCtx(), 0, get_TrxName());
-			mh.setAD_Org_ID(target.getAD_Org_ID());
-			mh.setC_DocType_ID(p_C_DocType_ID);
-			mh.setDescription(getName());
-			if (!mh.save())
-				return 0;
+		int M_Product_ID = target.getM_Product_ID();
+		int M_Locator_ID = target.getM_Locator_ID();
+		int M_AttributeSetInstance_ID = target.getM_AttributeSetInstance_ID();
+		
+		MProduct product = new MProduct(getCtx(),M_Product_ID,get_TrxName());	
+		MLocator locator = MLocator.get(getCtx(), M_Locator_ID);
+		boolean positiveOnly = true;
+		boolean fifo = MClient.MMPOLICY_FiFo.equals(product.getMMPolicy());
+		int M_Warehouse_ID = locator.getM_Warehouse_ID();
+		
+		// Try locator first
+		
+		MStorage[] sources = MStorage.getWarehouse(getCtx(), M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 
+				0, null, fifo, positiveOnly, M_Locator_ID, get_TrxName());
+		
+		BigDecimal applied = applySources(sources, target);
+		
+		qty = qty.subtract(applied);
+		
+		if (qty.signum() > 0) {
+			sources = MStorage.getWarehouse(getCtx(), M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 
+					0, null, fifo, positiveOnly, 0, get_TrxName());		
+			applied = applySources(sources, target);
 		}
-		else
-		{
-			// No available sources
-			return 0;
-		}
-		
-		int lines = 0;
-		for (int i = 0; i < sources.length; i++)
-		{
-			MStorage source = sources[i];
-			
-			//	Movement Line
-			MMovementLine ml = new MMovementLine(mh);
-			ml.setM_Product_ID(target.getM_Product_ID());
-			ml.setM_LocatorTo_ID(target.getM_Locator_ID());
-			ml.setM_AttributeSetInstanceTo_ID(target.getM_AttributeSetInstance_ID());
-			//	From
-			ml.setM_Locator_ID(source.getM_Locator_ID());
-			ml.setM_AttributeSetInstance_ID(source.getM_AttributeSetInstance_ID());
-			
-			BigDecimal qtyMove = qty;
-			if (qtyMove.compareTo(source.getQtyOnHand()) > 0)
-				qtyMove = source.getQtyOnHand();
-			ml.setMovementQty(qtyMove);
-			//
-			lines++;
-			ml.setLine(lines*10);
-			if (!ml.save())
-				return 0;
-			
-			qty = qty.subtract(qtyMove);
-			if (qty.signum() <= 0)
-				break;
-		}	//	for all movements
-		
-		//	Process
-		mh.processIt(MMovement.ACTION_Complete);
-		mh.saveEx();
-		
-		addLog(0, null, new BigDecimal(lines), "@M_Movement_ID@ " + mh.getDocumentNo() + " (" 
-			+ MRefList.get(getCtx(), MMovement.DOCSTATUS_AD_Reference_ID, 
-				mh.getDocStatus(), get_TrxName()) + ")");
 
 		eliminateReservation(target);
-		return lines;
+		
+		return 1;
 	}	//	move
 
 	/**
@@ -201,103 +250,98 @@ public class StorageCleanup extends SvrProcess
 		//	Negative Ordered / Reserved Qty
 		if (target.getQtyReserved().signum() != 0 || target.getQtyOrdered().signum() != 0)
 		{
-			int M_Locator_ID = target.getM_Locator_ID();
-			MStorage storage0 = MStorage.get(getCtx(), M_Locator_ID, 
-				target.getM_Product_ID(), target.getM_AttributeSetInstance_ID(), get_TrxName());
-			if (storage0 == null)
+			BigDecimal reserved = target.getQtyReserved();
+			BigDecimal ordered = target.getQtyOrdered();
+			
+			//	Eliminate Reservation
+			if (reserved.signum() != 0 || ordered.signum() != 0)
 			{
-				MLocator defaultLoc = MLocator.getDefault(getCtx(), M_Locator_ID);
-				if (M_Locator_ID != defaultLoc.getM_Locator_ID())
-				{
-					M_Locator_ID = defaultLoc.getM_Locator_ID();
-					storage0 = MStorage.get(getCtx(), M_Locator_ID, 
-						target.getM_Product_ID(), target.getM_AttributeSetInstance_ID(), get_TrxName());
+				target.setQtyReserved(Env.ZERO);
+				target.setQtyOrdered(Env.ZERO);
+				target.saveEx();
+				if (MStorage.add(getCtx(), target.getM_Warehouse_ID(), target.getM_Locator_ID(), 
+					target.getM_Product_ID(), 
+					target.getM_AttributeSetInstance_ID(), target.getM_AttributeSetInstance_ID(),
+					0,
+					Env.ZERO, reserved, ordered, get_TrxName())) {
+						log.info("Reserved=" + reserved + ",Ordered=" + ordered);
 				}
+				else 
+						log.warning("Failed Storage0 Update");
 			}
-			if (storage0 != null)
-			{
-				BigDecimal reserved = Env.ZERO;
-				BigDecimal ordered = Env.ZERO;
-				if (target.getQtyReserved().add(storage0.getQtyReserved()).signum() >= 0)
-					reserved = target.getQtyReserved();		//	negative
-				if (target.getQtyOrdered().add(storage0.getQtyOrdered()).signum() >= 0)
-					ordered = target.getQtyOrdered();		//	negative
-				//	Eliminate Reservation
-				if (reserved.signum() != 0 || ordered.signum() != 0)
-				{
-					if (MStorage.add(getCtx(), target.getM_Warehouse_ID(), target.getM_Locator_ID(), 
-						target.getM_Product_ID(), 
-						target.getM_AttributeSetInstance_ID(), target.getM_AttributeSetInstance_ID(),
-						Env.ZERO, reserved.negate(), ordered.negate(), get_TrxName()))
-					{
-						if (MStorage.add(getCtx(), storage0.getM_Warehouse_ID(), storage0.getM_Locator_ID(), 
-							storage0.getM_Product_ID(), 
-							storage0.getM_AttributeSetInstance_ID(), storage0.getM_AttributeSetInstance_ID(),
-							Env.ZERO, reserved, ordered, get_TrxName()))
-							log.info("Reserved=" + reserved + ",Ordered=" + ordered);
-						else
-							log.warning("Failed Storage0 Update");
-					}
-					else
-						log.warning("Failed Target Update");
-				}
-			}
+			else
+				log.warning("Failed Target Update");
 		}
 	}	//	eliminateReservation
 	
 	/**
 	 * 	Get Storage Sources
 	 *	@param M_Product_ID product
-	 *	@param M_Locator_ID locator
+	 *  @param M_Warehouse_ID warehouse
+	 *	@param M_Locator_ID locator. Set to zero for all locators
 	 *	@return sources
 	 */
-	private MStorage[] getSources (int M_Product_ID, int M_Locator_ID)
-	{
-		ArrayList<MStorage> list = new ArrayList<MStorage>();
-		String sql = "SELECT * "
-			+ "FROM M_Storage s "
-			+ "WHERE QtyOnHand > 0"
-			+ " AND M_Product_ID=?"
-			//	Empty ASI or ASI with no attribute set
-			+ " AND (M_AttributeSetInstance_ID=0"
-			+ "  OR EXISTS (SELECT * FROM M_AttributeSetInstance asi" 
-			+ " 	RIGHT OUTER JOIN M_AttributeSet mas ON (asi.M_AttributeSet_ID = mas.M_AttributeSet_ID)"  
-			+ " 	WHERE s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID"
-			+ " 	AND (mas.M_AttributeSet_ID IS NULL OR mas.isinstanceattribute = 'N')))"
-			//+ " OR EXISTS (SELECT * FROM M_AttributeSetInstance asi "
-			//	+ "WHERE s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID"
-			//	+ " AND (asi.M_AttributeSet_ID = 0 OR asi.M_AttributeSet_ID IS NULL)) )"
-			//	Stock in same Warehouse
-			+ " AND EXISTS (SELECT * FROM M_Locator sl, M_Locator x "
-				+ "WHERE s.M_Locator_ID=sl.M_Locator_ID"
-				+ " AND x.M_Locator_ID=?"
-				+ " AND sl.M_Warehouse_ID=x.M_Warehouse_ID) "
-			+ "ORDER BY M_AttributeSetInstance_ID";
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
+	private  BigDecimal applySources (MStorage[] sources, MStorage target)	{
+		
+		BigDecimal qty = target.getQtyOnHand().negate();
+		BigDecimal qtyMoved = Env.ZERO;
+		BigDecimal qtyToMove = qty;
+
+		if (sources.length == 0)
+			return Env.ZERO;
+		
+		int M_Product_ID = target.getM_Product_ID();
+		int M_Locator_ID = target.getM_Locator_ID();
+				
+		MMovement mh = null;
+
+		//	Create Movement
+		mh = new MMovement (getCtx(), 0, get_TrxName());
+		mh.setAD_Org_ID(target.getAD_Org_ID());
+		mh.setC_DocType_ID(p_C_DocType_ID);
+		mh.setDescription(getName());
+		if (!mh.save())
+			return Env.ZERO;
+		
+		int lines = 0;
+		for (int i = 0; i < sources.length; i++)
 		{
-			pstmt = DB.prepareStatement (sql, get_TrxName());
-			pstmt.setInt (1, M_Product_ID);
-			pstmt.setInt (2, M_Locator_ID);
-			rs = pstmt.executeQuery ();
-			while (rs.next ())
-			{
-				list.add (new MStorage (getCtx(), rs, get_TrxName()));
-			}
- 		}
-		catch (Exception e)
-		{
-			log.log (Level.SEVERE, sql, e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		MStorage[] retValue = new MStorage[list.size()];
-		list.toArray(retValue);
-		return retValue;
+			MStorage source = sources[i];
+			
+			//	Movement Line
+			MMovementLine ml = new MMovementLine(mh);
+			ml.setM_Product_ID(M_Product_ID);
+			ml.setM_LocatorTo_ID(M_Locator_ID);
+			ml.setM_AttributeSetInstanceTo_ID(target.getM_AttributeSetInstance_ID());
+			//	From
+			ml.setM_Locator_ID(source.getM_Locator_ID());
+			ml.setM_AttributeSetInstance_ID(source.getM_AttributeSetInstance_ID());
+			
+			if (qtyToMove.compareTo(source.getQtyOnHand()) > 0)
+				qtyMoved = source.getQtyOnHand();
+			else
+				qtyMoved = qtyToMove;
+			ml.setMovementQty(qtyMoved);
+			//
+			lines++;
+			ml.setLine(lines*10);
+			if (!ml.save())
+				return Env.ZERO;
+			
+			qtyToMove = qtyToMove.subtract(qtyMoved);
+			if (qtyToMove.signum() <= 0)
+				break;
+		}	//	for all movements
+		
+		//	Process
+		mh.processIt(MMovement.ACTION_Complete);
+		mh.saveEx();
+		
+		addLog(0, null, new BigDecimal(lines), "@M_Movement_ID@ " + mh.getDocumentNo() + " (" 
+			+ MRefList.get(getCtx(), MMovement.DOCSTATUS_AD_Reference_ID, 
+				mh.getDocStatus(), get_TrxName()) + ")");
+
+		return qty.subtract(qtyToMove);  // Total moved
 	}	//	getSources
 	
 }	//	StorageCleanup
