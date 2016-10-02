@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.engine.IInventoryAllocation;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 
@@ -33,7 +34,7 @@ import org.compiere.util.DB;
  *  @author Jorg Janke
  *  @version $Id: MInventoryLineMA.java,v 1.3 2006/07/30 00:51:04 jjanke Exp $
  */
-public class MInventoryLineMA extends X_M_InventoryLineMA
+public class MInventoryLineMA extends X_M_InventoryLineMA implements IInventoryAllocation 
 {
 	/**
 	 * 
@@ -157,7 +158,7 @@ public class MInventoryLineMA extends X_M_InventoryLineMA
 	{
 		StringBuffer sb = new StringBuffer ("MInventoryLineMA[");
 		sb.append("M_InventoryLine_ID=").append(getM_InventoryLine_ID())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append(", Qty=").append(getMovementQty())
 			.append ("]");
 		return sb.toString ();

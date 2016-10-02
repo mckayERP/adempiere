@@ -140,44 +140,48 @@ public class CalloutInventory extends CalloutEngine
 	 * @throws Exception
 	 */
 	private BigDecimal setQtyBook (int M_AttributeSetInstance_ID, int M_Product_ID, int M_Locator_ID) throws Exception {
-		// Set QtyBook from first storage location
-		BigDecimal bd = null;
-		String sql = "SELECT QtyOnHand FROM M_Storage "
+
+		// Set QtyBook from storage location
+		
+		BigDecimal bookQuantity = new BigDecimal(0);
+
+		// Need to sum across all material policy tickets.
+		String sql = "SELECT SUM(QtyOnHand) FROM M_Storage "
 			+ "WHERE M_Product_ID=?"	//	1
 			+ " AND M_Locator_ID=?"		//	2
 			+ " AND M_AttributeSetInstance_ID=?";
-		if (M_AttributeSetInstance_ID == 0)
-			sql = "SELECT SUM(QtyOnHand) FROM M_Storage "
-			+ "WHERE M_Product_ID=?"	//	1
-			+ " AND M_Locator_ID=?";	//	2
 		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try
 		{
-			PreparedStatement pstmt = DB.prepareStatement(sql, null);
+			pstmt = DB.prepareStatement(sql, null);
 			pstmt.setInt(1, M_Product_ID);
 			pstmt.setInt(2, M_Locator_ID);
-			if (M_AttributeSetInstance_ID != 0)
-				pstmt.setInt(3, M_AttributeSetInstance_ID);
-			ResultSet rs = pstmt.executeQuery();
+			pstmt.setInt(3, M_AttributeSetInstance_ID);
+			rs = pstmt.executeQuery();
 			if (rs.next())
 			{
-				bd = rs.getBigDecimal(1);
-				if (bd != null)
-					return bd;
+				bookQuantity = rs.getBigDecimal(1);
 			} else {
 				// gwu: 1719401: clear Booked Quantity to zero first in case the query returns no rows, 
 				// for example when the locator has never stored a particular product.
-				return new BigDecimal(0);
+				//  return new BigDecimal(0);  Can't return without closing! Leaves a hanging statement.
 			}
-			rs.close();
-			pstmt.close();
 		}
 		catch (SQLException e)
 		{
 			log.log(Level.SEVERE, sql, e);
 			throw new Exception(e.getLocalizedMessage());
 		}
-		return new BigDecimal(0);
+		finally {
+			rs.close();
+			pstmt.close();			
+		}
+		
+		if (bookQuantity==null)
+			bookQuantity = Env.ZERO;
+		return bookQuantity;
 	}
 
     /**
