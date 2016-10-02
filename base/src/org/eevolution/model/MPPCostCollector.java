@@ -465,7 +465,7 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 			MProduct product = getM_Product();
 			if (product != null	&& product.isStocked() && !isVariance())
 			{
-				StorageEngine.createTrasaction(
+				StorageEngine.createTransaction(
 						this,
 						getMovementType() , 
 						getMovementDate() , 
