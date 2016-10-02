@@ -1264,9 +1264,9 @@ public class MInOut extends X_M_InOut implements DocAction
 			MProduct product = sLine.getProduct();
 
 			//	Qty & Type
-			String MovementType = getMovementType();
+			String movementType = getMovementType();
 			BigDecimal Qty = sLine.getMovementQty();
-			if (MovementType.charAt(1) == '-' )	//	C- Customer Shipment - V- Vendor Return
+			if (!MTransaction.isIncomingTransaction(movementType) )	//	C- Customer Shipment - V- Vendor Return
 				Qty = Qty.negate();
 			BigDecimal QtySO = Env.ZERO;
 			BigDecimal QtyPO = Env.ZERO;
@@ -1298,17 +1298,17 @@ public class MInOut extends X_M_InOut implements DocAction
 				log.fine("OrderLine - Reserved=" + oLine.getQtyReserved()
 					+ ", Delivered=" + oLine.getQtyDelivered());
 				
-				if ((isSOTrx() && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && sLine.getMovementQty().signum() > 0) // Shipment
-				||	(isSOTrx() &&  MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) && sLine.getMovementQty().signum() < 0)) // Revert Customer Return
+				if ((isSOTrx() && MInOut.MOVEMENTTYPE_CustomerShipment.equals(movementType) && sLine.getMovementQty().signum() > 0) // Shipment
+				||	(isSOTrx() &&  MInOut.MOVEMENTTYPE_CustomerReturns.equals(movementType) && sLine.getMovementQty().signum() < 0)) // Revert Customer Return
 					QtySO = sLine.getMovementQty().abs().negate();
-				else if ((isSOTrx() && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && sLine.getMovementQty().signum() < 0) // Revert Shipment
-					  || (isSOTrx() && MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) && sLine.getMovementQty().signum() > 0)) // Customer Return
+				else if ((isSOTrx() && MInOut.MOVEMENTTYPE_CustomerShipment.equals(movementType) && sLine.getMovementQty().signum() < 0) // Revert Shipment
+					  || (isSOTrx() && MInOut.MOVEMENTTYPE_CustomerReturns.equals(movementType) && sLine.getMovementQty().signum() > 0)) // Customer Return
 					QtySO = sLine.getMovementQty().abs();
-				else if ((!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && sLine.getMovementQty().signum() > 0) // Vendor Receipt
-					  || (!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && sLine.getMovementQty().signum() < 0)) // Revert Return Vendor
+				else if ((!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(movementType) && sLine.getMovementQty().signum() > 0) // Vendor Receipt
+					  || (!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(movementType) && sLine.getMovementQty().signum() < 0)) // Revert Return Vendor
 					QtyPO = sLine.getMovementQty().abs().negate();
-				else if ((!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && sLine.getMovementQty().signum() < 0)  // Revert Vendor Receipt
-					  || (!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && sLine.getMovementQty().signum() > 0))  // Return Vendor 
+				else if ((!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(movementType) && sLine.getMovementQty().signum() < 0)  // Revert Vendor Receipt
+					  || (!isSOTrx() &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(movementType) && sLine.getMovementQty().signum() > 0))  // Return Vendor 
 					QtyPO = sLine.getMovementQty().abs();
 			
 			}
@@ -1324,30 +1324,26 @@ public class MInOut extends X_M_InOut implements DocAction
 			}
 
 			//	Stock Movement - Counterpart MOrder.reserveStock
-			if (product != null
-				&& product.isStocked() )
-			{
-				try {
-					StorageEngine.createTrasaction(
-							sLine,
-							getMovementType() , 
-							getMovementDate() , 
-							sLine.getMovementQty(), 
-							isReversal(),							
-							getM_Warehouse_ID(), 
-							reservationAttributeSetInstance_ID,		// Reservation ASI
-							orderWarehouseID,						// Reservation Warehouse
-							isSOTrx()								// IsSOTrx=false
-							);
-				}
-				catch (AdempiereException e) {
-					m_processMsg = e.getMessage();
-					return DocAction.STATUS_Invalid;
-				}
+			try {
+				StorageEngine.createTransaction(
+						sLine,
+						getMovementType() , 
+						getMovementDate() , 
+						sLine.getMovementQty(), 
+						isReversal(),							
+						getM_Warehouse_ID(), 
+						reservationAttributeSetInstance_ID,		// Reservation ASI
+						orderWarehouseID,						// Reservation Warehouse
+						isSOTrx()								// IsSOTrx=false
+						);
+			}
+			catch (AdempiereException e) {
+				m_processMsg = e.getMessage();
+				return DocAction.STATUS_Invalid;
+			}
 
-				log.fine("Material Transaction Complete.");
+			log.fine("Material Transaction Complete.");
 
-			}	//	stock movement
 
 			//	Correct Order Line
 			if (product != null && oLine != null && isSOTrx())		//	other in VMatch.createMatchRecord
@@ -1437,7 +1433,7 @@ public class MInOut extends X_M_InOut implements DocAction
 				&& !isReversal())
 			{
 				BigDecimal matchQty = sLine.getMovementQty();
-				if (MovementType.charAt(1) == '-')	//	C- Customer Shipment - V- Vendor Return
+				if (!MTransaction.isIncomingTransaction(movementType))	//	C- Customer Shipment - V- Vendor Return
 					matchQty = matchQty.negate();
 				
 				//	Invoice - Receipt Match (requires Product)
@@ -1905,6 +1901,7 @@ public class MInOut extends X_M_InOut implements DocAction
 			rLine.setQtyEntered(rLine.getQtyEntered().negate());
 			rLine.setMovementQty(rLine.getMovementQty().negate());
 			rLine.setM_AttributeSetInstance_ID(sLines[i].getM_AttributeSetInstance_ID());
+			rLine.setM_MPolicyTicket_ID(sLines[i].getM_MPolicyTicket_ID());
 			// Goodwill: store original (voided/reversed) document line
 			rLine.setReversalLine_ID(sLines[i].getM_InOutLine_ID());
 			if (!rLine.save(get_TrxName()))
@@ -1913,7 +1910,7 @@ public class MInOut extends X_M_InOut implements DocAction
 				return false;
 			}
 			//	We need to copy MA
-			if (rLine.getM_AttributeSetInstance_ID() == 0)
+			if (rLine.getM_MPolicyTicket_ID() == 0)
 			{
 				List<MInOutLineMA> mas = MInOutLineMA.get(getCtx(),
 					sLines[i].getM_InOutLine_ID(), get_TrxName());
@@ -1921,7 +1918,7 @@ public class MInOut extends X_M_InOut implements DocAction
                 for (MInOutLineMA ma : mas)
 				{
 					MInOutLineMA reverseLine = new MInOutLineMA (rLine,
-						ma.getM_AttributeSetInstance_ID(),
+						ma.getM_MPolicyTicket_ID(),
 						ma.getMovementQty().negate());
                     reverseLine.saveEx();
 				}
