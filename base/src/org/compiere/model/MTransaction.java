@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.Env;
 
 /**
@@ -307,4 +308,39 @@ public class MTransaction extends X_M_Transaction
 		return sb.toString ();
 	}	//	toString
 	
+
+	/**
+	 * Test the movement type to determine if the movement will increase inventory (incoming)
+	 * or decrease inventory (outgoing).  A AdempiereException will be thrown if the 
+	 * movementType is not recognized.
+	 * @param movementType a string that must match one of the defined movement types in 
+	 * the movement type reference list (AD_Reference_ID=189)
+	 * @return true if the movement in incoming, false if outgoing.
+	 */
+	public static Boolean isIncomingTransaction(String movementType) {
+
+		switch (movementType) {
+
+			// Incoming
+			case MOVEMENTTYPE_CustomerReturns:
+			case MOVEMENTTYPE_VendorReceipts: 
+			case MOVEMENTTYPE_InventoryIn:
+			case MOVEMENTTYPE_MovementTo:
+			case MOVEMENTTYPE_ProductionPlus:
+			case MOVEMENTTYPE_WorkOrderPlus:
+				return true;
+
+			// Outgoing
+			case MOVEMENTTYPE_CustomerShipment:
+			case MOVEMENTTYPE_VendorReturns:
+			case MOVEMENTTYPE_InventoryOut:
+			case MOVEMENTTYPE_MovementFrom:
+			case MOVEMENTTYPE_Production_:
+			case MOVEMENTTYPE_WorkOrder_:
+				return false;
+				
+			default:
+				throw new AdempiereException("Unknown Movement Type: " + movementType);
+		}
+	}
 }	//	MTransaction
