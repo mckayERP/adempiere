@@ -88,22 +88,24 @@ public class MMPolicyTicket extends X_M_MPolicyTicket {
 	 */
 	public static MMPolicyTicket create(Properties ctx, IDocumentLine line,
 			Timestamp movementDate, String trxName) {
-		if (line == null)
-			return null;
+//		if (line == null)
+//			return null;
 		
 		MMPolicyTicket ticket = new MMPolicyTicket(ctx, 0, trxName);
 		// TODO Client & Org ??
 		ticket.setMovementDate(movementDate);
 		
-		// Set the reference to the line
-		String lineColumnName = line.get_TableName()+"_ID";
-		if (ticket.get_ColumnIndex(lineColumnName) < 0)
-		{
-			throw new AdempiereException(ticket.get_TableName() + " does not contain reference column for " + line);
+		if (line != null) {
+			// Set the reference to the line
+			String lineColumnName = line.get_TableName()+"_ID";
+			if (ticket.get_ColumnIndex(lineColumnName) < 0)
+			{
+				throw new AdempiereException(ticket.get_TableName() + " does not contain reference column for " + line);
+			}
+			ticket.set_ValueOfColumn(lineColumnName, line.get_ID());			
 		}
-		ticket.set_ValueOfColumn(lineColumnName, line.get_ID());			
-		ticket.saveEx();
 		
+		ticket.saveEx();		
 		return ticket;
 	}
 
