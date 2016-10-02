@@ -28,6 +28,7 @@ import org.compiere.model.MClient;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInOutLineMA;
+import org.compiere.model.MInventoryLine;
 import org.compiere.model.MLocator;
 import org.compiere.model.MMPolicyTicket;
 import org.compiere.model.MProduct;
@@ -37,6 +38,7 @@ import org.compiere.model.MTransaction;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.X_M_InOutLine;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -51,161 +53,86 @@ public class StorageEngine
 	
 	/**	Logger							*/
 	protected static transient CLogger	log = CLogger.getCLogger (StorageEngine.class);
-	
-	public static void createTrasaction (
+
+	public static void createTransaction (
 			IDocumentLine docLine,
-			String MovementType , 
-			Timestamp MovementDate , 
-			BigDecimal Qty, 
+			String movementType , 
+			Timestamp movementDate , 
+			BigDecimal qty, 
 			boolean isReversal , 
-			int M_Warehouse_ID, 
-			int o_M_AttributeSetInstance_ID,
+			int m_Warehouse_ID, 
+			int reservationAttributeSetInstance_ID,
 			int o_M_Warehouse_ID,
-			boolean isSOTrx
+			boolean isSOTrx) 
+	{
+		
+		createTransaction(docLine,
+				movementType , 
+				movementDate , 
+				qty, 
+				isReversal , 
+				m_Warehouse_ID, 
+				reservationAttributeSetInstance_ID,
+				o_M_Warehouse_ID,
+				isSOTrx,
+				true);
+	}
+
+	public static void createTransaction (
+			IDocumentLine docLine,
+			String movementType , 
+			Timestamp movementDate , 
+			BigDecimal qty, 
+			boolean isReversal , 
+			int m_Warehouse_ID, 
+			int reservationAttributeSetInstance_ID,
+			int o_M_Warehouse_ID,
+			boolean isSOTrx,
+			boolean deleteExistingMAEntries
 		)
 	{	
-		//	Incoming Trx
-		boolean incomingTrx = MovementType.charAt(1) == '+';	//	V+ Vendor Receipt
-		boolean sameWarehouse = M_Warehouse_ID == o_M_Warehouse_ID;
 
 		MProduct product = MProduct.get(docLine.getCtx(), docLine.getM_Product_ID());
 		if (product == null || !product.isStocked())
 			return;
 			
-		//Ignore the Material Policy when is Reverse Correction
+		//Ignore the Material Policy when the document is a Reverse Correction.
+		// The Material allocation is copied from the reversed/voided document.
 		if(!isReversal)
 		{
-			checkMaterialPolicy(docLine, MovementType, MovementDate, M_Warehouse_ID);
+			checkMaterialPolicy(docLine, movementType, movementDate, m_Warehouse_ID, deleteExistingMAEntries);
 		}
 		
-		// Reservation ASI
-		int reservationAttributeSetInstance_ID = o_M_AttributeSetInstance_ID;
-		//
-		if (!incomingTrx)  // Same as (docLine.getM_MPolicyTicket_ID() == 0)
-		{
-			// Outgoing transactions are allocated to tickets using the line material allocation
-			// table.  Update the storage data accordingly.
-			IInventoryAllocation mas[] = StorageEngine.getMA(docLine);
+		IInventoryAllocation mas[] = StorageEngine.getMA(docLine);
+		if (mas.length > 0) {  // There are material allocations
 			for (int j = 0; j < mas.length; j++)
 			{
 				IInventoryAllocation ma = mas[j];
-				BigDecimal QtyMA = ma.getMovementQty();
-//				if (!incomingTrx)	//	C- Customer Shipment - V- Vendor Return
-				QtyMA = QtyMA.negate();		
-				
-				BigDecimal reservedDiff = Env.ZERO;
-				BigDecimal orderedDiff = Env.ZERO;
 
-				if (docLine instanceof MInOutLine && ((MInOutLine) docLine).getC_OrderLine_ID() != 0)
-				{			
-					if ((isSOTrx && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && ma.getMovementQty().signum() > 0) // Shipment
-					||	(isSOTrx &&  MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) &&  ma.getMovementQty().signum() < 0)) // Revert Customer Return
-						reservedDiff =  ma.getMovementQty().abs().negate();
-					else if ((isSOTrx && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && ma.getMovementQty().signum() < 0) // Revert Shipment
-					|| (isSOTrx && MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) && ma.getMovementQty().signum() > 0)) // Customer Return
-						reservedDiff = ma.getMovementQty().abs();
-					else if ((!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && ma.getMovementQty().signum() > 0) // Vendor Receipt
-					|| (!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && ma.getMovementQty().signum() < 0)) // Revert Return Vendor
-						orderedDiff = ma.getMovementQty().abs().negate();
-					else if ((!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && ma.getMovementQty().signum() < 0)  // Revert Vendor Receipt
-					|| (!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && ma.getMovementQty().signum() > 0))  // Return Vendor 
-						orderedDiff = ma.getMovementQty().abs();
-				}
-
-				
-				//	Update Storage - see also VMatch.createMatchRecord
-				if (!MStorage.add(docLine.getCtx(), M_Warehouse_ID,
-					docLine.getM_Locator_ID(),
-					docLine.getM_Product_ID(), 
-					docLine.getM_AttributeSetInstance_ID(), reservationAttributeSetInstance_ID,
-					ma.getM_MPolicyTicket_ID(),
-					QtyMA,
-					sameWarehouse ? reservedDiff : Env.ZERO,
-					sameWarehouse ? orderedDiff : Env.ZERO,
-					docLine.get_TrxName()))
-				{
-					throw new AdempiereException(); //Cannot correct Inventory (MA)
-				}
-				if (!sameWarehouse) {
-					//correct qtyOrdered/qtyReserved in warehouse of order
-					MWarehouse wh = MWarehouse.get(docLine.getCtx(), o_M_Warehouse_ID);
-					if (!MStorage.add(docLine.getCtx(), o_M_Warehouse_ID,
-							wh.getDefaultLocator().getM_Locator_ID(),
-							docLine.getM_Product_ID(), 
-							docLine.getM_AttributeSetInstance_ID(), reservationAttributeSetInstance_ID,
-							ma.getM_MPolicyTicket_ID(),
-							Env.ZERO,
-							reservedDiff,
-							orderedDiff,
-							docLine.get_TrxName()))
-						{
-							throw new AdempiereException(); //Cannot correct Inventory (MA)
-						}
-			
-				}
-				create(docLine, MovementType ,MovementDate, ma.getM_MPolicyTicket_ID() , QtyMA);
+				updateStorageAndCreateTransaction(docLine, 
+						movementType, 
+						movementDate, 
+						isSOTrx, 
+						ma.getMovementQty(), 
+						reservationAttributeSetInstance_ID, 
+						ma.getM_MPolicyTicket_ID(), 
+						m_Warehouse_ID, 
+						o_M_Warehouse_ID);
 			}
 		}
-		//	sLine.getM_AttributeSetInstance_ID() != 0
-		//if (mtrx == null)
-		else // incomingTrx
-		{
-//			if (!incomingTrx)	//	C- Customer Shipment - V- Vendor Return
-//				Qty = Qty.negate();
-							
+		else { // No material allocations.  Use the docLine material policy ticket
 			if (docLine.getM_MPolicyTicket_ID() == 0)
 				throw new AdempiereException ("@Error@ @FillMandatory@ @M_MPolicyTicket_ID@");
 
-			BigDecimal reservedDiff = Env.ZERO;
-			BigDecimal orderedDiff = Env.ZERO;
-
-			if (docLine instanceof MInOutLine && ((MInOutLine) docLine).getC_OrderLine_ID() != 0)
-			{			
-				if ((isSOTrx && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && Qty.signum() > 0) // Shipment
-				||	(isSOTrx &&  MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) &&  Qty.signum() < 0)) // Revert Customer Return
-					reservedDiff =  Qty.abs().negate();
-				else if ((isSOTrx && MInOut.MOVEMENTTYPE_CustomerShipment.equals(MovementType) && Qty.signum() < 0) // Revert Shipment
-				|| (isSOTrx && MInOut.MOVEMENTTYPE_CustomerReturns.equals(MovementType) && Qty.signum() > 0)) // Customer Return
-					reservedDiff = Qty.abs();
-				else if ((!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && Qty.signum() > 0) // Vendor Receipt
-				|| (!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && Qty.signum() < 0)) // Revert Return Vendor
-					orderedDiff = Qty.abs().negate();
-				else if ((!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReceipts.equals(MovementType) && Qty.signum() < 0)  // Revert Vendor Receipt
-				|| (!isSOTrx &&  MInOut.MOVEMENTTYPE_VendorReturns.equals(MovementType) && Qty.signum() > 0))  // Return Vendor 
-					orderedDiff = Qty.abs();
-			}
-
-			// Update storage
-			if (!MStorage.add(docLine.getCtx(), M_Warehouse_ID,
-					docLine.getM_Locator_ID(),
-					docLine.getM_Product_ID(), 
-					docLine.getM_AttributeSetInstance_ID(), reservationAttributeSetInstance_ID,
-					docLine.getM_MPolicyTicket_ID(),
-					Qty,
-					sameWarehouse ? reservedDiff : Env.ZERO,
-					sameWarehouse ? orderedDiff : Env.ZERO,
-					docLine.get_TrxName())) 
-				{
-					throw new AdempiereException(); //Cannot correct Inventory (MA)
-				}
-			if (!sameWarehouse  && o_M_Warehouse_ID>0 && docLine instanceof MInOutLine) {
-				//correct qtyOrdered/qtyReserved in warehouse of order
-				MWarehouse wh = MWarehouse.get(docLine.getCtx(), o_M_Warehouse_ID);
-				if (!MStorage.add(docLine.getCtx(), o_M_Warehouse_ID,
-						wh.getDefaultLocator().getM_Locator_ID(),
-						docLine.getM_Product_ID(), 
-						docLine.getM_AttributeSetInstance_ID(), reservationAttributeSetInstance_ID,
-						docLine.getM_MPolicyTicket_ID(),
-						Env.ZERO,
-						reservedDiff,
-						orderedDiff,
-						docLine.get_TrxName()))
-					{
-						throw new AdempiereException(); //Cannot correct Inventory (MA)
-					}
-		
-			}
-			create(docLine, MovementType ,MovementDate, docLine.getM_MPolicyTicket_ID() , Qty);
+			updateStorageAndCreateTransaction(docLine, 
+					movementType, 
+					movementDate, 
+					isSOTrx, 
+					docLine.getMovementQty(), 
+					reservationAttributeSetInstance_ID, 
+					docLine.getM_MPolicyTicket_ID(), 
+					m_Warehouse_ID, 
+					o_M_Warehouse_ID);
 		}
 	}
 
@@ -220,14 +147,14 @@ public class StorageEngine
 	 *  transaction. Tickets will be added to the document line Material 
 	 *  Allocation (for example MInOutLineMA).<br>
 	 *  <br>
-	 *  If a transaction forces the quantity on hand to be negative, an error 
-	 *  will be returned.  The source document should not be completed until 
-	 *  there is sufficient quantity on hand.<br>  
+	 *  If a transaction forces the quantity on hand to be negative, an exception
+	 *  will be thrown.  The source document should not be completed until 
+	 *  there is sufficient quantity on hand or a way to deal with cost corrections
+	 *  is added to the code.<br>  
 	 *  <br>
 	 *  Negative quantity-on-hand can exists, created by reversals of material 
-	 *  receipts for example.  The system assumes that the next material receipt 
-	 *  processed with the same product/asi will be a correction and will use the 
-	 *  same ticket as the negative quantity.<br>
+	 *  receipts for example.  The system will apply incoming material to the
+	 *  negative storage tickets to bring them to zero quantity on hand.<br>
 	 *  <br>
 	 *  The function also sets the locator to the default for the warehouse if no
 	 *  locator is defined on the line and there is insufficient stock of that product
@@ -236,8 +163,8 @@ public class StorageEngine
 	 *  material, the default locator is used.  
 	 *     
 	 *  @param line - the document line that contains the product and ASI (if any)
-	 *  @param MovementType - a string that follows the movement type patterns (For example "C-" or "V+")
-	 *  @param MovementDate - a timestamp with the date the movement occurred
+	 *  @param movementType - a string that follows the movement type patterns (For example "C-" or "V+")
+	 *  @param movementDate - a timestamp with the date the movement occurred
 	 *  @param M_Warehouse_ID - the ID of the Warehouse to use
 	 *  
 	 *  @since 3.9.0 - prior to 3.9.0, the material attribute set instances were 
@@ -249,72 +176,110 @@ public class StorageEngine
 	 */
 	private static void checkMaterialPolicy(
 			IDocumentLine line, 
-			String MovementType, 
-			Timestamp MovementDate, 
-			int M_Warehouse_ID)
+			String movementType, 
+			Timestamp movementDate, 
+			int M_Warehouse_ID,
+			boolean deleteExistingMALines)
 	{
+		
+		if (M_Warehouse_ID == 0)
+			throw new AdempiereException("@InvalidValue@ @M_Warehouse_ID@==0");
+		
 		// In case the document process is being redone, delete work in progress
-		// and start again.
-		deleteMA(line);
+		// and start again.  There are cases where documents need to be processed twice
+		// for to and from entries, in which case the previous work may be valid.
+		if (deleteExistingMALines)
+			deleteMA(line);
 
-		//	Incoming Trx
-		boolean incomingTrx = MovementType.charAt(1) == '+';	//	V+ Vendor Receipt
+		//	Incoming Trx are positive receipts or negative shipments
+		boolean incomingTrx = MTransaction.isIncomingTransaction(movementType) && line.getMovementQty().signum() >= 0
+							|| !MTransaction.isIncomingTransaction(movementType) && line.getMovementQty().signum() < 0;	//	V+ Vendor Receipt
 		MProduct product = MProduct.get(line.getCtx(), line.getM_Product_ID());
-		if (product == null)  // Nothing to ticket
+		if (product == null || line.getMovementQty().signum() == 0)  // Nothing to ticket
 			return;
 
-		//	Need to have Location
-		if (line.getM_Locator_ID() == 0)
-		{
-			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
-			//line.setM_Warehouse_ID(M_Warehouse_ID);
-			//line.setM_Locator_ID(getM_Locator_ID(line.getCtx(),line.getM_Warehouse_ID(), line.getM_Product_ID(),line.getM_AttributeSetInstance_ID(), incomingTrx ? Env.ZERO : line.getMovementQty(), line.get_TrxName()));
-		}
-	
 		//	Material Policy Tickets - used to track the FIFO/LIFO
 		//  Create a Material Policy Ticket ID for any incoming transaction
 		//  Where there is negative material on-hand, receive the new material using the ticket
 		//  of the negative material.  This assumes the material receipt is a correction of the 
 		//  cause of the negative quantity.  A single ticket is used as the costs are unique for 
-		//  each receipt line 
+		//  each receipt line.
 		if (incomingTrx)
 		{
 			MMPolicyTicket ticket = null;
-			//  Find the storage locations to use.  Prioritize any negative quantity-on-hand and 
-			//  apply this material receipt to the associated ticket
+			boolean createdMA = false;
+			
+			BigDecimal qtyReceived = line.getMovementQty(); // Must be positive
+			if (!MTransaction.isIncomingTransaction(movementType))
+				qtyReceived = line.getMovementQty().negate();
+			
+			//  Find the storage locations to use.  Use the locator, or if that is zero, search the 
+			//  whole warehouse. Prioritize any negative quantity-on-hand and apply incoming material
+			//  to the associated ticket to correct the inventory balance.
 			MStorage[] storages = MStorage.getWarehouse(line.getCtx(), M_Warehouse_ID, line.getM_Product_ID(), 0, 0,
 					null, MClient.MMPOLICY_FiFo.equals(product.getMMPolicy()), false, line.getM_Locator_ID(), line.get_TrxName());
 			for (MStorage storage : storages) 
 			{
-				if (storage.getQtyOnHand().signum() < 0) 
-				{
-					// Negative quantity - use that ticket
-					ticket = new MMPolicyTicket(line.getCtx(),storage.getM_MPolicyTicket_ID(), line.get_TrxName());
-					break;
+				// If there is negative storage ...
+				if (storage.getQtyOnHand().signum() < 0) {
+					// ... and the remaining qty received is not enough to make it zero or positive
+					if (qtyReceived.compareTo(storage.getQtyOnHand().negate()) <= 0)	
+					{
+						// ... then assign all the quantity received to this ticket
+						createMA (line, storage.getM_MPolicyTicket_ID(), qtyReceived);
+						qtyReceived = Env.ZERO;
+						log.fine("QtyReceived=" + qtyReceived);
+						createdMA = true;
+					}
+					// ... and the remaining qty received is greater than this negative qty
+					else
+					{	
+						// ... then apply enough material to this ticket to bring it to zero quantity
+						createMA (line, storage.getM_MPolicyTicket_ID(), storage.getQtyOnHand().negate());
+						qtyReceived = qtyReceived.subtract(storage.getQtyOnHand().negate());
+ 						log.fine("QtyReceived=" + qtyReceived);
+						createdMA = true;
+					}
 				}
+				
+				if (qtyReceived.signum() == 0)
+					break;
 			}
-			//  Always create a material policy ticket so fifo/lifo work.
-			if (ticket == null)
+			//  If there is qtyReceived remaining after fulfilling negative storage, create a new 
+			//  material policy ticket so fifo/lifo work.
+			if (qtyReceived.signum() > 0)
 			{
-				ticket = MMPolicyTicket.create(line.getCtx(), line, MovementDate, line.get_TrxName());
+				ticket = MMPolicyTicket.create(line.getCtx(), line, movementDate, line.get_TrxName());
 				if (ticket == null) { // There is a problem
 					log.severe("Can't create Material Policy Ticket for line " + line);
 					throw new AdempiereException("Can't create Material Policy Ticket for line " + line);
 				}
+				if (createdMA) {  // Add the remainder to another material allocation line
+					createMA (line, ticket.getM_MPolicyTicket_ID(), qtyReceived);					
+				}
+				else { //  For incoming transactions with no storage corrections, one ticket is created per MR line and is added to the line.			
+					line.setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
+				}
+				qtyReceived = Env.ZERO;
+				log.config("New Material Policy Ticket=" + line);
 			}
-			//  For incoming transactions, one ticket is created per MR line.			
-			line.setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
-			log.config("New Material Policy Ticket=" + line);
-			//createMA(line, ticket.getM_MPolicyTicket_ID(), line.getMovementQty()); // Why?
+
+			if (qtyReceived.signum() != 0) { // negative remaining is a problem.
+				throw new AdempiereException("Can't receive all quantity on line " + line);
+			}
 		} // Incoming			
-		else // Outgoing - use Material Allocation
+		else // Outgoing - use Material Allocations - there could be several per line.
 		{
 			String MMPolicy = product.getMMPolicy();
-			Timestamp minGuaranteeDate = MovementDate;
+			Timestamp minGuaranteeDate = movementDate;
 			MStorage[] storages = MStorage.getWarehouse(line.getCtx(), M_Warehouse_ID, 
 					line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 0, 
 					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), line.get_TrxName());
 			BigDecimal qtyToDeliver = line.getMovementQty();
+			// Check if this is a negative incoming movement and negate the quantity
+			if (MTransaction.isIncomingTransaction(movementType))
+				qtyToDeliver = qtyToDeliver.negate();
+			
 			for (MStorage storage : storages)
 			{						
 				if (storage.getQtyOnHand().compareTo(qtyToDeliver) >= 0)
@@ -339,12 +304,14 @@ public class StorageEngine
 				//MAttributeSetInstance asi = MAttributeSetInstance.create(line.getCtx(), product, line.get_TrxName());
 				//createMA(line, asi.getM_AttributeSetInstance_ID(), qtyToDeliver);
 				
-				// There is not enough stock to deliver this shipment. Flag this 
-				// as an error.  Remove any Material Allocations already created.
+				// There is not enough stock to deliver this shipment. 
 				// TODO - this should trigger a way to balance costs - outgoing shipments 
 				// could have accounting with a generic cost guess (Steve's Shipment Plan for example).
 				// The balancing incoming transaction could have accounting to reverse the generic 
-				// cost and add the correct one.
+				// cost and add the correct one.  This is left as a TODO.
+				// 
+				// For now, remove any Material Allocations already created and throw an error as
+				// we shouldn't generate a zero cost transaction.
 				log.warning(line + ", Insufficient quantity. Process later.");
 				deleteMA(line);
 				throw new AdempiereException("Insufficient quantity to deliver line " + line);
@@ -514,5 +481,109 @@ public class StorageEngine
 		}
 			
 	}
+
+	private static BigDecimal getReservedDifference (IDocumentLine docLine, boolean isSOTrx, String movementType, BigDecimal movementQty) {
+		
+		BigDecimal reservedDiff = Env.ZERO;
+
+		if (docLine != null && docLine instanceof MInOutLine && ((MInOutLine) docLine).getC_OrderLine_ID() != 0)
+		{			
+			if (isSOTrx) { // Reservations are only affected by sales transactions.
+				// If the movement qty is positive - a customer shipment, the reservation is reduced
+				if (MTransaction.isIncomingTransaction(movementType)) // Customer return: reservation increases with positive movements
+					reservedDiff =  movementQty;
+				else // Customer Shipment: reservation decreases with positive movements
+					reservedDiff = movementQty.negate();
+			}
+		}
+		
+		return reservedDiff;
+
+	}
+
+	private static BigDecimal getOrderedDifference (IDocumentLine docLine, boolean isSOTrx, String movementType, BigDecimal movementQty) {
+		
+		BigDecimal orderedDiff = Env.ZERO;
+
+		if (docLine != null && docLine instanceof MInOutLine && ((MInOutLine) docLine).getC_OrderLine_ID() != 0)
+		{			
+			if (!isSOTrx) {
+				if (MTransaction.isIncomingTransaction(movementType)) // Vendor receipt: ordered quantity is reduced by positive movements.
+					orderedDiff = movementQty.negate();
+				else   // Vendor return: ordered quantity is increased by positive movements. 
+					orderedDiff = movementQty;
+			}
+		}
+		
+		return orderedDiff;
+	}
 	
+	private static void updateStorageAndCreateTransaction(IDocumentLine docLine, String movementType, Timestamp movementDate, Boolean isSOTrx, BigDecimal movementQty, 
+								int reservationAttributeSetInstance_ID, int M_MPolicyTicket_ID, int M_Warehouse_ID, int o_M_Warehouse_ID) {
+		
+		boolean incomingTrx = MTransaction.isIncomingTransaction(movementType);	//	V+ Vendor Receipt
+		
+		//	Incoming Trx are positive receipts or negative shipments
+		boolean sameWarehouse = M_Warehouse_ID == o_M_Warehouse_ID || o_M_Warehouse_ID == 0;
+
+		BigDecimal qty = movementQty;
+		if (!incomingTrx)
+			qty = qty.negate();		// Outgoing - reducing inventory
+		
+		// For orders only, determine the changes to qty ordered or qty reserved. For other docs, 
+		// these remain zero and have no effect.
+		BigDecimal reservedDiff = getReservedDifference(docLine, isSOTrx, movementType, movementQty);
+		BigDecimal orderedDiff = getOrderedDifference(docLine, isSOTrx, movementType, movementQty);
+						
+		//	Update Storage - see also VMatch.createMatchRecord
+		if (!MStorage.add(docLine.getCtx(), 
+			M_Warehouse_ID,
+			docLine.getM_Locator_ID(),
+			docLine.getM_Product_ID(), 
+			docLine.getM_AttributeSetInstance_ID(), 
+			reservationAttributeSetInstance_ID,
+			M_MPolicyTicket_ID,
+			qty,
+			sameWarehouse ? reservedDiff : Env.ZERO,
+			sameWarehouse ? orderedDiff : Env.ZERO,
+			docLine.get_TrxName()))
+		{
+			throw new AdempiereException(); //Cannot correct Inventory (MA)
+		}
+		if (!sameWarehouse) {
+			//correct qtyOrdered/qtyReserved in warehouse of order
+			MWarehouse wh = MWarehouse.get(docLine.getCtx(), o_M_Warehouse_ID);
+			if (!MStorage.add(docLine.getCtx(), 
+					o_M_Warehouse_ID,
+					wh.getDefaultLocator().getM_Locator_ID(),
+					docLine.getM_Product_ID(), 
+					docLine.getM_AttributeSetInstance_ID(), 
+					reservationAttributeSetInstance_ID,
+					M_MPolicyTicket_ID,
+					Env.ZERO,
+					reservedDiff,
+					orderedDiff,
+					docLine.get_TrxName()))
+				{
+					throw new AdempiereException(); //Cannot correct Inventory (MA)
+				}
+	
+		}
+		
+		// Update Date Last Inventory if the docLine is a Physical Inventory and not internal use
+		if(docLine instanceof MInventoryLine 
+				&& ((MInventoryLine) docLine).getQtyInternalUse().compareTo(Env.ZERO) == 0)
+		{	
+			MStorage storage = MStorage.get(docLine.getCtx(), docLine.getM_Locator_ID(), 
+					docLine.getM_Product_ID(), docLine.getM_AttributeSetInstance_ID(),
+					M_MPolicyTicket_ID, docLine.get_TrxName());						
+			storage.setDateLastInventory(movementDate);
+			if (!storage.save(docLine.get_TrxName()))
+			{
+				throw new AdempiereException("Storage not updated(2)");
+			}
+		}
+
+		create(docLine, movementType ,movementDate, M_MPolicyTicket_ID , qty);
+	}
 }
