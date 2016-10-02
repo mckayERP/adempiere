@@ -765,9 +765,9 @@ public class VPAttributeDialog extends CDialog
 		{
 //			if (isProductWindow || !hasProductASI)
 //			{
-				m_changed = m_attributeSetInstance_id != old_m_attributeSetInstance_id;;
-				m_attributeSetInstance_id = 0;
-				m_M_Locator_ID = 0;
+			m_attributeSetInstance_id = 0;
+			m_changed = m_attributeSetInstance_id != old_m_attributeSetInstance_id;;
+			m_M_Locator_ID = 0;
 //			}
 			dispose();
 		}

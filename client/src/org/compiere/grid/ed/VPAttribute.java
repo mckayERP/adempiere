@@ -1090,7 +1090,7 @@ public class VPAttribute extends JComponent
 		try
 		{
 	 	 	fireVetoableChange(m_columnName, oldValue, newValue);
-	 	 	if (getValue() != newValue) // 
+	 	 	if (getValue() != newValue) // !This overwrites the veto!
 	 	 		setValue(newValue);
 		}
 		catch (PropertyVetoException pve)
