@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
   <Migration EntityType="D" Name="Replace ASI as the FIFO/LIFO Tracking method (#453)" ReleaseNo="" SeqNo="330">
+    <Comments>Copy M_AttributeSetInstance values into M_MPolicyTicket</Comments>
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="100" Action="I" Record_ID="54166" Table="AD_Table">
         <Data AD_Column_ID="105" Column="AD_Window_ID" isNewNull="true"/>
@@ -445,6 +446,7 @@ There are two reasons for de-activating and not deleting records:&#13;
     </Step>
     <Step SeqNo="150" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="81208" Table="AD_Column">
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
@@ -479,7 +481,6 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
-        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
         <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
@@ -659,7 +660,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81210</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -714,10 +715,10 @@ There are two reasons for de-activating and not deleting records:&#13;
     </Step>
     <Step SeqNo="240" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="58993" Table="AD_Element">
-        <Data AD_Column_ID="2603" Column="Name" oldValue="Material Policy Ticket ID">Material Policy Ticket</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
         <Data AD_Column_ID="4299" Column="PrintName" oldValue="Material Policy Ticket ID">Material Policy Ticket</Data>
         <Data AD_Column_ID="58588" Column="AD_Reference_ID" isOldNull="true">19</Data>
-        <Data AD_Column_ID="58589" Column="FieldLength" isOldNull="true">10</Data>
+        <Data AD_Column_ID="2603" Column="Name" oldValue="Material Policy Ticket ID">Material Policy Ticket</Data>
       </PO>
     </Step>
     <Step SeqNo="250" StepType="AD">
@@ -739,7 +740,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81211</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">762</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -805,19 +806,19 @@ There are two reasons for de-activating and not deleting records:&#13;
     <Step SeqNo="300" StepType="AD">
       <PO AD_Table_ID="276" Action="U" Record_ID="58993" Table="AD_Element">
         <Data AD_Column_ID="2605" Column="Help" isOldNull="true">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
-        <Data AD_Column_ID="2604" Column="Description" isOldNull="true">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="2604" Column="Description" isOldNull="true">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="310" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="81209" Table="AD_Column">
         <Data AD_Column_ID="113" Column="Help" isOldNull="true">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
-        <Data AD_Column_ID="112" Column="Description" isOldNull="true">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description" isOldNull="true">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="320" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="81211" Table="AD_Column">
         <Data AD_Column_ID="113" Column="Help" isOldNull="true">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
-        <Data AD_Column_ID="112" Column="Description" isOldNull="true">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description" isOldNull="true">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="330" StepType="AD">
@@ -838,7 +839,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81212</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">250</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -867,7 +868,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -907,7 +908,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81213</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">320</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -937,7 +938,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -971,7 +972,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81216</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">329</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1002,7 +1003,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1036,7 +1037,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81217</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">322</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1067,7 +1068,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1102,7 +1103,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81218</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">760</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1132,7 +1133,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1167,7 +1168,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81220</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">472</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1197,7 +1198,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1231,7 +1232,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81221</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">473</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1262,7 +1263,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1298,7 +1299,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81223</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">324</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1327,7 +1328,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1361,7 +1362,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81224</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">260</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1392,7 +1393,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1457,7 +1458,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1522,7 +1523,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1556,7 +1557,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81227</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">326</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1587,7 +1588,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1612,6 +1613,7 @@ There are two reasons for de-activating and not deleting records:&#13;
     </Step>
     <Step SeqNo="590" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="81228" Table="AD_Column">
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="548" Column="IsActive">true</Data>
         <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
         <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
@@ -1621,7 +1623,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="109" Column="AD_Column_ID">81228</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">765</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -1643,7 +1645,6 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
         <Data AD_Column_ID="119" Column="IsKey">false</Data>
-        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
         <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
         <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
         <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
@@ -1652,7 +1653,7 @@ There are two reasons for de-activating and not deleting records:&#13;
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -1715,7 +1716,7 @@ ALTER TABLE adempiere.m_storage
     </Step>
     <Step SeqNo="630" StepType="AD">
       <PO AD_Table_ID="101" Action="U" Record_ID="81212" Table="AD_Column">
-        <Data AD_Column_ID="59702" Column="AD_Chart_ID" oldValue="false">true</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="false">true</Data>
         <Data AD_Column_ID="120" Column="IsParent" oldValue="false">true</Data>
       </PO>
     </Step>
@@ -1726,8 +1727,8 @@ ALTER TABLE adempiere.m_storage
     </Step>
     <Step SeqNo="650" StepType="AD">
       <PO AD_Table_ID="106" Action="U" Record_ID="751" Table="AD_Tab">
-        <Data AD_Column_ID="163" Column="Help" isOldNull="true">This tab shows the material allocation from inventory according to the FIFO/LIFO material policy being used.  Material Policy "tickets" are generated on receipt of material.</Data>
         <Data AD_Column_ID="161" Column="Name" oldValue="Attributes">Material Allocation</Data>
+        <Data AD_Column_ID="163" Column="Help" isOldNull="true">This tab shows the material allocation from inventory according to the FIFO/LIFO material policy being used.  Material Policy "tickets" are generated on receipt of material.</Data>
         <Data AD_Column_ID="162" Column="Description" oldValue="Product Instance Attribute Material Allocation">Material Allocation according to material policies</Data>
       </PO>
     </Step>
@@ -1739,7 +1740,7 @@ ALTER TABLE adempiere.m_storage
       </PO>
     </Step>
     <Step SeqNo="670" StepType="AD">
-      <PO AD_Table_ID="107" Action="I" Record_ID="1001560" Table="AD_Field">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79945" Table="AD_Field">
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
         <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
         <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
@@ -1759,7 +1760,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
         <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
-        <Data AD_Column_ID="167" Column="AD_Field_ID">1001560</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79945</Data>
         <Data AD_Column_ID="172" Column="AD_Tab_ID">751</Data>
         <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
         <Data AD_Column_ID="581" Column="Updated">2016-09-25 06:23:44.286</Data>
@@ -1776,15 +1777,15 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
-        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
       </PO>
     </Step>
     <Step SeqNo="680" StepType="AD">
-      <PO AD_Table_ID="127" Action="I" Record_ID="1001560" Table="AD_Field_Trl">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79945" Table="AD_Field_Trl">
         <Data AD_Column_ID="671" Column="IsActive">true</Data>
-        <Data AD_Column_ID="284" Column="AD_Field_ID">1001560</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79945</Data>
         <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
         <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
         <Data AD_Column_ID="674" Column="Updated">2016-09-25 06:23:45.387</Data>
@@ -1795,28 +1796,28 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
-        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="690" StepType="AD">
-      <PO AD_Table_ID="127" Action="D" Record_ID="1001560" Table="AD_Field_Trl">
-        <Data AD_Column_ID="671" Column="IsActive" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="284" Column="AD_Field_ID" oldValue="1001560">1001560</Data>
+      <PO AD_Table_ID="127" Action="D" Record_ID="79945" Table="AD_Field_Trl">
         <Data AD_Column_ID="285" Column="AD_Language" oldValue="es_MX">es_MX</Data>
         <Data AD_Column_ID="1204" Column="AD_Client_ID" isNewNull="true" oldValue="0"/>
         <Data AD_Column_ID="674" Column="Updated" isNewNull="true" oldValue="2016-09-25 06:23:45.0"/>
         <Data AD_Column_ID="675" Column="UpdatedBy" isNewNull="true" oldValue="0"/>
         <Data AD_Column_ID="673" Column="CreatedBy" isNewNull="true" oldValue="0"/>
-        <Data AD_Column_ID="672" Column="Created" isNewNull="true" oldValue="2016-09-25 06:23:45.0"/>
-        <Data AD_Column_ID="288" Column="Help" isNewNull="true" oldValue="Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy."/>
         <Data AD_Column_ID="289" Column="IsTranslated" isNewNull="true" oldValue="false"/>
         <Data AD_Column_ID="1205" Column="AD_Org_ID" isNewNull="true" oldValue="0"/>
         <Data AD_Column_ID="286" Column="Name" isNewNull="true" oldValue="Material Policy Ticket"/>
-        <Data AD_Column_ID="287" Column="Description" isNewNull="true" oldValue="A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy "/>
+        <Data AD_Column_ID="671" Column="IsActive" isNewNull="true" oldValue="true"/>
+        <Data AD_Column_ID="672" Column="Created" isNewNull="true" oldValue="2016-09-25 06:23:45.0"/>
+        <Data AD_Column_ID="284" Column="AD_Field_ID" oldValue="79945">79945</Data>
+        <Data AD_Column_ID="287" Column="Description" isNewNull="true" oldValue="A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy "/>
+        <Data AD_Column_ID="288" Column="Help" isNewNull="true" oldValue="Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy."/>
       </PO>
     </Step>
     <Step SeqNo="700" StepType="AD">
-      <PO AD_Table_ID="107" Action="D" Record_ID="1001560" Table="AD_Field">
+      <PO AD_Table_ID="107" Action="D" Record_ID="79945" Table="AD_Field">
         <Data AD_Column_ID="62478" Column="IsDisplayedGrid" isNewNull="true" oldValue="true"/>
         <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="59703" Column="IsEmbedded" isNewNull="true" oldValue="false"/>
@@ -1836,12 +1837,11 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="185" Column="IsFieldOnly" isNewNull="true" oldValue="false"/>
         <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="2745" Column="IsCentrallyMaintained" isNewNull="true" oldValue="true"/>
-        <Data AD_Column_ID="167" Column="AD_Field_ID" isNewNull="true" oldValue="1001560"/>
+        <Data AD_Column_ID="167" Column="AD_Field_ID" isNewNull="true" oldValue="79945"/>
         <Data AD_Column_ID="172" Column="AD_Tab_ID" isNewNull="true" oldValue="751"/>
         <Data AD_Column_ID="580" Column="CreatedBy" isNewNull="true" oldValue="0"/>
         <Data AD_Column_ID="581" Column="Updated" isNewNull="true" oldValue="2016-09-25 06:23:44.0"/>
         <Data AD_Column_ID="2007" Column="IsReadOnly" isNewNull="true" oldValue="false"/>
-        <Data AD_Column_ID="170" Column="Help" isNewNull="true" oldValue="Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy."/>
         <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true" isOldNull="true"/>
@@ -1852,10 +1852,11 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true" isOldNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true" isOldNull="true"/>
-        <Data AD_Column_ID="169" Column="Description" isNewNull="true" oldValue="A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy "/>
-        <Data AD_Column_ID="168" Column="Name" isNewNull="true" oldValue="Material Policy Ticket"/>
         <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true" isOldNull="true"/>
+        <Data AD_Column_ID="169" Column="Description" isNewNull="true" oldValue="A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy "/>
+        <Data AD_Column_ID="168" Column="Name" isNewNull="true" oldValue="Material Policy Ticket"/>
+        <Data AD_Column_ID="170" Column="Help" isNewNull="true" oldValue="Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy."/>
       </PO>
     </Step>
     <Step SeqNo="710" StepType="AD">
@@ -1896,7 +1897,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
-        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
       </PO>
@@ -1915,7 +1916,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
-        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="730" StepType="AD">
@@ -1940,7 +1941,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="109" Column="AD_Column_ID">81295</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
@@ -2092,13 +2093,13 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
         <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
         <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
-        <Data AD_Column_ID="7714" Column="EntityType">U</Data>
+        <Data AD_Column_ID="7714" Column="EntityType">D</Data>
         <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
         <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
-        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
       </PO>
@@ -2117,7 +2118,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
-        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="820" StepType="AD">
@@ -2235,7 +2236,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="109" Column="AD_Column_ID">81297</Data>
         <Data AD_Column_ID="114" Column="AD_Table_ID">763</Data>
         <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
-        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
         <Data AD_Column_ID="110" Column="Version">0</Data>
         <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
         <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
@@ -2265,7 +2266,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
         <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
         <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
-        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
         <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
@@ -2342,7 +2343,7 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
         <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
         <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
-        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
         <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
         <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
       </PO>
@@ -2361,13 +2362,13 @@ ALTER TABLE adempiere.m_storage
         <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
         <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
         <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
-        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
       </PO>
     </Step>
     <Step SeqNo="1090" StepType="AD">
       <PO AD_Table_ID="107" Action="U" Record_ID="12182" Table="AD_Field">
-        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="true">false</Data>
         <Data AD_Column_ID="181" Column="SeqNo" oldValue="40">0</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="true">false</Data>
       </PO>
     </Step>
     <Step SeqNo="1100" StepType="AD">
@@ -2396,6 +2397,1859 @@ ALTER TABLE adempiere.m_inventorylinema
       <PO AD_Table_ID="101" Action="U" Record_ID="13355" Table="AD_Column">
         <Data AD_Column_ID="124" Column="IsMandatory" oldValue="true">false</Data>
         <Data AD_Column_ID="120" Column="IsParent" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1130" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81298" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81298</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-04 10:08:50.28</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Sales Order Line is a unique identifier for a line in an order.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-04 10:08:50.28</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Sales Order Line</Data>
+        <Data AD_Column_ID="111" Column="Name">Sales Order Line</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">C_OrderLine_ID</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">561</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1140" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81298" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81298</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-04 10:08:54.873</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-04 10:08:54.873</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Sales Order Line</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1150" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81299" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81299</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">764</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-06 11:21:35.649</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">10</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-06 11:21:35.649</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="111" Column="Name">Material Policy Ticket</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">M_MPolicyTicket_ID</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">58993</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1160" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81299" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81299</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-06 11:21:39.157</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-06 11:21:39.157</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Material Policy Ticket</Data>
+      </PO>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="1170" StepType="SQL">
+      <SQLStatement>UPDATE M_MovementLineMA SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID;
+ALTER TABLE M_MovementLineMA DROP CONSTRAINT m_movementlinema_pkey;
+
+ALTER TABLE m_movementlinema
+  ADD CONSTRAINT m_movementlinema_pkey PRIMARY KEY(m_movementline_id, m_mpolicyticket_id);</SQLStatement>
+      <RollbackStatement>UPDATE M_MovementLineMA SET M_AttributeSetInstance_ID  = M_MPolicyTicket_ID ;
+ALTER TABLE M_MovementLineMA DROP CONSTRAINT m_movementlinema_pkey;
+
+ALTER TABLE m_movementlinema
+  ADD CONSTRAINT m_movementlinema_pkey PRIMARY KEY(m_movementline_id, M_AttributeSetInstance_ID);</RollbackStatement>
+    </Step>
+    <Step SeqNo="1180" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="13303" Table="AD_Column">
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="true">false</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1190" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81300" Table="AD_Column">
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81300</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-06 18:11:12.276</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Line indicates the inventory movement document line (if applicable) for this transaction</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-06 18:11:12.276</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Inventory Move document Line</Data>
+        <Data AD_Column_ID="111" Column="Name">Move Line</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">M_MovementLine_ID</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1031</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1200" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81300" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81300</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-06 18:11:17.783</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-06 18:11:17.783</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Move Line</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1210" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81301" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81301</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-06 18:12:57.195</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Physical Inventory Line indicates the inventory document line (if applicable) for this transaction</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-06 18:12:57.195</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Unique line in an Inventory document</Data>
+        <Data AD_Column_ID="111" Column="Name">Phys.Inventory Line</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">M_InventoryLine_ID</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1028</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1220" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81301" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81301</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-06 18:12:58.166</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-06 18:12:58.166</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Phys.Inventory Line</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1230" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81302" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81302</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">54166</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-06 18:13:28.373</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Production Line indicates the production document line (if applicable) for this transaction</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">22</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">19</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-06 18:13:28.373</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Document Line representing a production</Data>
+        <Data AD_Column_ID="111" Column="Name">Production Line</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">M_ProductionLine_ID</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1033</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1240" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81302" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81302</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-06 18:13:29.217</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-06 18:13:29.217</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Production Line</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1250" StepType="AD">
+      <PO AD_Table_ID="106" Action="U" Record_ID="750" Table="AD_Tab">
+        <Data AD_Column_ID="162" Column="Description" oldValue="Product Instance Attribute Material Allocation">Material Allocation</Data>
+        <Data AD_Column_ID="161" Column="Name" oldValue="Attributes">Allocation</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1260" StepType="AD">
+      <PO AD_Table_ID="123" Action="U" Record_ID="750" Table="AD_Tab_Trl">
+        <Data AD_Column_ID="264" Column="AD_Tab_ID" oldValue="750">750</Data>
+        <Data AD_Column_ID="269" Column="IsTranslated" oldValue="true">false</Data>
+        <Data AD_Column_ID="265" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1270" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79946" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-06 18:14:43.737</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81299</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79946</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">750</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-06 18:14:43.737</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">U</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1280" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79946" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79946</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-06 18:14:45.203</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-06 18:14:45.203</Data>
+        <Data AD_Column_ID="288" Column="Help">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1290" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12188" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="40">0</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1300" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12191" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="50">40</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1310" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79946" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1320" StepType="AD">
+      <PO AD_Table_ID="276" Action="I" Record_ID="59006" Table="AD_Element">
+        <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2597" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="2602" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2598" Column="Created">2016-10-07 07:51:23.362</Data>
+        <Data AD_Column_ID="2600" Column="Updated">2016-10-07 07:51:23.362</Data>
+        <Data AD_Column_ID="2605" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="6484" Column="EntityType">D</Data>
+        <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2599" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2601" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2603" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="2604" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="4299" Column="PrintName">Use To</Data>
+        <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1330" StepType="AD">
+      <PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="2641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2644" Column="Updated">2016-10-07 07:51:31.099</Data>
+        <Data AD_Column_ID="2642" Column="Created">2016-10-07 07:51:31.099</Data>
+        <Data AD_Column_ID="2643" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2645" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="2648" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2647" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="2646" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="4300" Column="PrintName">Use To</Data>
+        <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1340" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81303" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue">N</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81303</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">762</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-07 07:53:37.147</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-07 07:53:37.147</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="111" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1350" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81303" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81303</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-07 07:53:38.347</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-07 07:53:38.347</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Use To Fields</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1360" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81304" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue">N</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81304</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">763</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-07 07:54:29.856</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-07 07:54:29.856</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="111" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1370" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81304" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81304</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-07 07:54:30.838</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-07 07:54:30.838</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Use To Fields</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1380" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81305" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue">N</Data>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81305</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">764</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-07 07:55:01.266</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-07 07:55:01.266</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="111" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1390" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81305" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81305</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-07 07:55:02.332</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-07 07:55:02.332</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Use To Fields</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1400" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81306" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81306</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">765</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">D</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-07 07:55:41.114</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-07 07:55:41.115</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="111" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1410" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81306" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81306</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-07 07:55:42.398</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-07 07:55:42.398</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Use To Fields</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1420" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81305" Table="AD_Column">
+        <Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1430" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79947" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-07 07:58:36.883</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">1</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81305</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79947</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">750</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-07 07:58:36.883</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">D</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="168" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1440" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79947" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79947</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-07 07:58:38.049</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-07 07:58:38.049</Data>
+        <Data AD_Column_ID="288" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="287" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1450" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81307" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81307</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">53062</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">EE01</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-07 08:18:43.52</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-07 08:18:43.52</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="111" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">UseToFields</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">59006</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1460" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81307" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81307</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-07 08:18:47.656</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-07 08:18:47.656</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Use To Fields</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1470" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81211" Table="AD_Column">
+        <Data AD_Column_ID="3360" Column="IsUpdateable" oldValue="true">false</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1480" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81299" Table="AD_Column">
+        <Data AD_Column_ID="3360" Column="IsUpdateable" oldValue="true">false</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="false">true</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1490" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81228" Table="AD_Column">
+        <Data AD_Column_ID="3360" Column="IsUpdateable" oldValue="true">false</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="false">true</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="1500" StepType="SQL">
+      <SQLStatement>UPDATE M_ProductionLineMA SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID;
+ALTER TABLE M_ProductionLineMA DROP CONSTRAINT m_productionlinema_pkey;
+
+ALTER TABLE m_productionlinema
+  ADD CONSTRAINT m_productionlinema_pkey PRIMARY KEY(m_productionline_id, m_mpolicyticket_id);</SQLStatement>
+      <RollbackStatement>UPDATE M_ProductionLineMA SET M_AttributeSetInstance_ID  = M_MPolicyTicket_ID ;
+ALTER TABLE M_ProductionLineMA DROP CONSTRAINT m_productionlinema_pkey;
+
+ALTER TABLE M_ProductionLineMA
+  ADD CONSTRAINT m_productionlinema_pkey PRIMARY KEY(m_movementline_id, M_AttributeSetInstance_ID);</RollbackStatement>
+    </Step>
+    <Step SeqNo="1510" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="13287" Table="AD_Column">
+        <Data AD_Column_ID="124" Column="IsMandatory" oldValue="true">false</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1520" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79946" Table="AD_Field">
+        <Data AD_Column_ID="7714" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1530" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81299" Table="AD_Column">
+        <Data AD_Column_ID="226" Column="AD_Reference_ID" oldValue="19">30</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1540" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81295" Table="AD_Column">
+        <Data AD_Column_ID="127" Column="SeqNo" oldValue="0">20</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1550" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81209" Table="AD_Column">
+        <Data AD_Column_ID="126" Column="IsIdentifier" oldValue="false">true</Data>
+        <Data AD_Column_ID="127" Column="SeqNo" isOldNull="true">10</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1560" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81308" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81308</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">762</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">189</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-10 20:34:21.377</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">2</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">17</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-10 20:34:21.377</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="111" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">MovementType</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1039</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1570" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81308" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81308</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-10 20:34:27.173</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-10 20:34:27.173</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Movement Type</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1580" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81309" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81309</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">763</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">189</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-10 20:34:59.937</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">2</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">17</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-10 20:34:59.937</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="111" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">MovementType</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1039</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1590" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81309" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81309</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-10 20:35:00.994</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-10 20:35:00.994</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Movement Type</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1600" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81310" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81310</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">764</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">189</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-10 20:35:23.617</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">2</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">17</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-10 20:35:23.617</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="111" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">MovementType</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1039</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1610" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81310" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81310</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-10 20:35:24.61</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-10 20:35:24.61</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Movement Type</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1620" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81311" Table="AD_Column">
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81311</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">765</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">U</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">189</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-10 20:35:49.084</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">2</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">17</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-10 20:35:49.084</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="111" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">MovementType</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1039</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1630" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81311" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81311</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-10 20:35:49.958</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-10 20:35:49.958</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Movement Type</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1640" StepType="AD">
+      <PO AD_Table_ID="101" Action="I" Record_ID="81312" Table="AD_Column">
+        <Data AD_Column_ID="548" Column="IsActive">true</Data>
+        <Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+        <Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+        <Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+        <Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="109" Column="AD_Column_ID">81312</Data>
+        <Data AD_Column_ID="114" Column="AD_Table_ID">53062</Data>
+        <Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+        <Data AD_Column_ID="6482" Column="EntityType">EE01</Data>
+        <Data AD_Column_ID="110" Column="Version">0</Data>
+        <Data AD_Column_ID="227" Column="AD_Reference_Value_ID">189</Data>
+        <Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+        <Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="551" Column="Updated">2016-10-10 20:36:23.762</Data>
+        <Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+        <Data AD_Column_ID="127" Column="SeqNo">0</Data>
+        <Data AD_Column_ID="113" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+        <Data AD_Column_ID="120" Column="IsParent">false</Data>
+        <Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="118" Column="FieldLength">2</Data>
+        <Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+        <Data AD_Column_ID="226" Column="AD_Reference_ID">17</Data>
+        <Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+        <Data AD_Column_ID="549" Column="Created">2016-10-10 20:36:23.762</Data>
+        <Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+        <Data AD_Column_ID="119" Column="IsKey">false</Data>
+        <Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+        <Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+        <Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+        <Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+        <Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+        <Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+        <Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+        <Data AD_Column_ID="112" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="111" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="116" Column="ColumnName">MovementType</Data>
+        <Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID">1039</Data>
+        <Data AD_Column_ID="68024" Column="IsRange">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1650" StepType="AD">
+      <PO AD_Table_ID="752" Action="I" Record_ID="81312" Table="AD_Column_Trl">
+        <Data AD_Column_ID="12959" Column="IsActive">true</Data>
+        <Data AD_Column_ID="12955" Column="AD_Column_ID">81312</Data>
+        <Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="12960" Column="Created">2016-10-10 20:36:24.754</Data>
+        <Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="12952" Column="Updated">2016-10-10 20:36:24.754</Data>
+        <Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="12957" Column="Name">Movement Type</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1660" StepType="AD">
+      <PO AD_Table_ID="106" Action="U" Record_ID="53192" Table="AD_Tab">
+        <Data AD_Column_ID="161" Column="Name" oldValue="Attributes">Allocation</Data>
+        <Data AD_Column_ID="162" Column="Description" isOldNull="true">Material Allocation</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1670" StepType="AD">
+      <PO AD_Table_ID="123" Action="U" Record_ID="53192" Table="AD_Tab_Trl">
+        <Data AD_Column_ID="264" Column="AD_Tab_ID" oldValue="53192">53192</Data>
+        <Data AD_Column_ID="269" Column="IsTranslated" oldValue="true">false</Data>
+        <Data AD_Column_ID="265" Column="AD_Language" oldValue="es_MX">es_MX</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1680" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79948" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:38:19.937</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">10</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81226</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79948</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">53192</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:38:19.937</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">EE01</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+        <Data AD_Column_ID="168" Column="Name">Material Policy Ticket</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1690" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79948" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79948</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:38:21.061</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:38:21.061</Data>
+        <Data AD_Column_ID="288" Column="Help">Material Policy Tickets are created whenever a product is added to inventory.  The Ticket quantities are consummed according to the material policy.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Material Policy Ticket</Data>
+        <Data AD_Column_ID="287" Column="Description">A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy </Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1700" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79949" Table="AD_Field">
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:38:21.671</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">2</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81312</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79949</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">53192</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:38:21.671</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">EE01</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="168" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1710" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79949" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79949</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:38:22.546</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:38:22.546</Data>
+        <Data AD_Column_ID="288" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="287" Column="Description">Method of moving the inventory</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1720" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79950" Table="AD_Field">
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:38:22.878</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">1</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81307</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79950</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">53192</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:38:22.878</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">EE01</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="168" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1730" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79950" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79950</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:38:23.649</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:38:23.649</Data>
+        <Data AD_Column_ID="288" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="287" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1740" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79950" Table="AD_Field">
+        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1750" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79949" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1760" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79948" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">70</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1770" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56700" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="50">80</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1780" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79951" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:40:20.427</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">2</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81308</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79951</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">751</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:40:20.427</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">U</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="168" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1790" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79951" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79951</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:40:21.187</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:40:21.187</Data>
+        <Data AD_Column_ID="288" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="287" Column="Description">Method of moving the inventory</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1800" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79952" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:40:21.498</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">1</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81303</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79952</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">751</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:40:21.498</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">D</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="168" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1810" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79952" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79952</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:40:22.4</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:40:22.4</Data>
+        <Data AD_Column_ID="288" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="287" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1820" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79952" Table="AD_Field">
+        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="true">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">0</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1830" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79951" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1840" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12196" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="50">60</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1850" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79951" Table="AD_Field">
+        <Data AD_Column_ID="7714" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1860" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81308" Table="AD_Column">
+        <Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1870" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79953" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:43:33.851</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">2</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81309</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79953</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">749</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:43:33.851</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">U</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="168" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1880" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79953" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79953</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:43:36.374</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:43:36.374</Data>
+        <Data AD_Column_ID="288" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="287" Column="Description">Method of moving the inventory</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1890" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79954" Table="AD_Field">
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:43:36.714</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">1</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81304</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79954</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">749</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:43:36.714</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">D</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+        <Data AD_Column_ID="168" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1900" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79954" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79954</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:43:37.826</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:43:37.826</Data>
+        <Data AD_Column_ID="288" Column="Help">When processing the material allocations in documents which have From To pairs such as M_Locator_ID, M_LocatorTo_ID, its is necessary to identify which locator or attribute set instance to use.  If there are no From To pairs, set deselect the field.</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Use To Fields</Data>
+        <Data AD_Column_ID="287" Column="Description">Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1910" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79953" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1920" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12184" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="50">60</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1930" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79954" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">70</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1940" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79953" Table="AD_Field">
+        <Data AD_Column_ID="7714" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1950" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81309" Table="AD_Column">
+        <Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1960" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81299" Table="AD_Column">
+        <Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1970" StepType="AD">
+      <PO AD_Table_ID="107" Action="I" Record_ID="79955" Table="AD_Field">
+        <Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+        <Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+        <Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+        <Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+        <Data AD_Column_ID="62479" Column="SeqNoGrid" isNewNull="true"/>
+        <Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+        <Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+        <Data AD_Column_ID="578" Column="IsActive">true</Data>
+        <Data AD_Column_ID="182" Column="SortNo" isNewNull="true"/>
+        <Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+        <Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="579" Column="Created">2016-10-10 20:46:39.7</Data>
+        <Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="180" Column="DisplayLength">2</Data>
+        <Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+        <Data AD_Column_ID="174" Column="AD_Column_ID">81310</Data>
+        <Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+        <Data AD_Column_ID="184" Column="IsHeading">false</Data>
+        <Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" isNewNull="true"/>
+        <Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+        <Data AD_Column_ID="167" Column="AD_Field_ID">79955</Data>
+        <Data AD_Column_ID="172" Column="AD_Tab_ID">750</Data>
+        <Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="581" Column="Updated">2016-10-10 20:46:39.7</Data>
+        <Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+        <Data AD_Column_ID="170" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+        <Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+        <Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+        <Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+        <Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+        <Data AD_Column_ID="7714" Column="EntityType">U</Data>
+        <Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+        <Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+        <Data AD_Column_ID="169" Column="Description">Method of moving the inventory</Data>
+        <Data AD_Column_ID="168" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="59704" Column="PreferredWidth" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="1980" StepType="AD">
+      <PO AD_Table_ID="127" Action="I" Record_ID="79955" Table="AD_Field_Trl">
+        <Data AD_Column_ID="671" Column="IsActive">true</Data>
+        <Data AD_Column_ID="284" Column="AD_Field_ID">79955</Data>
+        <Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="674" Column="Updated">2016-10-10 20:46:40.6</Data>
+        <Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="672" Column="Created">2016-10-10 20:46:40.6</Data>
+        <Data AD_Column_ID="288" Column="Help">The Movement Type indicates the type of movement (in, out, to production, etc)</Data>
+        <Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="286" Column="Name">Movement Type</Data>
+        <Data AD_Column_ID="287" Column="Description">Method of moving the inventory</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="1990" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79946" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="50">40</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="2000" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79955" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">50</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="2010" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12191" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="40">60</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="2020" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79947" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" isOldNull="true">70</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="2030" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="79955" Table="AD_Field">
+        <Data AD_Column_ID="7714" Column="EntityType" oldValue="U">D</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="2040" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81311" Table="AD_Column">
+        <Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
       </PO>
     </Step>
   </Migration>

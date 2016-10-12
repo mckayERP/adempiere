@@ -31,7 +31,7 @@ public class X_M_InOutLineMA extends PO implements I_M_InOutLineMA, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20160821L;
+	private static final long serialVersionUID = 20161010L;
 
     /** Standard Constructor */
     public X_M_InOutLineMA (Properties ctx, int M_InOutLineMA_ID, String trxName)
@@ -39,7 +39,6 @@ public class X_M_InOutLineMA extends PO implements I_M_InOutLineMA, I_Persistent
       super (ctx, M_InOutLineMA_ID, trxName);
       /** if (M_InOutLineMA_ID == 0)
         {
-			setM_AttributeSetInstance_ID (0);
 			setM_InOutLine_ID (0);
 			setM_MPolicyTicket_ID (0);
 			setMovementQty (Env.ZERO);
@@ -145,18 +144,18 @@ public class X_M_InOutLineMA extends PO implements I_M_InOutLineMA, I_Persistent
 
 	/** Set Material Policy Ticket.
 		@param M_MPolicyTicket_ID 
-		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
 	{
-		if (M_MPolicyTicket_ID < 1) 
-			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		if (M_MPolicyTicket_ID < 0) 
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, null);
 		else 
-			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
 	}
 
 	/** Get Material Policy Ticket.
-		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public int getM_MPolicyTicket_ID () 
 	{
@@ -184,5 +183,73 @@ public class X_M_InOutLineMA extends PO implements I_M_InOutLineMA, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** MovementType AD_Reference_ID=189 */
+	public static final int MOVEMENTTYPE_AD_Reference_ID=189;
+	/** Customer Shipment = C- */
+	public static final String MOVEMENTTYPE_CustomerShipment = "C-";
+	/** Customer Returns = C+ */
+	public static final String MOVEMENTTYPE_CustomerReturns = "C+";
+	/** Vendor Receipts = V+ */
+	public static final String MOVEMENTTYPE_VendorReceipts = "V+";
+	/** Vendor Returns = V- */
+	public static final String MOVEMENTTYPE_VendorReturns = "V-";
+	/** Inventory Out = I- */
+	public static final String MOVEMENTTYPE_InventoryOut = "I-";
+	/** Inventory In = I+ */
+	public static final String MOVEMENTTYPE_InventoryIn = "I+";
+	/** Movement From = M- */
+	public static final String MOVEMENTTYPE_MovementFrom = "M-";
+	/** Movement To = M+ */
+	public static final String MOVEMENTTYPE_MovementTo = "M+";
+	/** Production + = P+ */
+	public static final String MOVEMENTTYPE_ProductionPlus = "P+";
+	/** Production - = P- */
+	public static final String MOVEMENTTYPE_Production_ = "P-";
+	/** Work Order + = W+ */
+	public static final String MOVEMENTTYPE_WorkOrderPlus = "W+";
+	/** Work Order - = W- */
+	public static final String MOVEMENTTYPE_WorkOrder_ = "W-";
+	/** Set Movement Type.
+		@param MovementType 
+		Method of moving the inventory
+	  */
+	public void setMovementType (String MovementType)
+	{
+
+		set_Value (COLUMNNAME_MovementType, MovementType);
+	}
+
+	/** Get Movement Type.
+		@return Method of moving the inventory
+	  */
+	public String getMovementType () 
+	{
+		return (String)get_Value(COLUMNNAME_MovementType);
+	}
+
+	/** Set Use To Fields.
+		@param UseToFields 
+		Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public void setUseToFields (boolean UseToFields)
+	{
+		set_Value (COLUMNNAME_UseToFields, Boolean.valueOf(UseToFields));
+	}
+
+	/** Get Use To Fields.
+		@return Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public boolean isUseToFields () 
+	{
+		Object oo = get_Value(COLUMNNAME_UseToFields);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 }

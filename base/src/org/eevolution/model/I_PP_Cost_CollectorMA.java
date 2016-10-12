@@ -110,12 +110,12 @@ public interface I_PP_Cost_CollectorMA
     public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
 
 	/** Set Material Policy Ticket.
-	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
 
 	/** Get Material Policy Ticket.
-	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public int getM_MPolicyTicket_ID();
 
@@ -133,6 +133,19 @@ public interface I_PP_Cost_CollectorMA
 	  * Quantity of a product moved.
 	  */
 	public BigDecimal getMovementQty();
+
+    /** Column name MovementType */
+    public static final String COLUMNNAME_MovementType = "MovementType";
+
+	/** Set Movement Type.
+	  * Method of moving the inventory
+	  */
+	public void setMovementType (String MovementType);
+
+	/** Get Movement Type.
+	  * Method of moving the inventory
+	  */
+	public String getMovementType();
 
     /** Column name PP_Cost_Collector_ID */
     public static final String COLUMNNAME_PP_Cost_Collector_ID = "PP_Cost_Collector_ID";
@@ -169,4 +182,17 @@ public interface I_PP_Cost_CollectorMA
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UseToFields */
+    public static final String COLUMNNAME_UseToFields = "UseToFields";
+
+	/** Set Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public void setUseToFields (boolean UseToFields);
+
+	/** Get Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public boolean isUseToFields();
 }

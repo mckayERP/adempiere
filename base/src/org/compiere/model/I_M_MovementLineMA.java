@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -121,6 +120,21 @@ public interface I_M_MovementLineMA
 
 	public org.compiere.model.I_M_MovementLine getM_MovementLine() throws RuntimeException;
 
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
+
     /** Column name MovementQty */
     public static final String COLUMNNAME_MovementQty = "MovementQty";
 
@@ -133,6 +147,19 @@ public interface I_M_MovementLineMA
 	  * Quantity of a product moved.
 	  */
 	public BigDecimal getMovementQty();
+
+    /** Column name MovementType */
+    public static final String COLUMNNAME_MovementType = "MovementType";
+
+	/** Set Movement Type.
+	  * Method of moving the inventory
+	  */
+	public void setMovementType (String MovementType);
+
+	/** Get Movement Type.
+	  * Method of moving the inventory
+	  */
+	public String getMovementType();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -149,4 +176,17 @@ public interface I_M_MovementLineMA
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UseToFields */
+    public static final String COLUMNNAME_UseToFields = "UseToFields";
+
+	/** Set Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public void setUseToFields (boolean UseToFields);
+
+	/** Get Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public boolean isUseToFields();
 }

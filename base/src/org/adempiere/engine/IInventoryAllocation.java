@@ -31,4 +31,8 @@ public interface IInventoryAllocation
 	
 	public BigDecimal getMovementQty();
 	public void setMovementQty(BigDecimal MovementQty);
+	public void setUseToFields(boolean useToFields);
+	public boolean isUseToFields();
+	public void setMovementType(String MovementType);
+	public String getMovementType();
 }
