@@ -507,7 +507,7 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		
 		List<Object> parameters = new ArrayList<Object>();
 		
-		String where =  MAttributeSetInstance.COLUMNNAME_AD_Org_ID + "=?";
+		String where =  MAttributeSetInstance.COLUMNNAME_AD_Org_ID + " in (?,0)";
 		parameters.add(this.getAD_Org_ID());
 		//
 		where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
