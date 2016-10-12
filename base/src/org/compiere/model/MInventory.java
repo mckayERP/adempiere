@@ -413,6 +413,8 @@ public class MInventory extends X_M_Inventory implements DocAction
 			String movementType = MTransaction.MOVEMENTTYPE_InventoryOut;
 			if(qtyDiff.compareTo(Env.ZERO) > 0 )
 				movementType = MTransaction.MOVEMENTTYPE_InventoryIn;
+			else
+				qtyDiff = qtyDiff.negate();  // use positive diff with MOVEMENTTYPE_InventoryOut
 			
 			int M_Warehouse_ID = 0;
 			MLocator locator = (MLocator) line.getM_Locator(); 
