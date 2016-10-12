@@ -427,16 +427,20 @@ public class MMovement extends X_M_Movement implements DocAction
 
 			// Move from
 			try {
+
 				StorageEngine.createTransaction(
 						line,
 						MTransaction.MOVEMENTTYPE_MovementFrom, 
 						getMovementDate() , 
 						line.getMovementQty(), 
-						isReversal(),							
-						locator.getM_Warehouse_ID(), 
-						0,								// Reservation ASI - not relevant
+						isReversal(),
+						locator.getM_Warehouse_ID(),
 						0,								// Reservation Warehouse  - not relevant
-						false							// IsSOTrx=false
+						0,								// Reservation ASI - not relevant
+						false,							// IsSOTrx=false
+						true,							// Delete existing MA Lines
+						false,							// Don't process the new MA Lines
+						false							// Don't use the To fields
 						);
 			}
 			catch (AdempiereException e) {
@@ -453,10 +457,12 @@ public class MMovement extends X_M_Movement implements DocAction
 						line.getMovementQty(), 
 						isReversal(),							
 						locatorTo.getM_Warehouse_ID(), 
-						0,								// Ordered ASI - not relevant
 						0, 								// Ordered Warehouse - not relevant
+						0,								// Ordered ASI - not relevant
 						false,							// IsSOTrx=false
-						false							// Important! - don't delete existing MA entries
+						false,							// Important! - don't delete existing MA entries
+						true,							// Process all the lines
+						true							// Use the To fields
 						);
 			}
 			catch (AdempiereException e) {
