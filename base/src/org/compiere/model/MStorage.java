@@ -127,23 +127,22 @@ public class MStorage extends X_M_Storage
 	/**
 	 * Get the storage record used for reservations and orders of the product/ASI at a warehouse.  A 
 	 * new storage location will be created if none exists. The locator used is always the default 
-	 * locator for the warehouse and the Material Policy Ticket will always be zero.
+	 * locator for the warehouse.
 	 * @param ctx
 	 * @param productId
 	 * @param warehouseId
 	 * @param attributeSetInstanceId
+	 * @param policyTicket_id the material policy ticket to use
 	 * @param trxName
 	 * @return The storage location to use for reservations and orders.
 	 */
 	public static MStorage getReservedOrdered (Properties ctx,
-			int productId, int warehouseId, int attributeSetInstanceId, String trxName)
+			int productId, int warehouseId, int attributeSetInstanceId, int policyTicket_id, String trxName)
 		{
 			MWarehouse wh = MWarehouse.get(ctx, warehouseId);
 			// reservations and orders are made using the default locator of the source warehouse
-			int xM_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();   
-			int M_MPolicyTicket_ID = 0; // Always for reservations and orders
-
-			return MStorage.getCreate(ctx, xM_Locator_ID, productId, attributeSetInstanceId, M_MPolicyTicket_ID, trxName);
+			int xM_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();  
+			return MStorage.getCreate(ctx, xM_Locator_ID, productId, attributeSetInstanceId, policyTicket_id, trxName);
 		}	//	get
 
 	/**
@@ -182,9 +181,7 @@ public class MStorage extends X_M_Storage
 	public static MStorage getQtyOrdered (Properties ctx,
 		int productId, int warehouseId , int attributeSetInstanceId, String trxName)
 	{
-		// TODO - Does this need to include the M_MPolicyTicket_ID?  M_MPolicyTickets should only be 
-		// required on received/stocked storage entries.  Ordered amounts should always be listed with
-		// M_MPolicyTicket_ID = 0.
+		// TODO - Does this need to include the M_MPolicyTicket_ID?
 		final StringBuilder whereClause = new StringBuilder();
 		whereClause.append("EXISTS (SELECT 1 FROM M_Locator l WHERE l.M_Locator_ID=M_Storage.M_Locator_ID AND l.M_Warehouse_ID=? ) AND ");
 		whereClause.append(MStorage.COLUMNNAME_M_Product_ID).append("=?");
@@ -193,7 +190,7 @@ public class MStorage extends X_M_Storage
 //		else
 			whereClause.append(" AND ").append(MStorage.COLUMNNAME_M_AttributeSetInstance_ID).append("=?");
 
-		whereClause.append(" AND M_MPolicyTicket_ID = 0 AND QtyOrdered <> 0");
+		whereClause.append(" AND QtyOrdered <> 0");
 
 		Query query = new Query(ctx,MStorage.Table_Name, whereClause.toString(), trxName).setClient_ID()
 		.setOrderBy(MStorage.COLUMNNAME_QtyOrdered);
@@ -621,8 +618,8 @@ public class MStorage extends X_M_Storage
 		if (M_AttributeSetInstance_ID < 0)
 			throw new IllegalArgumentException("M_AttributeSetInstance_ID<0");
 
-		if (M_MPolicyTicket_ID < 0)
-			throw new IllegalArgumentException("M_AttributeSetInstance_ID<0");
+		if (M_MPolicyTicket_ID <= 0)
+			throw new IllegalArgumentException("M_MPolicyTicket_ID<=0");
 
 		MStorage storage = get(ctx, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, trxName);
 		if (storage != null) {
@@ -694,7 +691,7 @@ public class MStorage extends X_M_Storage
 				0, // M_MPolicyTicket_ID
 				diffQtyOnHand, diffQtyReserved, diffQtyOrdered, trxName);
 	}
-	
+
 	/**
 	 * 	Update Storage Info by adding the difference quantity to the storage location. 
 	 *	@param ctx context
@@ -716,6 +713,34 @@ public class MStorage extends X_M_Storage
 		BigDecimal diffQtyOnHand, 
 		BigDecimal diffQtyReserved, BigDecimal diffQtyOrdered, String trxName)
 	{
+		return add( ctx,  M_Warehouse_ID,  M_Locator_ID, 
+		 M_Product_ID,  M_AttributeSetInstance_ID,  reservationAttributeSetInstance_ID,
+		 M_MPolicyTicket_ID,  M_MPolicyTicket_ID,
+		 diffQtyOnHand, 
+		 diffQtyReserved,  diffQtyOrdered,  trxName);
+	}
+	/**
+	 * 	Update Storage Info by adding the difference quantity to the storage location. 
+	 *	@param ctx context
+	 *	@param M_Warehouse_ID warehouse
+	 *	@param M_Locator_ID locator
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID AS Instance
+	 *	@param reservationAttributeSetInstance_ID reservation AS Instance
+	 *  @param M_MPolicyTicket_ID Material Policy Ticket
+	 *  @param reservationMPolicyTicket_ID the ticket used to reserve/order stock
+	 *	@param diffQtyOnHand add on hand
+	 *	@param diffQtyReserved add reserved
+	 *	@param diffQtyOrdered add order
+	 *	@param trxName transaction
+	 *	@return true if updated
+	 */
+	public static boolean add (Properties ctx, int M_Warehouse_ID, int M_Locator_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, int reservationAttributeSetInstance_ID,
+		int M_MPolicyTicket_ID, int reservationMPolicyTicket_ID,
+		BigDecimal diffQtyOnHand, 
+		BigDecimal diffQtyReserved, BigDecimal diffQtyOrdered, String trxName)
+	{
 		if (diffQtyOnHand == null) 
 			diffQtyOnHand = Env.ZERO; 
 		if (diffQtyReserved == null) 
@@ -723,11 +748,16 @@ public class MStorage extends X_M_Storage
 		if (diffQtyOrdered == null) 
 			diffQtyOrdered = Env.ZERO;
 		
-		if ( diffQtyOnHand.signum() != 0 && M_MPolicyTicket_ID <= 0) {
+		if ( diffQtyOnHand.signum() != 0 && M_MPolicyTicket_ID <= 0 ) {
 			s_log.severe("Can't change Quantity On Hand witout a valid Matieral Policy Ticket");
 			return false;			
 		}
-			
+
+		if ( (diffQtyReserved.signum() != 0 || diffQtyOrdered.signum() !=0) && reservationMPolicyTicket_ID <= 0 ) {
+			s_log.severe("Can't change Quantity reserved/ordered witout a valid reservation Matieral Policy Ticket");
+			return false;			
+		}
+
 		StringBuffer diffText = new StringBuffer("");
 		boolean changed = false;
 
@@ -741,7 +771,7 @@ public class MStorage extends X_M_Storage
 
 		//	Get Storage
 		MStorage storage = null;
-		if (diffQtyOnHand.signum() != 0 && M_MPolicyTicket_ID > 0) {
+		if (diffQtyOnHand.signum() != 0) {
 			try {
 				storage = getCreate (ctx, M_Locator_ID, 
 					M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, trxName);
@@ -757,16 +787,16 @@ public class MStorage extends X_M_Storage
 			changed = true;
 		}
 		
-		// To correct the qty reserved and ordered, we need to know the product, ASI, and warehouse 
-		// used to make the reservation/order.  The reservation material policy ticket should be 
-		// zero as the ticket is only created when the material is received, so the reservations/orders 
+		// To correct the qty reserved and ordered, we need to know the product, ASI, warehouse and 
+		// material policy ticket used to make the reservation/order.  The reservation material policy ticket 
+		// will be different than the tickets used to fulfill the order so the reservations/orders 
 		// will always be made on a different M_Storage record than the material receipt.
 		// The locator will always be the default locator for the warehouse.
 		MStorage storage0 = null;
 		if(diffQtyReserved.signum() != 0 || diffQtyOrdered.signum() != 0) {
 			try {
 				storage0 = getReservedOrdered(ctx,
-						M_Product_ID, M_Warehouse_ID , reservationAttributeSetInstance_ID, trxName);
+						M_Product_ID, M_Warehouse_ID , reservationAttributeSetInstance_ID, reservationMPolicyTicket_ID, trxName);
 			}
 			catch(AdempiereException | IllegalArgumentException e){
 				s_log.severe(e.getLocalizedMessage());
@@ -857,7 +887,7 @@ public class MStorage extends X_M_Storage
 			pstmt.setInt(i++, M_Product_ID);
 			if (M_AttributeSetInstance_ID != 0)  //TODO is this the right logic? !=0 or >= 0?  ASI can be valid zero, -1 is undefined
 				pstmt.setInt(i++, M_AttributeSetInstance_ID);
-			if (M_MPolicyTicket_ID != 0) //TODO is this the right logic? !=0 or >= 0?
+			if (M_MPolicyTicket_ID != 0) 
 				pstmt.setInt(i++, M_MPolicyTicket_ID);
 			rs = pstmt.executeQuery();
 			while (rs.next())

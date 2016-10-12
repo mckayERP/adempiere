@@ -156,7 +156,7 @@ public class X_M_Storage extends PO implements I_M_Storage, I_Persistent
 
 	/** Set Material Policy Ticket.
 		@param M_MPolicyTicket_ID 
-		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
 	{
@@ -167,7 +167,7 @@ public class X_M_Storage extends PO implements I_M_Storage, I_Persistent
 	}
 
 	/** Get Material Policy Ticket.
-		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public int getM_MPolicyTicket_ID () 
 	{
