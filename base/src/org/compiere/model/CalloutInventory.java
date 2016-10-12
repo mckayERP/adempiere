@@ -79,7 +79,7 @@ public class CalloutInventory extends CalloutEngine
 				try {
 					if (mTab.getValue("M_AttributeSetInstance_ID") != null)
 						M_AttributeSetInstance_ID = (Integer) mTab.getValue("M_AttributeSetInstance_ID");
-					bd = setQtyBook(M_AttributeSetInstance_ID, M_Product_ID, M_Locator_ID);
+					bd = MStorage.getQtyOnHand(ctx, M_Product_ID.intValue(), M_AttributeSetInstance_ID.intValue(), M_Locator_ID.intValue(), null);
 					mTab.setValue("QtyBook", bd);
 				} catch (Exception e) {
 					return mTab.setValue("QtyBook", bd);
@@ -113,7 +113,7 @@ public class CalloutInventory extends CalloutEngine
 		// Set QtyBook from first storage location
 		// kviiksaar: Call's now the extracted function
 		try {
-			bd = setQtyBook(M_AttributeSetInstance_ID.intValue(), M_Product_ID, M_Locator_ID);
+			bd = MStorage.getQtyOnHand(ctx, M_Product_ID, M_AttributeSetInstance_ID.intValue(), M_Locator_ID, null);
 			mTab.setValue("QtyBook", bd);
 		} catch (Exception e) {
 			return mTab.setValue("QtyBook", bd);
@@ -128,61 +128,6 @@ public class CalloutInventory extends CalloutEngine
 	}   //  product
 	
 	
-	/**
-	 * kviiksaar
-	 * 
-	 * Returns the current Book Qty for given parameters or 0
-	 * 
-	 * @param M_AttributeSetInstance_ID
-	 * @param M_Product_ID
-	 * @param M_Locator_ID
-	 * @return
-	 * @throws Exception
-	 */
-	private BigDecimal setQtyBook (int M_AttributeSetInstance_ID, int M_Product_ID, int M_Locator_ID) throws Exception {
-
-		// Set QtyBook from storage location
-		
-		BigDecimal bookQuantity = new BigDecimal(0);
-
-		// Need to sum across all material policy tickets.
-		String sql = "SELECT SUM(QtyOnHand) FROM M_Storage "
-			+ "WHERE M_Product_ID=?"	//	1
-			+ " AND M_Locator_ID=?"		//	2
-			+ " AND M_AttributeSetInstance_ID=?";
-		
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, M_Product_ID);
-			pstmt.setInt(2, M_Locator_ID);
-			pstmt.setInt(3, M_AttributeSetInstance_ID);
-			rs = pstmt.executeQuery();
-			if (rs.next())
-			{
-				bookQuantity = rs.getBigDecimal(1);
-			} else {
-				// gwu: 1719401: clear Booked Quantity to zero first in case the query returns no rows, 
-				// for example when the locator has never stored a particular product.
-				//  return new BigDecimal(0);  Can't return without closing! Leaves a hanging statement.
-			}
-		}
-		catch (SQLException e)
-		{
-			log.log(Level.SEVERE, sql, e);
-			throw new Exception(e.getLocalizedMessage());
-		}
-		finally {
-			rs.close();
-			pstmt.close();			
-		}
-		
-		if (bookQuantity==null)
-			bookQuantity = Env.ZERO;
-		return bookQuantity;
-	}
 
     /**
      * Check if of qty Onhand

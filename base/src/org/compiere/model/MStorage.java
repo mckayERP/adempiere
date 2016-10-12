@@ -1067,4 +1067,124 @@ public class MStorage extends X_M_Storage
 		return sb.toString();
 	}	//	toString
 
+	/**
+	 * Returns the quantity ordered for a product/ASI across all locators in a warehouse
+	 * @param ctx
+	 * @param m_product_id
+	 * @param m_warehouse_id
+	 * @param m_attributeSetInstance_id
+	 * @param trxName
+	 * @return
+	 */
+	public static BigDecimal getOrderedQty(Properties ctx, int m_product_id,
+			int m_warehouse_id, int m_attributeSetInstance_id, String trxName) {
+	
+		ArrayList<Object> params = new ArrayList<Object>();
+		StringBuffer sql = new StringBuffer("SELECT COALESCE(SUM(s.QtyOrdered),0)")
+								.append(" FROM M_Storage s")
+								.append(" WHERE AD_Client_ID = ?")
+								.append(" AND s.M_Product_ID=?")
+								.append(" AND EXISTS (SELECT 1 FROM M_Locator l WHERE s.M_Locator_ID=l.M_Locator_ID AND l.M_Warehouse_ID=?)")
+								.append(" AND s.M_AttributeSetInstance_ID=?");
+		params.add(Env.getAD_Client_ID(Env.getCtx()));
+		params.add(m_product_id);
+		params.add(m_warehouse_id);
+		params.add(m_attributeSetInstance_id);
+		//
+		BigDecimal retValue = DB.getSQLValueBD(trxName, sql.toString(), params);
+		if (CLogMgt.isLevelFine())
+			s_log.fine("M_Warehouse_ID=" + m_warehouse_id + 
+				",M_Product_ID=" + m_product_id + ", M_AttributeSetInstance_ID=" + m_attributeSetInstance_id + " = " + retValue);
+		return retValue;
+	}	//	getOrderedQty
+
+	/**
+	 * Returns the quantity reserved for a product/ASI across all locators in a warehouse
+	 * @param ctx
+	 * @param m_product_id
+	 * @param m_warehouse_id
+	 * @param m_attributeSetInstance_id
+	 * @param trxName
+	 * @return BigDecimal quantity reserved
+	 */
+	public static BigDecimal getReservedQty(Properties ctx, int m_product_id,
+			int m_warehouse_id, int m_attributeSetInstance_id, String trxName) {
+	
+		ArrayList<Object> params = new ArrayList<Object>();
+		StringBuffer sql = new StringBuffer("SELECT COALESCE(SUM(s.QtyReserved),0)")
+								.append(" FROM M_Storage s")
+								.append(" WHERE AD_Client_ID = ?")
+								.append(" AND s.M_Product_ID=?")
+								.append(" AND EXISTS (SELECT 1 FROM M_Locator l WHERE s.M_Locator_ID=l.M_Locator_ID AND l.M_Warehouse_ID=?)")
+								.append(" AND s.M_AttributeSetInstance_ID=?");
+		params.add(Env.getAD_Client_ID(Env.getCtx()));
+		params.add(m_product_id);
+		params.add(m_warehouse_id);
+		params.add(m_attributeSetInstance_id);
+		//
+		BigDecimal retValue = DB.getSQLValueBD(trxName, sql.toString(), params);
+		if (CLogMgt.isLevelFine())
+			s_log.fine("M_Warehouse_ID=" + m_warehouse_id + 
+				",M_Product_ID=" + m_product_id + ", M_AttributeSetInstance_ID=" + m_attributeSetInstance_id + " = " + retValue);
+		return retValue;
+	}	//	getOrderedQty
+
+	/**
+	 * kviiksaar- taken from CalloutInventory
+	 * 
+	 * Returns the quantity on hand (current Book Qty) for given product/ASI at a particular locator.  
+	 * This is different than the quantity available to promise which is qtyOnHand - qtyReserved.
+	 * 
+	 * @param ctx Context
+	 * @param m_attributeSetInstance_id
+	 * @param m_product_id
+	 * @param m_locator_id
+	 * @param trxName Transaction Name
+	 * @return BigDecimal quantity on hand.
+	 */
+	public static BigDecimal getQtyOnHand(Properties ctx, int m_product_id,
+			int m_attributeSetInstance_id, int m_locator_id,
+			String trxName) {
+
+		// Get the quantity on hand from storage location
+
+		BigDecimal qtyOnHand = new BigDecimal(0);
+
+		// Need to sum across all material policy tickets.
+		String sql = "SELECT SUM(QtyOnHand) FROM M_Storage "
+			+ "WHERE M_Product_ID=?"	//	1
+			+ " AND M_Locator_ID=?"		//	2
+			+ " AND M_AttributeSetInstance_ID=?"
+			+ " AND AD_Client_ID = ?";
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql, trxName);
+			pstmt.setInt(1, m_product_id);
+			pstmt.setInt(2, m_locator_id);
+			pstmt.setInt(3, m_attributeSetInstance_id);
+			pstmt.setInt(4, Env.getAD_Client_ID(ctx));
+			rs = pstmt.executeQuery();
+			if (rs.next())
+			{
+				qtyOnHand = rs.getBigDecimal(1);
+			} 
+		}
+		catch (SQLException e)
+		{
+			s_log.log(Level.SEVERE, sql, e);
+		}
+		finally {
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		
+		if (qtyOnHand==null)
+			qtyOnHand = Env.ZERO;
+
+		return qtyOnHand;
+	}
+
 }	//	MStorage
