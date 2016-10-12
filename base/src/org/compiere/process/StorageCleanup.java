@@ -24,12 +24,16 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.adempiere.engine.StorageEngine;
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
 import org.compiere.model.MClientInfo;
 import org.compiere.model.MLocator;
 import org.compiere.model.MMPolicyTicket;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.MOrder;
+import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MStorage;
@@ -46,6 +50,7 @@ public class StorageCleanup extends SvrProcess
 {
 	/** Movement Document Type	*/
 	private int	p_C_DocType_ID = 0;
+	private MMovement mMovement = null;
 	
 	/**
 	 *  Prepare - e.g., get Parameters.
@@ -73,32 +78,93 @@ public class StorageCleanup extends SvrProcess
 	protected String doIt () throws Exception
 	{
 		log.info("");
-		//	Clean up empty Storage
+		removeMalformedASIValues();
+		ensureQtyOnHandHasTicket();
+		ensureQtyOrderedReservedHasTickets();
+		coverNegativeQuantities();
+		removeEmptyStorage();
+		return "Storage clean up completed.";
+	}	//	doIt
+
+	private void ensureQtyOrderedReservedHasTickets() {
+
+		// Remove the QtyOrdered/QtyReserved where there are no material policy tickets - there is a possible
+		// corruption with matchPO that will need to be corrected.
+		// All storage records with QtyOnHand > 0 should have tickets. See ensureQtyOnHandHasTicket();
 		String sql = "DELETE FROM M_Storage "
-			+ "WHERE QtyOnHand = 0 AND QtyReserved = 0 AND QtyOrdered = 0"
+			+ "WHERE QtyOnHand=0 AND (QtyReserved!=0 OR QtyOrdered!=0)"
 			+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
-			+ " AND Created < SysDate-3";
+			+ " AND COALESCE(M_MPolicyTicket_ID,0)=0";
 		int no = DB.executeUpdate(sql, get_TrxName());
-		log.info("Delete Empty #" + no);
-		
-		//  Remove ASI values that have no attribute sets
-		sql = "UPDATE M_Storage s "
-				+ "SET M_AttributeSetInstance_ID = 0 "
-				+ "WHERE s.M_AttributeSetInstance_ID != 0"
-				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
-				+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
-				+ " asi.M_AttributeSet_ID=0"
-				+ " AND asi.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
+		log.info("Delete QtyReserved + QtyOrdered with no M_MPolicyTicket_ID: " + no);
+
+		// Assume all SO lines have the correct qty Delivered
+		// Update all PO orderlines to have the correct qty Delivered.  Fixes a historical issue where qty delivered was not used.
+		sql = "UPDATE C_OrderLine ol"
+				 + " SET QtyDelivered = (SELECT SUM(Qty) FROM M_MatchPO mpo WHERE mpo.C_OrderLine_ID = ol.C_OrderLine_ID),"
+				 + "     DateDelivered = (SELECT MAX(DateTrx) FROM M_MatchPO mpo WHERE mpo.C_OrderLine_ID = ol.C_OrderLine_ID)"
+				 + " WHERE ol.C_Order_ID = (SELECT C_Order_ID FROM C_Order o "
+				 + "                           WHERE o.C_Order_ID=ol.C_Order_ID AND o.docstatus in ('CO')"
+				 + "                           AND o.isSOTrx = 'N')"
+				 + " AND ol.QtyDelivered < ol.QtyOrdered"
+				 + " AND COALESCE(ol.M_MPolicyTicket_ID,0)=0"
+				 + " AND ol.QtyDelivered < (SELECT SUM(Qty) FROM M_MatchPO mpo WHERE mpo.C_OrderLine_ID = ol.C_OrderLine_ID)"
+				 + " AND ol.AD_Client_ID = " + Env.getAD_Client_ID(getCtx());
 		no = DB.executeUpdate(sql, get_TrxName());
-		log.info("Set ASI values to zero where there was no Attribute Set #" + no);
+		log.info("Updated QtyDelivered on purchase orders: " + no);
+		 
 		
-		// Move/change qty on hand where M_MPolicyTicket_ID = 0 to a row with a policy ticket.
-		// As these are likely old entries, use a zero Timestamp as the move date.
-		sql = "SELECT * FROM M_Storage "
-				+ "WHERE AD_Client_ID = ?"
-				+ " AND QtyOnHand != 0 AND M_MPolicyTicket_ID = 0";
+		// Get all the order lines that have zero MPolicyTicket and set the storage qtyReserved
+		sql = "SELECT ol.* FROM C_OrderLine ol "
+				+ " JOIN M_Product p ON (p.M_Product_ID = ol.M_Product_ID AND p.isStocked='Y')"
+				+ " JOIN C_Order o ON (o.C_Order_ID=ol.C_Order_ID AND o.docstatus in ('IP','CO'))"
+				+ " WHERE o.AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ "	AND ABS(ol.QtyDelivered) < ABS(ol.QtyOrdered)"
+				+ " 	AND COALESCE(M_MPolicyTicket_ID,0)=0";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		int lines = 0;
+		try
+		{
+			pstmt = DB.prepareStatement (sql, get_TrxName());
+			rs = pstmt.executeQuery ();
+			while (rs.next ())
+			{
+				MOrderLine line = new MOrderLine(getCtx(), rs, get_TrxName());
+				try {
+					StorageEngine.createTransaction(line,
+							"" , 							// No movement type
+							line.getDateOrdered() , 
+							Env.ZERO, 						// No movement qty
+							false , 						// No reversals
+							line.getM_Warehouse_ID(), 
+							line.getM_AttributeSetInstance_ID(),
+							line.getM_Warehouse_ID(), 
+							line.isSOTrx());
+				}
+				catch (AdempiereException e) {
+					log.severe("Unable to reserve/order stock: " + e.getLocalizedMessage());
+				}
+				lines++;
+			}
+ 		}
+		catch (Exception e)
+		{
+			log.log (Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}		
+
+		log.info("Added tickets for ordere/reserved qty for order lines: " + lines);
+		
+		sql = "SELECT * FROM M_Storage "
+				+ "WHERE AD_Client_ID = ?"
+				+ " AND QtyOnHand != 0 AND (QtyReserved != 0 OR QtyOrdered != 0)";
+		pstmt = null;
+		rs = null;
 		no = 0;
 		try
 		{
@@ -107,7 +173,8 @@ public class StorageCleanup extends SvrProcess
 			rs = pstmt.executeQuery ();
 			while (rs.next ())
 			{
-				no += addMissingPolicyTickets(new MStorage(getCtx(), rs, get_TrxName()));
+				eliminateReservation(new MStorage(getCtx(), rs, get_TrxName()));
+				no++;
 			}
  		}
 		catch (Exception e)
@@ -120,13 +187,62 @@ public class StorageCleanup extends SvrProcess
 			rs = null; pstmt = null;
 		}
 		
-		log.info("Added missing policy tickets where qtyOnHand != 0: " + no);
+		log.info("Corrected Reservation lines: " + no);
 		
-		// Consolidate qtyReserved and qtyOrdered to a single storage line with zero policy ticket
+		// Get all the incomplete order lines that have a MPolicyTicket that is not in MStorage and
+		// Add the reservation/ordered amounts
+		sql = "SELECT ol.* FROM C_OrderLine ol "
+				+ " JOIN M_Product p ON (p.M_Product_ID = ol.M_Product_ID AND p.isStocked='Y')"
+				+ " JOIN C_Order o ON (o.C_Order_ID=ol.C_Order_ID AND o.docstatus in ('IP','CO'))"
+				+ " LEFT OUTER JOIN M_Storage s ON (ol.M_MPolicyTicket_ID = s.M_MPolicyTicket_ID)"
+				+ " WHERE o.AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ "	AND ABS(ol.QtyDelivered) < ABS(ol.QtyOrdered)"
+				+ " 	AND s.M_MPolicyTicket_ID is null";
+		pstmt = null;
+		rs = null;
+		lines = 0;
+		try
+		{
+			pstmt = DB.prepareStatement (sql, get_TrxName());
+			rs = pstmt.executeQuery ();
+			while (rs.next ())
+			{
+				MOrderLine line = new MOrderLine(getCtx(), rs, get_TrxName());
+				try {
+					StorageEngine.createTransaction(line,
+							"" , 							// No movement type
+							line.getDateOrdered() , 
+							Env.ZERO, 						// No movement qty
+							false , 						// No reversals
+							line.getM_Warehouse_ID(), 
+							line.getM_AttributeSetInstance_ID(),
+							line.getM_Warehouse_ID(), 
+							line.isSOTrx());
+				}
+				catch (AdempiereException e) {
+					log.severe("Unable to reserve/order stock: " + e.getLocalizedMessage());
+				}
+				lines++;
+			}
+ 		}
+		catch (Exception e)
+		{
+			log.log (Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}		
+
+		log.info("Added tickets for ordere/reserved qty for order lines: " + lines);
+
+
+	}
+
+	private void coverNegativeQuantities() {
 		// for each locator/product/asi combination.
-				
-		//
-		sql = "SELECT * "
+		String sql = "SELECT s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID "
 			+ "FROM M_Storage s "
 			+ "WHERE AD_Client_ID = ?"
 			+ " AND QtyOnHand < 0"
@@ -148,9 +264,10 @@ public class StorageCleanup extends SvrProcess
 				+ " AND s.M_AttributeSetInstance_ID=sw.M_AttributeSetInstance_ID"
 				+ " AND s.M_Locator_ID=sl.M_Locator_ID"
 				+ " AND s.M_AttributeSetInstance_ID=sw.M_AttributeSetInstance_ID"
-				+ " AND sl.M_Warehouse_ID=swl.M_Warehouse_ID))";
-		pstmt = null;
-		rs = null;
+				+ " AND sl.M_Warehouse_ID=swl.M_Warehouse_ID))"
+			+ " GROUP BY s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		int lines = 0;
 		try
 		{
@@ -159,7 +276,38 @@ public class StorageCleanup extends SvrProcess
 			rs = pstmt.executeQuery ();
 			while (rs.next ())
 			{
-				lines += move (new MStorage(getCtx(), rs, get_TrxName()));
+				lines += move (rs.getInt(1), rs.getInt(2), rs.getInt(3));
+			}
+ 		}
+		catch (Exception e)
+		{
+			log.log (Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}	
+	}
+
+	private void ensureQtyOnHandHasTicket() {
+		log.info("");
+		// Move/change qty on hand where M_MPolicyTicket_ID = 0 to a row with a policy ticket.
+		// As these are likely old entries, use a zero Timestamp as the move date.
+		String sql = "SELECT * FROM M_Storage "
+				+ "WHERE AD_Client_ID = ?"
+				+ " AND QtyOnHand != 0 AND COALESCE(M_MPolicyTicket_ID,0) = 0";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int no = 0;
+		try
+		{
+			pstmt = DB.prepareStatement (sql, get_TrxName());
+			pstmt.setInt(1, Env.getAD_Client_ID(getCtx()));
+			rs = pstmt.executeQuery ();
+			while (rs.next ())
+			{
+				no += addMissingPolicyTicket(new MStorage(getCtx(), rs, get_TrxName()));
 			}
  		}
 		catch (Exception e)
@@ -172,30 +320,66 @@ public class StorageCleanup extends SvrProcess
 			rs = null; pstmt = null;
 		}
 		
-		return "Moves " + lines;
-	}	//	doIt
+		log.info("Added missing policy tickets where qtyOnHand != 0: " + no);
+	}
 
-	private int addMissingPolicyTickets(MStorage mStorage) {
-		// Add a policy ticket to the storage location.
+	private void removeMalformedASIValues() {
+		log.info("");
+		//  Remove ASI values that have no attribute sets. ASI was replaced by the Material Policy Ticket as the
+		//  Method of FIFO/LIFO tracking in storage
+		String sql = "UPDATE M_Storage s "
+				+ "SET M_AttributeSetInstance_ID = 0 "
+				+ "WHERE s.M_AttributeSetInstance_ID != 0"
+				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
+				+ " asi.M_AttributeSet_ID=0"
+				+ " AND asi.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
+		int no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Set ASI values to zero where there was no Attribute Set #" + no);	
+		
+		sql = "UPDATE M_Storage s "
+				+ "SET M_AttributeSetInstance_ID = 0 "
+				+ "WHERE s.M_AttributeSetInstance_ID != 0"
+				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND NOT EXISTS (SELECT 1 FROM M_AttributeInstance ai WHERE"
+				+ " ai.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
+		no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Set ASI values to zero where there were no Attribute values #" + no);	
+
+	}
+
+	private void removeEmptyStorage() {
+		log.info("");
+		String sql = "DELETE FROM M_Storage "
+				+ "WHERE QtyOnHand = 0 AND QtyReserved = 0 AND QtyOrdered = 0"
+				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND Created < SysDate-3";
+			int no = DB.executeUpdate(sql, get_TrxName());
+			log.info("Delete Empty #" + no);		
+	}
+
+	private int addMissingPolicyTicket(MStorage mStorage) {
+		// Add a policy ticket to the storage location.  Need to create a new storage location to do this
+		// as the ticket is part of the key. mStorage will be deleted.
 		if (mStorage.getQtyOnHand().compareTo(Env.ZERO) == 0)
 			return 0;
 		
+		// Create a new policy ticket (assume its old) to the storage record and set qtyOnHand from mStorage and
+		// qtyOrdered and qtyReserved to zero.  These last two will be corrected elsewhere
 		MMPolicyTicket ticket = MMPolicyTicket.create(getCtx(), null, Timestamp.from(Instant.EPOCH), get_TrxName());
-		
+
 		MStorage newStorage = MStorage.getCreate(getCtx(), 
 				mStorage.getM_Locator_ID(), 
 				mStorage.getM_Product_ID(), 
 				mStorage.getM_AttributeSetInstance_ID(), 
-				ticket.getM_MPolicyTicket_ID(), get_TrxName());
+				ticket.getM_MPolicyTicket_ID(), 
+				get_TrxName());
 		newStorage.setQtyOnHand(mStorage.getQtyOnHand());
+		newStorage.setQtyOrdered(Env.ZERO);
+		newStorage.setQtyReserved(Env.ZERO);
 		newStorage.saveEx();
 		
-		mStorage.setQtyOnHand(Env.ZERO);
-		
-		eliminateReservation(mStorage);
-
-		if (mStorage.getQtyOnHand().signum() == 0 && mStorage.getQtyOrdered().signum() == 0 && mStorage.getQtyReserved().signum() == 0)
-			mStorage.deleteEx(false);
+		mStorage.delete(true);
 		
 		return 1;
 	}
@@ -205,37 +389,53 @@ public class StorageCleanup extends SvrProcess
 	 *	@param target target storage
 	 *	@return no of movements
 	 */
-	private int move (MStorage target)
+	private int move (int m_product_id, int m_locator_id, int m_attributeSetInstance_id)
 	{
-		log.info(target.toString());
-		BigDecimal qty = target.getQtyOnHand().negate();
-		
-		int M_Product_ID = target.getM_Product_ID();
-		int M_Locator_ID = target.getM_Locator_ID();
-		int M_AttributeSetInstance_ID = target.getM_AttributeSetInstance_ID();
-		
-		MProduct product = new MProduct(getCtx(),M_Product_ID,get_TrxName());	
-		MLocator locator = MLocator.get(getCtx(), M_Locator_ID);
+		log.info("");
+				
+		MProduct product = new MProduct(getCtx(),m_product_id,get_TrxName());	
+		MLocator locator = MLocator.get(getCtx(), m_locator_id);
 		boolean positiveOnly = true;
 		boolean fifo = MClient.MMPOLICY_FiFo.equals(product.getMMPolicy());
-		int M_Warehouse_ID = locator.getM_Warehouse_ID();
+		int m_warehouse_id = locator.getM_Warehouse_ID();
 		
 		// Try locator first
+		BigDecimal qty = MStorage.getQtyOnHand(getCtx(), m_product_id, m_attributeSetInstance_id, m_locator_id, get_TrxName());
 		
-		MStorage[] sources = MStorage.getWarehouse(getCtx(), M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 
-				0, null, fifo, positiveOnly, M_Locator_ID, get_TrxName());
-		
-		BigDecimal applied = applySources(sources, target);
-		
-		qty = qty.subtract(applied);
-		
-		if (qty.signum() > 0) {
-			sources = MStorage.getWarehouse(getCtx(), M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, 
-					0, null, fifo, positiveOnly, 0, get_TrxName());		
-			applied = applySources(sources, target);
-		}
+		// Find all storage at this location
+		MStorage[] storages = MStorage.getWarehouse(getCtx(), m_warehouse_id, m_product_id, m_attributeSetInstance_id, 
+				0, null, fifo, false, m_locator_id, get_TrxName());
 
-		eliminateReservation(target);
+		// If the qty at this location is less than zero, use sources from the whole warehouse to fulfill the negative
+		// quantities
+		int tempLocator = m_locator_id;
+		if (qty.signum() < 0)
+			tempLocator = 0;
+		
+		MStorage[] sources = MStorage.getWarehouse(getCtx(), m_warehouse_id, m_product_id, m_attributeSetInstance_id, 
+				0, null, fifo, positiveOnly, tempLocator, get_TrxName());
+		
+		BigDecimal qtyOnHand = Env.ZERO;
+		for (MStorage source : sources) {
+			qtyOnHand = qtyOnHand.add(source.getQtyOnHand());
+		}
+		
+		BigDecimal qtyRequired = Env.ZERO;
+		// Find the negative entries
+		for (MStorage storage : storages) 
+		{
+			// Ignore positive entries
+			if (storage.getQtyOnHand().signum() >= 0)
+				continue;
+			
+			qtyRequired = qtyRequired.subtract(storage.getQtyOnHand());
+		}
+		
+		BigDecimal qtyToMove = qtyOnHand.compareTo(qtyRequired) > 0 ? qtyRequired : qtyOnHand;
+				
+		BigDecimal qtyMoved = applySources(m_product_id, m_locator_id, m_attributeSetInstance_id, sources, qtyToMove);		
+
+		//eliminateReservation(target);
 		
 		return 1;
 	}	//	move
@@ -246,32 +446,9 @@ public class StorageCleanup extends SvrProcess
 	 */
 	private void eliminateReservation(MStorage target)
 	{
-		// TODO - review for FIFO/LIFO compliance
-		//	Negative Ordered / Reserved Qty
-		if (target.getQtyReserved().signum() != 0 || target.getQtyOrdered().signum() != 0)
-		{
-			BigDecimal reserved = target.getQtyReserved();
-			BigDecimal ordered = target.getQtyOrdered();
-			
-			//	Eliminate Reservation
-			if (reserved.signum() != 0 || ordered.signum() != 0)
-			{
-				target.setQtyReserved(Env.ZERO);
-				target.setQtyOrdered(Env.ZERO);
-				target.saveEx();
-				if (MStorage.add(getCtx(), target.getM_Warehouse_ID(), target.getM_Locator_ID(), 
-					target.getM_Product_ID(), 
-					target.getM_AttributeSetInstance_ID(), target.getM_AttributeSetInstance_ID(),
-					0,
-					Env.ZERO, reserved, ordered, get_TrxName())) {
-						log.info("Reserved=" + reserved + ",Ordered=" + ordered);
-				}
-				else 
-						log.warning("Failed Storage0 Update");
-			}
-			else
-				log.warning("Failed Target Update");
-		}
+		target.setQtyReserved(Env.ZERO);
+		target.setQtyOrdered(Env.ZERO);
+		target.saveEx();
 	}	//	eliminateReservation
 	
 	/**
@@ -281,38 +458,32 @@ public class StorageCleanup extends SvrProcess
 	 *	@param M_Locator_ID locator. Set to zero for all locators
 	 *	@return sources
 	 */
-	private  BigDecimal applySources (MStorage[] sources, MStorage target)	{
+	private  BigDecimal applySources (int m_product_id, int m_locator_id, int m_attributeSetInstance_id, MStorage[] sources, BigDecimal qtyToMove)	{
 		
-		BigDecimal qty = target.getQtyOnHand().negate();
 		BigDecimal qtyMoved = Env.ZERO;
-		BigDecimal qtyToMove = qty;
+		BigDecimal qtyMovedTotal = Env.ZERO;
 
 		if (sources.length == 0)
 			return Env.ZERO;
-		
-		int M_Product_ID = target.getM_Product_ID();
-		int M_Locator_ID = target.getM_Locator_ID();
-				
-		MMovement mh = null;
 
 		//	Create Movement
-		mh = new MMovement (getCtx(), 0, get_TrxName());
-		mh.setAD_Org_ID(target.getAD_Org_ID());
-		mh.setC_DocType_ID(p_C_DocType_ID);
-		mh.setDescription(getName());
-		if (!mh.save())
-			return Env.ZERO;
+//		if (mMovement == null) {
+			mMovement = new MMovement (getCtx(), 0, get_TrxName());
+			mMovement.setAD_Org_ID(sources[0].getAD_Org_ID());
+			mMovement.setC_DocType_ID(p_C_DocType_ID);
+			mMovement.setDescription(getName());
+			if (!mMovement.save())
+				return Env.ZERO;
+//		}
 		
 		int lines = 0;
-		for (int i = 0; i < sources.length; i++)
-		{
-			MStorage source = sources[i];
-			
+		for (MStorage source : sources)
+		{			
 			//	Movement Line
-			MMovementLine ml = new MMovementLine(mh);
-			ml.setM_Product_ID(M_Product_ID);
-			ml.setM_LocatorTo_ID(M_Locator_ID);
-			ml.setM_AttributeSetInstanceTo_ID(target.getM_AttributeSetInstance_ID());
+			MMovementLine ml = new MMovementLine(mMovement);
+			ml.setM_Product_ID(m_product_id);
+			ml.setM_LocatorTo_ID(m_locator_id);
+			ml.setM_AttributeSetInstanceTo_ID(m_attributeSetInstance_id);
 			//	From
 			ml.setM_Locator_ID(source.getM_Locator_ID());
 			ml.setM_AttributeSetInstance_ID(source.getM_AttributeSetInstance_ID());
@@ -329,19 +500,22 @@ public class StorageCleanup extends SvrProcess
 				return Env.ZERO;
 			
 			qtyToMove = qtyToMove.subtract(qtyMoved);
+			qtyMovedTotal = qtyMovedTotal.add(qtyMoved);
 			if (qtyToMove.signum() <= 0)
 				break;
 		}	//	for all movements
 		
-		//	Process
-		mh.processIt(MMovement.ACTION_Complete);
-		mh.saveEx();
-		
-		addLog(0, null, new BigDecimal(lines), "@M_Movement_ID@ " + mh.getDocumentNo() + " (" 
-			+ MRefList.get(getCtx(), MMovement.DOCSTATUS_AD_Reference_ID, 
-				mh.getDocStatus(), get_TrxName()) + ")");
+		if (mMovement != null) {
+			//	Process
+			mMovement.processIt(MMovement.ACTION_Complete);
+			mMovement.saveEx();
+			
+			addLog(0, null, new BigDecimal(lines), "@M_Movement_ID@ " + mMovement.getDocumentNo() + " (" 
+				+ MRefList.get(getCtx(), MMovement.DOCSTATUS_AD_Reference_ID, 
+					mMovement.getDocStatus(), get_TrxName()) + ")");
+		}
 
-		return qty.subtract(qtyToMove);  // Total moved
+		return qtyMovedTotal;  // Total moved
 	}	//	getSources
 	
 }	//	StorageCleanup
