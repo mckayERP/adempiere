@@ -27,6 +27,7 @@ import java.util.logging.Level;
 
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.engine.StorageEngine;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -701,7 +702,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				orderLine.setDateInvoiced(getDateTrx());	//	overwrite=last
 			}
 			
-			//	Update Order material policy ticket if full match
+			//	Update Order material policy ticket if full match  TODO WHy? Tickets aren't used on orders.
 			if (orderLine.getM_MPolicyTicket_ID() == 0
 				&& getM_InOutLine_ID() != 0)
 			{
@@ -709,7 +710,16 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
 					orderLine.setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID());
 			}
-			return orderLine.save();
+			
+			success = orderLine.save(get_TrxName());
+			
+			if (!success)
+				return success;
+
+			//	Correct Ordered Qty for Stocked Products (see MOrder.reserveStock / MInOut.processIt)
+			StorageEngine.reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
+					orderLine.getM_Product_ID(), orderLine.getM_AttributeSetInstance_ID(), orderLine.getM_MPolicyTicket_ID(),
+					getMovementQty().negate(), Env.ZERO, get_TrxName());
 		}
 		//
 		return success;
@@ -744,6 +754,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setPosted(false);
 			MFactAcct.deleteEx (Table_ID, get_ID(), get_TrxName());
 		}
+		
 		return true;
 	}	//	beforeDelete
 
@@ -768,11 +779,20 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			MOrderLine orderLine = new MOrderLine (getCtx(), getC_OrderLine_ID(), get_TrxName());
 			if (getM_InOutLine_ID() != 0) {
 				orderLine.setQtyDelivered(orderLine.getQtyDelivered().subtract(getQty()));
-				orderLine.setM_MPolicyTicket_ID(0);
 			}
 			if (getC_InvoiceLine_ID() != 0)
 				orderLine.setQtyInvoiced(orderLine.getQtyInvoiced().subtract(getQty()));
-			return orderLine.save(get_TrxName());
+			success = orderLine.save(get_TrxName());
+			
+			if (!success)
+				return success;
+			
+			//	Correct Ordered Qty for Stocked Products (see MOrder.reserveStock / MInOut.processIt)
+			//  The ordered qty is always recorded in the MStorage record with orderLine M_MPolicyTicket_ID
+			StorageEngine.reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
+					orderLine.getM_Product_ID(), orderLine.getM_AttributeSetInstance_ID(), orderLine.getM_MPolicyTicket_ID(),
+					getMovementQty(), Env.ZERO, get_TrxName());
+
 		}
 		return success;
 	}	//	afterDelete
