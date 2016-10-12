@@ -321,7 +321,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 	}
 
 	/**
-	 * Get Grid Field
+	 * Get Grid Field. The index range is given by {@link #getFieldSize()}
 	 * @param index
 	 * @return
 	 */
@@ -330,7 +330,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 	}
 
 	/**
-	 * Get Grid Field To
+	 * Get Grid Field To. The index range is given by {@link #getFieldSize()}
 	 * @param index
 	 * @return GridField or null
 	 */
@@ -339,7 +339,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 	}
 
 	/**
-	 * Get the editor with the given index
+	 * Get the editor with the given index. The index range is given by {@link #getFieldSize()}
 	 * @param index
 	 * @return CEditor editor
 	 */
@@ -349,7 +349,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 
 	/**
 	 * Get the "To" editor with the given index.  If there is no "To" or range
-	 * then the return value will be null.
+	 * then the return value will be null. The index range is given by {@link #getFieldSize()}
 	 * @param index
 	 * @return CEditor editor or null
 	 */
@@ -405,6 +405,7 @@ public abstract class SmallViewController implements SmallViewEditable, Vetoable
 		GridFieldVO voF = GridFieldVO.createParameter(Env.getCtx(), windowNo, processParameter);
 		GridField field = new GridField (voF);
 		GridField fieldTo = null;
+		
 		fields.add(field);                      //  add to Fields
 		//
 		if (voF.IsRange) {
