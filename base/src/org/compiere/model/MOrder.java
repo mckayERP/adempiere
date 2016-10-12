@@ -1475,14 +1475,23 @@ public class MOrder extends X_C_Order implements DocAction
 			{
 				if (product.isStocked())
 				{
-					BigDecimal ordered = isSOTrx ? Env.ZERO : difference;
-					BigDecimal reserved = isSOTrx ? difference : Env.ZERO;
-					
-					StorageEngine.reserveOrOrderStock(getCtx(), line.getM_Warehouse_ID(), 
-							line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 
-							ordered, reserved, get_TrxName());
-
 					line.setQtyReserved(line.getQtyReserved().add(difference));
+
+					try {
+						StorageEngine.createTransaction(line,
+								"" , 							// No movement type
+								getDateOrdered() , 
+								Env.ZERO, 						// No movement qty
+								false , 
+								getM_Warehouse_ID(), 
+								line.getM_AttributeSetInstance_ID(),
+								getM_Warehouse_ID(), 
+								isSOTrx);
+					}
+					catch (AdempiereException e) {
+						log.severe("Unable to reserve/order stock: " + e.getLocalizedMessage());
+						return false;
+					}
 				}	//	stocked
 				else {
 					line.setQtyReserved(Env.ZERO);

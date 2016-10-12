@@ -29,7 +29,7 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20160925L;
+	private static final long serialVersionUID = 20161004L;
 
     /** Standard Constructor */
     public X_M_MPolicyTicket (Properties ctx, int M_MPolicyTicket_ID, String trxName)
@@ -69,6 +69,34 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
       return sb.toString();
     }
 
+	public org.compiere.model.I_C_OrderLine getC_OrderLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_OrderLine)MTable.get(getCtx(), org.compiere.model.I_C_OrderLine.Table_Name)
+			.getPO(getC_OrderLine_ID(), get_TrxName());	}
+
+	/** Set Sales Order Line.
+		@param C_OrderLine_ID 
+		Sales Order Line
+	  */
+	public void setC_OrderLine_ID (int C_OrderLine_ID)
+	{
+		if (C_OrderLine_ID < 1) 
+			set_Value (COLUMNNAME_C_OrderLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_OrderLine_ID, Integer.valueOf(C_OrderLine_ID));
+	}
+
+	/** Get Sales Order Line.
+		@return Sales Order Line
+	  */
+	public int getC_OrderLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_OrderLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
     {
 		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_Name)
@@ -99,7 +127,7 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 
 	/** Set Material Policy Ticket.
 		@param M_MPolicyTicket_ID 
-		A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
 	{
@@ -110,7 +138,7 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 	}
 
 	/** Get Material Policy Ticket.
-		@return A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public int getM_MPolicyTicket_ID () 
 	{

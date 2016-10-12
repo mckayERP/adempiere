@@ -810,8 +810,15 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 			setOrder (getParent());
 		if (m_M_PriceList_ID == 0)
 			setHeaderInfo(getParent());
-
 		
+		// If the document is completed, allow changes of the material policy ticket 
+		// without checking the other fields.  Prevents errors if price lists are no 
+		// longer valid.  This situation should only occur during storage cleanup 
+		// and only if the line did not have a material policy ticket.
+		if (!newRecord && getParent().isComplete() && is_ValueChanged("M_MPolicyTicket_ID")) {
+			return true;
+		}
+
 		//	R/O Check - Product/Warehouse Change
 		if (!newRecord 
 			&& (is_ValueChanged("M_Product_ID") || is_ValueChanged("M_Warehouse_ID"))) 
@@ -1069,7 +1076,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	@Override
 	public BigDecimal getMovementQty()
 	{
-		return this.getQtyEntered();
+		return this.getQtyOrdered().subtract(this.getQtyDelivered());
 	}
 
 	@Override

@@ -61,6 +61,21 @@ public interface I_M_MPolicyTicket
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name C_OrderLine_ID */
+    public static final String COLUMNNAME_C_OrderLine_ID = "C_OrderLine_ID";
+
+	/** Set Sales Order Line.
+	  * Sales Order Line
+	  */
+	public void setC_OrderLine_ID (int C_OrderLine_ID);
+
+	/** Get Sales Order Line.
+	  * Sales Order Line
+	  */
+	public int getC_OrderLine_ID();
+
+	public org.compiere.model.I_C_OrderLine getC_OrderLine() throws RuntimeException;
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -109,12 +124,12 @@ public interface I_M_MPolicyTicket
     public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
 
 	/** Set Material Policy Ticket.
-	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
 
 	/** Get Material Policy Ticket.
-	  * A Material Policy Ticket is ued to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
 	  */
 	public int getM_MPolicyTicket_ID();
 
