@@ -289,9 +289,14 @@ public class StorageEngine
 		//  each receipt line.
 		if (incomingTrx)
 		{
+			
 			BigDecimal qtyReceived = movementQty; // Must be positive
 			if (!MTransaction.isIncomingTransaction(movementType))
+			{
+				
 				qtyReceived = line.getMovementQty().negate();
+				
+			}
 			
 			//  Find the storage locations to use.  Use the locator, or if that is zero, search the 
 			//  whole warehouse. Prioritize any negative quantity-on-hand and apply incoming material
@@ -300,8 +305,10 @@ public class StorageEngine
 					null, MClient.MMPOLICY_FiFo.equals(product.getMMPolicy()), false, m_locator_id, line.get_TrxName());
 			for (MStorage storage : storages) 
 			{
+				
 				// If there is negative storage ...
-				if (storage.getQtyOnHand().signum() < 0) {
+				if (storage.getQtyOnHand().signum() < 0) 
+				{
 					// ... and the remaining qty received is not enough to make it zero or positive
 					if (qtyReceived.compareTo(storage.getQtyOnHand().negate()) <= 0)	
 					{
@@ -309,6 +316,7 @@ public class StorageEngine
 						createMA (line, storage.getM_MPolicyTicket_ID(), movementType, qtyReceived, useToFields);
 						qtyReceived = Env.ZERO;
 						log.fine("QtyReceived=" + qtyReceived);
+						
 					}
 					// ... and the remaining qty received is greater than this negative qty
 					else
@@ -317,59 +325,84 @@ public class StorageEngine
 						createMA (line, storage.getM_MPolicyTicket_ID(), movementType, storage.getQtyOnHand().negate(), useToFields);
 						qtyReceived = qtyReceived.subtract(storage.getQtyOnHand().negate());
  						log.fine("QtyReceived=" + qtyReceived);
+ 						
 					}
 				}
 				
 				if (qtyReceived.signum() == 0)
+				{
+					
 					break;
+					
+				}
 			}
 			//  If there is qtyReceived remaining after fulfilling negative storage, create a new 
 			//  material policy ticket so fifo/lifo work.
 			if (qtyReceived.signum() > 0)
 			{
+				
 				ticket = MMPolicyTicket.create(line.getCtx(), line, movementDate, line.get_TrxName());
-				if (ticket == null) { // There is a problem
-					log.severe("Can't create Material Policy Ticket for line " + line);
-					throw new AdempiereException("Can't create Material Policy Ticket for line " + line);
+				
+				if (StorageEngine.getMA(line).length > 0) 
+				{  // Add the remainder to another material allocation line
+
+					createMA (line, ticket.getM_MPolicyTicket_ID(), movementType, qtyReceived, useToFields);
+					
 				}
-				if (StorageEngine.getMA(line).length > 0) {  // Add the remainder to another material allocation line
-					createMA (line, ticket.getM_MPolicyTicket_ID(), movementType, qtyReceived, useToFields);					
-				}
-				else { //  For incoming transactions with no storage corrections, one ticket is created per MR line and is added to the line.			
+				else 
+				{ //  For incoming transactions with no storage corrections, one ticket is created per MR line and is added to the line.			
+					
 					line.setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
+					
 				}
 				qtyReceived = Env.ZERO;
 				log.config("New Material Policy Ticket=" + line);
 			}
 
-			if (qtyReceived.signum() != 0) { // negative remaining is a problem.
+			if (qtyReceived.signum() != 0) 
+			{ // negative remaining is a problem.
+				
 				throw new AdempiereException("Can't receive all quantity on line " + line);
+				
 			}
-		} // Incoming			
+		} // Incoming
+		
 		else // Outgoing - use Material Allocations - there could be several per line.
 		{
 			String MMPolicy = product.getMMPolicy();
 			Timestamp minGuaranteeDate = movementDate;
+			
 			MStorage[] storages = MStorage.getWarehouse(line.getCtx(), m_warehouse_id, 
 					line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 0, 
 					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), line.get_TrxName());
+			
 			BigDecimal qtyToDeliver = movementQty;
+			
 			// Check if this is a negative incoming movement and negate the quantity
 			if (MTransaction.isIncomingTransaction(movementType))
+			{
+				
 				qtyToDeliver = qtyToDeliver.negate();
+				
+			}
 			
 			for (MStorage storage : storages)
-			{						
+			{	
+				
 				if (storage.getQtyOnHand().compareTo(qtyToDeliver) >= 0)
 				{
+					
 					createMA (line, storage.getM_MPolicyTicket_ID(), movementType, qtyToDeliver, useToFields);
 					qtyToDeliver = Env.ZERO;
+					
 				}
 				else
 				{	
+					
 					createMA (line, storage.getM_MPolicyTicket_ID(), movementType, storage.getQtyOnHand(), useToFields);
 					qtyToDeliver = qtyToDeliver.subtract(storage.getQtyOnHand());
-					log.fine("QtyToDeliver=" + qtyToDeliver);						
+					log.fine("QtyToDeliver=" + qtyToDeliver);
+					
 				}
 
 				if (qtyToDeliver.signum() == 0)
@@ -378,23 +411,24 @@ public class StorageEngine
 
 			if (qtyToDeliver.signum() != 0)
 			{
-				//deliver using new asi
-				//MAttributeSetInstance asi = MAttributeSetInstance.create(line.getCtx(), product, line.get_TrxName());
-				//createMA(line, asi.getM_AttributeSetInstance_ID(), qtyToDeliver);
-				
 				// There is not enough stock to deliver this shipment. 
 				// TODO - this should trigger a way to balance costs - outgoing shipments 
 				// could have accounting with a generic cost guess (Steve's Shipment Plan for example).
 				// The balancing incoming transaction could have accounting to reverse the generic 
 				// cost and add the correct one.  This is left as a TODO.
+				
+				ticket = MMPolicyTicket.create(line.getCtx(), line, movementDate, line.get_TrxName());
+				createMA (line, ticket.getM_MPolicyTicket_ID(), movementType, qtyToDeliver, useToFields);
+				
 				// 
 				// For now, remove any Material Allocations already created and throw an error as
 				// we shouldn't generate a zero cost transaction.
-				log.warning(line + ", Insufficient quantity. Process later.");
-				deleteMA(line);
-				throw new AdempiereException("Insufficient quantity to deliver line " + line);
+//				log.warning(line + ", Insufficient quantity. Process later.");
+//				deleteMA(line);
+//				throw new AdempiereException("Insufficient quantity to deliver line " + line);
 			}
 		}	//	outgoing Trx
+		
 		save(line);
 	}
 	
@@ -457,7 +491,7 @@ public class StorageEngine
 		return ma;
 	}
 	
-	private static IInventoryAllocation[] getMA(IDocumentLine model)
+	public static IInventoryAllocation[] getMA(IDocumentLine model)
 	{
 		final Properties ctx = model.getCtx();
 		final String IDColumnName = model.get_TableName()+"_ID";
@@ -589,8 +623,15 @@ public class StorageEngine
 				reservedDiff = movementQty.negate();
 		}
 		else if (docLine instanceof MOrderLine)
-		{			
-			reservedDiff = movementQty;
+		{
+			// Get the actual reserved qty and determine the difference based on the line
+			BigDecimal qtyReserved = MStorage.getReservedQty(docLine.getCtx(), 
+															docLine.getM_Product_ID(), 
+															((MOrderLine) docLine).getM_Warehouse_ID(), 
+															docLine.getM_AttributeSetInstance_ID(), 
+															docLine.getM_MPolicyTicket_ID(), 
+															docLine.get_TrxName());
+			reservedDiff = ((MOrderLine) docLine).getQtyReserved().subtract(qtyReserved);
 		}
 		
 		return reservedDiff;
@@ -612,8 +653,15 @@ public class StorageEngine
 				orderedDiff = movementQty;
 		}
 		else if (docLine instanceof MOrderLine)
-		{			
-			orderedDiff = movementQty;
+		{	
+			// Get the actual ordered qty and determine the difference based on the line
+			BigDecimal qtyOrdered = MStorage.getOrderedQty(	docLine.getCtx(), 
+															docLine.getM_Product_ID(), 
+															((MOrderLine) docLine).getM_Warehouse_ID(), 
+															docLine.getM_AttributeSetInstance_ID(), 
+															docLine.getM_MPolicyTicket_ID(), 
+															docLine.get_TrxName());
+			orderedDiff = ((MOrderLine) docLine).getQtyOrdered().subtract(qtyOrdered);
 		}
 
 		return orderedDiff;
