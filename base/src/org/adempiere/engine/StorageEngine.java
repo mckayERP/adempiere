@@ -214,44 +214,72 @@ public class StorageEngine
 
 		// Deal with customer orders and purchase orders where there is no locator.  
 		// Create one ticket per line to track the reservation and order amounts.
-		if (line instanceof MOrderLine && line.getM_MPolicyTicket_ID() <= 0) {
-			ticket = MMPolicyTicket.create(line.getCtx(), line, movementDate, line.get_TrxName());
-			if (ticket == null) { // There is a problem
-				log.severe("Can't create Material Policy Ticket for line " + line);
-				throw new AdempiereException("Can't create Material Policy Ticket for line " + line);
+		if (line instanceof MOrderLine) 
+		{
+			
+			if(line.getM_MPolicyTicket_ID() <= 0) 
+			{
+				
+				ticket = MMPolicyTicket.create(line.getCtx(), line, movementDate, line.get_TrxName());
+				if (ticket == null) 
+				{ // There is a problem
+					
+					log.severe("Can't create Material Policy Ticket for line " + line);
+					throw new AdempiereException("Can't create Material Policy Ticket for line " + line);
+					
+				}
+				((MOrderLine) line).setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
+				save(line);
+				log.config("New Material Policy Ticket=" + line);				
 			}
-			((MOrderLine) line).setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
-			save(line);
-			log.config("New Material Policy Ticket=" + line);
 			return;
+			
 		}
 		
-		if (useToFields) {
+		if (useToFields) 
+		{
+			
 			m_locator_id = line.getM_LocatorTo_ID();
 			m_attributeSetInstance_id = line.getM_AttributeSetInstanceTo_ID();
+			
 		}
-		else {
+		else 
+		{
+			
 			m_locator_id = line.getM_Locator_ID();
 			m_attributeSetInstance_id = line.getM_AttributeSetInstance_ID();
+			
 		}
 
 		m_product_id = line.getM_Product_ID();
 		MLocator locator = new MLocator(line.getCtx(),m_locator_id,line.get_TrxName());
 		m_warehouse_id = locator.getM_Warehouse_ID();
 		if (m_warehouse_id == 0)
+		{
+			
 			throw new AdempiereException("@InvalidValue@ @M_Warehouse_ID@==0");
+			
+		}
 		// In case the document process is being redone, delete work in progress
 		// and start again.  There are cases where documents need to be processed twice
 		// for to and from entries, in which case the previous work may be valid.
 		if (deleteExistingMALines)
+		{
+		
 			deleteMA(line);
+			
+		}
 
 		//	Incoming Trx are positive receipts or negative shipments
 		boolean incomingTrx = MTransaction.isIncomingTransaction(movementType) && movementQty.signum() >= 0
 							|| !MTransaction.isIncomingTransaction(movementType) && movementQty.signum() < 0;	//	V+ Vendor Receipt
 		MProduct product = MProduct.get(line.getCtx(), m_product_id);
 		if (product == null || movementQty.signum() == 0)  // Nothing to ticket
+		{
+			
 			return;
+			
+		}
 
 		//	Material Policy Tickets - used to track the FIFO/LIFO
 		//  Create a Material Policy Ticket ID for any incoming transaction
