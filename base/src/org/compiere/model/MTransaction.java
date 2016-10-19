@@ -98,7 +98,7 @@ public class MTransaction extends X_M_Transaction
 		List<MInOutLineMA> lines = MInOutLineMA.get(line.getCtx(), line.getM_InOutLine_ID(), line.get_TrxName());
 		if(lines != null && lines.size() == 0)
 		{
-            MTransaction transaction = get(line, line.getM_AttributeSetInstance_ID());
+            MTransaction transaction = get(line, line.getM_MPolicyTicket_ID());
             if (transaction != null && transaction.get_ID() > 0)
 			    transactions.add(transaction);
 
@@ -106,22 +106,23 @@ public class MTransaction extends X_M_Transaction
 		}
 		for(MInOutLineMA ma : lines)
 		{	
-			MTransaction transaction = get(line, ma.getM_AttributeSetInstance_ID());
+			MTransaction transaction = get(line, ma.getM_MPolicyTicket_ID());
 			if (transaction != null && transaction.get_ID() > 0)
 				transactions.add(transaction);
 		}		
 		return transactions;
 	}
 	
-	static public MTransaction get(MInOutLine line , int M_ASI_ID)
+	static public MTransaction get(MInOutLine line , int m_mPolicyTicket_id)
 	{
 		final String whereClause = I_M_InOutLine.COLUMNNAME_M_Product_ID + "=? AND "
+								 + I_M_InOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "=? AND "
 								 + I_M_InOutLine.COLUMNNAME_M_InOutLine_ID + "=? AND "
-		 						 + I_M_InOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "=?";
+		 						 + I_M_InOutLine.COLUMNNAME_M_MPolicyTicket_ID + "=?";
 		
 		return new Query(line.getCtx(), Table_Name, whereClause, line.get_TrxName())
 		.setClient_ID()
-		.setParameters(line.getM_Product_ID(),line.getM_InOutLine_ID(), M_ASI_ID)
+		.setParameters(line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), line.getM_InOutLine_ID(), m_mPolicyTicket_id)
 		.firstOnly();
 	}
 	
@@ -142,12 +143,15 @@ public class MTransaction extends X_M_Transaction
 		parameters.add(reversal.getM_Product_ID());
 		whereClause.append( columnName ).append("=? AND ");
 		parameters.add(reversal.get_ID());
+		whereClause.append(I_M_Transaction.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ");
+		parameters.add(trx.getM_AttributeSetInstance_ID());
 		
-		if (trx.getM_AttributeSetInstance_ID() >  0)
-		{
-			whereClause.append(I_M_Transaction.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ");
-			parameters.add(trx.getM_AttributeSetInstance_ID());
-		}
+//		
+//		if (trx.getM_MPolicyTicket_ID() >  0)
+//		{
+//			whereClause.append(I_M_Transaction.COLUMNNAME_M_MPolicyTicket_ID).append("=? AND ");
+//			parameters.add(trx.getM_MPolicyTicket_ID());
+//		}
 		
 		whereClause.append(I_M_Transaction.COLUMNNAME_MovementType).append("=? AND ");
 		if(MTransaction.MOVEMENTTYPE_InventoryIn.equals(trx.getMovementType()))
