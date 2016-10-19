@@ -701,15 +701,18 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 					orderLine.setQtyInvoiced(orderLine.getQtyInvoiced().subtract(getQty()));
 				orderLine.setDateInvoiced(getDateTrx());	//	overwrite=last
 			}
-			
-			//	Update Order material policy ticket if full match  TODO WHy? Tickets aren't used on orders.
-			if (orderLine.getM_MPolicyTicket_ID() == 0
-				&& getM_InOutLine_ID() != 0)
-			{
-				MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
-				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
-					orderLine.setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID());
-			}
+
+// Removed as the Order has its own valid ticket which shouldn't be overwritten.  The updates
+// to the qty Ordered in M_Storage will be done to the record using the order ticket.  Also, if the
+// InOut Line has material allocation lines to fulfill negative inventory the line ticket will be zero/null.
+//			//	Update Order material policy ticket if full match  TODO WHy? Tickets aren't used on orders.
+//			if (orderLine.getM_MPolicyTicket_ID() == 0
+//				&& getM_InOutLine_ID() != 0)
+//			{
+//				MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
+//				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
+//					orderLine.setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID()); 
+//			}
 			
 			success = orderLine.save(get_TrxName());
 			
