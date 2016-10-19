@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Update Transaction and related tables to use M_PolicyTickets" ReleaseNo="" SeqNo="350">
+    <Step DBType="ALL" Parse="Y" SeqNo="10" StepType="SQL">
+      <Comments>Add the policy ticket constraint to M_Transaction</Comments>
+      <SQLStatement>ALTER TABLE adempiere.m_transaction
+  ADD CONSTRAINT mpolicyTicket_mtransaction FOREIGN KEY (m_mpolicyticket_id)
+      REFERENCES adempiere.m_mpolicyticket (m_mpolicyticket_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED;
+</SQLStatement>
+      <RollbackStatement>ALTER TABLE adempiere.m_transaction
+  DROP CONSTRAINT mpolicyTicket_mtransaction;</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="20" StepType="SQL">
+      <Comments>Copy the past fifo/lifo tracking id to the M_MPolicyTicket_ID</Comments>
+      <SQLStatement>UPDATE M_Transaction
+set M_MpolicyTicket_ID = m_attributesetinstance_id
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0;</SQLStatement>
+      <RollbackStatement>UPDATE M_Transaction
+set M_MpolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_AttributeSetInstance_ID &gt; 0;</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="30" StepType="SQL">
+      <Comments>Copy the in/out line asi values to the policy ticket.</Comments>
+      <SQLStatement>UPDATE M_InOutLine iol
+SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_InOutLineMA ma WHERE ma.M_InOutLine_ID = iol.M_InOutLine_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_InOutLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_MPolicyTicket_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_InOutLineMA ma WHERE ma.M_InOutLine_ID = iol.M_InOutLine_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="40" StepType="SQL">
+      <Comments>Set the in/out line ticket to null where there are ma lines.</Comments>
+      <SQLStatement>UPDATE M_InOutLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID !=0
+AND EXISTS (SELECT 1 FROM M_InOutLineMA ma WHERE ma.M_InOutLine_ID = iol.M_InOutLine_ID);</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="50" StepType="SQL">
+      <Comments>Correct malformed ASI on the inoutline. Remove referece to ASI that have no Attribute sets.</Comments>
+      <SQLStatement>UPDATE M_InOutLine iol
+SET M_AttributeSetInstance_ID = 0 
+WHERE iol.M_AttributeSetInstance_ID != 0
+AND NOT EXISTS (SELECT asi.M_AttributeSet_ID 
+			FROM M_AttributeSetInstance asi 
+			WHERE
+				asi.M_AttributeSet_ID != 0
+				AND asi.M_AttributeSetInstance_ID = iol.M_AttributeSetInstance_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_InOutLine iol
+SET M_AttributeSetInstance_ID = M_MPolicyTicket_ID
+WHERE iol.M_AttributeSetInstance_ID = 0
+AND EXISTS (SELECT asi.M_AttributeSetInstance_ID 
+		FROM M_AttributeSetInstance asi 
+		WHERE
+			asi.M_AttributeSetInstance_ID = iol.M_MPolicyTicket_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="60" StepType="SQL">
+      <Comments>On the IO Line, Set the ASI value to the product ASI where there is no ASI defined and the product has one.</Comments>
+      <SQLStatement>UPDATE M_InOutLine iol
+SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID FROM M_Product p
+					WHERE p.M_Product_ID = iol.M_Product_ID
+					AND p.M_AttributeSetInstance_ID &gt; 0)
+WHERE COALESCE(iol.M_AttributeSetInstance_ID,0) = 0;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="70" StepType="SQL">
+      <Comments>Update M_Transaction with the ASI from the In Out Lines.</Comments>
+      <SQLStatement>UPDATE M_Transaction t
+Set m_attributesetinstance_id = (SELECT COALESCE(il.M_AttributeSetInstance_ID,0) FROM M_InOutLine il
+	WHERE il.M_InOutLine_ID = t.M_InOutLine_ID)
+WHERE M_InOutLine_ID IS NOT NULL;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="130" StepType="SQL">
+      <Comments>Copy the inventory line asi values to the policy ticket.</Comments>
+      <SQLStatement>UPDATE M_InventoryLine iol
+SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_InventoryLineMA ma WHERE ma.M_InventoryLine_ID = iol.M_InventoryLine_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_InventoryLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_MPolicyTicket_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_InventoryLineMA ma WHERE ma.M_InventoryLine_ID = iol.M_InventoryLine_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="135" StepType="SQL">
+      <Comments>Remove index from M_InventoryLine</Comments>
+      <SQLStatement>DROP INDEX adempiere.m_inventoryline_productlocattr;</SQLStatement>
+      <RollbackStatement>CREATE UNIQUE INDEX m_inventoryline_productlocattr
+  ON adempiere.m_inventoryline
+  USING btree
+  (m_inventory_id, m_locator_id, m_product_id, m_attributesetinstance_id);
+</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="140" StepType="SQL">
+      <Comments>Set the inventory line ticket to null where there are ma lines.</Comments>
+      <SQLStatement>UPDATE M_InventoryLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID !=0
+AND EXISTS (SELECT 1 FROM M_InventoryLineMA ma WHERE ma.M_InventoryLine_ID = iol.M_InventoryLine_ID);</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="150" StepType="SQL">
+      <Comments>Correct malformed ASI on the inventory line. Remove referece to ASI that have no Attribute sets.</Comments>
+      <SQLStatement>UPDATE M_InventoryLine iol
+SET M_AttributeSetInstance_ID = 0 
+WHERE iol.M_AttributeSetInstance_ID != 0
+AND NOT EXISTS (SELECT asi.M_AttributeSet_ID 
+			FROM M_AttributeSetInstance asi 
+			WHERE
+				asi.M_AttributeSet_ID != 0
+				AND asi.M_AttributeSetInstance_ID = iol.M_AttributeSetInstance_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_InventoryLine iol
+SET M_AttributeSetInstance_ID = M_MPolicyTicket_ID
+WHERE iol.M_AttributeSetInstance_ID = 0
+AND EXISTS (SELECT asi.M_AttributeSetInstance_ID 
+		FROM M_AttributeSetInstance asi 
+		WHERE
+			asi.M_AttributeSetInstance_ID = iol.M_MPolicyTicket_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="160" StepType="SQL">
+      <Comments>On the IO Line, Set the ASI value to the product ASI where there is no ASI defined and the product has one.</Comments>
+      <SQLStatement>UPDATE M_InventoryLine iol
+SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID FROM M_Product p
+					WHERE p.M_Product_ID = iol.M_Product_ID
+					AND p.M_AttributeSetInstance_ID &gt; 0)
+WHERE COALESCE(iol.M_AttributeSetInstance_ID,0) = 0;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="170" StepType="SQL">
+      <Comments>Update M_Transaction with the ASI from theInventory Lines.</Comments>
+      <SQLStatement>UPDATE M_Transaction t
+Set m_attributesetinstance_id = (SELECT COALESCE(il.M_AttributeSetInstance_ID,0) FROM M_InventoryLine il
+	WHERE il.M_InventoryLine_ID= t.M_InventoryLine_ID)
+WHERE M_InventoryLine_ID IS NOT NULL;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="230" StepType="SQL">
+      <Comments>Copy the movement line asi values to the policy ticket.</Comments>
+      <SQLStatement>UPDATE M_MovementLine iol
+SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_MovementLineMA ma WHERE ma.M_MovementLine_ID = iol.M_MovementLine_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_MovementLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_MPolicyTicket_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_MovementLineMA ma WHERE ma.M_MovementLine_ID = iol.M_MovementLine_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="240" StepType="SQL">
+      <Comments>Set the movement line ticket to null where there are ma lines.</Comments>
+      <SQLStatement>UPDATE M_MovementLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID !=0
+AND EXISTS (SELECT 1 FROM M_MovementLineMA ma WHERE ma.M_MovementLine_ID = iol.M_MovementLine_ID);</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="250" StepType="SQL">
+      <Comments>Correct malformed ASI on the Movement line. Remove referece to ASI that have no Attribute sets.</Comments>
+      <SQLStatement>UPDATE M_MovementLine iol
+SET M_AttributeSetInstance_ID = 0 
+WHERE iol.M_AttributeSetInstance_ID != 0
+AND NOT EXISTS (SELECT asi.M_AttributeSet_ID 
+			FROM M_AttributeSetInstance asi 
+			WHERE
+				asi.M_AttributeSet_ID != 0
+				AND asi.M_AttributeSetInstance_ID = iol.M_AttributeSetInstance_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_MovementLine iol
+SET M_AttributeSetInstance_ID = M_MPolicyTicket_ID
+WHERE iol.M_AttributeSetInstance_ID = 0
+AND EXISTS (SELECT asi.M_AttributeSetInstance_ID 
+		FROM M_AttributeSetInstance asi 
+		WHERE
+			asi.M_AttributeSetInstance_ID = iol.M_MPolicyTicket_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="260" StepType="SQL">
+      <Comments>On the movement Line, Set the ASI value to the product ASI where there is no ASI defined and the product has one.</Comments>
+      <SQLStatement>UPDATE M_MovementLine iol
+SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID FROM M_Product p
+					WHERE p.M_Product_ID = iol.M_Product_ID
+					AND p.M_AttributeSetInstance_ID &gt; 0)
+WHERE COALESCE(iol.M_AttributeSetInstance_ID,0) = 0;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="270" StepType="SQL">
+      <Comments>Update M_Transaction with the ASI from THE MOVEMENT Lines.</Comments>
+      <SQLStatement>UPDATE M_Transaction t
+Set m_attributesetinstance_id = (SELECT COALESCE(il.M_AttributeSetInstance_ID,0) FROM M_MovementLine il
+	WHERE il.M_MovementLine_ID= t.M_MovementLine_ID)
+WHERE M_MovementLine_ID IS NOT NULL;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="330" StepType="SQL">
+      <Comments>Copy the production line asi values to the policy ticket.</Comments>
+      <SQLStatement>UPDATE M_ProductionLine iol
+SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_ProductionLineMA ma WHERE ma.M_ProductionLine_ID = iol.M_ProductionLine_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_ProductionLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_MPolicyTicket_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM M_ProductionLineMA ma WHERE ma.M_ProductionLine_ID = iol.M_ProductionLine_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="340" StepType="SQL">
+      <Comments>Set the production line ticket to null where there are ma lines.</Comments>
+      <SQLStatement>UPDATE M_ProductionLine iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID !=0
+AND EXISTS (SELECT 1 FROM M_ProductionLineMA ma WHERE ma.M_ProductionLine_ID = iol.M_ProductionLine_ID);</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="350" StepType="SQL">
+      <Comments>Correct malformed ASI on the pp_cost_collector line. Remove referece to ASI that have no Attribute sets.</Comments>
+      <SQLStatement>UPDATE M_ProductionLine iol
+SET M_AttributeSetInstance_ID = 0 
+WHERE iol.M_AttributeSetInstance_ID != 0
+AND NOT EXISTS (SELECT asi.M_AttributeSet_ID 
+			FROM M_AttributeSetInstance asi 
+			WHERE
+				asi.M_AttributeSet_ID != 0
+				AND asi.M_AttributeSetInstance_ID = iol.M_AttributeSetInstance_ID);</SQLStatement>
+      <RollbackStatement>UPDATE M_ProductionLine iol
+SET M_AttributeSetInstance_ID = M_MPolicyTicket_ID
+WHERE iol.M_AttributeSetInstance_ID = 0
+AND EXISTS (SELECT asi.M_AttributeSetInstance_ID 
+		FROM M_AttributeSetInstance asi 
+		WHERE
+			asi.M_AttributeSetInstance_ID = iol.M_MPolicyTicket_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="360" StepType="SQL">
+      <Comments>On the production Line, Set the ASI value to the product ASI where there is no ASI defined and the product has one.</Comments>
+      <SQLStatement>UPDATE M_ProductionLine iol
+SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID FROM M_Product p
+					WHERE p.M_Product_ID = iol.M_Product_ID
+					AND p.M_AttributeSetInstance_ID &gt; 0)
+WHERE COALESCE(iol.M_AttributeSetInstance_ID,0) = 0;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="370" StepType="SQL">
+      <Comments>Update M_Transaction with the ASI from the Produciton Lines.</Comments>
+      <SQLStatement>UPDATE M_Transaction t
+Set m_attributesetinstance_id = (SELECT COALESCE(il.M_AttributeSetInstance_ID,0) FROM M_ProductionLine il
+	WHERE il.M_ProductionLine_ID= t.M_ProductionLine_ID)
+WHERE M_ProductionLine_ID IS NOT NULL;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="430" StepType="SQL">
+      <Comments>Copy the cost collector line asi values to the policy ticket.</Comments>
+      <SQLStatement>UPDATE pp_cost_collector iol
+SET M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+WHERE COALESCE(M_MPolicyTicket_ID,0) = 0
+AND M_AttributeSetInstance_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM pp_cost_collectorMA ma WHERE ma.pp_cost_collector_ID = iol.pp_cost_collector_ID);</SQLStatement>
+      <RollbackStatement>UPDATE pp_cost_collector iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID = M_AttributeSetInstance_ID
+AND M_MPolicyTicket_ID &gt; 0
+AND NOT EXISTS (SELECT 1 FROM pp_cost_collectorMA ma WHERE ma.pp_cost_collector_ID = iol.pp_cost_collector_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="440" StepType="SQL">
+      <Comments>Set the pp_cost_collector line ticket to null where there are ma lines.</Comments>
+      <SQLStatement>UPDATE pp_cost_collector iol
+SET M_MPolicyTicket_ID = null
+WHERE M_MPolicyTicket_ID !=0
+AND EXISTS (SELECT 1 FROM pp_cost_collectorMA ma WHERE ma.pp_cost_collector_ID = iol.pp_cost_collector_ID);</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="450" StepType="SQL">
+      <Comments>Correct malformed ASI on the pp_cost_collector line. Remove referece to ASI that have no Attribute sets.</Comments>
+      <SQLStatement>UPDATE pp_cost_collector iol
+SET M_AttributeSetInstance_ID = 0 
+WHERE iol.M_AttributeSetInstance_ID != 0
+AND NOT EXISTS (SELECT asi.M_AttributeSet_ID 
+			FROM M_AttributeSetInstance asi 
+			WHERE
+				asi.M_AttributeSet_ID != 0
+				AND asi.M_AttributeSetInstance_ID = iol.M_AttributeSetInstance_ID);</SQLStatement>
+      <RollbackStatement>UPDATE pp_cost_collector iol
+SET M_AttributeSetInstance_ID = M_MPolicyTicket_ID
+WHERE iol.M_AttributeSetInstance_ID = 0
+AND EXISTS (SELECT asi.M_AttributeSetInstance_ID 
+		FROM M_AttributeSetInstance asi 
+		WHERE
+			asi.M_AttributeSetInstance_ID = iol.M_MPolicyTicket_ID);</RollbackStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="460" StepType="SQL">
+      <Comments>On the pp_cost_collector Line, Set the ASI value to the product ASI where there is no ASI defined and the product has one.</Comments>
+      <SQLStatement>UPDATE pp_cost_collector iol
+SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID FROM M_Product p
+					WHERE p.M_Product_ID = iol.M_Product_ID
+					AND p.M_AttributeSetInstance_ID &gt; 0)
+WHERE COALESCE(iol.M_AttributeSetInstance_ID,0) = 0;</SQLStatement>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="470" StepType="SQL">
+      <Comments>Update M_Transaction with the ASI from the pp_cost_collector Lines.</Comments>
+      <SQLStatement>UPDATE M_Transaction t
+Set m_attributesetinstance_id = (SELECT COALESCE(il.M_AttributeSetInstance_ID,0) FROM pp_cost_collector il
+	WHERE il.pp_cost_collector_ID= t.pp_cost_collector_ID)
+WHERE pp_cost_collector_id IS NOT NULL;</SQLStatement>
+    </Step>
+  </Migration>
+</Migrations>
