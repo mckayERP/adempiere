@@ -1475,6 +1475,8 @@ public class MOrder extends X_C_Order implements DocAction
 			{
 				if (product.isStocked())
 				{
+					// The line qtyReserved is matched by the storage engine,
+					// Set it before making the change to the storage record.
 					line.setQtyReserved(line.getQtyReserved().add(difference));
 
 					try {
