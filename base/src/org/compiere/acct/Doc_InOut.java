@@ -511,7 +511,6 @@ public class Doc_InOut extends Doc
 						dr = fact.createLine(line,
 							getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
 							C_Currency_ID, costs , null);
-						dr.addDescription(description);
 						//
 						if (dr == null)
 						{
@@ -519,6 +518,7 @@ public class Doc_InOut extends Doc
 							log.log(Level.WARNING, p_Error);
 							return null;
 						}
+						dr.addDescription(description);
 						dr.setM_Locator_ID(line.getM_Locator_ID());
 						dr.setLocationFromBPartner(getC_BPartner_Location_ID(), true);   //  from Loc
 						dr.setLocationFromLocator(line.getM_Locator_ID(), false);   //  to Loc
