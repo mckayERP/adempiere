@@ -5,12 +5,15 @@ import java.sql.Savepoint;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.engine.IInventoryAllocation;
+import org.adempiere.engine.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
+import org.compiere.model.MInOutLineMA;
 import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
 import org.compiere.model.MLocator;
@@ -24,6 +27,7 @@ import org.compiere.model.MProductPO;
 import org.compiere.model.MStorage;
 import org.compiere.model.MTransaction;
 import org.compiere.model.MWarehouse;
+import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_C_Order;
 import org.compiere.model.X_M_InOut;
@@ -47,6 +51,7 @@ public class StorageEngineTest extends SvrProcess {
 	private BigDecimal qtyToOrder;
 	private MProduct product;
 	private MBPartner vendor;
+	private boolean testsPassed = true;
 	
 	
 
@@ -85,7 +90,8 @@ public class StorageEngineTest extends SvrProcess {
 		// Set a savepoint so the changes can be undone
 		Savepoint savepoint = trx.setSavepoint(null);
 
-		try {
+		try 
+		{
 			// Test storage data for consistency
 			Util.assume(testStorageData(), processMsg.toString() + " -->Test of storage data failed!");		
 			
@@ -107,23 +113,30 @@ public class StorageEngineTest extends SvrProcess {
 			// Test Inventory Move
 			Util.assume(testMovement(), processMsg.toString() + " -->Test of Inventory Move failed!");
 			
-
-			// Make a SO and test reservation
-			// Make a customer shipment and test reduction in reservation amount and decrease in inventory
-			// Test physical inventory
-			// Test inventory move
-			// Test voids/reverse corrections
-		
-			// Test initial quantity in inventory
+			// TODO Production
+			
 		}
-		catch (AdempiereException e) {
+		catch (AdempiereException e) 
+		{
+			
 			processMsg.append(" --X ").append(e.getLocalizedMessage());
+			testsPassed = false;
 			log.severe(e.getLocalizedMessage());
+			
 		}
-		finally {
+		finally 
+		{
 			// Undo all changes
 			trx.rollback(savepoint);
 			trx.close();
+			
+		}
+		
+		if (testsPassed)
+		{
+			
+			processMsg = new StringBuffer("All Tests Passed!");
+			
 		}
 		return processMsg.toString();
 	}
@@ -276,10 +289,30 @@ public class StorageEngineTest extends SvrProcess {
 
 		processMsg.append("<br>**** Testing Material receipt assumptions ");
 		for (MInOutLine line : mInOutReceipt.getLines()) { // Should only be one
-			Util.assume(line.getM_MPolicyTicket_ID() > 0, "MR Line M_PolicyTicket_ID not > 0. A ticket should be assigned for each MR Line. " + line.toString());
-			storage = MStorage.get(ctx, m_locator_id, m_product_id, m_attributeSetInstance_id, line.getM_MPolicyTicket_ID(), trxName);
-			Util.assume(storage!=null, "Storage record not created!");
-			Util.assume(storage.getQtyOnHand().compareTo(qtyToOrder)==0, "Quantity on hand for the storage location was not increased!");
+			if (currentQtyAvailable.signum() < 0)
+			{
+				
+				// MR allocated to negative inventory.  There will be MA lines
+				String whereClause = "M_InOutLineMA.M_InOutLine_ID=?";
+				List<MInOutLineMA> list = new Query(ctx, MInOutLineMA.Table_Name, whereClause, trxName)
+												.setClient_ID()
+												.setParameters(new Object[]{line.get_ID()})
+												.list();
+				for (MInOutLineMA ma : list)
+				{
+					Util.assume(ma.getM_MPolicyTicket_ID() > 0, "MR Line MA M_PolicyTicket_ID not > 0. A ticket should be assigned for each MR Line. " + line.toString());					
+				}
+
+			}
+			else 
+			{
+				
+				Util.assume(line.getM_MPolicyTicket_ID() > 0, "MR Line M_PolicyTicket_ID not > 0. A ticket should be assigned for each MR Line. " + line.toString());
+				storage = MStorage.get(ctx, m_locator_id, m_product_id, m_attributeSetInstance_id, line.getM_MPolicyTicket_ID(), trxName);
+				Util.assume(storage!=null, "Storage record not created!");
+				Util.assume(storage.getQtyOnHand().compareTo(qtyToOrder)==0, "Quantity on hand for the storage location was not increased!");
+				
+			}
 		}
 		processMsg.append(" --> Tested OK.");
 	
@@ -459,6 +492,31 @@ public class StorageEngineTest extends SvrProcess {
 		+ currentQtyOrdered.add(qtyToOrder));
 		processMsg.append("<br>**** Qty Ordered tested OK.");
 		
+		Util.assume(purchaseOrder.processIt(X_C_Order.DOCACTION_Void), 
+				"Could not void purchase order.");
+		processMsg.append("<br>**** Purchase order voided.");
+
+		orderedStorage = MStorage.getReservedOrdered(ctx, m_product_id, m_warehouse_id, m_attributeSetInstance_id, poLine.getM_MPolicyTicket_ID(), trxName);
+		Util.assume(orderedStorage.getQtyOrdered().compareTo(Env.ZERO)==0, "Ordered not adjusted to zero after void!");
+
+		// Recreate the order for other tests
+		purchaseOrder = new MOrder(ctx, 0, trxName);
+		purchaseOrder.setBPartner(vendor);
+		purchaseOrder.setIsSOTrx(false); // Purchase order
+		purchaseOrder.setC_DocTypeTarget_ID();
+		purchaseOrder.setM_Warehouse_ID(m_warehouse_id);
+		purchaseOrder.saveEx();
+		
+		poLine = new MOrderLine(purchaseOrder);
+		poLine.setM_Product_ID(m_product_id);
+		poLine.setM_AttributeSetInstance_ID(m_attributeSetInstance_id);
+		poLine.setQty(qtyToOrder);
+		poLine.setM_Warehouse_ID(m_warehouse_id);
+		poLine.saveEx();
+		
+		Util.assume(purchaseOrder.processIt(X_C_Order.DOCACTION_Complete), 
+				"Could not complete 2nd purchase order.");
+
 		return true;
 	}
 
