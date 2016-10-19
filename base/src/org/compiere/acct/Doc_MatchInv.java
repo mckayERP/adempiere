@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import org.adempiere.engine.IInventoryAllocation;
+import org.adempiere.engine.StorageEngine;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAcctSchemaElement;
@@ -155,34 +157,93 @@ public class Doc_MatchInv extends Doc
 		**/
 		if (!m_receiptLine.getM_Product().isStocked())
 			return facts;
+			
+		// Apply the invoice amounts and qty to the facts in the receipt in proportion
+		// If the match qty is for half of the receipt qty, the correction will be half.
+		BigDecimal multiplier = getQty()
+				.divide(m_receiptLine.getMovementQty(), 12, BigDecimal.ROUND_HALF_UP)
+				.abs();
+
+		BigDecimal drTotalAmount = Env.ZERO;
+		BigDecimal drTotalAmountSource = Env.ZERO;
+		//  Invoice Price Variance
+		BigDecimal ipv = Env.ZERO;
+		BigDecimal temp = Env.ZERO;
 		
 		//  NotInvoicedReceipt      DR
 		//  From Receipt
-		BigDecimal multiplier = getQty()
-			.divide(m_receiptLine.getMovementQty(), 12, BigDecimal.ROUND_HALF_UP)
-			.abs();
-		FactLine dr = fact.createLine (null,
-			getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
-			as.getC_Currency_ID(), Env.ONE, null);			// updated below
-		if (dr == null)
+		// Check if the receipt line has material allocation lines - possible if negative inventory existed
+		// at the time of receipt.
+		IInventoryAllocation[] maArray = StorageEngine.getMA(m_receiptLine);
+		if (maArray.length == 0) 
 		{
-			p_Error = "No Product Costs";
-			return null;
+		
+			// No material allocation lines so use the matched qty
+			FactLine dr = fact.createLine (null,
+				getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
+				as.getC_Currency_ID(), Env.ONE, null);			// updated below
+			if (dr == null)
+			{
+				p_Error = "No Product Costs";
+				return null;
+			}
+	        dr.setM_Product_ID(m_receiptLine.getM_Product_ID());
+	        // Use the match qty
+			dr.setQty(getQty());
+			temp = dr.getAcctBalance();
+
+			//	Set AmtAcctCr/Dr from Receipt (sets also Project)
+			if (!dr.updateReverseLine (MInOut.Table_ID, 		//	Amt updated
+				m_receiptLine.getM_InOut_ID(), m_receiptLine.getM_InOutLine_ID(),
+				m_receiptLine.getMovementQty() , multiplier))
+			{
+				p_Error = "Mat.Receipt not posted yet";
+				return null;
+			}
+			log.fine("CR - Amt(" + temp + "->" + dr.getAcctBalance() 
+				+ ") - " + dr.toString());
+			drTotalAmount = dr.getAcctBalance();
+			drTotalAmountSource = dr.getAmtSourceDr();
+			//  Invoice Price Variance
+			ipv = dr.getSourceBalance().negate();
+
 		}
-        dr.setM_Product_ID(m_receiptLine.getM_Product_ID());
-		String documentBaseTypeReceipt = DB.getSQLValueString(m_receiptLine.get_TrxName() , "SELECT DocBaseType FROM C_DocType WHERE C_DocType_ID=?", m_receiptLine.getParent().getC_DocType_ID());
-		BigDecimal quantityReceipt = MDocType.DOCBASETYPE_MaterialReceipt.equals(documentBaseTypeReceipt) ? getQty() : getQty().negate();
-		dr.setQty(quantityReceipt);
-		BigDecimal temp = dr.getAcctBalance();
-		//	Set AmtAcctCr/Dr from Receipt (sets also Project)
-		if (!dr.updateReverseLine (MInOut.Table_ID, 		//	Amt updated
-			m_receiptLine.getM_InOut_ID(), m_receiptLine.getM_InOutLine_ID(), quantityReceipt , multiplier))
+		else
 		{
-			p_Error = "Mat.Receipt not posted yet";
-			return null;
+			// There are Material Allocation Lines, each of which will have at least one fact line
+			// Match the invoice quantity with the fact lines until one of the two is 
+			// completely covered
+			for(IInventoryAllocation ma : maArray)
+			{
+				
+				// No material allocation lines so use the receipt line qty
+				FactLine dr = fact.createLine (null,
+					getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
+					as.getC_Currency_ID(), Env.ONE, null);			// updated below
+				if (dr == null)
+				{
+					p_Error = "No Product Costs";
+					return null;
+				}
+		        dr.setM_Product_ID(m_receiptLine.getM_Product_ID());
+				dr.setQty(ma.getMovementQty());
+				temp = temp.add(dr.getAcctBalance());
+				//	Set AmtAcctCr/Dr from Receipt (sets also Project)
+				if (!dr.updateReverseLine (MInOut.Table_ID, 		//	Amt updated
+					m_receiptLine.getM_InOut_ID(), m_receiptLine.getM_InOutLine_ID(),
+		            ma.getMovementQty() , multiplier))
+				{
+					p_Error = "Mat.Receipt not posted yet";
+					return null;
+				}
+				log.fine("CR - Amt(" + temp + "->" + dr.getAcctBalance() 
+					+ ") - " + dr.toString());
+				drTotalAmount = drTotalAmount.add(dr.getAcctBalance());
+				drTotalAmountSource = drTotalAmountSource.add(dr.getAmtSourceDr());
+				ipv = ipv.add(dr.getSourceBalance().negate());
+				
+			}
 		}
-		log.fine("CR - Amt(" + temp + "->" + dr.getAcctBalance() 
-			+ ") - " + dr.toString());
 
 		//  InventoryClearing               CR
 		//  From Invoice
@@ -196,7 +257,7 @@ public class Doc_MatchInv extends Doc
 		if (multiplier.compareTo(Env.ONE) != 0)
 			LineNetAmt = LineNetAmt.multiply(multiplier);
 		if (m_pc.isService())
-			LineNetAmt = dr.getAcctBalance();	//	book out exact receipt amt
+			LineNetAmt = drTotalAmount;	//	book out exact receipt amt
 		FactLine cr = null;
 		if (as.isAccrual())
 		{
@@ -207,8 +268,6 @@ public class Doc_MatchInv extends Doc
 				log.fine("Line Net Amt=0 - M_Product_ID=" + getM_Product_ID()
 					+ ",Qty=" + getQty() + ",InOutQty=" + m_receiptLine.getMovementQty());
 				
-				//  Invoice Price Variance
-				BigDecimal ipv = dr.getSourceBalance().negate();
 				if (ipv.signum() != 0)
 				{
 					BigDecimal costs = MCostDetail.getByDocLineMatchInv(m_invoiceLine,  
@@ -253,13 +312,12 @@ public class Doc_MatchInv extends Doc
 				return facts;
 			}
             cr.setM_Product_ID(m_invoiceLine.getM_Product_ID());
+			cr.setQty(getQty().negate());
+
 			temp = cr.getAcctBalance();
-			String documentBaseTypeInvoice = DB.getSQLValueString(m_invoiceLine.get_TrxName() , "SELECT DocBaseType FROM C_DocType WHERE C_DocType_ID=?", m_invoiceLine.getParent().getC_DocType_ID());
-			BigDecimal quantityInvoice = MDocType.DOCBASETYPE_APInvoice.equals(documentBaseTypeInvoice) ?  getQty().negate() : getQty() ;
-			cr.setQty(quantityInvoice);
 			//	Set AmtAcctCr/Dr from Invoice (sets also Project)
 			if (as.isAccrual() && !cr.updateReverseLine (MInvoice.Table_ID, 		//	Amt updated
-				m_invoiceLine.getC_Invoice_ID(), m_invoiceLine.getC_InvoiceLine_ID(), quantityInvoice , multiplier))
+				m_invoiceLine.getC_Invoice_ID(), m_invoiceLine.getC_InvoiceLine_ID(), getQty().negate() , multiplier))
 			{
 				p_Error = "Invoice not posted yet";
 				return null;
@@ -291,7 +349,7 @@ public class Doc_MatchInv extends Doc
 		//AZ Goodwill
 		//Desc: Source Not Balanced problem because Currency is Difference - PO=CNY but AP=USD 
 		//see also Fact.java: checking for isMultiCurrency()
-		if (dr.getC_Currency_ID() != cr.getC_Currency_ID())
+		if (as.getC_Currency_ID() != cr.getC_Currency_ID())
 			setIsMultiCurrency(true);
 		//end AZ
 		
@@ -299,17 +357,19 @@ public class Doc_MatchInv extends Doc
 		// If both accounts Not Invoiced Receipts and Inventory Clearing are equal
 		// then remove the posting
 		
-		MAccount acct_db =  dr.getAccount(); // not_invoiced_receipts
+		MAccount acct_db =  getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as); // not_invoiced_receipts
 		MAccount acct_cr = cr.getAccount(); // inventory_clearing
 		
 		if ((!as.isPostIfClearingEqual()) && acct_db.equals(acct_cr) && (!isInterOrg)) {
 			
-			BigDecimal debit = dr.getAmtSourceDr();
+			BigDecimal debit = drTotalAmountSource;
 			BigDecimal credit = cr.getAmtSourceCr();
 			
 			if (debit.compareTo(credit) == 0) {
-				fact.remove(dr);
-				fact.remove(cr);
+				for (FactLine line : fact.getLines())
+				{
+					fact.remove(line);
+				}
 			}
 		
 		}
@@ -317,7 +377,7 @@ public class Doc_MatchInv extends Doc
 		
 
 		//  Invoice Price Variance 	difference
-		BigDecimal ipv = cr.getAcctBalance().add(dr.getAcctBalance()).negate();
+		ipv = cr.getAcctBalance().add(drTotalAmount).negate();
 		if (ipv.compareTo(Env.ZERO) == 0)
 		{
 			facts.add(fact);
