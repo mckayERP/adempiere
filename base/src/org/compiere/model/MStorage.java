@@ -1129,6 +1129,48 @@ public class MStorage extends X_M_Storage
 	}	//	getOrderedQty
 
 	/**
+	 * Returns the quantity ordered for a product/ASI/Material Policy Ticket in a warehouse
+	 * @param ctx
+	 * @param m_product_id
+	 * @param m_warehouse_id
+	 * @param m_attributeSetInstance_id
+	 * @param trxName
+	 * @return
+	 */
+	public static BigDecimal getOrderedQty(Properties ctx, int m_product_id,
+			int m_warehouse_id, int m_attributeSetInstance_id, int m_mPolicyTicket_id, String trxName) {
+	
+		MStorage storage = getReservedOrdered(ctx, m_product_id,
+			m_warehouse_id, m_attributeSetInstance_id, m_mPolicyTicket_id, trxName);
+		BigDecimal retValue = storage.getQtyOrdered();
+		if (CLogMgt.isLevelFine())
+			s_log.fine("M_Warehouse_ID=" + m_warehouse_id + 
+				",M_Product_ID=" + m_product_id + ", M_AttributeSetInstance_ID=" + m_attributeSetInstance_id + " = " + retValue);
+		return retValue;
+	}	//	getOrderedQty
+
+	/**
+	 * Returns the quantity reserved for a product/ASI/Material Policy Ticket in a warehouse
+	 * @param ctx
+	 * @param m_product_id
+	 * @param m_warehouse_id
+	 * @param m_attributeSetInstance_id
+	 * @param trxName
+	 * @return
+	 */
+	public static BigDecimal getReservedQty(Properties ctx, int m_product_id,
+			int m_warehouse_id, int m_attributeSetInstance_id, int m_mPolicyTicket_id, String trxName) {
+	
+		MStorage storage = getReservedOrdered(ctx, m_product_id,
+			m_warehouse_id, m_attributeSetInstance_id, m_mPolicyTicket_id, trxName);
+		BigDecimal retValue = storage.getQtyReserved();
+		if (CLogMgt.isLevelFine())
+			s_log.fine("M_Warehouse_ID=" + m_warehouse_id + 
+				",M_Product_ID=" + m_product_id + ", M_AttributeSetInstance_ID=" + m_attributeSetInstance_id + " = " + retValue);
+		return retValue;
+	}	//	getOrderedQty
+
+	/**
 	 * Returns the quantity reserved for a product/ASI across all locators in a warehouse
 	 * @param ctx
 	 * @param m_product_id
