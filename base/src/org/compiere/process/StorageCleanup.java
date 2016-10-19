@@ -237,6 +237,34 @@ public class StorageCleanup extends SvrProcess
 
 		log.info("Added tickets for ordere/reserved qty for order lines: " + lines);
 
+		// Find all the ordered/reserved storage lines that refer to Material Policy tickets that 
+		// do not exist in C_OrderLine - could be caused by a an interrupted process but generally
+		// will not happen
+		sql = "DELETE FROM M_Storage s"
+				+ " WHERE AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND QtyOnHand = 0 AND (QtyReserved != 0 OR QtyOrdered != 0)"
+				+ " AND M_MPolicyTicket_ID > 0"
+				+ " AND (NOT EXISTS (SELECT C_OrderLine_ID FROM C_OrderLine ol WHERE"
+				+ "   ol.M_MPolicyTicket_ID = s.M_MPolicyTicket_ID) "
+				+ " OR EXISTS (SELECT C_OrderLine_ID FROM C_Order o, C_OrderLine ol"
+				+ " WHERE o.C_Order_ID = ol.C_Order_ID"
+				+ " AND ol.M_MPolicyTicket_ID = s.M_MPolicyTicket_ID"
+				+ " AND o.DocStatus='VO'))";
+		no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Deleted ordered/reserved M_Storage records referencing tickets with no C_OrderLine entry: " + no);
+
+		// Set the storage record qtyOrdered qtyReserved to zero for voided orders.
+		sql = "UPDATE M_Storage s"
+				+ " SET QtyReserved=0, QtyOrdered=0"
+				+ " WHERE AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+				+ " AND QtyOnHand = 0 AND (QtyReserved != 0 OR QtyOrdered != 0)"
+				+ " AND M_MPolicyTicket_ID > 0"
+				+ " AND EXISTS (SELECT C_OrderLine_ID FROM C_Order o, C_OrderLine ol"
+				+ " WHERE o.C_Order_ID = ol.C_Order_ID"
+				+ " AND ol.M_MPolicyTicket_ID = s.M_MPolicyTicket_ID"
+				+ " AND o.DocStatus='VO')";
+		no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Set qtyOrdered/qtyReserved = 0 for voided ordeers: " + no);
 
 	}
 
@@ -345,6 +373,15 @@ public class StorageCleanup extends SvrProcess
 				+ " ai.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
 		no = DB.executeUpdate(sql, get_TrxName());
 		log.info("Set ASI values to zero where there were no Attribute values #" + no);	
+		
+		sql = "UPDATE M_Storage s "
+				+ " SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID from M_Product p"
+				+ "  WHERE s.M_Product_ID = p.M_Product_ID)"
+				+ "	WHERE COALESCE(M_AttributeSetInstance_ID,0) = 0"
+				+ "	AND EXISTS (SELECT M_AttributeSetInstance_ID from M_Product p"
+				+ "	WHERE s.M_Product_ID = p.M_Product_ID AND p.M_AttributeSetInstance_ID > 0)";
+		no = DB.executeUpdate(sql, get_TrxName());
+		log.info("Set ASI values to product ASI where there were no Attribute values and the product had a defined ASI #" + no);	
 
 	}
 
