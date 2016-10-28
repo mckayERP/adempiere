@@ -114,6 +114,9 @@ public class ProcessInfoUtil
 	 */
 	public static void setLogFromDB (ProcessInfo pi)
 	{
+		if (pi.getLogList() != null)  // Don't load again
+			return;
+		
 	//	s_log.fine("setLogFromDB - AD_PInstance_ID=" + pi.getAD_PInstance_ID());
 		String sql = "SELECT Log_ID, P_ID, P_Date, P_Number, P_Msg "
 			+ "FROM AD_PInstance_Log "

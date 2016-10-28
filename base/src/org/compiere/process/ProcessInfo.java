@@ -707,7 +707,9 @@ public class ProcessInfo implements Serializable
 			return;
 		if (logs == null)
 			logs = new ArrayList<ProcessInfoLog>();
-		logs.add (logEntry);
+		
+		if (!logs.contains(logEntry))
+			logs.add (logEntry);
 	}	//	addLog
 
 
