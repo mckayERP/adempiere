@@ -450,12 +450,21 @@ public class VDate extends JComponent
 		if (e.getSource() == m_button)
 		{
 			m_button.setEnabled(false);
-			setValue(startCalendar(this, getTimestamp(), m_format, m_displayType, m_title));
-			try
+			// Shouldn't set value directly
+			//setValue(startCalendar(this, getTimestamp(), m_format, m_displayType, m_title));
+			Timestamp value = startCalendar(this, getTimestamp(), m_format, m_displayType, m_title);
+			if (m_mField != null)
 			{
-				fireVetoableChange (m_columnName, m_oldText, getValue());
+				try
+				{
+					fireVetoableChange (m_columnName, m_oldText, value);  // calls setValue();
+				}
+				catch (PropertyVetoException pve)	{}
 			}
-			catch (PropertyVetoException pve)	{}
+			else
+			{
+				setValue(value);
+			}
 			m_button.setEnabled(true);
 			m_text.requestFocus();
 		}
@@ -521,11 +530,18 @@ public class VDate extends JComponent
 		}
 
 //		m_setting = true;
-		try
+		if (m_mField != null)
 		{
-			fireVetoableChange (m_columnName, m_oldText, value);  // calls setValue();
+			try
+			{
+				fireVetoableChange (m_columnName, m_oldText, value);  // calls setValue();
+			}
+			catch (PropertyVetoException pve)	{}
 		}
-		catch (PropertyVetoException pve)	{}
+		else
+		{
+			setValue(value);
+		}
 //		m_setting = false;
 		
 //	//	log.config( "VDate.focusLost");
