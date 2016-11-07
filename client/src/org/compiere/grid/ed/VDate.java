@@ -453,7 +453,7 @@ public class VDate extends JComponent
 			// Shouldn't set value directly
 			//setValue(startCalendar(this, getTimestamp(), m_format, m_displayType, m_title));
 			Timestamp value = startCalendar(this, getTimestamp(), m_format, m_displayType, m_title);
-			if (m_mField != null)
+			if (this.getVetoableChangeListeners().length > 0)
 			{
 				try
 				{
@@ -530,7 +530,7 @@ public class VDate extends JComponent
 		}
 
 //		m_setting = true;
-		if (m_mField != null)
+		if (this.getVetoableChangeListeners().length > 0)
 		{
 			try
 			{
