@@ -292,8 +292,8 @@ public class VMatch extends Match
 			new ColumnInfo(Msg.translate(Env.getCtx(), "C_BPartner_ID"),".", KeyNamePair.class, "."),   //  3
 			new ColumnInfo(Msg.translate(Env.getCtx(), "Line"),         ".", KeyNamePair.class, "."),
 			new ColumnInfo(Msg.translate(Env.getCtx(), "M_Product_ID"), ".", KeyNamePair.class, "."),   //  5
-			new ColumnInfo(Msg.translate(Env.getCtx(), "Qty"),          ".", Double.class),
-			new ColumnInfo(Msg.translate(Env.getCtx(), "Matched"),      ".", Double.class),
+			new ColumnInfo(Msg.translate(Env.getCtx(), "Qty"),          ".", BigDecimal.class),
+			new ColumnInfo(Msg.translate(Env.getCtx(), "Matched"),      ".", BigDecimal.class),
 			new ColumnInfo(Msg.translate(Env.getCtx(), "AD_Org_ID"),    ".", KeyNamePair.class, ".") //JAVIER
 		};
 
@@ -425,7 +425,7 @@ public class VMatch extends Match
 		int row = xMatchedTable.getSelectedRow();
 		log.config("Row=" + row);
 
-		double qty = 0.0;
+		m_xMatched = Env.ZERO;
 		if (row < 0)
 		{
 			xMatchedToTable.setRowCount(0);
@@ -435,14 +435,13 @@ public class VMatch extends Match
 			//  ** Create SQL **
 			String displayString = (String)matchTo.getSelectedItem();
 			int matchToType = matchFrom.getSelectedIndex();
-			double docQty = ((Double)xMatchedTable.getValueAt(row, I_QTY)).doubleValue();
-			double matchedQty = ((Double)xMatchedTable.getValueAt(row, I_MATCHED)).doubleValue();
-			qty = docQty - matchedQty;
+			BigDecimal docQty = ((BigDecimal)xMatchedTable.getValueAt(row, I_QTY));
+			BigDecimal matchedQty = ((BigDecimal)xMatchedTable.getValueAt(row, I_MATCHED));
+			m_xMatched = docQty.subtract(matchedQty);
 			xMatchedToTable = (MiniTable)cmd_searchTo(xMatchedTable, xMatchedToTable, displayString, matchToType, sameBPartner.isSelected(), sameProduct.isSelected(), sameQty.isSelected(), matchMode.getSelectedIndex() == MODE_MATCHED);
 
 		}
 		//  Display To be Matched Qty
-		m_xMatched = new BigDecimal (qty);
 		xMatched.setValue(m_xMatched);
 		xMatchedTo.setValue(Env.ZERO);
 		difference.setValue(m_xMatched);
@@ -461,6 +460,8 @@ public class VMatch extends Match
 	 */
 	public void tableChanged (TableModelEvent e)
 	{
+		panel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
 		if (e.getColumn() != 0)
 			return;
 		log.config("Row=" + e.getFirstRow() + "-" + e.getLastRow() + ", Col=" + e.getColumn()
@@ -472,7 +473,7 @@ public class VMatch extends Match
 		KeyNamePair Product = (KeyNamePair)xMatchedTable.getValueAt(matchedRow, 5);
 
 		//  Matched To
-		double qty = 0.0;
+		m_xMatchedTo = Env.ZERO;
 		int noRows = 0;
 		for (int row = 0; row < xMatchedToTable.getRowCount(); row++)
 		{
@@ -487,20 +488,20 @@ public class VMatch extends Match
 				else
 				{
 					if (matchMode.getSelectedIndex() == MODE_NOTMATCHED)
-						qty += ((Double)xMatchedToTable.getValueAt(row, I_QTY)).doubleValue();  //  doc
-					qty -= ((Double)xMatchedToTable.getValueAt(row, I_MATCHED)).doubleValue();  //  matched
+						m_xMatchedTo = m_xMatchedTo.add((BigDecimal) xMatchedToTable.getValueAt(row, I_QTY));  //  doc
+					m_xMatchedTo = m_xMatchedTo.subtract((BigDecimal)xMatchedToTable.getValueAt(row, I_MATCHED));  //  matched
 					noRows++;
 				}
 			}
 		}
 		//  update quantities
-		m_xMatchedTo = BigDecimal.valueOf(qty); // Preferred method of converting a double to BigDecimal
 		xMatchedTo.setValue(m_xMatchedTo);
 		difference.setValue(m_xMatched.subtract(m_xMatchedTo));
 		bProcess.setEnabled(noRows != 0);
 		panel.setCursor(Cursor.getDefaultCursor());
 		//  Status
 		statusBar.setStatusDB(noRows);
+		panel.setCursor(Cursor.getDefaultCursor());
 	}   //  tableChanged
 
 }   //  VMatch

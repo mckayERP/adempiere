@@ -312,8 +312,14 @@ public class Doc_MatchInv extends Doc
 
 			temp = cr.getAcctBalance();
 			//	Set AmtAcctCr/Dr from Invoice (sets also Project)
+			//	Qty
+			BigDecimal qtyInvoiced = m_invoiceLine.getQtyInvoiced().negate();  // Have to negate the original as cr.updateReverseLine expects the negative qty
+			boolean cm = getDocumentType().equals(DOCTYPE_ARCredit) 
+				|| getDocumentType().equals(DOCTYPE_APCredit);
+			qtyInvoiced = cm ? qtyInvoiced.negate() : qtyInvoiced;
+
 			if (as.isAccrual() && !cr.updateReverseLine (MInvoice.Table_ID, 		//	Amt updated
-				m_invoiceLine.getC_Invoice_ID(), m_invoiceLine.getC_InvoiceLine_ID(), getQty().negate() , multiplier))
+				m_invoiceLine.getC_Invoice_ID(), m_invoiceLine.getC_InvoiceLine_ID(), qtyInvoiced , multiplier))
 			{
 				p_Error = "Invoice not posted yet";
 				return null;

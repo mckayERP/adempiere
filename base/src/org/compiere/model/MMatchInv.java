@@ -261,7 +261,7 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 	}	//	afterSave
 	
 	/**
-	 * 	Get the Date Acct from  shipment
+	 * 	Get the most recent Date Acct from the shipment or invoice
 	 *	@return date or null
 	 */
 	public Timestamp getNewerDateAcct()
@@ -271,7 +271,17 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 			+ " INNER JOIN M_InOut io ON (io.M_InOut_ID=iol.M_InOut_ID) "
 			+ "WHERE iol.M_InOutLine_ID=?";
 		Timestamp shipDate = DB.getSQLValueTS(get_TrxName(), sql, getM_InOutLine_ID());
-		return shipDate;
+
+		sql = "SELECT i.DateAcct "
+				+ "FROM C_InvoiceLine il"
+				+ " INNER JOIN C_Invoice i ON (i.C_Invoice_ID=il.C_Invoice_ID) "
+				+ "WHERE il.C_InvoiceLine_ID=?";
+		Timestamp invoiceDate = DB.getSQLValueTS(get_TrxName(), sql, getC_InvoiceLine_ID());
+
+		if (invoiceDate != null && shipDate != null && invoiceDate.after(shipDate))
+			return invoiceDate;
+		else
+			return shipDate;
 	}	//	getNewerDateAcct
 	
 	
