@@ -207,6 +207,7 @@ public class VBrowserSearch extends BrowserSearch implements
 		if (evt.getSource() instanceof VEditor) {
 			changedField = ((VEditor) evt.getSource()).getField();
 			propertyName = changedField.getColumnNameAlias();
+			changedField.setValue(evt.getNewValue(), false);
 		}
 		
 		//	Change Dependents
