@@ -365,6 +365,18 @@ public class ProcessBuilder {
     }
 
     /**
+     * Define parameter with automatic sequence
+     * @param name
+     * @param value
+     * @return
+     */
+    public ProcessBuilder withParameterRange(String name, Object value, Object valueTo) {
+        if (instance == null)
+            generateProcessInstance();
+        return withParameterRange(name, value , valueTo , seqNo + 10);
+    }
+
+    /**
      * Define parameter and sequence
      * @param name
      * @param value
@@ -389,6 +401,28 @@ public class ProcessBuilder {
             parameter.setParameter(name, (Timestamp) value);
         if (value instanceof Boolean)
             parameter.setParameter(name, (java.lang.Boolean) value);
+        parameter.saveEx();
+        return this;
+    }
+
+    /**
+     * Define parameter and sequence
+     * @param name
+     * @param value
+     * @param sequence
+     * @return
+     */
+    public ProcessBuilder withParameterRange(String name, Object value , Object valueTo , Integer sequence) {
+        if (name == null || name.length() == 0)
+            return this;
+
+        if (instance == null)
+            generateProcessInstance();
+
+        seqNo = sequence;
+
+        MPInstancePara parameter = new MPInstancePara(instance, sequence);
+        parameter.setParameterRange(name, value, valueTo);
         parameter.saveEx();
         return this;
     }

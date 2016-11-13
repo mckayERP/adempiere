@@ -232,4 +232,51 @@ public class MPInstancePara extends X_AD_PInstance_Para
 		}
 		return -1;
 	}
+
+	public void setParameterRange(String name, Object value, Object valueTo) {
+		// TODO Auto-generated method stub
+		setParameterName(name);
+		//	
+		if (value instanceof Timestamp || valueTo instanceof Timestamp) 	//	Date
+		{
+			setP_Date((Timestamp)value);
+			if (valueTo != null)
+				setP_Date_To((Timestamp)valueTo);
+		} 
+		else if (value instanceof Integer || valueTo instanceof Integer) 	//	Integer
+		{
+			if (value != null) 
+			{
+				Integer ii = (Integer)value;
+				setP_Number(ii.intValue());
+			} 
+			if (valueTo != null) 
+			{
+				Integer ii = (Integer)valueTo;
+				setP_Number_To(ii.intValue());
+			}
+		} 
+		else if (value instanceof BigDecimal || valueTo instanceof BigDecimal) 	//	BigDecimal
+		{
+			setP_Number ((BigDecimal)value);
+			if (valueTo != null)
+				setP_Number_To ((BigDecimal)valueTo);
+		} 
+		else if (value instanceof Boolean) 	//	Boolean
+		{
+			Boolean bb = (Boolean)value;
+			String valueString = bb.booleanValue() ? "Y" : "N";
+			setP_String (valueString);
+			//	"to" range does not make sense
+		} 
+		else 	//	String
+		{
+			if (value != null)
+				setP_String (value.toString());
+			if (valueTo != null)
+				setP_String_To (valueTo.toString());
+		}
+	}
+	
+	
 }	//	MPInstance_Para
