@@ -479,13 +479,15 @@ public class StorageEngineTest extends SvrProcess {
 					"Quantity available changed on a standared purchase order. It should remain the same.");
 		processMsg.append("<br>**** Qty Available tested OK.");
 		
+		// Check specific material policy ticket
 		poLine.load(trxName);
 		MStorage orderedStorage = MStorage.getReservedOrdered(ctx, m_product_id, m_warehouse_id, m_attributeSetInstance_id, poLine.getM_MPolicyTicket_ID(), trxName);
 		Util.assume(orderedStorage != null, "No ordered storage found!");
 		Util.assume(orderedStorage.getQtyOrdered().compareTo(qtyToOrder)==0, "Ordered qty incorrect!");
 		processMsg.append("<br>**** Storage record tested OK.");
 
-		BigDecimal changeInOrderedQty = orderedStorage.getQtyOrdered().subtract(currentQtyOrdered);
+		// Check general qty ordered
+		BigDecimal changeInOrderedQty = MStorage.getOrderedQty(ctx, m_product_id, m_warehouse_id, m_attributeSetInstance_id, trxName).subtract(currentQtyOrdered);
 		
 		Util.assume(changeInOrderedQty.compareTo(qtyToOrder) == 0,
 				"Quantity ordered (" + orderedStorage.getQtyOrdered() + ") should be " 
