@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
-  <Migration EntityType="D" Name="Add Day report type to Financial Reports" ReleaseNo="3.9.0" SeqNo="330">
+  <Migration EntityType="D" Name="Add Day report type to Financial Reports" ReleaseNo="" SeqNo="370">
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="104" Action="I" Record_ID="54799" Table="AD_Ref_List">
         <Data AD_Column_ID="563" Column="IsActive">true</Data>
