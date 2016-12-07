@@ -24,6 +24,7 @@ import org.compiere.model.MMatchInv;
 import org.compiere.model.MProduct;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.PO;
+import org.compiere.model.Query;
 import org.compiere.model.SetGetModel;
 import org.compiere.model.SetGetUtil;
 import org.compiere.model.X_C_InvoiceLine;
@@ -162,7 +163,7 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 			
 			if(timing==TIMING_AFTER_COMPLETE){
 				MInvoice mi = (MInvoice)po;
-				if (mi.isSOTrx()) {
+				if (mi.isSOTrx() && !mi.isReversal()) {
 					MInvoiceLine[] mils = mi.getLines();
 					for (MInvoiceLine mil: mils) {
 						if (mil.isA_CreateAsset() && !mil.isA_Processed()) {
@@ -300,7 +301,7 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 				m.set_AttrValue(MInvoiceLine.COLUMNNAME_IsFixedAssetInvoice, isFixedAsset);
 				*/
 				model.set_AttrValue("IsFixedAssetInvoice", isAsset);
-				model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_CreateAsset, "Y");
+				// model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_CreateAsset, "Y"); // Redundant
 				
 			}
 			else {
@@ -310,7 +311,7 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 			}
 			//
 			// Validate persistent object: 
-			if (isAsset && (model instanceof MInvoiceLine)) {
+			if (isAsset && (model instanceof MInvoiceLine)) {  // mckayERP - this will always fail
 				MInvoiceLine invoiceLine = (MInvoiceLine)model;
 				//
 				// If is expense, then asset is mandatory
@@ -324,10 +325,10 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 				}
 				//
 				// Check Product - fixed assets products shouldn't be stocked (but inventory objects are allowed)
-				MProduct product = invoiceLine.getProduct();
-				if (product.isStocked() && invoiceLine.get_ValueAsBoolean("IsFixedAssetInvoice")) {
-					throw new AssetProductStockedException(product);
-				}
+//				MProduct product = invoiceLine.getProduct();
+//				if (product.isStocked() && invoiceLine.get_ValueAsBoolean("IsFixedAssetInvoice")) {
+//					throw new AssetProductStockedException(product);
+//				}
 			}
 		}
 		
@@ -489,20 +490,86 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 	 */
 	private String beforeReverseCorrect(MInvoice invoice)
 	{
-		// Goodwill - Check Asset Addition's status
-		if (invoice.get_ValueAsBoolean("IsFixedAssetInvoice"))
+//		// Goodwill - Check Asset Addition's status
+//		if (invoice.get_ValueAsBoolean("IsFixedAssetInvoice"))
+//		{
+//			final String sql = "SELECT A_Asset_Addition_ID "
+//					+"FROM A_Asset_Addition WHERE C_Invoice_ID=? ";
+//			int A_Asset_Addition_ID = DB.getSQLValueEx(invoice.get_TrxName(), sql, invoice.get_ID());
+//			MAssetAddition assetAdd = new MAssetAddition(invoice.getCtx(), A_Asset_Addition_ID, invoice.get_TrxName());
+//			if (assetAdd.getDocStatus().equals(MAssetAddition.DOCSTATUS_Completed)
+//				|| assetAdd.getDocStatus().equals(MAssetAddition.DOCSTATUS_Closed))
+//			{
+//				return "Can't Void or Reverse Invoice with Completed Asset Addition";
+//			}
+//		}
+//		// End Check
+		
+		// mckayERP Void associated asset documents is possible
+		String where = "C_Invoice_ID=? ";
+		
+		List<MAssetAddition> assetAdds = new Query(invoice.getCtx(), MAssetAddition.Table_Name, where, invoice.get_TrxName())
+										.setParameters(invoice.get_ID())
+										.list();
+		
+		for (MAssetAddition assetAdd : assetAdds)
 		{
-			final String sql = "SELECT A_Asset_Addition_ID "
-					+"FROM A_Asset_Addition WHERE C_Invoice_ID=? ";
-			int A_Asset_Addition_ID = DB.getSQLValueEx(invoice.get_TrxName(), sql, invoice.get_ID());
-			MAssetAddition assetAdd = new MAssetAddition(invoice.getCtx(), A_Asset_Addition_ID, invoice.get_TrxName());
-			if (assetAdd.getDocStatus().equals(MAssetAddition.DOCSTATUS_Completed)
-				|| assetAdd.getDocStatus().equals(MAssetAddition.DOCSTATUS_Closed))
+			// Delete asset addition if it's not completed
+			if (MAssetAddition.DOCSTATUS_Drafted.equals(assetAdd.getDocStatus())
+				|| MAssetAddition.DOCSTATUS_InProgress.equals(assetAdd.getDocStatus())
+				|| MAssetAddition.DOCSTATUS_Invalid.equals(assetAdd.getDocStatus())
+				|| MAssetAddition.DOCSTATUS_Approved.equals(assetAdd.getDocStatus())
+				|| MAssetAddition.DOCSTATUS_NotApproved.equals(assetAdd.getDocStatus()))
 			{
-				return "Can't Void or Reverse Invoice with Completed Asset Addition";
+				assetAdd.deleteEx(true);
+			}
+			else if (MAssetAddition.DOCSTATUS_Completed.equals(assetAdd.getDocStatus()))
+			{
+				if (!assetAdd.processIt(MAssetAddition.DOCACTION_Void))
+				{
+					log.warning("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
+					throw new IllegalStateException("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
+				}
+				assetAdd.saveEx();
+			}
+			else
+			{
+				// harmless - leave it as is.
 			}
 		}
-		// End Check	
+		
+		List<MAssetDisposed> assetDis = new Query(invoice.getCtx(), MAssetDisposed.Table_Name, where, invoice.get_TrxName())
+										.setParameters(invoice.get_ID())
+										.list();
+		
+		for (MAssetDisposed assetDi : assetDis)
+		{
+			// Delete asset disposal if possible
+			if (MAssetDisposed.DOCSTATUS_Drafted.equals(assetDi.getDocStatus())
+				|| MAssetDisposed.DOCSTATUS_InProgress.equals(assetDi.getDocStatus())
+				|| MAssetDisposed.DOCSTATUS_Invalid.equals(assetDi.getDocStatus())
+				|| MAssetDisposed.DOCSTATUS_Approved.equals(assetDi.getDocStatus())
+				|| MAssetDisposed.DOCSTATUS_NotApproved.equals(assetDi.getDocStatus()))
+			{
+				
+				assetDi.deleteEx(true);
+				
+			}
+			else if (MAssetDisposed.DOCSTATUS_Completed.equals(assetDi.getDocStatus()))
+			{					
+				if (!assetDi.processIt(MAssetDisposed.DOCACTION_Void))
+				{
+					log.warning("Asset Disposal Process Failed: " + assetDi + " - " + assetDi.getProcessMsg());
+					throw new IllegalStateException("Asset Addition Process Failed: " + assetDi + " - " + assetDi.getProcessMsg());
+				}
+				assetDi.saveEx();
+			}
+			else
+			{
+				// harmless - leave it as is.
+			}
+		}
+		
 		return null;
 	}	//	beforeReverseCorrect	
 	
@@ -516,25 +583,71 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 		// Goodwill - check if invoice is for fixed asset
 		if (invoice.get_ValueAsBoolean("IsFixedAssetInvoice"))
 		{
-			final String sql = "SELECT A_Asset_Addition_ID "
-					+"FROM A_Asset_Addition WHERE C_Invoice_ID=? ";
-			int A_Asset_Addition_ID = DB.getSQLValueEx(invoice.get_TrxName(), sql, invoice.get_ID());
-			MAssetAddition assetAdd = new MAssetAddition(invoice.getCtx(), A_Asset_Addition_ID, invoice.get_TrxName());
+			// Void associated documents
+			String where = "C_Invoice_ID=? ";
 			
-			// Void asset addition if it's not completed
-			if (MAssetAddition.DOCSTATUS_Drafted.equals(assetAdd.getDocStatus())
-				|| MAssetAddition.DOCSTATUS_InProgress.equals(assetAdd.getDocStatus())
-				|| MAssetAddition.DOCSTATUS_Invalid.equals(assetAdd.getDocStatus())
-				|| MAssetAddition.DOCSTATUS_Approved.equals(assetAdd.getDocStatus())
-				|| MAssetAddition.DOCSTATUS_NotApproved.equals(assetAdd.getDocStatus()))
+			List<MAssetAddition> assetAdds = new Query(invoice.getCtx(), MAssetAddition.Table_Name, where, invoice.get_TrxName())
+											.setParameters(invoice.get_ID())
+											.list();
+			
+			for (MAssetAddition assetAdd : assetAdds)
 			{
-				if (!assetAdd.processIt(MAssetAddition.DOCACTION_Void))
+				// Delete asset addition if it's not completed
+				if (MAssetAddition.DOCSTATUS_Drafted.equals(assetAdd.getDocStatus())
+					|| MAssetAddition.DOCSTATUS_InProgress.equals(assetAdd.getDocStatus())
+					|| MAssetAddition.DOCSTATUS_Invalid.equals(assetAdd.getDocStatus())
+					|| MAssetAddition.DOCSTATUS_Approved.equals(assetAdd.getDocStatus())
+					|| MAssetAddition.DOCSTATUS_NotApproved.equals(assetAdd.getDocStatus()))
 				{
-					log.warning("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
-					throw new IllegalStateException("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
+					assetAdd.deleteEx(true);
 				}
-				assetAdd.saveEx();
+				else if (MAssetAddition.DOCSTATUS_Completed.equals(assetAdd.getDocStatus()))
+				{
+					if (!assetAdd.processIt(MAssetAddition.DOCACTION_Void))
+					{
+						log.warning("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
+						throw new IllegalStateException("Asset Addition Process Failed: " + assetAdd + " - " + assetAdd.getProcessMsg());
+					}
+					assetAdd.saveEx();
+				}
+				else
+				{
+					// harmless - leave it as is.
+				}
 			}
+			
+			List<MAssetDisposed> assetDis = new Query(invoice.getCtx(), MAssetDisposed.Table_Name, where, invoice.get_TrxName())
+											.setParameters(invoice.get_ID())
+											.list();
+			
+			for (MAssetDisposed assetDi : assetDis)
+			{
+				// Delete asset disposal if possible
+				if (MAssetDisposed.DOCSTATUS_Drafted.equals(assetDi.getDocStatus())
+					|| MAssetDisposed.DOCSTATUS_InProgress.equals(assetDi.getDocStatus())
+					|| MAssetDisposed.DOCSTATUS_Invalid.equals(assetDi.getDocStatus())
+					|| MAssetDisposed.DOCSTATUS_Approved.equals(assetDi.getDocStatus())
+					|| MAssetDisposed.DOCSTATUS_NotApproved.equals(assetDi.getDocStatus()))
+				{
+					
+					assetDi.deleteEx(true);
+					
+				}
+				else if (MAssetDisposed.DOCSTATUS_Completed.equals(assetDi.getDocStatus()))
+				{					
+					if (!assetDi.processIt(MAssetDisposed.DOCACTION_Void))
+					{
+						log.warning("Asset Disposal Process Failed: " + assetDi + " - " + assetDi.getProcessMsg());
+						throw new IllegalStateException("Asset Addition Process Failed: " + assetDi + " - " + assetDi.getProcessMsg());
+					}
+					assetDi.saveEx();
+				}
+				else
+				{
+					// harmless - leave it as is.
+				}
+			}
+			
 		}		
 		return null; 
 	}	//	afterVoid

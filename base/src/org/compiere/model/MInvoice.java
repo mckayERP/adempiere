@@ -710,7 +710,7 @@ public class MInvoice extends X_C_Invoice implements DocAction
 				line.setC_OrderLine_ID(0);
 			line.setRef_InvoiceLine_ID(0);
 			line.setM_InOutLine_ID(0);
-			line.setA_Asset_ID(0);
+			// line.setA_Asset_ID(0);  // mckayERP - Asset ID is mandatory if Product is an asset
 			line.setM_AttributeSetInstance_ID(0);
 			line.setS_ResourceAssignment_ID(0);
 			//	New Tax
@@ -2110,6 +2110,7 @@ public class MInvoice extends X_C_Invoice implements DocAction
 				}
 			}
 		}
+		
 		//
 		load(get_TrxName());	//	reload allocation reversal info
 

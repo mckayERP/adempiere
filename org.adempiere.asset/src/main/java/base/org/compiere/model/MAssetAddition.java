@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.FillMandatoryException;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.process.ProcessInfo;
 import org.compiere.process.ProjectClose;
@@ -32,8 +33,8 @@ import org.adempiere.util.POCacheLocal;
  *
  * TODO: BUG: REG in depexp creates a zero if they have more sites Addition during 0?!
  */
-public class MAssetAddition extends X_A_Asset_Addition
-	implements DocAction
+public class MAssetAddition extends X_A_Asset_Addition 
+	implements DocAction, DocOptions
 {
 	/**
 	 * 
@@ -83,17 +84,17 @@ public class MAssetAddition extends X_A_Asset_Addition
 		if (A_SOURCETYPE_Invoice.equals(getA_SourceType()))
 		{
 			MInvoiceLine iLine = new MInvoiceLine(getCtx(), getC_InvoiceLine_ID(), get_TrxName());
-			if (A_CAPVSEXP_Capital.equals(iLine.getA_CapvsExp()) && iLine.getA_Asset_ID() == 0)
+			if (A_CAPVSEXP_Capital.equals(iLine.getA_CapvsExp()))
 			{
 				if (!iLine.get_ValueAsBoolean("IsCollectiveAsset")) 
-					setA_QTY_Current(Env.ONE);
+					setA_QTY_Current(Env.ONE);  // Force single unit quantity unless IsCollectiveAsset
 				else
 					setA_QTY_Current(iLine.getQtyEntered());
-			}
-			if (A_CAPVSEXP_Capital.equals(iLine.getA_CapvsExp()) && iLine.getA_Asset_ID() > 0)
-			{
-				setA_QTY_Current(Env.ZERO);
-				setA_CreateAsset(false);
+	
+				if (iLine.getA_Asset_ID() > 0)
+				{
+					setA_CreateAsset(false);
+				}
 			}
 			setA_CapvsExp(iLine.getA_CapvsExp());
 		}//Goodwill - End check
@@ -846,7 +847,11 @@ public class MAssetAddition extends X_A_Asset_Addition
 		// Changing asset status to Activated or Depreciated
 		if (isA_CreateAsset())
 		{
-			asset.setAssetServiceDate(getDateDoc());
+			// Can't use document date if the asset is being added mid life.
+			if (asset.getAssetServiceDate() == null)
+			{
+				asset.setAssetServiceDate(getDateDoc());				
+			}
 			asset.changeStatus(MAsset.A_ASSET_STATUS_Activated, getDateAcct());
 			asset.setA_QTY_Original(getA_QTY_Current()); //Goodwill - first qty entered
 		}
@@ -1259,6 +1264,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 	 */
 	private void checkCreateASI() 
 	{
+		// TODO - this doesn't make any sense.
 		MProduct product = MProduct.get(getCtx(), getM_Product_ID());
 		// Check/Create ASI:
 		MAttributeSetInstance asi = null;
@@ -1453,5 +1459,39 @@ public class MAssetAddition extends X_A_Asset_Addition
 			set_ValueOfColumn("C_DocType_ID", C_DocType_ID);
 		}
 	
-	}	
+	}
+
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		// TODO Auto-generated method stub
+		
+		if (docStatus.equals(DocumentEngine.STATUS_Completed))
+		{
+			//options[index++] = DocumentEngine.ACTION_Reverse_Correct;
+			options[index++] = DocumentEngine.ACTION_Void;
+			options[index++] = DocumentEngine.ACTION_ReActivate;
+		}
+		return index;
+	}
+	
+	/**************************************************************************
+	 * 	Get Action Options based on current Status
+	 *	@return array of actions
+	 */
+
+	public String[] getCustomizedActionOptions() {
+		return null;
+	}
+
+	/**
+	 * Process a custom action similar to the {@link org.compiere.process.DocumentEngine#processIt(String) processIt()} method in DocumentEngine.java.
+	 * @param customAction - the two letter action code.
+	 * @return true is successful.
+	 */
+	public boolean processCustomAction(String customAction) {
+		return false;
+	}
+
 }	//	MAssetAddition

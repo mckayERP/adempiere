@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20161124L;
 
     /** Standard Constructor */
     public X_A_Asset_Disposed (Properties ctx, int A_Asset_Disposed_ID, String trxName)
@@ -53,13 +52,12 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 // 0
 			setA_Disposed_Date (new Timestamp( System.currentTimeMillis() ));
 			setA_Disposed_Method (null);
+			setA_QTY_Delta (Env.ZERO);
 			setDateAcct (new Timestamp( System.currentTimeMillis() ));
 // @Date@
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @Date@
 			setDocumentNo (null);
-			setExpense (Env.ZERO);
-// 0
 			setIsApproved (false);
 // N
 			setPosted (false);
@@ -117,14 +115,17 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	}
 
 	/** Set Accumulated Depreciation (delta).
-		@param A_Accumulated_Depr_Delta Accumulated Depreciation (delta)	  */
+		@param A_Accumulated_Depr_Delta 
+		The change is accumulated depreciation resulting from a transaction.
+	  */
 	public void setA_Accumulated_Depr_Delta (BigDecimal A_Accumulated_Depr_Delta)
 	{
 		set_Value (COLUMNNAME_A_Accumulated_Depr_Delta, A_Accumulated_Depr_Delta);
 	}
 
 	/** Get Accumulated Depreciation (delta).
-		@return Accumulated Depreciation (delta)	  */
+		@return The change is accumulated depreciation resulting from a transaction.
+	  */
 	public BigDecimal getA_Accumulated_Depr_Delta () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Accumulated_Depr_Delta);
@@ -164,6 +165,26 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	public BigDecimal getA_Asset_Cost () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Asset_Cost);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Change in Asset Cost.
+		@param A_Asset_Cost_Delta 
+		The change in asset cost as a result of the asset transaction.
+	  */
+	public void setA_Asset_Cost_Delta (BigDecimal A_Asset_Cost_Delta)
+	{
+		set_Value (COLUMNNAME_A_Asset_Cost_Delta, A_Asset_Cost_Delta);
+	}
+
+	/** Get Change in Asset Cost.
+		@return The change in asset cost as a result of the asset transaction.
+	  */
+	public BigDecimal getA_Asset_Cost_Delta () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Asset_Cost_Delta);
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
@@ -298,6 +319,26 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 		return bd;
 	}
 
+	/** Set Gain/(Loss) on Disposal.
+		@param A_Disposal_GainLoss 
+		An amount of gain or loss on the disposal of an asset.
+	  */
+	public void setA_Disposal_GainLoss (BigDecimal A_Disposal_GainLoss)
+	{
+		set_Value (COLUMNNAME_A_Disposal_GainLoss, A_Disposal_GainLoss);
+	}
+
+	/** Get Gain/(Loss) on Disposal.
+		@return An amount of gain or loss on the disposal of an asset.
+	  */
+	public BigDecimal getA_Disposal_GainLoss () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Disposal_GainLoss);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	/** Set Disposed Date.
 		@param A_Disposed_Date Disposed Date	  */
 	public void setA_Disposed_Date (Timestamp A_Disposed_Date)
@@ -391,6 +432,43 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 		return bd;
 	}
 
+	/** Set Current Qty.
+		@param A_QTY_Current Current Qty	  */
+	public void setA_QTY_Current (BigDecimal A_QTY_Current)
+	{
+		set_Value (COLUMNNAME_A_QTY_Current, A_QTY_Current);
+	}
+
+	/** Get Current Qty.
+		@return Current Qty	  */
+	public BigDecimal getA_QTY_Current () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_QTY_Current);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Change in Quantity.
+		@param A_QTY_Delta 
+		The change in quantity due to a transaction
+	  */
+	public void setA_QTY_Delta (BigDecimal A_QTY_Delta)
+	{
+		set_Value (COLUMNNAME_A_QTY_Delta, A_QTY_Delta);
+	}
+
+	/** Get Change in Quantity.
+		@return The change in quantity due to a transaction
+	  */
+	public BigDecimal getA_QTY_Delta () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_QTY_Delta);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
     {
 		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_Name)
@@ -419,34 +497,6 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_InvoiceLine getC_InvoiceLine() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_InvoiceLine)MTable.get(getCtx(), org.compiere.model.I_C_InvoiceLine.Table_Name)
-			.getPO(getC_InvoiceLine_ID(), get_TrxName());	}
-
-	/** Set Invoice Line.
-		@param C_InvoiceLine_ID 
-		Invoice Detail Line
-	  */
-	public void setC_InvoiceLine_ID (int C_InvoiceLine_ID)
-	{
-		if (C_InvoiceLine_ID < 1) 
-			set_Value (COLUMNNAME_C_InvoiceLine_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_InvoiceLine_ID, Integer.valueOf(C_InvoiceLine_ID));
-	}
-
-	/** Get Invoice Line.
-		@return Invoice Detail Line
-	  */
-	public int getC_InvoiceLine_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_InvoiceLine_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_Invoice getC_Invoice() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Invoice)MTable.get(getCtx(), org.compiere.model.I_C_Invoice.Table_Name)
@@ -470,6 +520,34 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	public int getC_Invoice_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_Invoice_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_InvoiceLine getC_InvoiceLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_InvoiceLine)MTable.get(getCtx(), org.compiere.model.I_C_InvoiceLine.Table_Name)
+			.getPO(getC_InvoiceLine_ID(), get_TrxName());	}
+
+	/** Set Invoice Line.
+		@param C_InvoiceLine_ID 
+		Invoice Detail Line
+	  */
+	public void setC_InvoiceLine_ID (int C_InvoiceLine_ID)
+	{
+		if (C_InvoiceLine_ID < 1) 
+			set_Value (COLUMNNAME_C_InvoiceLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_InvoiceLine_ID, Integer.valueOf(C_InvoiceLine_ID));
+	}
+
+	/** Get Invoice Line.
+		@return Invoice Detail Line
+	  */
+	public int getC_InvoiceLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_InvoiceLine_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -584,6 +662,12 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	public static final String DOCACTION_Unlock = "XL";
 	/** Wait Complete = WC */
 	public static final String DOCACTION_WaitComplete = "WC";
+	/** Enter = ME */
+	public static final String DOCACTION_Enter = "ME";
+	/** Defer = MD */
+	public static final String DOCACTION_Defer = "MD";
+	/** Rectify = MR */
+	public static final String DOCACTION_Rectify = "MR";
 	/** Set Document Action.
 		@param DocAction 
 		The targeted status of the document
@@ -628,6 +712,12 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	public static final String DOCSTATUS_WaitingPayment = "WP";
 	/** Waiting Confirmation = WC */
 	public static final String DOCSTATUS_WaitingConfirmation = "WC";
+	/** Entered = ME */
+	public static final String DOCSTATUS_Entered = "ME";
+	/** Rectified = MR */
+	public static final String DOCSTATUS_Rectified = "MR";
+	/** Deferred = MD */
+	public static final String DOCSTATUS_Deferred = "MD";
 	/** Set Document Status.
 		@param DocStatus 
 		The current status of the document
@@ -661,23 +751,6 @@ public class X_A_Asset_Disposed extends PO implements I_A_Asset_Disposed, I_Pers
 	public String getDocumentNo () 
 	{
 		return (String)get_Value(COLUMNNAME_DocumentNo);
-	}
-
-	/** Set Expense.
-		@param Expense Expense	  */
-	public void setExpense (BigDecimal Expense)
-	{
-		set_Value (COLUMNNAME_Expense, Expense);
-	}
-
-	/** Get Expense.
-		@return Expense	  */
-	public BigDecimal getExpense () 
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Expense);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
 	}
 
 	/** Set Approved.

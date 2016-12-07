@@ -47,7 +47,7 @@ public class MDepreciation extends X_A_Depreciation
 	/**		Static logger							*/
 	private static Logger s_log = CLogger.getCLogger(MDepreciation.class);
 	/** The accuracy of calculation on depreciation */
-	private final static int m_precision = 2;
+	private final static int m_precision = MCurrency.getStdPrecision(Env.getCtx(), MClient.get(Env.getCtx()).getC_Currency_ID());
 		
 	/* Constrants */
 	private static final BigDecimal BD_12 = BigDecimal.valueOf(12);
@@ -159,11 +159,11 @@ public class MDepreciation extends X_A_Depreciation
 		{
 			return BigDecimal.ZERO;
 		}
-		if (depreciationType.equalsIgnoreCase("SL"))
+		if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_StraightLineDepreciation))
 		{
 			retValue = apply_SL(assetwk, assetAcct, A_Current_Period, Accum_Dep);
 		}
-		else if (depreciationType.equalsIgnoreCase("ARH_VAR"))
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_VariableAccelerated))
 		{
 			retValue = apply_ARH_VAR(assetwk, assetAcct, A_Current_Period, Accum_Dep);
 		}
@@ -175,9 +175,48 @@ public class MDepreciation extends X_A_Depreciation
 		{
 			retValue = apply_ARH_AD2(assetwk, assetAcct, A_Current_Period, Accum_Dep);
 		}
-		else if (depreciationType.equalsIgnoreCase("ARH_ZERO"))
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_NoDepreciation))
 		{
 			retValue = apply_ARH_ZERO(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_200DecliningBalance))
+		{
+			retValue = apply_DB200(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_200DBToSL))
+		{
+			retValue = apply_DB200X(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_150DecliningBalance))
+		{
+			retValue = apply_DB150(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_150DBToSL))
+		{
+			retValue = apply_DB150X(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_ManualDepreciation))
+		{
+			// TODO
+			// retValue = apply_MAN(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+			throw new AssetNotImplementedException(MDepreciation.DEPRECIATIONTYPE_ManualDepreciation);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_SumOfYearDigits))
+		{
+			retValue = apply_SYD(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+			throw new AssetNotImplementedException(MDepreciation.DEPRECIATIONTYPE_SumOfYearDigits);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_Table))
+		{
+			// TODO
+			// retValue = apply_TAB(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+			throw new AssetNotImplementedException(MDepreciation.DEPRECIATIONTYPE_Table);
+		}
+		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_UnitsOfProduction))
+		{
+			// TODO
+			// retValue = apply_UOP(assetwk, assetAcct, A_Current_Period, Accum_Dep);
+			throw new AssetNotImplementedException(MDepreciation.DEPRECIATIONTYPE_UnitsOfProduction);
 		}
 		else
 		{
@@ -193,6 +232,39 @@ public class MDepreciation extends X_A_Depreciation
 		if(CLogMgt.isLevelFinest()) log.fine("Leaving: retValue=" + retValue);
 		return retValue;
 	}	//	invoke
+
+	/** Sum of Years Digits<br><br>
+	 *  The amount of depreciation rate in a year is calculated as remainingYears / (n*(n+1)/2) 
+	 * 
+	 *	@param A_Asset_ID			Assets IDs
+	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
+	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
+	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
+	 *	@param Accum_Dep			Accumulated depreciation from this method
+	 *	@return depreciation for the current month
+	 */
+	private BigDecimal apply_SYD(MDepreciationWorkfile wk,
+			MAssetAcct assetAcct, int aCurrentPeriod, BigDecimal accumDep) {
+
+		// Todo = SYD to period?  Assume (questionable) that it is equal in all periods in 
+		// year.  The current year depreciation amount should be used but needs to be found.
+		BigDecimal lifeInYears = new BigDecimal(wk.getA_Asset_Life_Years());
+		BigDecimal remainingPeriods =  new BigDecimal(wk.getRemainingPeriods(aCurrentPeriod));
+		BigDecimal remainingYears = remainingPeriods.divide(new BigDecimal(12)).add(Env.ONE);
+		BigDecimal remainingAmount = wk.getRemainingCost(accumDep);
+		
+		BigDecimal ratio = remainingYears.divide(lifeInYears, RoundingMode.HALF_UP);
+		
+		BigDecimal amtPerPeriod = getPeriodExp(aCurrentPeriod,remainingAmount.multiply(ratio)); 
+
+		if (amtPerPeriod.compareTo(remainingAmount) > 0 || remainingPeriods.compareTo(Env.ONE) <= 0)
+		{
+			amtPerPeriod = remainingAmount;
+		}
+
+		return amtPerPeriod;
+	
+	}
 
 	/**
 	 * Check if the method can be invoked to give parameters
@@ -234,7 +306,15 @@ public class MDepreciation extends X_A_Depreciation
 		return Env.ZERO;
 	}
 
-	/** Linear depreciation regime 
+	/** Linear depreciation regime Straight Line Method
+	 *  The Straight Line method assumes the assets provides its value in a steady stream where 
+	 *  the depreciation expense in each period is equal over the service life of the asset. 
+	 *  The depreciation calculation in each period is simply the net value divided by the 
+	 *  number of periods remaining. A ten year service life would see 1/10th of the net value 
+	 *  expensed as depreciation in each year. This gives rise to the term depreciation rate as 
+	 *  the reciprocal of the service life. Again, a ten year service life would have a 
+	 *  depreciation rate of 10%. 
+	 * 
 	 *	@param A_Asset_ID			Assets IDs
 	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
 	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
@@ -261,6 +341,236 @@ public class MDepreciation extends X_A_Depreciation
 		return amtPerPeriod;
 	}
 
+	/** Accelerated depreciation regime Declining Balance Method, 200% declining balance rate
+	 *  with no cross over to straight line.<br><br> 
+	 *  The declining balance method calculates the depreciation expense in a period by applying 
+	 *  a rate to the net book value of the asset. The net book value of an asset in a period is 
+	 *  the original cost less the accumulated depreciation to that period. The residual value 
+	 *  is not considered in this calculation. It is common to describe the declining balance 
+	 *  rate as a percentage of a straight line rate. For example, if the straight line rate was 
+	 *  10% (a 10 year service life), a declining-balance rate of 200% would represent an annual 
+	 *  rate of 200% * 10% = 20%. The 200% declining-balance rate is also known as the 
+	 *  double-declining-balance method as the rate is double the straight-line method.
+	 *  <br><br>
+	 *  Initially, the depreciation expense will be higher than the straight-line method but 
+	 *  will decrease and at some point will be lower than the equivalent straight line amount. 
+	 *  At the end of life, the remaining undepreciated balance is expensed as a lump. 
+	 * 
+	 *	@param A_Asset_ID			Assets IDs
+	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
+	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
+	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
+	 *	@param Accum_Dep			Accumulated depreciation from this method
+	 *	@return depreciation for the current month
+	 */
+	private BigDecimal apply_DB200 (MDepreciationWorkfile wk, MAssetAcct assetAcct,
+									int A_Current_Period, BigDecimal Accum_Dep)
+	{
+		BigDecimal remainingPeriods = new BigDecimal(wk.getRemainingPeriods(A_Current_Period - 1));
+		BigDecimal remainingAmt = wk.getRemainingCost(Accum_Dep);
+		BigDecimal lifePeriods = new BigDecimal(wk.getA_Asset_Life_Years()*12);
+		BigDecimal amtPerPeriod = Env.ZERO;
+		
+		// Find the 200% amount per period which is twice the straight line amount.  The straight line
+		// amount is the remaining amount times the amortization rate or 1/number of periods.
+		if (lifePeriods.signum() != 0)
+		{
+			amtPerPeriod = remainingAmt.divide(lifePeriods, getPrecision(), RoundingMode.HALF_UP).multiply(new BigDecimal(2.0));
+		}
+				
+		if (amtPerPeriod.compareTo(remainingAmt) > 0 || remainingPeriods.compareTo(Env.ONE) <= 0)
+		{
+			amtPerPeriod = remainingAmt;
+		}
+		
+		if(CLogMgt.isLevelFinest())
+		{
+			log.finest("currentPeriod=" + A_Current_Period + ", remainingAmt=" + remainingAmt + ", remainingPeriods=" + remainingPeriods + " => amtPerPeriod=" + amtPerPeriod);
+		}
+		
+		return amtPerPeriod;
+	}
+
+	/** Accelerated depreciation regime Declining Balance Method, 200% declining balance rate 
+	 *  with cross over to Straight Line method. 
+	 *  The declining balance method calculates the depreciation expense in a period by applying 
+	 *  a rate to the net book value of the asset. The net book value of an asset in a period is 
+	 *  the original cost less the accumulated depreciation to that period. The residual value 
+	 *  is not considered in this calculation. It is common to describe the declining balance 
+	 *  rate as a percentage of a straight line rate. For example, if the straight line rate was 
+	 *  10% (a 10 year service life), a declining-balance rate of 200% would represent an annual 
+	 *  rate of 200% * 10% = 20%. The 200% declining-balance rate is also known as the 
+	 *  double-declining-balance method as the rate is double the straight-line method.
+	 *  
+	 *  Initially, the depreciation expense will be higher than the straight-line method but 
+	 *  will decrease and at some point will be lower than the equivalent straight line amount. 
+	 *  At that point, it switch switch to a straight-line method for the remainder of the assets 
+	 *  service life. 
+	 * 
+	 *	@param A_Asset_ID			Assets IDs
+	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
+	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
+	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
+	 *	@param Accum_Dep			Accumulated depreciation from this method
+	 *	@return depreciation for the current month
+	 */
+	private BigDecimal apply_DB200X (MDepreciationWorkfile wk, MAssetAcct assetAcct,
+									int A_Current_Period, BigDecimal Accum_Dep)
+	{
+		BigDecimal remainingPeriods = new BigDecimal(wk.getRemainingPeriods(A_Current_Period - 1));
+		BigDecimal remainingAmt = wk.getRemainingCost(Accum_Dep);
+		BigDecimal originalAmt = wk.getNetCost();
+		BigDecimal amtPerPeriod = Env.ZERO;
+		BigDecimal amtStraightLine = Env.ZERO;
+		BigDecimal lifePeriods = new BigDecimal(wk.getUseLifeMonths(wk.isFiscal()));
+		BigDecimal residualValue = wk.getA_Salvage_Value();
+		
+		// Find the 200% amount per period which is twice the straight line amount.  The straight line
+		// amount is the remaining amount times the amortization rate or 1/number of periods.
+		if (lifePeriods.signum() != 0)
+		{
+			amtPerPeriod = remainingAmt.divide(lifePeriods, getPrecision(), RoundingMode.HALF_UP).multiply(new BigDecimal(2.0));
+		}
+		
+		// Find the equivalent linear Straight Line amount based on the remaining amount to depreciate over the number of remaining periods
+		if (remainingPeriods.signum() != 0)
+		{
+			amtStraightLine = remainingAmt.divide(remainingPeriods, getPrecision(), RoundingMode.HALF_UP);
+		}
+		
+		// If the straight line amount is greater, switch to the straight line method
+		if (amtStraightLine.compareTo(amtPerPeriod) > 0)
+		{
+			amtPerPeriod = amtStraightLine;
+		}
+		
+		if (amtPerPeriod.compareTo(remainingAmt) > 0)
+		{
+			amtPerPeriod = remainingAmt.setScale(getPrecision(), RoundingMode.HALF_UP);
+		}
+		
+		if(CLogMgt.isLevelFinest())
+		{
+			log.finest("currentPeriod=" + A_Current_Period + ", remainingAmt=" + remainingAmt + ", remainingPeriods=" + remainingPeriods + " => amtPerPeriod=" + amtPerPeriod);
+		}
+		
+		return amtPerPeriod;
+	}
+
+	/** Accelerated depreciation regime Declining Balance Method, 150% declining balance rate
+	 *  with no cross over to straight line.<br><br> 
+	 *  The declining balance method calculates the depreciation expense in a period by applying 
+	 *  a rate to the net book value of the asset. The net book value of an asset in a period is 
+	 *  the original cost less the accumulated depreciation to that period. The residual value 
+	 *  is not considered in this calculation. It is common to describe the declining balance 
+	 *  rate as a percentage of a straight line rate. For example, if the straight line rate was 
+	 *  10% (a 10 year service life), a declining-balance rate of 150% would represent an annual 
+	 *  rate of 150% * 10% = 15%. 
+	 *  <br><br>
+	 *  Initially, the depreciation expense will be higher than the straight-line method but 
+	 *  will decrease and at some point will be lower than the equivalent straight line amount. 
+	 *  At the end of life, the remaining undepreciated balance is expensed as a lump. 
+	 * 
+	 *	@param A_Asset_ID			Assets IDs
+	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
+	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
+	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
+	 *	@param Accum_Dep			Accumulated depreciation from this method
+	 *	@return depreciation for the current month
+	 */
+	private BigDecimal apply_DB150 (MDepreciationWorkfile wk, MAssetAcct assetAcct,
+									int A_Current_Period, BigDecimal Accum_Dep)
+	{
+		BigDecimal remainingPeriods = new BigDecimal(wk.getRemainingPeriods(A_Current_Period - 1));
+		BigDecimal remainingAmt = wk.getRemainingCost(Accum_Dep);
+		BigDecimal lifePeriods = new BigDecimal(wk.getUseLifeMonths(wk.isFiscal()));
+		BigDecimal amtPerPeriod = Env.ZERO;
+		
+		// Find the 150% amount per period which is 150% the straight line amount.  The straight line
+		// amount is the remaining amount times the amortization rate or 1/number of periods.
+		if (lifePeriods.signum() != 0)
+		{
+			amtPerPeriod = remainingAmt.divide(lifePeriods, getPrecision(), RoundingMode.HALF_UP).multiply(new BigDecimal(1.5));
+		}
+				
+		if (amtPerPeriod.compareTo(remainingAmt) > 0 || remainingPeriods.compareTo(Env.ONE) <= 0)
+		{
+			amtPerPeriod = remainingAmt;
+		}
+		
+		if(CLogMgt.isLevelFinest())
+		{
+			log.finest("currentPeriod=" + A_Current_Period + ", remainingAmt=" + remainingAmt + ", remainingPeriods=" + remainingPeriods + " => amtPerPeriod=" + amtPerPeriod);
+		}
+		
+		return amtPerPeriod;
+	}
+
+	/** Accelerated depreciation regime Declining Balance Method, 150% declining balance rate 
+	 *  with cross over to Straight Line method.<br><br> 
+	 *  The declining balance method calculates the depreciation expense in a period by applying 
+	 *  a rate to the net book value of the asset. The net book value of an asset in a period is 
+	 *  the original cost less the accumulated depreciation to that period. The residual value 
+	 *  is not considered in this calculation. It is common to describe the declining balance 
+	 *  rate as a percentage of a straight line rate. For example, if the straight line rate was 
+	 *  10% (a 10 year service life), a declining-balance rate of 150% would represent an annual 
+	 *  rate of 150% * 10% = 15%. 
+	 *  <br><br>
+	 *  Initially, the depreciation expense will be higher than the straight-line method but 
+	 *  will decrease and at some point will be lower than the equivalent straight line amount. 
+	 *  At that point, it switch switch to a straight-line method for the remainder of the assets 
+	 *  service life. 
+	 * 
+	 *	@param A_Asset_ID			Assets IDs
+	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
+	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
+	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
+	 *	@param Accum_Dep			Accumulated depreciation from this method
+	 *	@return depreciation for the current month
+	 */
+	private BigDecimal apply_DB150X (MDepreciationWorkfile wk, MAssetAcct assetAcct,
+									int A_Current_Period, BigDecimal Accum_Dep)
+	{
+		BigDecimal remainingPeriods = new BigDecimal(wk.getRemainingPeriods(A_Current_Period - 1));
+		BigDecimal remainingAmt = wk.getRemainingCost(Accum_Dep);
+		BigDecimal originalAmt = wk.getNetCost();
+		BigDecimal amtPerPeriod = Env.ZERO;
+		BigDecimal amtStraightLine = Env.ZERO;
+		BigDecimal lifePeriods = new BigDecimal(wk.getUseLifeMonths(wk.isFiscal()));
+		BigDecimal residualValue = wk.getA_Salvage_Value();
+		
+		// Find the 150% amount per period which is 150% the straight line amount.  The straight line
+		// amount is the remaining amount times the amortization rate or 1/number of periods.
+		if (lifePeriods.signum() != 0)
+		{
+			amtPerPeriod = remainingAmt.divide(lifePeriods, getPrecision(), RoundingMode.HALF_UP).multiply(new BigDecimal(1.5));
+		}
+		
+		// Find the equivalent linear Straight Line amount based on the remaining amount to depreciate over the number of remaining periods
+		if (remainingPeriods.signum() != 0)
+		{
+			amtStraightLine = originalAmt.divide(remainingPeriods, getPrecision(), RoundingMode.HALF_UP);
+		}
+		
+		// If the straight line amount is greater, switch to the straight line method
+		if (amtStraightLine.compareTo(amtPerPeriod) > 0)
+		{
+			amtPerPeriod = amtStraightLine;
+		}
+		
+		if (amtPerPeriod.compareTo(remainingAmt) > 0)
+		{
+			amtPerPeriod = remainingAmt;
+		}
+		
+		if(CLogMgt.isLevelFinest())
+		{
+			log.finest("currentPeriod=" + A_Current_Period + ", remainingAmt=" + remainingAmt + ", remainingPeriods=" + remainingPeriods + " => amtPerPeriod=" + amtPerPeriod);
+		}
+		
+		return amtPerPeriod;
+	}
+
 	/**
 	 * Accelerated depreciation regime
 	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
@@ -272,7 +582,7 @@ public class MDepreciation extends X_A_Depreciation
 	private BigDecimal apply_ARH_VAR (MDepreciationWorkfile wk, MAssetAcct acct,
 										int A_Current_Period, BigDecimal Accum_Dep)
 	{
-		BigDecimal amt = wk.getActualCost();
+		BigDecimal amt = wk.getNetCost();
 		BigDecimal varPercent = acct.getA_Depreciation_Variable_Perc(wk.isFiscal()).setScale(getPrecision(), RoundingMode.HALF_UP);
 		//~ int lifePeriods = wk.getUseLifeMonths(wk.isFiscal());
 		BigDecimal assetExp = BigDecimal.ZERO;
@@ -303,7 +613,7 @@ public class MDepreciation extends X_A_Depreciation
 	}
 	
 
-	/** Digressive depreciation regime (AD1)
+	/** Digressive depreciation regime (AD1) = same as BD200x
 	 *	@param A_Current_Period		current period (in months, between 0 and UseLifeMonths - 1)
 	 *	@param PostingType			posting type (eg. A - Actual, S - Statistics ...)
 	 *	@param A_Asset_Acct_ID		FA accounting IDs  (see table A_Asset_Acct)
@@ -317,7 +627,7 @@ public class MDepreciation extends X_A_Depreciation
 		//~ MDepreciationWorkfile wk = MDepreciationWorkfile.get(getCtx(), A_Asset_ID, PostingType);
 		
 		/** FAs' value = acquisition value - the amount recovered */
-		BigDecimal assetAmt = wk.getActualCost();
+		BigDecimal assetAmt = wk.getNetCost();
 		/** Life in months */
 		int A_Life_Period = wk.getA_Life_Period();
 		/** Year = integer part of (current period / 12) => first year will be 0 */

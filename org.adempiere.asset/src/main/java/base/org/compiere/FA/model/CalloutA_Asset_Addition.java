@@ -107,6 +107,7 @@ public class CalloutA_Asset_Addition extends CalloutEngine
 			return "";
 		}
 		
+		// Assumes periods and months match.
 		int periods = TimeUtil.getMonthsBetween(aa.getDateDoc(), aa.getDateAcct());
 		if (periods <= 0)
 		{

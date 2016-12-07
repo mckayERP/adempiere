@@ -491,7 +491,7 @@ public class MAsset extends X_A_Asset
 		if (invNo == null || invNo.trim().length() == 0 || invNo.equals("0"))
 		{
 			invNo = "" + get_ID();
-			setInventoryNo(invNo);
+			//setInventoryNo(invNo);
 		}
 		if (invNo != null)
 		{
@@ -539,7 +539,7 @@ public class MAsset extends X_A_Asset
 					new String[]{MBPartnerLocation.COLUMNNAME_C_Location_ID}
 			);
 		}
-		//
+		// TODO Why?
 		// Create ASI if not exist:
 		if (getM_Product_ID() > 0 && getM_AttributeSetInstance_ID() <= 0)
 		{
@@ -614,15 +614,16 @@ public class MAsset extends X_A_Asset
 			String isOwned = (assetgroup.isOwned()) ? "Y" : "N";
 			setIsDepreciated(assetgroup.isDepreciated());
 			setIsOwned(assetgroup.isOwned());
+			
+			// mckayERP - why is this update necessary?
 			DB.executeUpdateEx("UPDATE A_Asset SET IsDepreciated='" + isDepreciated + "', isOwned ='" + isOwned + "' WHERE A_Asset_ID=" + getA_Asset_ID(), get_TrxName());
 			//end @win
 			
-			// for each asset group acounting create an asset accounting and a workfile too
+			// for each asset group accounting create an asset accounting and a workfile too
 			for (MAssetGroupAcct assetgrpacct :  MAssetGroupAcct.forA_Asset_Group_ID(getCtx(), getA_Asset_Group_ID()))
 			{			
 				// Asset Accounting
 				MAssetAcct assetacct = new MAssetAcct(this, assetgrpacct);
-				assetacct.setAD_Org_ID(getAD_Org_ID()); //added by @win
 				assetacct.saveEx();
 				
 				// Asset Depreciation Workfile

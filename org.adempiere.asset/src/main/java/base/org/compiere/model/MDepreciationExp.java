@@ -202,6 +202,51 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		assetwk.saveEx();
 	}
 	
+	/**
+	 * Reverse/undo this entry and update the workfile.
+	 */
+	public void reverse()
+	{
+		if(!isProcessed())
+		{
+			log.fine("@NotProcessed@");
+			return;
+		}
+		
+		//
+		MDepreciationWorkfile assetwk = getA_Depreciation_Workfile();
+		if (assetwk == null)
+		{
+			throw new AssetException("@NotFound@ @A_Depreciation_Workfile_ID@");
+		}
+		//
+		String entryType = getA_Entry_Type();
+		if (MDepreciationExp.A_ENTRY_TYPE_Depreciation.equals(entryType))
+		{
+			checkExistsProcessedEntries(getCtx(), getA_Asset_ID(), getDateAcct(), getPostingType(), get_TrxName());
+			//
+			// Check if the asset is Active:
+			if (!assetwk.getAsset().getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated))
+			{
+				throw new AssetNotActiveException(assetwk.getAsset().get_ID());
+			}
+			//
+			assetwk.reverseAccumulatedDepr(getExpense(), getExpense_F());
+		}
+		else
+		{
+			// nothing to do for other entry types
+		}
+		//
+		setProcessed(false);
+		setA_Depreciation_Entry_ID(0);
+		saveEx();
+
+		//
+		// Update workfile
+		assetwk.setA_Current_Period();
+		assetwk.saveEx();
+	}
 	
 	protected boolean beforeDelete()
 	{
@@ -261,6 +306,24 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 			throw new AssetException("There are unprocessed records to date");
 		}
 	}
+
+	public static void checkExistsProcessedEntries(Properties ctx,
+			int A_Asset_ID, Timestamp dateAcct, String postingType,
+			String trxName)
+	{
+		final String whereClause = MDepreciationExp.COLUMNNAME_A_Asset_ID + "=?"
+				+" AND TRUNC("+MDepreciationExp.COLUMNNAME_DateAcct + ",'MONTH')>?"
+				+" AND "+MDepreciationExp.COLUMNNAME_PostingType + "=?"
+				+" AND "+MDepreciationExp.COLUMNNAME_Processed + "=?";
+		boolean match = new Query(ctx, MDepreciationExp.Table_Name, whereClause, trxName)
+			.setParameters(new Object[]{A_Asset_ID, TimeUtil.getMonthFirstDay(dateAcct), postingType, true})
+			.match();
+		if (match)
+		{
+			throw new AssetException("There are processed records after date");
+		}
+	}
+	
 	
 	public static List<MDepreciationExp> getNotProcessedEntries(Properties ctx,
 			int A_Asset_ID, String postingType,

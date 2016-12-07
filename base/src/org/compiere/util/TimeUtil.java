@@ -770,8 +770,10 @@ public class TimeUtil
 	{
 		Calendar startCal = getCalendar(start);
 		Calendar endCal = getCalendar(end);
+		
+		int monthsBetween = (endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR)) * 12 + endCal.get(Calendar.MONTH) - startCal.get(Calendar.MONTH);
 		//
-		return endCal.get(Calendar.YEAR) * 12 + endCal.get(Calendar.MONTH);
+		return monthsBetween;
 	}
 
 

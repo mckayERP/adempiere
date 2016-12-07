@@ -14,6 +14,8 @@ import org.compiere.model.MCharge;
 import org.compiere.model.MDocType;
 import org.compiere.model.ProductCost;
 import org.compiere.model.X_C_Project_Acct;
+import org.compiere.process.DocOptions;
+import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -27,7 +29,7 @@ public class Doc_AssetAddition extends Doc
 {
 	public Doc_AssetAddition (MAcctSchema[] as, ResultSet rs, String trxName)
 	{
-		super(as, MAssetAddition.class, rs, MDocType.DOCBASETYPE_GLDocument, trxName);
+		super(as, MAssetAddition.class, rs, MDocType.DOCBASETYPE_FixedAssetsAddition, trxName);
 	}
 
 	
@@ -62,25 +64,33 @@ public class Doc_AssetAddition extends Doc
 			// no accounting if is imported record
 			return facts;
 		}
+		
+		// Get the accounts involved
+		MAccount dr_assetAcct = getA_Asset_Acct();
+		MAccount cr_productAssetAcct = getP_Asset_Acct(as);
+		MAccount cr_accDepAcct = getA_Accumdepreciation_Acct();
+
 		//
-		BigDecimal assetValueAmt = assetAdd.getAssetValueAmt();
-		FactLine[] fls = FactUtil.createSimpleOperation(fact, null,
-				getA_Asset_Acct(), getP_Asset_Acct(as),
-				as.getC_Currency_ID(),
-				assetValueAmt,
-				false);
+		BigDecimal dr_assetValueAmt = assetAdd.getAssetValueAmt();
+		BigDecimal cr_accDepAmt = assetAdd.getA_Accumulated_Depr();
+		BigDecimal cr_productAssetAmt = dr_assetValueAmt.subtract(cr_accDepAmt);
+		
+		fact.createLine(null, dr_assetAcct, as.getC_Currency_ID(), dr_assetValueAmt, null);
+		fact.createLine(null, cr_accDepAcct, as.getC_Currency_ID(), null, cr_accDepAmt);
+		FactLine prodLine = fact.createLine(null, cr_productAssetAcct, as.getC_Currency_ID(), null, cr_productAssetAmt);
+		
 		// Set BPartner and C_Project dimension for "Imobilizari in curs / Property Being"
 		final int invoiceBP_ID = getInvoicePartner_ID();
 		final int invoiceProject_ID = getInvoiceProject_ID();
 		if (invoiceBP_ID > 0)
 		{
-			fls[1].setC_BPartner_ID(invoiceBP_ID);
+			prodLine.setC_BPartner_ID(invoiceBP_ID);
 		}
 		if (invoiceProject_ID >0)
 		{
-			 fls[1].setC_Project_ID(invoiceProject_ID);
+			 prodLine.setC_Project_ID(invoiceProject_ID);
 		}
-		//
+
 		return facts;
 	}
 	
@@ -147,6 +157,15 @@ public class Doc_AssetAddition extends Doc
 		return MAccount.get(getCtx(), acct_id);
 	}
 
+	private MAccount getA_Accumdepreciation_Acct()  // TODO multi schema??
+	{
+		MAssetAddition assetAdd = getAssetAddition();
+		int acct_id = MAssetAcct
+				.forA_Asset_ID(getCtx(), assetAdd.getA_Asset_ID(), assetAdd.getPostingType(), assetAdd.getDateAcct(), null)
+				.getA_Accumdepreciation_Acct();
+		return MAccount.get(getCtx(), acct_id);
+	}
+
 	public int getInvoicePartner_ID()
 	{
 		MAssetAddition assetAdd = getAssetAddition();
@@ -172,5 +191,5 @@ public class Doc_AssetAddition extends Doc
 		{
 			return 0;
 		}
-	}		
+	}
 }

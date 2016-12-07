@@ -12,6 +12,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.process.DocAction;
+import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.TimeUtil;
@@ -26,7 +27,7 @@ import org.compiere.FA.exceptions.AssetException;
  * @author Teo Sarca, SC ARHIPAC SERVICE SRL
  */
 public class MDepreciationEntry extends X_A_Depreciation_Entry
-implements DocAction
+implements DocAction, DocOptions
 {
 	private static final long serialVersionUID = 1L;
 
@@ -133,6 +134,14 @@ implements DocAction
 	 */
 	public Iterator<MDepreciationExp> getLinesIterator(boolean onlyNotProcessed)
 	{
+		return getLinesIterator(onlyNotProcessed, false);
+	}
+
+	/**
+	 * Get Lines
+	 */
+	public Iterator<MDepreciationExp> getLinesIterator(boolean onlyNotProcessed, boolean reversal)
+	{
 		final String trxName = get_TrxName();
 		final List<Object> params = new ArrayList<Object>();
 		String whereClause = MDepreciationExp.COLUMNNAME_A_Depreciation_Entry_ID+"=?";
@@ -145,18 +154,30 @@ implements DocAction
 		}
 		
 		// ORDER BY clause - very important
-		String orderBy =	 MDepreciationExp.COLUMNNAME_A_Asset_ID
-						+","+MDepreciationExp.COLUMNNAME_PostingType
-						+","+MDepreciationExp.COLUMNNAME_A_Period
-						+","+MDepreciationExp.COLUMNNAME_A_Entry_Type;
+		String orderBy = "";
+		if (!reversal)
+		{
+			
+			orderBy =	 MDepreciationExp.COLUMNNAME_A_Asset_ID
+							+","+MDepreciationExp.COLUMNNAME_PostingType
+							+","+MDepreciationExp.COLUMNNAME_A_Period
+							+","+MDepreciationExp.COLUMNNAME_A_Entry_Type;
 		
+		}
+		else
+		{
+			orderBy =	 MDepreciationExp.COLUMNNAME_A_Asset_ID + " DESC"
+					+","+MDepreciationExp.COLUMNNAME_PostingType + " DESC"
+					+","+MDepreciationExp.COLUMNNAME_A_Period + " DESC"
+					+","+MDepreciationExp.COLUMNNAME_A_Entry_Type + " DESC";
+			
+		}
 		Iterator<MDepreciationExp> it = new Query(getCtx(), MDepreciationExp.Table_Name, whereClause, trxName)
 				.setOrderBy(orderBy) 
 				.setParameters(params)
 				.iterate();
 		return it;
 	}
-
 	
 	public boolean processIt (String processAction)
 	{
@@ -291,10 +312,81 @@ implements DocAction
 	
 	public boolean voidIt()
 	{
-		return false;
+		// Before Void
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
+		if (m_processMsg != null)
+			return false;
+		
+		// Goodwill - check incomplete doc status
+		if (DOCSTATUS_Drafted.equals(getDocStatus())
+			|| DOCSTATUS_Invalid.equals(getDocStatus())
+			|| DOCSTATUS_InProgress.equals(getDocStatus())
+			|| DOCSTATUS_Approved.equals(getDocStatus())
+			|| DOCSTATUS_NotApproved.equals(getDocStatus()))
+		{
+			// setA_CreateAsset(false);
+		}
+		else
+		{
+			reverseIt();
+		}
+
+		//	User Validation
+		String errmsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_VOID);
+		if (errmsg != null)
+		{
+			m_processMsg = errmsg;
+			return false;
+		}
+		
+		// finish
+		setProcessed(true);
+		setDocAction(DOCACTION_None);
+		return true;
+
 	}
 	
 	
+	private void reverseIt() {
+	
+		final MPeriod period = MPeriod.get(getCtx(), getC_Period_ID());
+		
+		final ArrayList<Exception> errors = new ArrayList<Exception>();
+		final Iterator<MDepreciationExp> it = getLinesIterator(true, true); // Reverse order
+		//
+		while(it.hasNext())
+		{
+			try
+			{
+				Trx.run(get_TrxName(), new TrxRunnable(){
+					
+					public void run(String trxName)
+					{
+						MDepreciationExp depexp = it.next();
+						// Check if is in Period
+						if (!period.isInPeriod(depexp.getDateAcct()))
+						{
+							throw new AssetException("The date is not within this Period"
+									+" ("+depexp+", Data="+depexp.getDateAcct()+", Period="+period.getName()+")"); // TODO: translate
+						}
+						depexp.reverse();
+					}});
+			}
+			catch (Exception e)
+			{
+				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				errors.add(e);
+			}
+		}
+		//
+		if (errors.size() > 0)
+		{
+			throw new AssetArrayException(errors);
+		}
+
+		
+	}
+
 	public boolean closeIt()
 	{
 		setDocAction(DOCACTION_None);
@@ -362,4 +454,38 @@ implements DocAction
 		Object[] params = new Object[]{Table_ID, depexp.getA_Depreciation_Entry_ID(), depexp.get_ID()};
 		DB.executeUpdateEx(sql, params, depexp.get_TrxName());
 	}
+	
+	@Override
+	public int customizeValidActions(String docStatus, Object processing,
+			String orderType, String isSOTrx, int AD_Table_ID,
+			String[] docAction, String[] options, int index) {
+		// TODO Auto-generated method stub
+		
+		if (docStatus.equals(DocumentEngine.STATUS_Completed))
+		{
+			//options[index++] = DocumentEngine.ACTION_Reverse_Correct;
+			options[index++] = DocumentEngine.ACTION_Void;
+			options[index++] = DocumentEngine.ACTION_ReActivate;
+		}
+		return index;
+	}
+	
+	/**************************************************************************
+	 * 	Get Action Options based on current Status
+	 *	@return array of actions
+	 */
+
+	public String[] getCustomizedActionOptions() {
+		return null;
+	}
+
+	/**
+	 * Process a custom action similar to the {@link org.compiere.process.DocumentEngine#processIt(String) processIt()} method in DocumentEngine.java.
+	 * @param customAction - the two letter action code.
+	 * @return true is successful.
+	 */
+	public boolean processCustomAction(String customAction) {
+		return false;
+	}
+
 }

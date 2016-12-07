@@ -155,6 +155,7 @@ public class MAssetAcct extends X_A_Asset_Acct
 		
 		SetGetUtil.copyValues(this, assetgrpacct, null, null);
 		setA_Asset_ID(asset.getA_Asset_ID());
+		setAD_Org_ID(asset.getAD_Org_ID()); //added by @win
 		if (asset.getA_Depreciation_ID() > 0)
 		{
 			setA_Depreciation_ID(asset.getA_Depreciation_ID());
@@ -163,7 +164,8 @@ public class MAssetAcct extends X_A_Asset_Acct
 		{
 			setA_Depreciation_F_ID(asset.getA_Depreciation_F_ID());
 		}
-		setA_Period_Start(1);
+		// mckayERP - are these used?
+		setA_Period_Start(1); 
 		setA_Period_End(asset.getUseLifeMonths());
 		//~ setProcessing(false);
 		dump();

@@ -26,7 +26,7 @@ public class Doc_AssetDisposed extends Doc
 	 */
 	public Doc_AssetDisposed (MAcctSchema[] as, ResultSet rs, String trxName)
 	{
-		super(as, MAssetDisposed.class, rs, MDocType.DOCBASETYPE_GLDocument, trxName);
+		super(as, MAssetDisposed.class, rs, MDocType.DOCBASETYPE_FixedAssetsDisposal, trxName);
 	}
 
 	
@@ -49,16 +49,60 @@ public class Doc_AssetDisposed extends Doc
 		ArrayList<Fact> facts = new ArrayList<Fact>();
 		Fact fact = new Fact(this, as, assetDisp.getPostingType());
 		facts.add(fact);
+		
+		// Accounting
+		// 
+		// Revenue/Proceeds ............... Disposal Amt
+		// Accumulated Depreciation........ Acc Dep Delta
+		// Loss on sale (gain < 0) ........	Loss
+		//     Gain on sale (gain > 0) ....              Gain
+		//     Asset cost delta ...........              Cost Delta
 		//
-		fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Asset_Acct)
-				, as.getC_Currency_ID()
-				, Env.ZERO, assetDisp.getA_Disposal_Amt());
-		fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Accumdepreciation_Acct)
-				, as.getC_Currency_ID()
-				, assetDisp.getA_Accumulated_Depr_Delta(), Env.ZERO);
-		fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Loss_Acct)
-				, as.getC_Currency_ID()
-				, assetDisp.getExpense(), Env.ZERO);
+		// Proceed of sale (revenue) moved to cash/AR via an AR Invoice
+		// 
+		
+		// Amounts
+		BigDecimal cr_assetCostDelta = assetDisp.getA_Asset_Cost_Delta().negate();
+		BigDecimal dr_assetAccDepDelta = assetDisp.getA_Accumulated_Depr_Delta().negate();
+		BigDecimal dr_disposalAmt = assetDisp.getA_Disposal_Amt();
+		BigDecimal cr_gainLossOnDisposal = assetDisp.getA_Disposal_GainLoss(); 
+		//
+		if (cr_assetCostDelta.signum() != 0)
+		{
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Asset_Acct)
+					, as.getC_Currency_ID()
+					, Env.ZERO, cr_assetCostDelta);
+		}
+		
+		if (dr_assetAccDepDelta.signum() != 0)
+		{
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Accumdepreciation_Acct)
+					, as.getC_Currency_ID()
+					, dr_assetAccDepDelta, Env.ZERO);
+		}
+
+		if (dr_disposalAmt.signum() != 0)
+		{
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Revenue_Acct)
+					, as.getC_Currency_ID()
+					, dr_disposalAmt, Env.ZERO);
+		}
+
+		if (cr_gainLossOnDisposal.signum() != 0)
+		{
+			if (cr_gainLossOnDisposal.signum() < 0)  // Loss, negate and debit
+			{
+				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Loss_Acct)
+						, as.getC_Currency_ID()
+						, cr_gainLossOnDisposal.negate(), Env.ZERO);
+			}
+			else  // Its a gain, credit
+			{
+				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Gain_Acct)
+						, as.getC_Currency_ID()
+						, Env.ZERO, cr_gainLossOnDisposal.negate());			
+			}
+		}
 		//
 		return facts;
 	}

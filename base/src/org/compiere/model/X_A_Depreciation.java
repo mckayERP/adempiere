@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -29,7 +28,7 @@ public class X_A_Depreciation extends PO implements I_A_Depreciation, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20161121L;
 
     /** Standard Constructor */
     public X_A_Depreciation (Properties ctx, int A_Depreciation_ID, String trxName)
@@ -52,7 +51,7 @@ public class X_A_Depreciation extends PO implements I_A_Depreciation, I_Persiste
     }
 
     /** AccessLevel
-      * @return 7 - System - Client - Org 
+      * @return 4 - System 
       */
     protected int get_AccessLevel()
     {
@@ -93,10 +92,35 @@ public class X_A_Depreciation extends PO implements I_A_Depreciation, I_Persiste
 		return ii.intValue();
 	}
 
+	/** DepreciationType AD_Reference_ID=53863 */
+	public static final int DEPRECIATIONTYPE_AD_Reference_ID=53863;
+	/** 200% Declining Balance = DB200 */
+	public static final String DEPRECIATIONTYPE_200DecliningBalance = "DB200";
+	/** 150% Declining Balance = DB150 */
+	public static final String DEPRECIATIONTYPE_150DecliningBalance = "DB150";
+	/** Sum of Year Digits = SYD */
+	public static final String DEPRECIATIONTYPE_SumOfYearDigits = "SYD";
+	/** Straight Line Depreciation = SL */
+	public static final String DEPRECIATIONTYPE_StraightLineDepreciation = "SL";
+	/** Units of Production = UOP */
+	public static final String DEPRECIATIONTYPE_UnitsOfProduction = "UOP";
+	/** Variable Accelerated = ARH_VAR */
+	public static final String DEPRECIATIONTYPE_VariableAccelerated = "ARH_VAR";
+	/** Manual Depreciation = MAN */
+	public static final String DEPRECIATIONTYPE_ManualDepreciation = "MAN";
+	/** 200% DB to SL = DB200X */
+	public static final String DEPRECIATIONTYPE_200DBToSL = "DB200X";
+	/** Table = TAB */
+	public static final String DEPRECIATIONTYPE_Table = "TAB";
+	/** 150% DB to SL = DB150X */
+	public static final String DEPRECIATIONTYPE_150DBToSL = "DB150X";
+	/** No Depreciation = ARH_ZERO */
+	public static final String DEPRECIATIONTYPE_NoDepreciation = "ARH_ZERO";
 	/** Set DepreciationType.
 		@param DepreciationType DepreciationType	  */
 	public void setDepreciationType (String DepreciationType)
 	{
+
 		set_Value (COLUMNNAME_DepreciationType, DepreciationType);
 	}
 
@@ -122,6 +146,23 @@ public class X_A_Depreciation extends PO implements I_A_Depreciation, I_Persiste
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	/** Set Comment/Help.
+		@param Help 
+		Comment or Hint
+	  */
+	public void setHelp (String Help)
+	{
+		set_Value (COLUMNNAME_Help, Help);
+	}
+
+	/** Get Comment/Help.
+		@return Comment or Hint
+	  */
+	public String getHelp () 
+	{
+		return (String)get_Value(COLUMNNAME_Help);
 	}
 
 	/** Set Name.

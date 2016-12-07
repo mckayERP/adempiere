@@ -380,16 +380,17 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 		return MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), dateAcct, trxName);
 	}
 
-	/**	Returns the current cost of FAs. It is calculated as the difference between acquisition value and the value that you (A_Salvage_Value)
-	 * @return the current cost of FAs
+	/**	Returns the net cost of FAs which is the acquisition value less the residual or salvage value. 
+	 *  It represents the initial/maximum undepreciated value of the asset.
+	 * @return the net undepreciated value of the asset.
 	 */
-	public BigDecimal getActualCost()
+	public BigDecimal getNetCost()
 	{
-		return getActualCost(getA_Asset_Cost());
+		return getNetCost(getA_Asset_Cost());
 	}
 	
 	/**	*/
-	public BigDecimal getActualCost(BigDecimal assetCost)
+	public BigDecimal getNetCost(BigDecimal assetCost)
 	{
 		return assetCost.subtract(getA_Salvage_Value());
 	}
@@ -467,6 +468,28 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 	}
 
 	/**
+	 * Reverse Accumulated depreciation adjustment.  Can't reverse a reset.
+	 * @param amt
+	 * @param amt_F
+	 * @param reset
+	 * @return
+	 */
+	public boolean reverseAccumulatedDepr(BigDecimal amt, BigDecimal amt_F)
+	{
+		if (amt == null)
+		{
+			amt = Env.ZERO;
+		}
+		if (amt_F == null)
+		{
+			amt_F = Env.ZERO;
+		}
+		setA_Accumulated_Depr(getA_Accumulated_Depr().subtract(amt));
+		setA_Accumulated_Depr_F(getA_Accumulated_Depr_F().subtract(amt_F));
+		return true;
+	}
+
+	/**
 	 * Adjust use life years
 	 */
 	public void adjustUseLife(int deltaUseLifeYears, int deltaUseLifeYears_F, boolean reset)
@@ -508,7 +531,7 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 	 */
 	public BigDecimal getRemainingCost(BigDecimal accumAmt, boolean fiscal)
 	{
-		BigDecimal cost = getActualCost();
+		BigDecimal cost = getNetCost();
 		if (accumAmt == null) {
 			accumAmt = getA_Accumulated_Depr(fiscal);
 		}
@@ -623,7 +646,7 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 		//~ int offset_F = depreciation_F.getFixMonthOffset();
 		int offset_C = 0, offset_F = 0;
 		
-		BigDecimal assetCost = getActualCost();
+		BigDecimal assetCost = getNetCost();
 		BigDecimal accumDep_C = getA_Accumulated_Depr(false);
 		BigDecimal accumDep_F = getA_Accumulated_Depr(true);
 		int lifePeriods_C = getUseLifeMonths(false) + offset_C;

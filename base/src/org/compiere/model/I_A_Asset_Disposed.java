@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -41,27 +40,6 @@ public interface I_A_Asset_Disposed
 
     /** Load Meta Data */
 
-    /** Column name AD_Client_ID */
-    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
-
-	/** Get Client.
-	  * Client/Tenant for this installation.
-	  */
-	public int getAD_Client_ID();
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
-
     /** Column name A_Accumulated_Depr */
     public static final String COLUMNNAME_A_Accumulated_Depr = "A_Accumulated_Depr";
 
@@ -74,10 +52,14 @@ public interface I_A_Asset_Disposed
     /** Column name A_Accumulated_Depr_Delta */
     public static final String COLUMNNAME_A_Accumulated_Depr_Delta = "A_Accumulated_Depr_Delta";
 
-	/** Set Accumulated Depreciation (delta)	  */
+	/** Set Accumulated Depreciation (delta).
+	  * The change is accumulated depreciation resulting from a transaction.
+	  */
 	public void setA_Accumulated_Depr_Delta (BigDecimal A_Accumulated_Depr_Delta);
 
-	/** Get Accumulated Depreciation (delta)	  */
+	/** Get Accumulated Depreciation (delta).
+	  * The change is accumulated depreciation resulting from a transaction.
+	  */
 	public BigDecimal getA_Accumulated_Depr_Delta();
 
     /** Column name A_Activation_Method */
@@ -97,6 +79,19 @@ public interface I_A_Asset_Disposed
 
 	/** Get Asset Cost	  */
 	public BigDecimal getA_Asset_Cost();
+
+    /** Column name A_Asset_Cost_Delta */
+    public static final String COLUMNNAME_A_Asset_Cost_Delta = "A_Asset_Cost_Delta";
+
+	/** Set Change in Asset Cost.
+	  * The change in asset cost as a result of the asset transaction.
+	  */
+	public void setA_Asset_Cost_Delta (BigDecimal A_Asset_Cost_Delta);
+
+	/** Get Change in Asset Cost.
+	  * The change in asset cost as a result of the asset transaction.
+	  */
+	public BigDecimal getA_Asset_Cost_Delta();
 
     /** Column name A_Asset_Disposed_ID */
     public static final String COLUMNNAME_A_Asset_Disposed_ID = "A_Asset_Disposed_ID";
@@ -151,6 +146,19 @@ public interface I_A_Asset_Disposed
 	/** Get Disposal Amount	  */
 	public BigDecimal getA_Disposal_Amt();
 
+    /** Column name A_Disposal_GainLoss */
+    public static final String COLUMNNAME_A_Disposal_GainLoss = "A_Disposal_GainLoss";
+
+	/** Set Gain/(Loss) on Disposal.
+	  * An amount of gain or loss on the disposal of an asset.
+	  */
+	public void setA_Disposal_GainLoss (BigDecimal A_Disposal_GainLoss);
+
+	/** Get Gain/(Loss) on Disposal.
+	  * An amount of gain or loss on the disposal of an asset.
+	  */
+	public BigDecimal getA_Disposal_GainLoss();
+
     /** Column name A_Disposed_Date */
     public static final String COLUMNNAME_A_Disposed_Date = "A_Disposed_Date";
 
@@ -187,6 +195,49 @@ public interface I_A_Asset_Disposed
 	/** Get Asset Proceeds	  */
 	public BigDecimal getA_Proceeds();
 
+    /** Column name A_QTY_Current */
+    public static final String COLUMNNAME_A_QTY_Current = "A_QTY_Current";
+
+	/** Set Current Qty	  */
+	public void setA_QTY_Current (BigDecimal A_QTY_Current);
+
+	/** Get Current Qty	  */
+	public BigDecimal getA_QTY_Current();
+
+    /** Column name A_QTY_Delta */
+    public static final String COLUMNNAME_A_QTY_Delta = "A_QTY_Delta";
+
+	/** Set Change in Quantity.
+	  * The change in quantity due to a transaction
+	  */
+	public void setA_QTY_Delta (BigDecimal A_QTY_Delta);
+
+	/** Get Change in Quantity.
+	  * The change in quantity due to a transaction
+	  */
+	public BigDecimal getA_QTY_Delta();
+
+    /** Column name AD_Client_ID */
+    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
+
+	/** Get Client.
+	  * Client/Tenant for this installation.
+	  */
+	public int getAD_Client_ID();
+
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
@@ -202,21 +253,6 @@ public interface I_A_Asset_Disposed
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
 
-    /** Column name C_InvoiceLine_ID */
-    public static final String COLUMNNAME_C_InvoiceLine_ID = "C_InvoiceLine_ID";
-
-	/** Set Invoice Line.
-	  * Invoice Detail Line
-	  */
-	public void setC_InvoiceLine_ID (int C_InvoiceLine_ID);
-
-	/** Get Invoice Line.
-	  * Invoice Detail Line
-	  */
-	public int getC_InvoiceLine_ID();
-
-	public org.compiere.model.I_C_InvoiceLine getC_InvoiceLine() throws RuntimeException;
-
     /** Column name C_Invoice_ID */
     public static final String COLUMNNAME_C_Invoice_ID = "C_Invoice_ID";
 
@@ -231,6 +267,21 @@ public interface I_A_Asset_Disposed
 	public int getC_Invoice_ID();
 
 	public org.compiere.model.I_C_Invoice getC_Invoice() throws RuntimeException;
+
+    /** Column name C_InvoiceLine_ID */
+    public static final String COLUMNNAME_C_InvoiceLine_ID = "C_InvoiceLine_ID";
+
+	/** Set Invoice Line.
+	  * Invoice Detail Line
+	  */
+	public void setC_InvoiceLine_ID (int C_InvoiceLine_ID);
+
+	/** Get Invoice Line.
+	  * Invoice Detail Line
+	  */
+	public int getC_InvoiceLine_ID();
+
+	public org.compiere.model.I_C_InvoiceLine getC_InvoiceLine() throws RuntimeException;
 
     /** Column name C_Period_ID */
     public static final String COLUMNNAME_C_Period_ID = "C_Period_ID";
@@ -340,15 +391,6 @@ public interface I_A_Asset_Disposed
 	  * Document sequence number of the document
 	  */
 	public String getDocumentNo();
-
-    /** Column name Expense */
-    public static final String COLUMNNAME_Expense = "Expense";
-
-	/** Set Expense	  */
-	public void setExpense (BigDecimal Expense);
-
-	/** Get Expense	  */
-	public BigDecimal getExpense();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
