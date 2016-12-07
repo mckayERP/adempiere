@@ -80,8 +80,10 @@ public class DocLine_Cash extends DocLine
 	public static final String  CASHTYPE_DIFFERENCE = "D";
 	/** Expense - E		*/
 	public static final String  CASHTYPE_EXPENSE = "E";
-	/** Onvoice - I 	*/
+	/** Invoice - I 	*/
 	public static final String  CASHTYPE_INVOICE = "I";
+	/** Payment - P 	*/
+	public static final String  CASHTYPE_PAYMENT = "P";
 	/** Receipt - R		*/
 	public static final String  CASHTYPE_RECEIPT = "R";
 	/** Transfer - T	*/

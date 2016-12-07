@@ -21,10 +21,14 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
+import org.compiere.model.MBankAccount;
 import org.compiere.model.MCash;
 import org.compiere.model.MCashBook;
 import org.compiere.model.MCashLine;
+import org.compiere.model.MPayment;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
 
 /**
@@ -38,6 +42,8 @@ import org.compiere.util.Env;
  */
 public class Doc_Cash extends Doc
 {
+	private MCash c_cash;
+
 	/**
 	 *  Constructor
 	 * 	@param ass accounting schemata
@@ -55,19 +61,19 @@ public class Doc_Cash extends Doc
 	 */
 	protected String loadDocumentDetails ()
 	{
-		MCash cash = (MCash)getPO();
-		setDateDoc(cash.getStatementDate());
+		c_cash = (MCash)getPO();
+		setDateDoc(c_cash.getStatementDate());
 
 		//	Amounts
-		setAmount(Doc.AMTTYPE_Gross, cash.getStatementDifference());
+		setAmount(Doc.AMTTYPE_Gross, c_cash.getStatementDifference());
 
 		//  Set CashBook Org & Currency
-		MCashBook cb = MCashBook.get(getCtx(), cash.getC_CashBook_ID());
+		MCashBook cb = MCashBook.get(getCtx(), c_cash.getC_CashBook_ID());
 		setC_CashBook_ID(cb.getC_CashBook_ID());
 		setC_Currency_ID(cb.getC_Currency_ID());
 
 		//	Contained Objects
-		p_lines = loadLines(cash, cb);
+		p_lines = loadLines(c_cash, cb);
 		log.fine("Lines=" + p_lines.length);
 		return null;
 	}   //  loadDocumentDetails
@@ -224,6 +230,35 @@ public class Doc_Cash extends Doc
 				fact.createLine(line,
 					getAccount(Doc.ACCTTYPE_CashTransfer, as),
 					line.getC_Currency_ID(), line.getAmount().negate());
+			}
+			else if (CashType.equals(DocLine_Cash.CASHTYPE_PAYMENT))
+			{   //  amount is positive or negative
+				//  CashAsset       DR
+				//  CashReceipt             CR
+				MCashLine cashLine = (MCashLine) line.p_po;
+				MPayment payment = (MPayment) cashLine.getC_Payment();
+				MBankAccount account = (MBankAccount) payment.getC_BankAccount();
+				
+				
+				String sql = "SELECT B_UnallocatedCash_Acct "
+						+ " FROM C_BankAccount_Acct "
+						+ " WHERE C_BankAccount_ID=" + account.getC_BankAccount_ID()
+						+ " AND C_AcctSchema_ID=" + as.getC_AcctSchema_ID();
+				
+				int unallocatedCashAcct_id = DB.getSQLValue(fact.get_TrxName(), sql);
+
+				MAccount unallocatedCashAcct = MAccount.get(getCtx(), unallocatedCashAcct_id);
+				if (line.getC_Currency_ID() == getC_Currency_ID())
+					assetAmt = assetAmt.add (line.getAmount());
+				else
+					fact.createLine(line,
+						getAccount(Doc.ACCTTYPE_CashAsset, as),
+						line.getC_Currency_ID(), line.getAmount());
+				fact.createLine(line, unallocatedCashAcct,
+					getC_Currency_ID(), null, line.getAmount());
+//				fact.createLine(line,
+//						getAccount(Doc.ACCTTYPE_CashTransfer, as),
+//						line.getC_Currency_ID(), line.getAmount().negate());
 			}
 			else if (CashType.equals(DocLine_Cash.CASHTYPE_TRANSFER))
 			{   //  amount is pos/neg

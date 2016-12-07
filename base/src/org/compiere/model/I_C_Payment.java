@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -40,40 +39,6 @@ public interface I_C_Payment
     BigDecimal accessLevel = BigDecimal.valueOf(1);
 
     /** Load Meta Data */
-
-    /** Column name AD_Client_ID */
-    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
-
-	/** Get Client.
-	  * Client/Tenant for this installation.
-	  */
-	public int getAD_Client_ID();
-
-    /** Column name AD_OrgTrx_ID */
-    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
-
-	/** Set Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
-
-	/** Get Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID();
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
 
     /** Column name A_City */
     public static final String COLUMNNAME_A_City = "A_City";
@@ -205,6 +170,40 @@ public interface I_C_Payment
 	  */
 	public String getAccountNo();
 
+    /** Column name AD_Client_ID */
+    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
+
+	/** Get Client.
+	  * Client/Tenant for this installation.
+	  */
+	public int getAD_Client_ID();
+
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
+    /** Column name AD_OrgTrx_ID */
+    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
+
+	/** Set Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
+
+	/** Get Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public int getAD_OrgTrx_ID();
+
     /** Column name C_Activity_ID */
     public static final String COLUMNNAME_C_Activity_ID = "C_Activity_ID";
 
@@ -219,6 +218,21 @@ public interface I_C_Payment
 	public int getC_Activity_ID();
 
 	public org.compiere.model.I_C_Activity getC_Activity() throws RuntimeException;
+
+    /** Column name C_BankAccount_ID */
+    public static final String COLUMNNAME_C_BankAccount_ID = "C_BankAccount_ID";
+
+	/** Set Bank Account.
+	  * Account at the Bank
+	  */
+	public void setC_BankAccount_ID (int C_BankAccount_ID);
+
+	/** Get Bank Account.
+	  * Account at the Bank
+	  */
+	public int getC_BankAccount_ID();
+
+	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException;
 
     /** Column name C_BP_BankAccount_ID */
     public static final String COLUMNNAME_C_BP_BankAccount_ID = "C_BP_BankAccount_ID";
@@ -250,21 +264,6 @@ public interface I_C_Payment
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
-    /** Column name C_BankAccount_ID */
-    public static final String COLUMNNAME_C_BankAccount_ID = "C_BankAccount_ID";
-
-	/** Set Bank Account.
-	  * Account at the Bank
-	  */
-	public void setC_BankAccount_ID (int C_BankAccount_ID);
-
-	/** Get Bank Account.
-	  * Account at the Bank
-	  */
-	public int getC_BankAccount_ID();
-
-	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException;
-
     /** Column name C_Campaign_ID */
     public static final String COLUMNNAME_C_Campaign_ID = "C_Campaign_ID";
 
@@ -294,6 +293,21 @@ public interface I_C_Payment
 	public int getC_CashBook_ID();
 
 	public org.compiere.model.I_C_CashBook getC_CashBook() throws RuntimeException;
+
+    /** Column name C_CashLine_ID */
+    public static final String COLUMNNAME_C_CashLine_ID = "C_CashLine_ID";
+
+	/** Set Cash Journal Line.
+	  * Cash Journal Line
+	  */
+	public void setC_CashLine_ID (int C_CashLine_ID);
+
+	/** Get Cash Journal Line.
+	  * Cash Journal Line
+	  */
+	public int getC_CashLine_ID();
+
+	public org.compiere.model.I_C_CashLine getC_CashLine() throws RuntimeException;
 
     /** Column name C_Charge_ID */
     public static final String COLUMNNAME_C_Charge_ID = "C_Charge_ID";
@@ -385,20 +399,18 @@ public interface I_C_Payment
 
 	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException;
 
-    /** Column name C_POS_ID */
-    public static final String COLUMNNAME_C_POS_ID = "C_POS_ID";
+    /** Column name C_Payment_ID */
+    public static final String COLUMNNAME_C_Payment_ID = "C_Payment_ID";
 
-	/** Set POS Terminal.
-	  * Point of Sales Terminal
+	/** Set Payment.
+	  * Payment identifier
 	  */
-	public void setC_POS_ID (int C_POS_ID);
+	public void setC_Payment_ID (int C_Payment_ID);
 
-	/** Get POS Terminal.
-	  * Point of Sales Terminal
+	/** Get Payment.
+	  * Payment identifier
 	  */
-	public int getC_POS_ID();
-
-	public org.compiere.model.I_C_POS getC_POS() throws RuntimeException;
+	public int getC_Payment_ID();
 
     /** Column name C_PaymentBatch_ID */
     public static final String COLUMNNAME_C_PaymentBatch_ID = "C_PaymentBatch_ID";
@@ -414,19 +426,6 @@ public interface I_C_Payment
 	public int getC_PaymentBatch_ID();
 
 	public org.compiere.model.I_C_PaymentBatch getC_PaymentBatch() throws RuntimeException;
-
-    /** Column name C_Payment_ID */
-    public static final String COLUMNNAME_C_Payment_ID = "C_Payment_ID";
-
-	/** Set Payment.
-	  * Payment identifier
-	  */
-	public void setC_Payment_ID (int C_Payment_ID);
-
-	/** Get Payment.
-	  * Payment identifier
-	  */
-	public int getC_Payment_ID();
 
     /** Column name C_Project_ID */
     public static final String COLUMNNAME_C_Project_ID = "C_Project_ID";
@@ -823,19 +822,6 @@ public interface I_C_Payment
 	  */
 	public BigDecimal getOverUnderAmt();
 
-    /** Column name PONum */
-    public static final String COLUMNNAME_PONum = "PONum";
-
-	/** Set PO Number.
-	  * Purchase Order Number
-	  */
-	public void setPONum (String PONum);
-
-	/** Get PO Number.
-	  * Purchase Order Number
-	  */
-	public String getPONum();
-
     /** Column name PayAmt */
     public static final String COLUMNNAME_PayAmt = "PayAmt";
 
@@ -848,6 +834,19 @@ public interface I_C_Payment
 	  * Amount being paid
 	  */
 	public BigDecimal getPayAmt();
+
+    /** Column name PONum */
+    public static final String COLUMNNAME_PONum = "PONum";
+
+	/** Set PO Number.
+	  * Purchase Order Number
+	  */
+	public void setPONum (String PONum);
+
+	/** Get PO Number.
+	  * Purchase Order Number
+	  */
+	public String getPONum();
 
     /** Column name Posted */
     public static final String COLUMNNAME_Posted = "Posted";

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20160422L;
+	private static final long serialVersionUID = 20161203L;
 
     /** Standard Constructor */
     public X_C_Payment (Properties ctx, int C_Payment_ID, String trxName)
@@ -71,7 +70,7 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 // N
 			setProcessed (false);
 			setTenderType (null);
-// K
+// C
 			setTrxType (null);
 // S
         } */
@@ -104,29 +103,6 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
-
-	/** Set Trx Organization.
-		@param AD_OrgTrx_ID 
-		Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID)
-	{
-		if (AD_OrgTrx_ID < 1) 
-			set_Value (COLUMNNAME_AD_OrgTrx_ID, null);
-		else 
-			set_Value (COLUMNNAME_AD_OrgTrx_ID, Integer.valueOf(AD_OrgTrx_ID));
-	}
-
-	/** Get Trx Organization.
-		@return Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_OrgTrx_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
 
 	/** Set Account City.
 		@param A_City 
@@ -298,6 +274,29 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 		return (String)get_Value(COLUMNNAME_AccountNo);
 	}
 
+	/** Set Trx Organization.
+		@param AD_OrgTrx_ID 
+		Performing or initiating organization
+	  */
+	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID)
+	{
+		if (AD_OrgTrx_ID < 1) 
+			set_Value (COLUMNNAME_AD_OrgTrx_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_OrgTrx_ID, Integer.valueOf(AD_OrgTrx_ID));
+	}
+
+	/** Get Trx Organization.
+		@return Performing or initiating organization
+	  */
+	public int getAD_OrgTrx_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_OrgTrx_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_Activity getC_Activity() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Activity)MTable.get(getCtx(), org.compiere.model.I_C_Activity.Table_Name)
@@ -321,6 +320,34 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public int getC_Activity_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_Activity_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BankAccount)MTable.get(getCtx(), org.compiere.model.I_C_BankAccount.Table_Name)
+			.getPO(getC_BankAccount_ID(), get_TrxName());	}
+
+	/** Set Bank Account.
+		@param C_BankAccount_ID 
+		Account at the Bank
+	  */
+	public void setC_BankAccount_ID (int C_BankAccount_ID)
+	{
+		if (C_BankAccount_ID < 1) 
+			set_Value (COLUMNNAME_C_BankAccount_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BankAccount_ID, Integer.valueOf(C_BankAccount_ID));
+	}
+
+	/** Get Bank Account.
+		@return Account at the Bank
+	  */
+	public int getC_BankAccount_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_BankAccount_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -382,34 +409,6 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_BankAccount getC_BankAccount() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BankAccount)MTable.get(getCtx(), org.compiere.model.I_C_BankAccount.Table_Name)
-			.getPO(getC_BankAccount_ID(), get_TrxName());	}
-
-	/** Set Bank Account.
-		@param C_BankAccount_ID 
-		Account at the Bank
-	  */
-	public void setC_BankAccount_ID (int C_BankAccount_ID)
-	{
-		if (C_BankAccount_ID < 1) 
-			set_Value (COLUMNNAME_C_BankAccount_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_BankAccount_ID, Integer.valueOf(C_BankAccount_ID));
-	}
-
-	/** Get Bank Account.
-		@return Account at the Bank
-	  */
-	public int getC_BankAccount_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BankAccount_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_Campaign getC_Campaign() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Campaign)MTable.get(getCtx(), org.compiere.model.I_C_Campaign.Table_Name)
@@ -461,6 +460,34 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public int getC_CashBook_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_CashBook_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_CashLine getC_CashLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_CashLine)MTable.get(getCtx(), org.compiere.model.I_C_CashLine.Table_Name)
+			.getPO(getC_CashLine_ID(), get_TrxName());	}
+
+	/** Set Cash Journal Line.
+		@param C_CashLine_ID 
+		Cash Journal Line
+	  */
+	public void setC_CashLine_ID (int C_CashLine_ID)
+	{
+		if (C_CashLine_ID < 1) 
+			set_Value (COLUMNNAME_C_CashLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_CashLine_ID, Integer.valueOf(C_CashLine_ID));
+	}
+
+	/** Get Cash Journal Line.
+		@return Cash Journal Line
+	  */
+	public int getC_CashLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_CashLine_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -634,29 +661,24 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_C_POS getC_POS() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_POS)MTable.get(getCtx(), org.compiere.model.I_C_POS.Table_Name)
-			.getPO(getC_POS_ID(), get_TrxName());	}
-
-	/** Set POS Terminal.
-		@param C_POS_ID 
-		Point of Sales Terminal
+	/** Set Payment.
+		@param C_Payment_ID 
+		Payment identifier
 	  */
-	public void setC_POS_ID (int C_POS_ID)
+	public void setC_Payment_ID (int C_Payment_ID)
 	{
-		if (C_POS_ID < 1) 
-			set_Value (COLUMNNAME_C_POS_ID, null);
+		if (C_Payment_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_Payment_ID, null);
 		else 
-			set_Value (COLUMNNAME_C_POS_ID, Integer.valueOf(C_POS_ID));
+			set_ValueNoCheck (COLUMNNAME_C_Payment_ID, Integer.valueOf(C_Payment_ID));
 	}
 
-	/** Get POS Terminal.
-		@return Point of Sales Terminal
+	/** Get Payment.
+		@return Payment identifier
 	  */
-	public int getC_POS_ID () 
+	public int getC_Payment_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_POS_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Payment_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -685,29 +707,6 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public int getC_PaymentBatch_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_PaymentBatch_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Payment.
-		@param C_Payment_ID 
-		Payment identifier
-	  */
-	public void setC_Payment_ID (int C_Payment_ID)
-	{
-		if (C_Payment_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_Payment_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_Payment_ID, Integer.valueOf(C_Payment_ID));
-	}
-
-	/** Get Payment.
-		@return Payment identifier
-	  */
-	public int getC_Payment_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_Payment_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -987,6 +986,12 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public static final String DOCACTION_Unlock = "XL";
 	/** Wait Complete = WC */
 	public static final String DOCACTION_WaitComplete = "WC";
+	/** Enter = ME */
+	public static final String DOCACTION_Enter = "ME";
+	/** Defer = MD */
+	public static final String DOCACTION_Defer = "MD";
+	/** Rectify = MR */
+	public static final String DOCACTION_Rectify = "MR";
 	/** Set Document Action.
 		@param DocAction 
 		The targeted status of the document
@@ -1031,6 +1036,12 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public static final String DOCSTATUS_WaitingPayment = "WP";
 	/** Waiting Confirmation = WC */
 	public static final String DOCSTATUS_WaitingConfirmation = "WC";
+	/** Entered = ME */
+	public static final String DOCSTATUS_Entered = "ME";
+	/** Rectified = MR */
+	public static final String DOCSTATUS_Rectified = "MR";
+	/** Deferred = MD */
+	public static final String DOCSTATUS_Deferred = "MD";
 	/** Set Document Status.
 		@param DocStatus 
 		The current status of the document
@@ -1361,23 +1372,6 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 		return bd;
 	}
 
-	/** Set PO Number.
-		@param PONum 
-		Purchase Order Number
-	  */
-	public void setPONum (String PONum)
-	{
-		set_Value (COLUMNNAME_PONum, PONum);
-	}
-
-	/** Get PO Number.
-		@return Purchase Order Number
-	  */
-	public String getPONum () 
-	{
-		return (String)get_Value(COLUMNNAME_PONum);
-	}
-
 	/** Set Payment amount.
 		@param PayAmt 
 		Amount being paid
@@ -1396,6 +1390,23 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set PO Number.
+		@param PONum 
+		Purchase Order Number
+	  */
+	public void setPONum (String PONum)
+	{
+		set_Value (COLUMNNAME_PONum, PONum);
+	}
+
+	/** Get PO Number.
+		@return Purchase Order Number
+	  */
+	public String getPONum () 
+	{
+		return (String)get_Value(COLUMNNAME_PONum);
 	}
 
 	/** Set Posted.
@@ -1803,8 +1814,8 @@ public class X_C_Payment extends PO implements I_C_Payment, I_Persistent
 	public static final String TENDERTYPE_Account = "T";
 	/** Cash = X */
 	public static final String TENDERTYPE_Cash = "X";
-	/** Credit Memo = M */
-	public static final String TENDERTYPE_CreditMemo = "M";
+	/** Deposit = G */
+	public static final String TENDERTYPE_Deposit = "G";
 	/** Set Tender type.
 		@param TenderType 
 		Method of Payment

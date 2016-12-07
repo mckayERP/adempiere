@@ -1856,35 +1856,17 @@ public final class MPayment extends X_C_Payment
 				return DocAction.STATUS_Invalid;
 			}
 			MCashLine cl = new MCashLine( cash );
-			cl.setCashType( X_C_CashLine.CASHTYPE_GeneralReceipts );
-			cl.setDescription("Generated From Payment #" + getDocumentNo());
-			cl.setC_Currency_ID( this.getC_Currency_ID() );
-			cl.setC_Payment_ID( getC_Payment_ID() ); // Set Reference to payment.
+			cl.setPayment(this);
 			StringBuffer info=new StringBuffer();
-			info.append("Cash journal ( ")
-				.append(cash.getDocumentNo()).append(" )");				
+			info.append("@C_Cash_ID@: " + cash.getName() +  " #" + cl.getLine());				
 			m_processMsg = info.toString();
-			//	Amount
-			BigDecimal amt = this.getPayAmt();
-/*
-			MDocType dt = MDocType.get(getCtx(), invoice.getC_DocType_ID());			
-			if (MDocType.DOCBASETYPE_APInvoice.equals( dt.getDocBaseType() )
-				|| MDocType.DOCBASETYPE_ARCreditMemo.equals( dt.getDocBaseType() ) 
-			) {
-				amt = amt.negate();
-			}
-*/
-			cl.setAmount( amt );
-			//
-			cl.setDiscountAmt( Env.ZERO );
-			cl.setWriteOffAmt( Env.ZERO );
-			cl.setIsGenerated( true );
 			
 			if (!cl.save(get_TrxName()))
 			{
 				m_processMsg = "Could not save Cash Journal Line";
 				return DocAction.STATUS_Invalid;
 			}
+			setC_CashLine_ID(cl.getC_CashLine_ID());
 		}
 		// End Trifon - CashPayments
 		

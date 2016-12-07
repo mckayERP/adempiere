@@ -96,6 +96,7 @@ public class MCashLine extends X_C_CashLine
 	private MBankAccount 	m_bankAccount = null;
 	/** Invoice					*/
 	private MInvoice		m_invoice = null;
+	private MPayment m_payment;
 	
 
 	/**
@@ -132,6 +133,30 @@ public class MCashLine extends X_C_CashLine
 		setWriteOffAmt(Env.ZERO);
 		setIsGenerated(true);
 		m_invoice = invoice;
+	}	//	setInvoiceLine
+
+	/**
+	 * 	Set payment - no discount
+	 *	@param MPayment payment
+	 */
+	public void setPayment (MPayment payment)
+	{
+		setC_Payment_ID(payment.getC_Payment_ID());
+		setCashType (CASHTYPE_Payment);
+		setC_Currency_ID(payment.getC_Currency_ID());
+		//	Amount
+		MDocType dt = MDocType.get(getCtx(), payment.getC_DocType_ID());
+		BigDecimal amt = payment.getPayAmt();
+		if (MDocType.DOCBASETYPE_APPayment.equals(dt.getDocBaseType()))
+			amt = amt.negate();
+		setAmount (amt);
+		//
+		setDescription("Generated From Payment #" + payment.getDocumentNo());
+		//
+		setDiscountAmt(Env.ZERO);
+		setWriteOffAmt(Env.ZERO);
+		setIsGenerated(true);
+		m_payment = payment;
 	}	//	setInvoiceLine
 
 	/**
@@ -202,6 +227,7 @@ public class MCashLine extends X_C_CashLine
 		reversal.setC_Charge_ID(getC_Charge_ID());
 		reversal.setC_Currency_ID(getC_Currency_ID());
 		reversal.setC_Invoice_ID(getC_Invoice_ID());
+		reversal.setC_Payment_ID(getC_Payment_ID());
 		reversal.setCashType(getCashType());
 		reversal.setDescription(getDescription());
 		reversal.setIsGenerated(true);
@@ -260,10 +286,21 @@ public class MCashLine extends X_C_CashLine
 	public MInvoice getInvoice()
 	{
 		if (m_invoice == null && getC_Invoice_ID() != 0)
-			m_invoice = MInvoice.get(getCtx(), getC_Invoice_ID());
+			m_invoice = (MInvoice) getC_Invoice();
 		return m_invoice;
 	}	//	getInvoice
-	
+
+	/**
+	 * 	Get Payment
+	 *	@return Payment
+	 */
+	public MPayment getPayment()
+	{
+		if (m_payment == null && getC_Payment_ID() != 0)
+			m_payment = (MPayment) getC_Payment();
+		return m_payment;
+	}	//	getInvoice
+
 	/**************************************************************************
 	 * 	Before Delete
 	 *	@return true/false
@@ -277,6 +314,11 @@ public class MCashLine extends X_C_CashLine
 			if (get_ValueOld("C_Invoice_ID") != null)
 			{
 				log.saveError("Error", Msg.getMsg(getCtx(), "CannotDeleteCashGenInvoice"));
+				return false;
+			}
+			if (get_ValueOld("C_Payment_ID") != null)
+			{
+				log.saveError("Error", Msg.getMsg(getCtx(), "CannotDeleteCashGenPayment"));
 				return false;
 			}
 		}
@@ -317,9 +359,22 @@ public class MCashLine extends X_C_CashLine
 				return false;
 			}
 		}
+
+		//	Cannot change generated payment
+		if (is_ValueChanged(COLUMNNAME_C_Payment_ID))
+		{
+			Object generated = get_ValueOld(COLUMNNAME_IsGenerated);
+			if (generated != null && ((Boolean)generated).booleanValue())
+			{
+				log.saveError("Error", Msg.getMsg(getCtx(), "CannotChangeCashGenPayment"));
+				return false;
+			}
+		}
 		
 		//	Verify CashType
 		if (CASHTYPE_Invoice.equals(getCashType()) && getC_Invoice_ID() == 0)
+			setCashType(CASHTYPE_GeneralExpense);
+		if (CASHTYPE_Payment.equals(getCashType()) && getC_Payment_ID() == 0)
 			setCashType(CASHTYPE_GeneralExpense);
 		if (CASHTYPE_BankAccountTransfer.equals(getCashType()) && getC_BankAccount_ID() == 0)
 			setCashType(CASHTYPE_GeneralExpense);
@@ -329,6 +384,7 @@ public class MCashLine extends X_C_CashLine
 		boolean verify = newRecord 
 			|| is_ValueChanged("CashType")
 			|| is_ValueChanged("C_Invoice_ID")
+			|| is_ValueChanged("C_Payment_ID")
 			|| is_ValueChanged("C_BankAccount_ID");
 		if (verify)
 		{
@@ -337,6 +393,8 @@ public class MCashLine extends X_C_CashLine
 				setC_Currency_ID(getBankAccount().getC_Currency_ID());
 			else if (CASHTYPE_Invoice.equals(getCashType()))
 				setC_Currency_ID(getInvoice().getC_Currency_ID());
+			else if (CASHTYPE_Payment.equals(getCashType()))
+				setC_Currency_ID(getC_Payment().getC_Currency_ID());
 			else	//	Cash 
 				setC_Currency_ID(getCashBook().getC_Currency_ID());
 		
@@ -344,7 +402,8 @@ public class MCashLine extends X_C_CashLine
 			if (CASHTYPE_BankAccountTransfer.equals(getCashType()))
 				setAD_Org_ID(getBankAccount().getAD_Org_ID());
 			//	Cash Book
-			else if (CASHTYPE_Invoice.equals(getCashType()))
+			else if (CASHTYPE_Invoice.equals(getCashType()) 
+				  || CASHTYPE_Payment.equals(getCashType()))
 				setAD_Org_ID(getCashBook().getAD_Org_ID());
 			//	otherwise (charge) - leave it
 			//	Enforce Org
