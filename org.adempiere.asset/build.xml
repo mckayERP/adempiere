@@ -13,11 +13,11 @@
   <property name="dist"  location="dist"/>
 
   <path id="lib.class.path">
-     <fileset dir="${adempiere.source}/lib">
+    <pathelement path="../base/Base.jar"/>
+     <fileset dir="../lib">
         <include name="*.jar"/>
      </fileset>
-      <pathelement path="${adempiere.source}/base/Base.jar"/>
-      <fileset dir="${adempiere.source}/packages">
+      <fileset dir="../packages">
        <include name="*.jar"/>
     </fileset>
   </path>
