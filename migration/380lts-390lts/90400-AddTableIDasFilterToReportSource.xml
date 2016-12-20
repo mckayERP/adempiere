@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Migrations>
-  <Migration EntityType="D" Name="Add AD_Table_ID as a filter to report source" ReleaseNo="" SeqNo="400">
+  <Migration EntityType="D" Name="Add AD_Table_ID as a filter to report source" ReleaseNo="3.9.0" SeqNo="400">
     <Step SeqNo="10" StepType="AD">
       <PO AD_Table_ID="101" Action="I" Record_ID="81590" Table="AD_Column">
         <Data AD_Column_ID="548" Column="IsActive">true</Data>

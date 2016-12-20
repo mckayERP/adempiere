@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Add ReportLine amount types to present negative amounts." ReleaseNo="3.9.0" SeqNo="410">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="54803" Table="AD_Ref_List">
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">BN</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">54803</Data>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="564" Column="Created">2016-12-14 17:42:42.515</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="566" Column="Updated">2016-12-14 17:42:42.515</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53328</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="7712" Column="EntityType">D</Data>
+        <Data AD_Column_ID="150" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="149" Column="Name">Balance (negative expected sign)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="54803" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">54803</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="709" Column="Updated">2016-12-14 17:42:46.325</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="707" Column="Created">2016-12-14 17:42:46.325</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="339" Column="Description" isNewNull="true"/>
+        <Data AD_Column_ID="338" Column="Name">Balance (negative expected sign)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="104" Action="I" Record_ID="54804" Table="AD_Ref_List">
+        <Data AD_Column_ID="563" Column="IsActive">true</Data>
+        <Data AD_Column_ID="200" Column="Value">SN</Data>
+        <Data AD_Column_ID="148" Column="AD_Ref_List_ID">54804</Data>
+        <Data AD_Column_ID="152" Column="ValidFrom" isNewNull="true"/>
+        <Data AD_Column_ID="564" Column="Created">2016-12-14 17:43:22.917</Data>
+        <Data AD_Column_ID="565" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="566" Column="Updated">2016-12-14 17:43:22.917</Data>
+        <Data AD_Column_ID="567" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="151" Column="AD_Reference_ID">53328</Data>
+        <Data AD_Column_ID="372" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="153" Column="ValidTo" isNewNull="true"/>
+        <Data AD_Column_ID="371" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="7712" Column="EntityType">D</Data>
+        <Data AD_Column_ID="150" Column="Description">CR - DR</Data>
+        <Data AD_Column_ID="149" Column="Name">Balance (negative accounted sign)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="136" Action="I" Record_ID="54804" Table="AD_Ref_List_Trl">
+        <Data AD_Column_ID="706" Column="IsActive">true</Data>
+        <Data AD_Column_ID="710" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="1215" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="336" Column="AD_Ref_List_ID">54804</Data>
+        <Data AD_Column_ID="337" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="1216" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="709" Column="Updated">2016-12-14 17:43:23.697</Data>
+        <Data AD_Column_ID="340" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="707" Column="Created">2016-12-14 17:43:23.697</Data>
+        <Data AD_Column_ID="708" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="339" Column="Description">CR - DR</Data>
+        <Data AD_Column_ID="338" Column="Name">Balance (negative accounted sign)</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="276" Action="U" Record_ID="54062" Table="AD_Element">
+        <Data AD_Column_ID="58589" Column="FieldLength" oldValue="1">2</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="58555" Table="AD_Column">
+        <Data AD_Column_ID="118" Column="FieldLength" oldValue="1">2</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="58557" Table="AD_Column">
+        <Data AD_Column_ID="118" Column="FieldLength" oldValue="1">2</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="58554" Table="AD_Column">
+        <Data AD_Column_ID="118" Column="FieldLength" oldValue="1">2</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>
