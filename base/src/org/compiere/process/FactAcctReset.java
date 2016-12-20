@@ -24,13 +24,9 @@ import java.util.logging.Level;
 
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAllocationHdr;
-import org.compiere.model.MAssetAddition;
-import org.compiere.model.MAssetDisposed;
 import org.compiere.model.MBankStatement;
 import org.compiere.model.MCash;
 import org.compiere.model.MClient;
-import org.compiere.model.MDepreciation;
-import org.compiere.model.MDepreciationEntry;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInventory;
 import org.compiere.model.MInvoice;
@@ -341,11 +337,11 @@ public class FactAcctReset extends SvrProcess
 			docBaseType = "= '" + MPeriodControl.DOCBASETYPE_DistributionOrder+ "'";
 		else if (AD_Table_ID == X_HR_Process.Table_ID)
 			docBaseType = "= '" + MPeriodControl.DOCBASETYPE_Payroll+ "'";
-		else if (AD_Table_ID == MAssetDisposed.Table_ID)
+		else if (AD_Table_ID == 53127 /* MAssetDisposed.Table_ID */)   // TODO: Build dependencies. Base can't reference the asset model models.
 			docBaseType = "= '" + MPeriodControl.DOCBASETYPE_FixedAssetsDisposal+ "'";
-		else if (AD_Table_ID == MAssetAddition.Table_ID)
+		else if (AD_Table_ID == 53137 /* MAssetAddition.Table_ID */) 
 			docBaseType = "= '" + MPeriodControl.DOCBASETYPE_FixedAssetsAddition+ "'";
-		else if (AD_Table_ID == MDepreciationEntry.Table_ID)
+		else if (AD_Table_ID == 53121 /* TODO hardcoded. MDepreciationEntry.Table_ID */)
 			docBaseType = "= '" + MPeriodControl.DOCBASETYPE_FixedAssetsDepreciation+ "'";
 
 		return docBaseType;
