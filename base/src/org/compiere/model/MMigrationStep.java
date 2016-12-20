@@ -934,6 +934,16 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			this.setAD_Client_ID(0); // Migrations are always owned by System
 		if (this.getAD_Org_ID() > 0)
 			this.setAD_Org_ID(0);
+		
+		//	Get Line No
+		if (newRecord && getSeqNo() == 0)
+		{
+			String sql = "SELECT COALESCE(MAX(SeqNo),0)+10 FROM " + this.get_TableName() 
+					+ " WHERE " + this.get_KeyColumns()[0] + "=?";
+			int ii = DB.getSQLValue (get_TrxName(), sql, this.get_ID());
+			this.setSeqNo(ii);
+		}
+
 		return true;
 	}	//	beforeSave
 
