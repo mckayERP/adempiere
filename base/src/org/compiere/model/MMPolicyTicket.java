@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.adempiere.engine.IDocumentLine;
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.util.CLogger;
 
 /**
  * 	This class controls the life-cycle of Material Policy Tickets which are
@@ -53,6 +54,8 @@ public class MMPolicyTicket extends X_M_MPolicyTicket {
 	 * Serial Version UID
 	 */
 	private static final long serialVersionUID = -5905583402118502877L;
+	
+	private CLogger log = CLogger.getCLogger(this.getClass());
 
 	/**
 	 * General constructor for an existing M_MPolicyTicket_ID.  If no record is 
@@ -78,13 +81,12 @@ public class MMPolicyTicket extends X_M_MPolicyTicket {
 	}
 
 	/**
-	 * Create a MMPolicyTicket record based on the contents of a MInOutLine.
+	 * Create a MMPolicyTicket record based on the contents of a document line.
 	 * @param ctx
 	 * @param line
 	 * @param movementDate 
 	 * @param get_TrxName
-	 * @return If line is null or not a valid MInOutLine record, the function 
-	 * will return null. Otherwise, the newly created ticket.
+	 * @return the newly created ticket.
 	 */
 	public static MMPolicyTicket create(Properties ctx, IDocumentLine line,
 			Timestamp movementDate, String trxName) {
@@ -106,6 +108,66 @@ public class MMPolicyTicket extends X_M_MPolicyTicket {
 		}
 		
 		ticket.saveEx();		
+		return ticket;
+	}
+
+	/**
+	 * Get or Create a MMPolicyTicket record based on the contents of a material transaction.
+	 * @param ctx
+	 * @param line
+	 * @param movementDate 
+	 * @param get_TrxName
+	 * @return the newly created ticket.
+	 */
+	public static MMPolicyTicket getOrCreateFromTransaction(Properties ctx, MTransaction transaction, String trxName) {
+		if (transaction == null)
+			return null;
+		
+		int id = transaction.getM_MPolicyTicket_ID();
+		MMPolicyTicket ticket = new MMPolicyTicket(ctx, id, trxName);
+		
+		if (ticket.getM_MPolicyTicket_ID()>0)
+			return ticket;
+		
+		// Copy fields with the same name
+		int count = transaction.get_ColumnCount();
+		for (int i=0; i<count; i++)
+		{
+			
+			String columnName = transaction.get_ColumnName(i);
+			// Ignore the ticket ID but copy all other fields.  This includes the client/org 
+			// and other standard fields
+			if (!MMPolicyTicket.COLUMNNAME_M_MPolicyTicket_ID.equalsIgnoreCase(columnName))
+			{
+			
+				int index = ticket.get_ColumnIndex(columnName);
+				if (index > 0)
+				{
+				
+					ticket.set_Value(index, transaction.get_Value(i));
+					
+				}
+				else
+				{
+					
+					if (columnName.endsWith("_ID"))
+					{
+						// Warn if the Material Policy Ticket table does not contain a link column.
+						// This shouldn't happen if all link columns have been incorporated
+						ticket.log.info(ticket.get_TableName() + " does not contain reference column for " + columnName);
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		ticket.saveEx();
+		
+		// TODO = update the link with this ticket ID?  What about MA lines?
+		
 		return ticket;
 	}
 
