@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 
 /**
  * Asset Group Model
@@ -105,7 +106,34 @@ public class MAssetGroup extends X_A_Asset_Group
 		
 		return id;
 	}
-	
+
+	/**
+	 * Get default asset group ID for given context. No transaction.
+	 * @param context
+	 * @return default asset group ID or 0 if not found
+	 */
+	public static int getDefault_ID(Properties ctx)
+	{
+		int AD_Client_ID = Env.getAD_Client_ID(ctx);
+		/* commented by @win
+		int A_AssetType_ID = SetGetUtil.get_AttrValueAsInt(m, MAssetType.COLUMNNAME_A_Asset_Type_ID);
+		*/
+		final String sql = "SELECT "+COLUMNNAME_A_Asset_Group_ID
+				+ " FROM "+Table_Name
+				+ " WHERE AD_Client_ID=?"
+			//	+ " AND NVL("+COLUMNNAME_A_Asset_Type_ID+",0) IN (0,?)" //commented by @win
+				+ " ORDER BY "+COLUMNNAME_IsDefault+" DESC"
+							+", "+COLUMNNAME_A_Asset_Group_ID+" ASC" // default first, older first
+		;
+		/* modify by @win
+		int id = DB.getSQLValueEx(null, sql, AD_Client_ID, A_AssetType_ID);
+		*/
+		int id = DB.getSQLValueEx(null, sql, AD_Client_ID);
+		// modify by @win
+		
+		return id;
+	}
+
 	/**
 	 * Update Asset
 	 * - updates asset M_AssetGroup_ID if is null

@@ -69,21 +69,21 @@ public class Doc_AssetDisposed extends Doc
 		//
 		if (cr_assetCostDelta.signum() != 0)
 		{
-			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Asset_Acct)
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Asset_Acct, as)
 					, as.getC_Currency_ID()
 					, Env.ZERO, cr_assetCostDelta);
 		}
 		
 		if (dr_assetAccDepDelta.signum() != 0)
 		{
-			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Accumdepreciation_Acct)
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Accumdepreciation_Acct, as)
 					, as.getC_Currency_ID()
 					, dr_assetAccDepDelta, Env.ZERO);
 		}
 
 		if (dr_disposalAmt.signum() != 0)
 		{
-			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Revenue_Acct)
+			fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Revenue_Acct, as)
 					, as.getC_Currency_ID()
 					, dr_disposalAmt, Env.ZERO);
 		}
@@ -92,13 +92,13 @@ public class Doc_AssetDisposed extends Doc
 		{
 			if (cr_gainLossOnDisposal.signum() < 0)  // Loss, negate and debit
 			{
-				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Loss_Acct)
+				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Loss_Acct, as)
 						, as.getC_Currency_ID()
 						, cr_gainLossOnDisposal.negate(), Env.ZERO);
 			}
 			else  // Its a gain, credit
 			{
-				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Gain_Acct)
+				fact.createLine(null, getAccount(MAssetAcct.COLUMNNAME_A_Disposal_Gain_Acct, as)
 						, as.getC_Currency_ID()
 						, Env.ZERO, cr_gainLossOnDisposal.negate());			
 			}
@@ -107,10 +107,10 @@ public class Doc_AssetDisposed extends Doc
 		return facts;
 	}
 	
-	private MAccount getAccount(String accountName)
+	private MAccount getAccount(String accountName, MAcctSchema as)
 	{
 		MAssetDisposed assetDisp = (MAssetDisposed)getPO();
-		MAssetAcct assetAcct = MAssetAcct.forA_Asset_ID(getCtx(), assetDisp.getA_Asset_ID(), assetDisp.getPostingType(), assetDisp.getDateAcct(),null);
+		MAssetAcct assetAcct = MAssetAcct.forA_Asset_ID(getCtx(), assetDisp.getA_Asset_ID(), assetDisp.getPostingType(), assetDisp.getDateAcct(),as.getC_AcctSchema_ID(),null);
 		int account_id = (Integer)assetAcct.get_Value(accountName);
 		return MAccount.get(getCtx(), account_id);
 	}

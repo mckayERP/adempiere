@@ -2,6 +2,7 @@ package org.compiere.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -9,7 +10,9 @@ import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.TimeUtil;
 import org.compiere.FA.exceptions.AssetNotImplementedException;
 import org.compiere.FA.exceptions.AssetNotSupportedException;
 
@@ -214,9 +217,7 @@ public class MDepreciation extends X_A_Depreciation
 		}
 		else if (depreciationType.equalsIgnoreCase(MDepreciation.DEPRECIATIONTYPE_UnitsOfProduction))
 		{
-			// TODO
-			// retValue = apply_UOP(assetwk, assetAcct, A_Current_Period, Accum_Dep);
-			throw new AssetNotImplementedException(MDepreciation.DEPRECIATIONTYPE_UnitsOfProduction);
+			retValue = apply_UOP(assetwk, assetAcct, A_Current_Period, Accum_Dep);
 		}
 		else
 		{
@@ -233,6 +234,83 @@ public class MDepreciation extends X_A_Depreciation
 		return retValue;
 	}	//	invoke
 
+	private BigDecimal apply_UOP(MDepreciationWorkfile wk,
+			MAssetAcct assetAcct, int a_current_period, BigDecimal accum_Dep) {
+
+		if (assetAcct.getUOP_Column_ID() == 0 
+			&& (assetAcct.getUOP_Qty_SQL() == null || assetAcct.getUOP_Qty_SQL().isEmpty()))
+		{
+			throw new IllegalArgumentException("Either a qty column or qty SQL select phrase are required in the Asset Accounting for Units of Production");
+		}
+		
+		if (assetAcct.getUOP_DateColumn_ID() == 0 
+				&& (assetAcct.getUOP_Date_SQL() == null || assetAcct.getUOP_Date_SQL().isEmpty()))
+		{
+			throw new IllegalArgumentException("Either a Date column or Date SQL select phrase are required in the Asset Accounting for Units of Production");
+		}
+
+		int months = 0;
+		months = (a_current_period - wk.getA_Current_Period());
+		Timestamp dateAcct = TimeUtil.getMonthLastDay(TimeUtil.addMonths(wk.getDateAcct(), months));
+		
+		MPeriod period = MPeriod.get(getCtx(), dateAcct, assetAcct.getAD_Org_ID());
+
+		if (period == null)
+			return Env.ZERO;
+		
+		MTable uopTable = (MTable) assetAcct.getUOP_Table();
+		MColumn uopColumn = (MColumn) assetAcct.getUOP_Column();
+		String uopColumnSQL = assetAcct.getUOP_Qty_SQL();
+		MColumn uopDateColumn = (MColumn) assetAcct.getUOP_DateColumn();
+		String uopDateSQL = assetAcct.getUOP_Date_SQL();
+		
+		String uopWhere = assetAcct.getUOP_SQLWhereClause();
+		
+		String where = "" + uopWhere;
+		
+		if (where.length()>0)
+		{
+			where += " AND ";
+		}
+		
+		if (uopDateColumn != null)
+		{
+			where += uopDateColumn.getColumnName();
+		}
+		else
+		{
+			where += "(" + uopDateSQL + ")";
+		}
+		
+		where += " BETWEEN " + DB.TO_DATE(period.getStartDate(),true) + " AND "
+				+ DB.TO_DATE(period.getEndDate(), true);
+		
+		String qtySQL = "";
+		
+		if (uopColumn == null)
+		{
+			qtySQL = uopColumnSQL;
+		}
+		else
+		{
+			qtySQL = uopTable.getTableName() + "." + uopColumn.getColumnName();
+		}
+		
+		BigDecimal units = new Query(getCtx(), uopTable.getTableName(), where, get_TrxName())
+								.setClient_ID()
+								.setOnlyActiveRecords(true)
+								.aggregate(qtySQL, Query.AGGREGATE_SUM);
+		
+		BigDecimal amtThisPeriod = units.multiply(assetAcct.getUOP_DepExpensePerUnit());
+		
+		if(CLogMgt.isLevelFinest())
+		{
+			log.finest("currentPeriod=" + a_current_period + ", units=" + units + ", Expense per unit=" + assetAcct.getUOP_DepExpensePerUnit() + " => amtThisPeriod=" + amtThisPeriod);
+		}
+
+		return amtThisPeriod;
+	}
+
 	/** Sum of Years Digits<br><br>
 	 *  The amount of depreciation rate in a year is calculated as remainingYears / (n*(n+1)/2) 
 	 * 
@@ -246,7 +324,7 @@ public class MDepreciation extends X_A_Depreciation
 	private BigDecimal apply_SYD(MDepreciationWorkfile wk,
 			MAssetAcct assetAcct, int aCurrentPeriod, BigDecimal accumDep) {
 
-		// Todo = SYD to period?  Assume (questionable) that it is equal in all periods in 
+		// TODO = SYD to period?  Assume (questionable) that it is equal in all periods in 
 		// year.  The current year depreciation amount should be used but needs to be found.
 		BigDecimal lifeInYears = new BigDecimal(wk.getA_Asset_Life_Years());
 		BigDecimal remainingPeriods =  new BigDecimal(wk.getRemainingPeriods(aCurrentPeriod));
@@ -368,7 +446,7 @@ public class MDepreciation extends X_A_Depreciation
 	{
 		BigDecimal remainingPeriods = new BigDecimal(wk.getRemainingPeriods(A_Current_Period - 1));
 		BigDecimal remainingAmt = wk.getRemainingCost(Accum_Dep);
-		BigDecimal lifePeriods = new BigDecimal(wk.getA_Asset_Life_Years()*12);
+		BigDecimal lifePeriods = new BigDecimal(wk.getUseLifeMonths(wk.isFiscal()));
 		BigDecimal amtPerPeriod = Env.ZERO;
 		
 		// Find the 200% amount per period which is twice the straight line amount.  The straight line

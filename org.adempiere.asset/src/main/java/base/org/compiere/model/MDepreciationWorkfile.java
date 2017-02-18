@@ -14,6 +14,7 @@
 package org.compiere.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -254,12 +255,15 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 		setPostingType(postingType);
 		//
 		// Copy UseLife values from asset group to workfile
+		// TODO - shouldn't the Asset accounting be used instead? The group is the template.
+		// TODO Multi-schema?
 		if (assetgrpacct == null)
 		{
 			assetgrpacct = MAssetGroupAcct.forA_Asset_Group_ID(asset.getCtx(), asset.getA_Asset_Group_ID(), postingType);
 		}
 		UseLifeImpl.copyValues(this, assetgrpacct);
 		
+		setC_AcctSchema_ID(assetgrpacct.getC_AcctSchema_ID());
 		//
 		// Set Date Acct from Asset
 		Timestamp dateAcct = asset.getDateAcct();
@@ -292,6 +296,7 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 					.list();
 	}
 	
+	
 	/**
 	 * 
 	 * @param ctx
@@ -300,9 +305,24 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 	 * @return workfile
 	 * @see #get(Properties, int, String, String)
 	 */
+	@Deprecated
 	public static MDepreciationWorkfile get (Properties ctx, int A_Asset_ID, String postingType)
 	{
 		return get(ctx, A_Asset_ID, postingType, null);
+	}
+
+	/**
+	 * 
+	 * @param ctx
+	 * @param A_Asset_ID
+	 * @param postingType
+	 * @param C_AcctSchema_ID
+	 * @return workfile
+	 * @see #get(Properties, int, String, String)
+	 */
+	public static MDepreciationWorkfile get (Properties ctx, int A_Asset_ID, String postingType, int C_AcctSchema_ID)
+	{
+		return get(ctx, A_Asset_ID, postingType, C_AcctSchema_ID, null);
 	}
 	
 	/**
@@ -310,17 +330,18 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 	 * @param ctx
 	 * @param A_Asset_ID
 	 * @param postingType
+	 * @param C_AcctSchema_ID
 	 * @param trxName
 	 * @return workfile
 	 */
-	public static MDepreciationWorkfile get (Properties ctx, int A_Asset_ID, String postingType, String trxName)
+	public static MDepreciationWorkfile get (Properties ctx, int A_Asset_ID, String postingType, int C_AcctSchema_ID, String trxName)
 	{
 		if (A_Asset_ID <= 0 || postingType == null)
 		{
 			return null;
 		}
 		
-		final MultiKey key = new MultiKey(A_Asset_ID, postingType);
+		final MultiKey key = new MultiKey(A_Asset_ID, postingType, C_AcctSchema_ID);
 		if (trxName == null)
 		{
 			MDepreciationWorkfile wk = s_cacheAsset.get(key);
@@ -335,9 +356,10 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 											.firstOnly();
 		*/
 		final String whereClause = COLUMNNAME_A_Asset_ID+"=?"
-									+" AND "+COLUMNNAME_PostingType+"=? ";
+									+" AND "+COLUMNNAME_PostingType+"=? "
+									+" AND "+COLUMNNAME_C_AcctSchema_ID+"=?";
 		MDepreciationWorkfile wk = new Query(ctx, MDepreciationWorkfile.Table_Name, whereClause, trxName)
-				.setParameters(new Object[]{A_Asset_ID, postingType})
+				.setParameters(new Object[]{A_Asset_ID, postingType, C_AcctSchema_ID})
 				.firstOnly();
 		
 		
@@ -347,7 +369,40 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 		}
 		return wk;
 	}
-	/** Static cache: Asset/PostingType -> Workfile */
+	
+	/**
+	 * Get/load workfile from cache (if trxName is null)  Assumes only one schema. No cache.
+	 * @param ctx
+	 * @param A_Asset_ID
+	 * @param postingType
+	 * @param trxName
+	 * @return workfile
+	 */
+	@Deprecated
+	public static MDepreciationWorkfile get (Properties ctx, int A_Asset_ID, String postingType, String trxName)
+	{
+		if (A_Asset_ID <= 0 || postingType == null)
+		{
+			return null;
+		}
+		
+		/* @win temporary change as this code is causing duplicate create MDepreciationWorkfile on asset addition
+		final String whereClause = COLUMNNAME_A_Asset_ID+"=?"
+									+" AND "+COLUMNNAME_PostingType+"=? AND "+COLUMNNAME_A_QTY_Current+">?";
+		MDepreciationWorkfile wk = new Query(ctx, MDepreciationWorkfile.Table_Name, whereClause, trxName)
+											.setParameters(new Object[]{A_Asset_ID, postingType, 0})
+											.firstOnly();
+		*/
+		final String whereClause = COLUMNNAME_A_Asset_ID+"=?"
+									+" AND "+COLUMNNAME_PostingType+"=? ";
+		MDepreciationWorkfile wk = new Query(ctx, MDepreciationWorkfile.Table_Name, whereClause, trxName)
+				.setParameters(new Object[]{A_Asset_ID, postingType})
+				.first();
+				
+		return wk;
+	}
+
+	/** Static cache: Asset/PostingType/Schema -> Workfile */
 	private static CCache<MultiKey, MDepreciationWorkfile>
 	s_cacheAsset = new CCache<MultiKey, MDepreciationWorkfile>(Table_Name+"_Asset", 10); 
 	
@@ -377,7 +432,7 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 	 */
 	public MAssetAcct getA_AssetAcct(Timestamp dateAcct, String trxName)
 	{
-		return MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), dateAcct, trxName);
+		return MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), dateAcct, getC_AcctSchema_ID(), trxName);
 	}
 
 	/**	Returns the net cost of FAs which is the acquisition value less the residual or salvage value. 
@@ -631,10 +686,13 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 
 	public void buildDepreciation()
 	{
+	
 		if (!isDepreciated())
 		{
 			return;
 		}
+		
+		int scale = MCurrency.getStdPrecision(getCtx(), MClient.get(getCtx()).getC_Currency_ID());
 		
 		StringBuffer sb = new StringBuffer();
 		load(get_TrxName()); // reload workfile
@@ -696,7 +754,8 @@ public class MDepreciationWorkfile extends X_A_Depreciation_Workfile
 				accumDep_F = assetCost;
 			}
 			
-			help += "" + exp_C + "|" + exp_F + " = " + accumDep_C + "|" + accumDep_F;
+			help += "" + exp_C.setScale(scale, RoundingMode.HALF_UP) + "|" + exp_F.setScale(scale, RoundingMode.HALF_UP) 
+					+ " = " + accumDep_C.setScale(scale, RoundingMode.HALF_UP) + "|" + accumDep_F.setScale(scale, RoundingMode.HALF_UP);
 			
 			// added by zuhri
 			int months = 0;

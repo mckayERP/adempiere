@@ -8,11 +8,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import org.compiere.acct.Fact;
 import org.compiere.model.MDocType;
 import org.compiere.model.MPeriod;
 import org.compiere.model.Query;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
 import org.compiere.FA.exceptions.AssetException;
@@ -79,6 +81,8 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		MDepreciationExp depexp = new MDepreciationExp(ctx, 0, null);
 		depexp.setA_Entry_Type(entryType);
 		depexp.setA_Asset_ID(A_Asset_ID);
+		depexp.setA_Depreciation_Workfile_ID(assetwk.getA_Depreciation_Workfile_ID());
+		depexp.setC_AcctSchema_ID(assetwk.getC_AcctSchema_ID());
 		depexp.setDR_Account_ID(drAcct);
 		depexp.setCR_Account_ID(crAcct);
 		depexp.setA_Account_Number_Acct(drAcct);	// TODO: DELETEME
@@ -110,11 +114,6 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		setA_Asset_Remaining_F(wk.getA_Asset_Remaining_F());
 	}
 	
-	private MDepreciationWorkfile getA_Depreciation_Workfile()
-	{
-		return MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType(), get_TrxName());
-	}
-
 	/**	Create Depreciation Entries
 	 *	Produce record:
 	 *	<pre>
@@ -167,7 +166,7 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		}
 		
 		//
-		MDepreciationWorkfile assetwk = getA_Depreciation_Workfile();
+		MDepreciationWorkfile assetwk = (MDepreciationWorkfile) getA_Depreciation_Workfile();
 		if (assetwk == null)
 		{
 			throw new AssetException("@NotFound@ @A_Depreciation_Workfile_ID@");
@@ -179,12 +178,24 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 			checkExistsNotProcessedEntries(getCtx(), getA_Asset_ID(), getDateAcct(), getPostingType(), get_TrxName());
 			//
 			// Check if the asset is Active:
-			if (!assetwk.getAsset().getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated))
+			if (!assetwk.getAsset().getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated)
+					&& !assetwk.getAsset().getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_New))  // TODO - when is "New" changed to "Active"?
 			{
 				throw new AssetNotActiveException(assetwk.getAsset().get_ID());
 			}
 			//
 			setDateAcct(assetwk.getDateAcct());
+			
+			// Check for units of production - has to be calculated at the time
+			MAssetAcct assetAcct = MAssetAcct.forA_Asset_ID(getCtx(), this.getA_Asset_ID(), Fact.POST_Actual, getDateAcct(), getC_AcctSchema_ID(), get_TrxName());
+			if (assetAcct.getA_Depreciation().getDepreciationType().equals(MDepreciation.DEPRECIATIONTYPE_UnitsOfProduction))
+			{
+				MDepreciation depreciation = (MDepreciation) assetAcct.getA_Depreciation();
+				BigDecimal expense = depreciation.invoke(assetwk, assetAcct, assetwk.getA_Current_Period(), assetwk.getA_Accumulated_Depr());
+
+				this.setExpense(expense);
+				this.setExpense_F(expense);
+			}
 			assetwk.adjustAccumulatedDepr(getExpense(), getExpense_F(), false);
 		}
 		else
@@ -214,7 +225,7 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		}
 		
 		//
-		MDepreciationWorkfile assetwk = getA_Depreciation_Workfile();
+		MDepreciationWorkfile assetwk = (MDepreciationWorkfile) getA_Depreciation_Workfile();
 		if (assetwk == null)
 		{
 			throw new AssetException("@NotFound@ @A_Depreciation_Workfile_ID@");
@@ -253,7 +264,7 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		if (isProcessed())
 		{
 			// TODO : check if we can reverse it (check period, check dateacct etc)
-			MDepreciationWorkfile assetwk = getA_Depreciation_Workfile();
+			MDepreciationWorkfile assetwk = (MDepreciationWorkfile) getA_Depreciation_Workfile();
 			assetwk.adjustAccumulatedDepr(getA_Accumulated_Depr().negate(), getA_Accumulated_Depr_F().negate(), false);
 			assetwk.saveEx();
 		}
@@ -277,7 +288,7 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 		// If it was processed, we need to update workfile's current period
 		if (isProcessed())
 		{
-			MDepreciationWorkfile wk = getA_Depreciation_Workfile();
+			MDepreciationWorkfile wk = (MDepreciationWorkfile) getA_Depreciation_Workfile();
 			wk.setA_Current_Period();
 			wk.saveEx();
 		}
@@ -292,7 +303,7 @@ public class MDepreciationExp extends X_A_Depreciation_Exp
 	
 	public static void checkExistsNotProcessedEntries(Properties ctx,
 													int A_Asset_ID, Timestamp dateAcct, String postingType,
-													String trxName)
+													String trxName) throws AssetException
 	{
 		final String whereClause = MDepreciationExp.COLUMNNAME_A_Asset_ID+"=?"
 								+" AND TRUNC("+MDepreciationExp.COLUMNNAME_DateAcct+",'MONTH')<?"

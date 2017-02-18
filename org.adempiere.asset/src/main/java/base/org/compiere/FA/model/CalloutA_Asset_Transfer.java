@@ -32,7 +32,9 @@ public class CalloutA_Asset_Transfer extends CalloutEngine
 	    {
 	    	return "";
 	    }
-    	MAssetAcct acct = MAssetAcct.forA_Asset_ID(ctx, model.getA_Asset_ID(), model.getPostingType(), model.getDateAcct(), null);
+	    
+	    // TODO - Acct Schema? - Set to zero
+    	MAssetAcct acct = MAssetAcct.forA_Asset_ID(ctx, model.getA_Asset_ID(), model.getPostingType(), model.getDateAcct(), 0, null);
     	if (acct == null)
     	{
     		return "@NotFound@ @A_Asset_Acct_ID@";

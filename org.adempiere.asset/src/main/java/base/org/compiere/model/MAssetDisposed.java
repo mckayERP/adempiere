@@ -522,7 +522,7 @@ implements DocAction, DocOptions
 				}
 		);
 		
-		MDepreciationWorkfile wk = MDepreciationWorkfile.get(Env.getCtx(), asset_id, bean.getPostingType(), null);
+		MDepreciationWorkfile wk = MDepreciationWorkfile.get(Env.getCtx(), asset_id, bean.getPostingType(), 0, null);
 		if (wk != null)
 		{
 			bean.setA_Asset_Cost(wk.getA_Asset_Cost());

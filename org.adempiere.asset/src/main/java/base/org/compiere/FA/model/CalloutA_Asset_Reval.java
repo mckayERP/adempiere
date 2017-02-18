@@ -30,17 +30,18 @@ public class CalloutA_Asset_Reval extends CalloutEngine
 	    {
 	    	return "";
 	    }
-    	MDepreciationWorkfile amount = MDepreciationWorkfile.get(ctx, model.getA_Asset_ID(), model.getPostingType(), null);
-    	if (amount == null)
-    	{
-    		return "@NotFound@ @A_Asset_ID@";
-    	}
-    	// 
-    	model.setA_Asset_Cost(amount.getA_Asset_Cost());
-    	model.setA_Asset_Cost_Change(amount.getA_Asset_Cost());
-    	
-    	model.setA_Accumulated_Depr(amount.getA_Accumulated_Depr());
-    	model.setA_Change_Acumulated_Depr(amount.getA_Accumulated_Depr());
+	    // TODO Deal with multi-schema
+//    	MDepreciationWorkfile amount = MDepreciationWorkfile.get(ctx, model.getA_Asset_ID(), model.getPostingType(), null);
+//    	if (amount == null)
+//    	{
+//    		return "@NotFound@ @A_Asset_ID@";
+//    	}
+//    	// 
+//    	model.setA_Asset_Cost(amount.getA_Asset_Cost());
+//    	model.setA_Asset_Cost_Change(amount.getA_Asset_Cost());
+//    	
+//    	model.setA_Accumulated_Depr(amount.getA_Accumulated_Depr());
+//    	model.setA_Change_Acumulated_Depr(amount.getA_Accumulated_Depr());
     	
   		return "";
     	}

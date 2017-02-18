@@ -97,7 +97,9 @@ public class MAssetAcct extends X_A_Asset_Acct
 	 * @param dateAcct check ValidFrom
 	 * @return asset accounting for the given asset
 	 */
-	public static MAssetAcct forA_Asset_ID (Properties ctx, int A_Asset_ID, String postingType, Timestamp dateAcct, String trxName)
+	public static MAssetAcct forA_Asset_ID (Properties ctx, int A_Asset_ID, 
+			String postingType, Timestamp dateAcct, 
+			int C_AcctSchema_ID, String trxName)
 	{
 		MultiKey key = new MultiKey(A_Asset_ID, postingType, dateAcct);
 		MAssetAcct acct = null;
@@ -111,10 +113,13 @@ public class MAssetAcct extends X_A_Asset_Acct
 			return acct;
 		}
 		//
+		StringBuffer whereClause = new StringBuffer(COLUMNNAME_A_Asset_ID + "=? AND " + COLUMNNAME_PostingType + "=?")
+						.append(" AND " + MAssetAcct.COLUMNNAME_C_AcctSchema_ID + "=?");
+
 		ArrayList<Object> params = new ArrayList<Object>();
-		StringBuffer whereClause = new StringBuffer(COLUMNNAME_A_Asset_ID+"=? AND "+COLUMNNAME_PostingType+"=?");
 		params.add(A_Asset_ID);
 		params.add(postingType);
+		params.add(C_AcctSchema_ID);
 		if (dateAcct != null)
 		{
 			whereClause.append(" AND " + COLUMNNAME_ValidFrom).append("<=?");

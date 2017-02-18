@@ -4,7 +4,9 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -73,11 +75,60 @@ public class MAssetAddition extends X_A_Asset_Addition
 		}*/
 		
 		//Goodwill - Set Useable Life according to Asset Group Accounting
-		MAssetGroupAcct assetGrpAcct = MAssetGroupAcct.forA_Asset_Group_ID(getCtx(), getA_Asset().getA_Asset_Group_ID(), POSTINGTYPE_Actual);
+		//TODO - multi-schema?
+		MAssetGroupAcct assetGrpAcct;
+		int assetGroupID = 0;
+		if (this.getA_Asset_ID() > 0)
+		{
+			// Try the asset ID
+			assetGroupID = getA_Asset().getA_Asset_Group_ID();
+		}
+		else
+		{
+			// Fall back to the default group
+			assetGroupID = MAssetGroup.getDefault_ID(this.getCtx());
+		}
+		assetGrpAcct = MAssetGroupAcct.forA_Asset_Group_ID(getCtx(), assetGroupID, POSTINGTYPE_Actual);
+		
+		// MckayERP - Rather the Asset workbook than the group acct - allows for more control.  
+		// The group is the template.  Assets within the group can vary.
+		// TODO - multi-schema - need an asset addition for each schema!  Assume there is only one.
+		int life = assetGrpAcct.getUseLifeYears();
+		int life_f = assetGrpAcct.getUseLifeYears_F();
+		
+		MDepreciationWorkfile assetWk = null;
+		try
+		{
+			Collection<MDepreciationWorkfile> assetWkCollection = MDepreciationWorkfile.forA_Asset_ID(getCtx(), getA_Asset_ID(), get_TrxName());
+			assetWk = assetWkCollection.iterator().next();
+			
+			if (assetWk.getUseLifeYears() <= 0)
+			{
+				assetWk.setUseLifeYears(life);
+			}
+			else
+			{
+				life = assetWk.getUseLifeYears();
+			}
+			
+			if (assetWk.getUseLifeYears_F() <= 0)
+			{
+				assetWk.setUseLifeYears_F(life_f);
+			}
+			else
+			{
+				life_f = assetWk.getUseLifeYears_F();
+			}
+		}
+		catch (NullPointerException | NoSuchElementException e )
+		{
+			// Ignore
+		}
+		
 		if (isA_CreateAsset())
 		{
-			setDeltaUseLifeYears(assetGrpAcct.getUseLifeYears());
-			setDeltaUseLifeYears_F(assetGrpAcct.getUseLifeYears_F());
+			setDeltaUseLifeYears(life);
+			setDeltaUseLifeYears_F(life_f);
 		}
 		
 		//Goodwill - Check for source invoice
@@ -114,9 +165,10 @@ public class MAssetAddition extends X_A_Asset_Addition
 		getDateAcct();
 		setAssetValueAmt();
 		
-		if (isA_CreateAsset())
+		// Enforce asset product for capital creation of asset
+		if (isA_CreateAsset() && MAssetAddition.A_CAPVSEXP_Capital.equals(getA_CapvsExp()))
 		{
-			setA_CapvsExp(A_CAPVSEXP_Capital);
+			this.setM_Product_ID(this.getA_Asset().getM_Product_ID());  // Should only create the asset product
 		}
 		
 		//
@@ -153,26 +205,29 @@ public class MAssetAddition extends X_A_Asset_Addition
 	{
 		MAssetAddition assetAdd = new MAssetAddition(match);
 		assetAdd.dump();
-		//@win add condition to prevent asset creation when expense addition or second addition
-		if (MAssetAddition.A_CAPVSEXP_Capital.equals(assetAdd.getA_CapvsExp())
-			&& match.getC_InvoiceLine().getA_Asset_ID() == 0 && assetAdd.isA_CreateAsset()) 
-		{ 
-		//end @win add condition to prevent asset creation when expense addition or second addition
-			MAsset asset = assetAdd.createAsset();
-			asset.dump();
-			//@win add
-			MAssetGroupAcct assetgrpacct = MAssetGroupAcct.forA_Asset_Group_ID(asset.getCtx(), asset.getA_Asset_Group_ID(), assetAdd.getPostingType());
-			assetAdd.setDeltaUseLifeYears(assetgrpacct.getUseLifeYears());
-			assetAdd.setDeltaUseLifeYears_F(assetgrpacct.getUseLifeYears_F());
-		} 
-		else {
-			assetAdd.setA_Asset_ID(match.getC_InvoiceLine().getA_Asset_ID());
-			assetAdd.setA_CreateAsset(false);
-		}
 		assetAdd.saveEx();
 		return assetAdd;
 	}
-	
+
+	/**
+	 * Create Asset Addition from an Invoice - expense types only.
+	 * MAssetAddition is saved.
+	 * @param match match invoice
+	 * @return asset addition
+	 */
+	public static MAssetAddition createAssetAddition(MInvoiceLine invoiceLine)
+	{
+		// Want to be able to easily create assets from vendor invoices - implies both capital and expense transactions
+		//if (! MInvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()) )
+		//		return null;
+		
+		MAssetAddition assetAddition = new MAssetAddition(invoiceLine);
+		
+		assetAddition.saveEx();
+		
+		return assetAddition;
+	}
+
 	/**
 	 * Create Asset and asset Addition from MIFixedAsset. MAssetAddition is saved. 
 	 * (@win note, not referenced from anywhere. incomplete feature)
@@ -213,6 +268,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 			asset.setA_Asset_Group_ID(product.getA_Asset_Group_ID());
 			MAttributeSetInstance asi = MAttributeSetInstance.create(Env.getCtx(), product, null);
 			asset.setM_AttributeSetInstance_ID(asi.getM_AttributeSetInstance_ID());
+			assetAdd.setM_Product_ID(product.getM_Product_ID());
 		}
 		asset.setName(product.getName().concat(project.getName()));
 		asset.setValue(product.getName().concat(project.getName()));	
@@ -241,7 +297,14 @@ public class MAssetAddition extends X_A_Asset_Addition
 			String sourceType = getA_SourceType();
 			if (A_SOURCETYPE_Invoice.equals(sourceType))
 			{
-				asset = new MAsset(getMatchInv(false));
+				if (getMatchInv(false) == null)
+				{
+					asset = new MAsset((MInvoiceLine) getC_InvoiceLine());
+				}
+				else
+				{
+					asset = new MAsset(getMatchInv(false));
+				}
 				asset.saveEx();
 				
 				//Goodwill - update asset name
@@ -283,7 +346,6 @@ public class MAssetAddition extends X_A_Asset_Addition
 	{
 		this(match.getCtx(), 0, match.get_TrxName());
 		setM_MatchInv(match);
-		setC_DocType_ID();
 	}
 	
 	//added by @win
@@ -307,6 +369,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 		setSourceAmt(project.getProjectBalanceAmt());
 		setDateDoc(new Timestamp (System.currentTimeMillis()));
 		setA_CreateAsset(true); //added by @win as create from project will certainly for createnew
+		setA_CapvsExp(A_CAPVSEXP_Capital); // ensure the product is the asset product
 		setDeltaUseLifeYears(I_ZERO);
 		setDeltaUseLifeYears_F(I_ZERO);
 		setC_DocType_ID();
@@ -383,6 +446,49 @@ public class MAssetAddition extends X_A_Asset_Addition
 		setI_FixedAsset(ifa);
 	}
 	
+	private MAssetAddition(MInvoiceLine invoiceLine) {
+		
+		this(invoiceLine.getCtx(), 0, invoiceLine.get_TrxName());
+		
+		
+		this.setPostingType(POSTINGTYPE_Actual);
+		this.setA_SourceType(A_SOURCETYPE_Invoice);
+		this.setC_InvoiceLine_ID(invoiceLine.getC_InvoiceLine_ID());
+		this.setC_Invoice_ID(invoiceLine.getC_Invoice_ID());
+		
+		this.setDateDoc(invoiceLine.getC_Invoice().getDateInvoiced());
+		this.setDateAcct(invoiceLine.getC_Invoice().getDateAcct());
+		this.setDescription(invoiceLine.getDescription());
+
+		this.setA_CapvsExp(invoiceLine.getA_CapvsExp());
+		this.setM_Product_ID(invoiceLine.getM_Product_ID());  	// Important as it sets the expense account for the addition
+		this.setC_Charge_ID(invoiceLine.getC_Charge_ID()); 		// Important as it sets the expense account for the addition
+		this.setM_AttributeSetInstance_ID(invoiceLine.getM_AttributeSetInstance_ID());
+		
+		if (this.A_CAPVSEXP_Expense.equals(this.getA_CapvsExp()))
+		{
+			this.setA_QTY_Current(Env.ZERO);  // expenses don't change the quantities
+		}
+		else
+		{
+			this.setA_QTY_Current(invoiceLine.getQtyInvoiced());  // Product UoM
+		}
+
+		this.setC_Currency_ID(invoiceLine.getC_Invoice().getC_Currency_ID());
+		
+		BigDecimal sourceAmt = invoiceLine.getLineNetAmt();
+		if (((MInvoice) invoiceLine.getC_Invoice()).isCreditMemo())
+		{
+			sourceAmt = sourceAmt.negate();
+		}
+		this.setAssetSourceAmt(sourceAmt);
+		
+		this.setA_Accumulated_Depr_Adjust(false);  // not from invoice
+
+		this.setA_Asset(createAsset());
+
+	}
+
 	/** Match Invoice Cache */
 	private final POCacheLocal<MMatchInv> m_cacheMatchInv = POCacheLocal.newInstance(this, MMatchInv.class);
 
@@ -395,38 +501,105 @@ public class MAssetAddition extends X_A_Asset_Addition
 		return m_cacheMatchInv.get(requery);
 	}
 	
-	private void setM_MatchInv(MMatchInv mi)
+	private void setC_InvoiceLine(MInvoiceLine invoiceLine)
 	{
-		MInvoiceLine iLine = new MInvoiceLine(getCtx(), mi.getC_InvoiceLine_ID(), get_TrxName());
-		
-		mi.load(get_TrxName());
-		setAD_Org_ID(mi.getAD_Org_ID());
+		setAD_Org_ID(invoiceLine.getAD_Org_ID());
 		setPostingType(POSTINGTYPE_Actual);
 		setA_SourceType(A_SOURCETYPE_Invoice);
-		setM_MatchInv_ID(mi.get_ID());
-		
-		if (MAssetAddition.A_CAPVSEXP_Capital.equals(mi.getC_InvoiceLine().getA_CapvsExp()))
+		setC_DocType_ID();
+
+		if (MAssetAddition.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()))
 		{
-			if (mi.getC_InvoiceLine().getA_Asset_ID() == 0)
+			if (invoiceLine.getA_Asset_ID() == 0)
+			{
 				setA_CreateAsset(true);
-			if (mi.getC_InvoiceLine().getA_Asset_ID() > 0)
+				MAsset asset = createAsset();
+				//@win add
+				MAssetGroupAcct assetgrpacct = MAssetGroupAcct.forA_Asset_Group_ID(asset.getCtx(), asset.getA_Asset_Group_ID(), getPostingType());
+				setDeltaUseLifeYears(assetgrpacct.getUseLifeYears());
+				setDeltaUseLifeYears_F(assetgrpacct.getUseLifeYears_F());
+			}
+			else if (invoiceLine.getA_Asset_ID() > 0)
+			{
 				setA_CreateAsset(false);
+				setA_Asset_ID(invoiceLine.getA_Asset_ID());
+			}
 		}
 		else 
 			setA_CreateAsset(false);
 		 
-		setC_Invoice_ID(mi.getC_InvoiceLine().getC_Invoice_ID());
-		setC_InvoiceLine_ID(mi.getC_InvoiceLine_ID());
+		setC_Invoice_ID(invoiceLine.getC_Invoice_ID());
+		setC_InvoiceLine_ID(invoiceLine.getC_InvoiceLine_ID());
+		setLine(invoiceLine.getLine());
+
+		setM_Product_ID(invoiceLine.getM_Product_ID());
+		setM_AttributeSetInstance_ID(invoiceLine.getM_AttributeSetInstance_ID());
+
+		setC_Charge_ID(invoiceLine.getC_Charge_ID());
+
+		setA_CapvsExp(invoiceLine.getA_CapvsExp());
+		setC_Currency_ID(invoiceLine.getC_Invoice().getC_Currency_ID());
+		setC_ConversionType_ID(invoiceLine.getC_Invoice().getC_ConversionType_ID());
+		setDateDoc(invoiceLine.getC_Invoice().getDateInvoiced());
+		setDateAcct(invoiceLine.getC_Invoice().getDateInvoiced());
+
+		//Goodwill - If the quantities were collective 
+		if (MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.get_ValueAsBoolean("IsCollectiveAsset"))
+		{
+			setA_QTY_Current(invoiceLine.getQtyInvoiced());
+			setAssetAmtEntered(invoiceLine.getLineNetAmt());
+			setAssetSourceAmt(invoiceLine.getLineNetAmt());		
+		}
+		//Goodwill - If the quantities were not collective
+		if (MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()) 
+				&& !invoiceLine.get_ValueAsBoolean("IsCollectiveAsset") 
+				&& invoiceLine.getA_Asset_ID() <= 0
+				&& invoiceLine.getQtyInvoiced().signum() != 0)
+		{
+			setA_QTY_Current(Env.ONE);
+			setAssetAmtEntered(invoiceLine.getLineNetAmt().divide(invoiceLine.getQtyInvoiced()));
+			setAssetSourceAmt(invoiceLine.getLineNetAmt().divide(invoiceLine.getQtyInvoiced()));
+		}
+		//Goodwill - If the invoice not create new asset
+		// or if the invoice is an expense type
+		if ((MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.getA_Asset_ID() > 0) || 
+				MInvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()))
+		{
+			setA_QTY_Current(Env.ZERO);
+			setAssetAmtEntered(invoiceLine.getLineNetAmt());
+			setAssetSourceAmt(invoiceLine.getLineNetAmt());
+		}
+		
+		//@win add condition to prevent asset creation when expense addition or second addition
+		if (MAssetAddition.A_CAPVSEXP_Capital.equals(getA_CapvsExp())
+			&& invoiceLine.getA_Asset_ID() == 0 && isA_CreateAsset()) 
+		{ 
+		//end @win add condition to prevent asset creation when expense addition or second addition
+			MAsset asset = createAsset();
+			asset.dump();
+			//@win add
+			MAssetGroupAcct assetgrpacct = MAssetGroupAcct.forA_Asset_Group_ID(asset.getCtx(), asset.getA_Asset_Group_ID(), getPostingType());
+			setDeltaUseLifeYears(assetgrpacct.getUseLifeYears());
+			setDeltaUseLifeYears_F(assetgrpacct.getUseLifeYears_F());
+		} 
+		else {
+			setA_Asset_ID(invoiceLine.getA_Asset_ID());
+			setA_CreateAsset(false);
+		}
+
+	}
+	
+	private void setM_MatchInv(MMatchInv mi)
+	{
+		mi.load(get_TrxName());
+		MInvoiceLine iLine = new MInvoiceLine(getCtx(), mi.getC_InvoiceLine_ID(), get_TrxName());
+		setC_InvoiceLine(iLine);
+
+		// Match invoice specifics
+		setM_MatchInv_ID(mi.get_ID());
+		
 		setM_InOutLine_ID(mi.getM_InOutLine_ID());
-		setM_Product_ID(mi.getM_Product_ID());
-		setM_AttributeSetInstance_ID(mi.getM_AttributeSetInstance_ID());
-		setLine(mi.getC_InvoiceLine().getLine());
 		setM_Locator_ID(mi.getM_InOutLine().getM_Locator_ID());
-		setA_CapvsExp(mi.getC_InvoiceLine().getA_CapvsExp());
-		setC_Currency_ID(mi.getC_InvoiceLine().getC_Invoice().getC_Currency_ID());
-		setC_ConversionType_ID(mi.getC_InvoiceLine().getC_Invoice().getC_ConversionType_ID());
-		setDateDoc(mi.getM_InOutLine().getM_InOut().getMovementDate());
-		setDateAcct(mi.getM_InOutLine().getM_InOut().getMovementDate());
 		
 		//Goodwill - If the quantities were collective 
 		if (MInvoiceLine.A_CAPVSEXP_Capital.equals(iLine.getA_CapvsExp()) && iLine.get_ValueAsBoolean("IsCollectiveAsset"))
@@ -442,15 +615,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 			setAssetAmtEntered(mi.getC_InvoiceLine().getLineNetAmt().divide(mi.getQty()));
 			setAssetSourceAmt(mi.getC_InvoiceLine().getLineNetAmt().divide(mi.getQty()));
 		}
-		//Goodwill - If the invoice not create new asset
-		// or if the invoice is an expense type
-		if ((MInvoiceLine.A_CAPVSEXP_Capital.equals(iLine.getA_CapvsExp()) && iLine.getA_Asset_ID() > 0) || 
-				MInvoiceLine.A_CAPVSEXP_Expense.equals(iLine.getA_CapvsExp()))
-		{
-			setA_QTY_Current(Env.ZERO);
-			setAssetAmtEntered(mi.getC_InvoiceLine().getLineNetAmt());
-			setAssetSourceAmt(mi.getC_InvoiceLine().getLineNetAmt());
-		}
+
 		m_cacheMatchInv.set(mi);
 	}
 	
@@ -624,14 +789,24 @@ public class MAssetAddition extends X_A_Asset_Addition
 		
 		// Goodwill - setting Create Asset checkbox
 		setA_CreateAsset();
-		
-		// Check AssetValueAmt != 0
-		if (getAssetValueAmt().signum() == 0) {
-			m_processMsg="@Invalid@ @AssetValueAmt@=0";
-			return DocAction.STATUS_Invalid;
+
+//		Asset additions should be possible with zero change to the amount, perhaps just qty or adjustment of accumulated depreciation
+//		// Check AssetValueAmt != 0
+//		if (getAssetValueAmt().signum() == 0) {
+//			m_processMsg="@Invalid@ @AssetValueAmt@=0";
+//			return DocAction.STATUS_Invalid;
+//		}
+
+		MAsset asset = null;
+		if (isA_CreateAsset() && getA_Asset_ID() == 0)
+		{
+			asset = new MAsset(getCtx(), 0, get_TrxName());
+		}
+		else
+		{	
+			asset = getA_Asset(true);
 		}
 		
-		MAsset asset = getA_Asset(true);
 		MDepreciationWorkfile assetwk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType(), get_TrxName());
 		
 		// Goodwill - Check asset disposal status
@@ -650,7 +825,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 		}// End - check asset depreciated status
 		
 		// Goodwill - Validation on Asset Addition Date
-		if (getDateDoc().before(asset.getA_Asset_CreateDate()))
+		if (asset.getA_Asset_CreateDate() != null && getDateDoc().before(asset.getA_Asset_CreateDate()))
 		{
 			throw new AssetCheckDocumentException("Document is date older than Asset Create Date");
 		}
@@ -658,18 +833,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 		{
 			throw new AssetCheckDocumentException("Document is date older than Asset Service Date");
 		}
-		
-		// Additions may be made ​​only on sites that depreciates FA 
-		// (WARNING: FA sites scrapped / sold not depreciate)
-		
-		/* @win temporary comment as some assets are not depreciated
-		if(!isA_CreateAsset() && !asset.isDepreciated())
-		{
-			m_processMsg = "@AssetIsNotDepreciating@";
-			return DocAction.STATUS_Invalid;
-		}
-		*/
-		
+				
 		// If new assets (not renewals) must have nonzero values
 		if (isA_CreateAsset() && hasZeroValues())
 		{
@@ -782,55 +946,75 @@ public class MAssetAddition extends X_A_Asset_Addition
 		//	Implicit Approval
 		if (!isApproved())
 			approveIt();
-		if (log.isLoggable(Level.INFO)) log.info(toString());
+		log.info(toString());
 		//
-		
-		// Check/Create ASI:
-		checkCreateASI();
-		
+
 		//loading asset
 		MAsset asset = getA_Asset(!m_justPrepared); // requery if not just prepared
-		if (log.isLoggable(Level.FINE)) log.fine("asset=" + asset);
+		log.fine("asset=" + asset);
 		// Goodwill
 		if (asset == null)
 		{
 			m_processMsg = "Asset not created/selected";
 			return DocAction.STATUS_Invalid;
 		}
-		asset.setM_AttributeSetInstance_ID(getM_AttributeSetInstance_ID());
-		// end Goodwill
 
-		//
-		// Get/Create Asset Workfile:
-		// If there Worksheet creates a new file in this asset
+		// Moved this above changes to the document in case of error
+		// Do we have depreciation entries that are not processed and before this date:
+		// Throw error if there are unprocessed records prior to the addition
+		// This is important as changes to the balances should be made to the 
+		// depreciated amounts.  Leave the document in the in progress state.
+		// Get/Create Asset Workfile: creates a new file for this asset
+		// TODO - Multi-schema? Or make the asset balances a sum to date
 		MDepreciationWorkfile assetwk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType(), get_TrxName());
 		if (assetwk == null)
 		{
 			assetwk = new MDepreciationWorkfile(asset, getPostingType(), null);
 		}
-		if (log.isLoggable(Level.FINE)) log.fine("workfile: " + assetwk);
-
-		// Can not upgrade a previous period
-		/* 
-		if (!isA_CreateAsset() && assetwk.isDepreciated(getDateAcct()))
+		log.fine("workfile: " + assetwk);
+		// Test of unprocessed depreciation entries
+		try 
 		{
-			throw new AssetAlreadyDepreciatedException();
-		}*/
-
-		// Do we have entries that are not processed and before this date:
-		if (this.getA_CapvsExp().equals(A_CAPVSEXP_Capital)) { 
-			//@win modification to asset value and use life should be restricted to Capital
+			// Throws exception
 			MDepreciationExp.checkExistsNotProcessedEntries(assetwk.getCtx(), assetwk.getA_Asset_ID(), getDateAcct(), assetwk.getPostingType(), assetwk.get_TrxName());
-				//
-			if (this.getA_Salvage_Value().signum() > 0) {
-				assetwk.setA_Salvage_Value(this.getA_Salvage_Value());
-			}
-			assetwk.adjustCost(getAssetValueAmt(), getA_QTY_Current(), isA_CreateAsset()); // reset if isA_CreateAsset
-			assetwk.adjustUseLife(getDeltaUseLifeYears(), getDeltaUseLifeYears_F(), isA_CreateAsset()); // reset if isA_CreateAsset
-			assetwk.setDateAcct(getDateAcct());
-			assetwk.setProcessed(true);
-			assetwk.saveEx();
 		}
+		catch (AssetException e)
+		{
+			m_processMsg = e.getMessage();
+			return DocAction.STATUS_InProgress;
+		}
+
+		// Creating/Updating asset product
+		// TODO - this is about storage and should use the storage engine
+		// The entire table AssetProduct can be replaced by MStorage with the link\
+		// to the asset table through the product ID
+		updateA_Asset_Product(false);
+
+		if (this.isA_CreateAsset())
+		{
+			// Check/Create ASI:  the product will be the asset product in this case
+			// set by the beforeSave()
+			// TODO This doesn't make sense if this is a collective asset but the
+			// product has an ASI - like a serial number.
+			checkCreateASI();	
+			asset.setM_AttributeSetInstance_ID(getM_AttributeSetInstance_ID());
+		}
+		// end Goodwill
+		
+//		if (this.getA_CapvsExp().equals(A_CAPVSEXP_Capital)) { 
+//			//@win modification to asset value and use life should be restricted to Capital 
+//			//@McKayERP no, there can be included costs added to the asset value and that can extend its
+//			// life. These possibilities need to be allowed.
+//		}
+
+		if (this.getA_Salvage_Value().signum() > 0) {
+			assetwk.setA_Salvage_Value(this.getA_Salvage_Value());
+		}
+		assetwk.adjustCost(getAssetValueAmt(), getA_QTY_Current(), isA_CreateAsset()); // reset if isA_CreateAsset
+		assetwk.adjustUseLife(getDeltaUseLifeYears(), getDeltaUseLifeYears_F(), isA_CreateAsset()); // reset if isA_CreateAsset
+		assetwk.setDateAcct(getDateAcct());
+		assetwk.setProcessed(true);
+		assetwk.saveEx();
 			
 		// Adding input to Asset History tab
 		MAssetChange.createAddition(this, assetwk);
@@ -838,12 +1022,12 @@ public class MAssetAddition extends X_A_Asset_Addition
 		// Setting locator if is CreateAsset
 		if (isA_CreateAsset() && getM_Locator_ID() > 0)
 		{
+			// TODO - shouldn't the asset locator be a template value?
+			// In the case of collective assets, there could be multiple
+			// locators
 			asset.setM_Locator_ID(getM_Locator_ID());
 		}
 		
-		// Creating/Updating asset product
-		updateA_Asset_Product(false);
-
 		// Changing asset status to Activated or Depreciated
 		if (isA_CreateAsset())
 		{
@@ -857,7 +1041,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 		}
 		asset.saveEx();
 		
-		//@win set initial depreciation period = 1 
+		//@win set initial depreciation period = 1 , m
 		if (isA_CreateAsset() && !isA_Accumulated_Depr_Adjust())
 		{
 			assetwk.setA_Current_Period(1);
@@ -1206,7 +1390,7 @@ public class MAssetAddition extends X_A_Asset_Addition
 			int C_InvoiceLine_ID = getC_InvoiceLine_ID();
 			MInvoiceLine invoiceLine = new MInvoiceLine(getCtx(), C_InvoiceLine_ID, get_TrxName());
 			invoiceLine.setA_Processed(!isReversal);
-			invoiceLine.setA_Asset_ID(isReversal ? 0 : getA_Asset_ID());
+			//invoiceLine.setA_Asset_ID(isReversal ? 0 : getA_Asset_ID());
 			invoiceLine.saveEx();
 		}
 		//
@@ -1264,10 +1448,12 @@ public class MAssetAddition extends X_A_Asset_Addition
 	 */
 	private void checkCreateASI() 
 	{
-		// TODO - this doesn't make any sense.
+		// TODO - this doesn't make any sense. Are there Lifo/Fifo rules?
+		// On the addition, the product could be related to an expense, not the asset.
 		MProduct product = MProduct.get(getCtx(), getM_Product_ID());
 		// Check/Create ASI:
 		MAttributeSetInstance asi = null;
+		// TODO What if the product already has an ASI?
 		if (product != null && getM_AttributeSetInstance_ID() == 0)
 		{
 			asi = new MAttributeSetInstance(getCtx(), 0, get_TrxName());
@@ -1389,59 +1575,76 @@ public class MAssetAddition extends X_A_Asset_Addition
 		}
 		else
 		{
-			final String sql = "SELECT COUNT(*) FROM A_Asset_Addition WHERE A_Asset_ID=? AND A_CreateAsset='Y'"
-							//+" AND DocStatus<>'VO' AND IsActive='Y'"
-							+" AND DocStatus IN ('CO','CL') AND IsActive='Y'"      // Goodwill
-							+" AND A_Asset_Addition_ID<>?";
 			
-			int cnt = DB.getSQLValueEx(null, sql, getA_Asset_ID(), getA_Asset_Addition_ID());
-			MAsset asset = new MAsset(getCtx(), getA_Asset_ID(), get_TrxName());   // Goodwill
-			
-			//Goodwill - If Capital type, create asset
-			if (A_CAPVSEXP_Capital.equals(getA_CapvsExp()))
+			// If the asset doesn't exist or is new (not activated), then create/activate the asset
+			MAsset asset = new MAsset(getCtx(), getA_Asset_ID(), get_TrxName());
+			if (asset == null || asset.getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_New))
+			{
 				setA_CreateAsset(true);
-			//Goodwill - If Capital type and Asset_ID exist, don't create asset
-			if (A_CAPVSEXP_Capital.equals(getA_CapvsExp()) && getA_Asset_ID() > 0)
-				setA_CreateAsset(false);
-			//Goodwill - If Expense type, don't create asset
-			if (A_CAPVSEXP_Expense.equals(getA_CapvsExp()))
-				setA_CreateAsset(false);
-			
-			if (isA_CreateAsset())
-			{
-				// A_CreateAsset='Y' must be unique
-				if (cnt >= 1)
-				{
-					setA_CreateAsset(false);
-				}
-				else if (cnt == 0)
-				{
-					setA_CreateAsset(true);
-					
-					// Goodwill - Check if Asset is Activated, don't Create Asset
-					if (asset.getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated)
-							&& !asset.getAssetActivationDate().equals(getDateDoc()))
-					{
-						setA_CreateAsset(false);
-					}
-				}
-			}
-			else
-			{
-				// Succesfull creation of Asset
-				if (cnt == 0)
-				{
-					// Goodwill - Check if Asset is Activated, don't Create Asset
-					if (asset.getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated)
-							&& !asset.getAssetActivationDate().equals(getDateDoc()))
-					{
-						setA_CreateAsset(false);
-					} // End - Check
-					else
-						setA_CreateAsset(true);
-				}
 			}
 		}
+			
+//		Replaced the below as the logic is a bit messy.  Simply, if the asset exists, don't create it.
+//			int cnt= 0;
+//			if (getA_Asset_ID() > 0)
+//			{
+//				final String sql = "SELECT COUNT(*) FROM A_Asset_Addition WHERE A_Asset_ID=? AND A_CreateAsset='Y'"
+//								//+" AND DocStatus<>'VO' AND IsActive='Y'"
+//								+" AND DocStatus IN ('CO','CL') AND IsActive='Y'"      // Goodwill
+//								+" AND A_Asset_Addition_ID<>?";
+//				
+//				cnt = DB.getSQLValueEx(null, sql, getA_Asset_ID(), getA_Asset_Addition_ID());
+//			}
+//			
+//			MAsset asset = new MAsset(getCtx(), getA_Asset_ID(), get_TrxName());   // Goodwill
+//			
+//			//Goodwill - If Capital type and no asset is identified, create a new asset
+//			if (A_CAPVSEXP_Capital.equals(getA_CapvsExp()) && getA_Asset_ID() == 0)
+//			{
+//				setA_CreateAsset(true);
+//			}
+//			
+//			//Goodwill - If Capital type and Asset_ID exist, don't create asset
+//			if (A_CAPVSEXP_Capital.equals(getA_CapvsExp()) && getA_Asset_ID() > 0 && cnt >= 1)
+//				setA_CreateAsset(false);
+//			
+//			//Goodwill - If Expense type, don't create asset
+//			if (A_CAPVSEXP_Expense.equals(getA_CapvsExp()))
+//				setA_CreateAsset(false);
+//			
+//			if (isA_CreateAsset())
+//			{
+//				// A_CreateAsset='Y' must be unique
+//				if (cnt >= 1)
+//				{
+//					setA_CreateAsset(false);
+//				}
+//				else if (cnt == 0)
+//				{
+//					// setA_CreateAsset(true);  // Already done
+//					
+//					// Goodwill - Check if Asset is Activated, don't Create Asset
+//					if (asset.getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated))
+////							&& !asset.getAssetActivationDate().equals(getDateDoc()))  // Why test the date doc?
+//					{
+//						setA_CreateAsset(false);
+//					}
+//				}
+//			}
+//			else  // A_CreateAsset == false
+//			{
+//				// Successful creation of Asset
+//				if (cnt == 0)
+//				{
+//					// Goodwill - Check if Asset is Activated, don't Create Asset
+//					if (!asset.getA_Asset_Status().equals(MAsset.A_ASSET_STATUS_Activated)
+//							|| asset.getAssetActivationDate().equals(getDateDoc()))
+//					{
+//						setA_CreateAsset(true);
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	private void setC_DocType_ID() 

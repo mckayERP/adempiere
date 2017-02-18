@@ -125,6 +125,7 @@ implements DocAction
 	
 	public String prepareIt()
 	{
+		// TODO Multi schema ?? Seems not to have been considered
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (m_processMsg != null)
 		{
@@ -132,42 +133,43 @@ implements DocAction
 		}
 		// test if period is open
 		MPeriod.testPeriodOpen(getCtx(), getDateAcct(), MDocType.DOCBASETYPE_GLJournal, getAD_Org_ID());
-		
-		MDepreciationWorkfile assetwk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType());
-		if (assetwk.isDepreciated(getDateAcct()))
-		{
-			throw new AssetAlreadyDepreciatedException();
-		}
+	
+		// TODO - have to test this across all schema. May be fully depreciated in some, not others.
+//		MDepreciationWorkfile assetwk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType());
+//		if (assetwk.isDepreciated(getDateAcct()))
+//		{
+//			throw new AssetAlreadyDepreciatedException();
+//		}
 				
 		// Check if the accounts have changed in the meantime
-		MAssetAcct assetAcct = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
-		if (assetAcct.getA_Asset_Acct() != getA_Asset_Acct()
-				|| assetAcct.getA_Accumdepreciation_Acct() != getA_Accumdepreciation_Acct()
-				|| assetAcct.getA_Depreciation_Acct() != getA_Depreciation_Acct()
-				|| assetAcct.getA_Disposal_Revenue_Acct() != getA_Disposal_Revenue_Acct()
-				|| assetAcct.getA_Disposal_Loss_Acct() != getA_Disposal_Loss_Acct()
-				)
-		{
-			throw new AdempiereException("The accounts have been changed");  
-		}
+//		MAssetAcct assetAcct = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
+//		if (assetAcct.getA_Asset_Acct() != getA_Asset_Acct()
+//				|| assetAcct.getA_Accumdepreciation_Acct() != getA_Accumdepreciation_Acct()
+//				|| assetAcct.getA_Depreciation_Acct() != getA_Depreciation_Acct()
+//				|| assetAcct.getA_Disposal_Revenue_Acct() != getA_Disposal_Revenue_Acct()
+//				|| assetAcct.getA_Disposal_Loss_Acct() != getA_Disposal_Loss_Acct()
+//				)
+//		{
+//			throw new AdempiereException("The accounts have been changed");  
+//		}
 		//Check that at least one account is changed
-		{
-		MAssetAcct acct = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
-		if (acct.getA_Asset_Acct() == getA_Asset_New_Acct()
-				&& acct.getA_Accumdepreciation_Acct() == getA_Accumdepreciation_New_Acct()
-				&& acct.getA_Depreciation_Acct() == getA_Depreciation_New_Acct()
-				&& acct.getA_Disposal_Revenue_Acct() == getA_Disposal_Revenue_New_Acct()
-				&& acct.getA_Disposal_Loss_Acct() == getA_Disposal_Loss_New_Acct()
-				)
-		{
-			throw new AdempiereException("An account has been changed"); 
-		}
-		}
+//		{
+//		MAssetAcct acct = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
+//		if (acct.getA_Asset_Acct() == getA_Asset_New_Acct()
+//				&& acct.getA_Accumdepreciation_Acct() == getA_Accumdepreciation_New_Acct()
+//				&& acct.getA_Depreciation_Acct() == getA_Depreciation_New_Acct()
+//				&& acct.getA_Disposal_Revenue_Acct() == getA_Disposal_Revenue_New_Acct()
+//				&& acct.getA_Disposal_Loss_Acct() == getA_Disposal_Loss_New_Acct()
+//				)
+//		{
+//			throw new AdempiereException("An account has been changed"); 
+//		}
+//		}
 		//doc check if the date is equal to its accounting for the expense table
-		if (assetwk.getDateAcct().equals(getDateAcct()))
-		{
-			throw new AdempiereException("Last day of month. Accounts will be changed next month");  
-		}
+//		if (assetwk.getDateAcct().equals(getDateAcct()))
+//		{
+//			throw new AdempiereException("Last day of month. Accounts will be changed next month");  
+//		}
 			
 		//check if they are unprocessed records
 		MDepreciationExp.checkExistsNotProcessedEntries(getCtx(), getA_Asset_ID(), getDateAcct(), getPostingType(), get_TrxName());
@@ -198,17 +200,17 @@ implements DocAction
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 
+		// TODO Multi-schema??
+//		 create new MAssetAcct
+//		MAssetAcct assetAcctPrev = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
+//		MAssetAcct assetAcct = new MAssetAcct(getCtx(), 0, get_TrxName());
+//		PO.copyValues(assetAcctPrev, assetAcct);
+//		assetAcct.setA_Asset_Acct(getA_Asset_New_Acct());
+//		assetAcct.setA_Accumdepreciation_Acct(getA_Accumdepreciation_New_Acct());
+//		assetAcct.setValidFrom(getDateAcct());
+//		assetAcct.saveEx();
 		
-		// create new MAssetAcct
-		MAssetAcct assetAcctPrev = MAssetAcct.forA_Asset_ID(getCtx(), getA_Asset_ID(), getPostingType(), getDateAcct(), get_TrxName());
-		MAssetAcct assetAcct = new MAssetAcct(getCtx(), 0, get_TrxName());
-		PO.copyValues(assetAcctPrev, assetAcct);
-		assetAcct.setA_Asset_Acct(getA_Asset_New_Acct());
-		assetAcct.setA_Accumdepreciation_Acct(getA_Accumdepreciation_New_Acct());
-		assetAcct.setValidFrom(getDateAcct());
-		assetAcct.saveEx();
-		
-		MDepreciationWorkfile wk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType(), get_TrxName());
+//		MDepreciationWorkfile wk = MDepreciationWorkfile.get(getCtx(), getA_Asset_ID(), getPostingType(), get_TrxName());
 		/* commented out by @win, deprecating existing design
 		wk.buildDepreciation();
 		*/

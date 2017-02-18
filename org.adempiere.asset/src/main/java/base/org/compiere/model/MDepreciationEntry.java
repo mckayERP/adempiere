@@ -352,7 +352,7 @@ implements DocAction, DocOptions
 		final MPeriod period = MPeriod.get(getCtx(), getC_Period_ID());
 		
 		final ArrayList<Exception> errors = new ArrayList<Exception>();
-		final Iterator<MDepreciationExp> it = getLinesIterator(true, true); // Reverse order
+		final Iterator<MDepreciationExp> it = getLinesIterator(false, true); // Reverse order
 		//
 		while(it.hasNext())
 		{

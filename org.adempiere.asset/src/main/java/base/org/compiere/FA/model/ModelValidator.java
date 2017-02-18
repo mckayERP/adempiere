@@ -77,7 +77,7 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 
 	public String modelChange(PO po, int type) throws Exception
 	{
-		if (po instanceof MMatchInv
+		if (po instanceof MMatchInv // Performed in the model change since the MMatchInv does not have a "complete" process
 				&& (TYPE_AFTER_NEW == type 
 						|| (TYPE_AFTER_CHANGE == type && po.is_ValueChanged(MMatchInv.COLUMNNAME_Processed))))
 		{
@@ -85,24 +85,27 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 			if (mi.isProcessed())
 			{
 				MInvoiceLine invoiceLine = new MInvoiceLine(mi.getCtx(), mi.getC_InvoiceLine_ID(), mi.get_TrxName());
-				if (invoiceLine.isA_CreateAsset()
-						&& !invoiceLine.isA_Processed()
+				if (invoiceLine.isA_CreateUpdateAsset()
+						&& !invoiceLine.isA_Processed() 
 						/* commented by @win
 						&& MAssetType.isFixedAssetGroup(mi.getCtx(), invoiceLine.getA_Asset_Group_ID())
 						*/
 					)
 				{
+					// Implies, for MatchInv, that the product is stocked
+					
 					int loopQty = 1; //Goodwill - Loop counter for collective asset validation
-					
-					//Goodwill - If the Invoice Line is an expense type
-					if (MInvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()))
-						invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
-					
-					//Goodwill - If the Invoice Line is a capital type and with an Asset_ID
-					if (MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp())
-							&& invoiceLine.getA_Asset_ID() > 0)
-						invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
-					
+	
+//  Moved to the invoice					
+//					//Goodwill - If the Invoice Line is an expense type
+//					if (MInvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()))
+//						invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
+//					
+//					//Goodwill - If the Invoice Line is a capital type and with an Asset_ID
+//					if (MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp())
+//							&& invoiceLine.getA_Asset_ID() > 0)
+//						invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
+//					
 					//Goodwill - If the Invoice Line is a capital type and without Asset_ID
 					if (MInvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp())
 							&& invoiceLine.getA_Asset_ID() <= 0)
@@ -123,10 +126,9 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 		// Invoice Line
 		else if (po instanceof MInvoiceLine)
 		{			
-			MInvoiceLine il = (MInvoiceLine)po;			
-			if (type == TYPE_CHANGE || type == TYPE_NEW) 
-				beforeSave(il, type == TYPE_NEW);
-			modelChange_InvoiceLine(SetGetUtil.wrap(po), type);
+			MInvoiceLine il = (MInvoiceLine)po;
+			beforeSave(il, type);
+			afterChange(il,type);
 		}
 		
 		// Asset Group
@@ -154,20 +156,82 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 		// TABLE C_Invoice
 		String tableName = po.get_TableName();
 		if(tableName.equals(MInvoice.Table_Name)){
-			// Invoice - Validate Fixed Assets Invoice (LRO)
-			if (timing==TIMING_AFTER_PREPARE)
-			{
-				MInvoice invoice = (MInvoice)po;
-				validateFixedAssetsInvoice_LRO(invoice);
-			}
+			
+//  MckayERP - Commented out to remove localization from general code 
+//			// Invoice - Validate Fixed Assets Invoice (LRO)
+//			if (timing==TIMING_AFTER_PREPARE)
+//			{
+//				MInvoice invoice = (MInvoice)po;
+//				validateFixedAssetsInvoice_LRO(invoice);
+//			}
 			
 			if(timing==TIMING_AFTER_COMPLETE){
 				MInvoice mi = (MInvoice)po;
-				if (mi.isSOTrx() && !mi.isReversal()) {
+				if (mi.isSOTrx() && !mi.isReversal()) 
+				{
 					MInvoiceLine[] mils = mi.getLines();
-					for (MInvoiceLine mil: mils) {
-						if (mil.isA_CreateAsset() && !mil.isA_Processed()) {
+					for (MInvoiceLine mil: mils) 
+					{
+						if (mil.isA_CreateUpdateAsset() && !mil.isA_Processed()) 
+						{
 							MAssetDisposed.createAssetDisposed(mil);
+						}
+					}
+				}
+				else if (!mi.isSOTrx() && !mi.isReversal())
+				{
+					// Vendor invoice
+					MInvoiceLine[] mils = mi.getLines();
+					for (MInvoiceLine mil: mils) 
+					{
+						if (mil.isA_CreateUpdateAsset() && !mil.isA_Processed()) 
+						{
+							if (mil.getM_Product_ID() > 0)
+							{
+								// Defer to Match Inv for stocked items
+								if (mil.getM_Product().isStocked())
+								{
+									continue;
+								}
+							}
+							
+							// Collective assets - a collective asset is a single asset record
+							// that includes a number of items, so it has a quantity.  A non-collective
+							// asset has quantity 1 for each asset record.  The IsCollectiveAsset flag can be
+							// be set to Yes only if an asset id is not specified and the addition is Capital.
+							// In this case, a new asset will be created with the quantity on the invoice. 
+							// Otherwise, with the flag set to N, a new asset will be created for each unit 
+							// quantity on the invoice.  
+							// If the asset ID is specified, the IsCollectiveAsset flag is ignored and the invoice
+							// quantity is added to the asset quantity.
+							
+							int numberOfAssetsToCreate = 1;
+							
+							if (MInvoiceLine.A_CAPVSEXP_Capital.equals(mil.getA_CapvsExp())
+									&& mil.getA_Asset_ID() <= 0)
+							{
+								if (!mil.get_ValueAsBoolean("IsCollectiveAsset"))  
+									numberOfAssetsToCreate = mil.getQtyInvoiced().intValue();
+							}
+							
+							//Goodwill - Loop for creating/updating asset addition
+							for (int i = 0; i < numberOfAssetsToCreate; i++)
+							{
+								MAssetAddition assetAddition = MAssetAddition.createAssetAddition(mil);
+								if (assetAddition != null)
+								{
+									// Complete the addition.
+									if (!assetAddition.processIt(MAssetAddition.ACTION_Complete))
+									{
+										// Failure likely due to incomplete depreciation processing.  The depreciation needs
+										// to be up to date.
+										String errorMsg = assetAddition.getProcessMsg();
+										log.warning("Asset Addition Process Failed: " + assetAddition + " - " + errorMsg);
+										throw new IllegalStateException("Asset Addition Process Failed: " + assetAddition + " - " + errorMsg);
+	
+									}
+								}
+							}
 						}
 					}
 				}
@@ -201,7 +265,7 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 						//	Create Asset for SO
 					if (product != null
 							&& inOut.isSOTrx()
-							&& product.isCreateAsset()
+							&& product.isAssetProduct()
 							&& !product.getM_Product_Category().getA_Asset_Group().isFixedAsset()
 							&& inOutLine.getMovementQty().signum() > 0
 							&& !inOut.isReversal()) {
@@ -247,105 +311,29 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 	} // docValidate
 	
 	/**
-	 * Model Change Invoice Line
-	 * @param model model
-	 * @param changeType set when called from model validator (See TYPE_*); else -1, when called from callout
+	 * Model Change Invoice Line - updates the invoice header after changes in the invoice lines
+	 * @param InvoiceLine 
+	 * @param changeType set when called from model validator
 	 */
-	public static void modelChange_InvoiceLine(SetGetModel model, int changeType) {
-		//
-		// Set Asset Related Fields:
-		if (-1 == changeType || TYPE_BEFORE_NEW == changeType || TYPE_BEFORE_CHANGE == changeType) {
-			//int invoice_id = SetGetUtil.get_AttrValueAsInt(m, MInvoiceLine.COLUMNNAME_C_Invoice_ID);
-			//boolean isSOTrx = DB.isSOTrx(MInvoice.Table_Name, MInvoice.COLUMNNAME_C_Invoice_ID+"="+invoice_id);
-			boolean isAsset = false;
-			/* comment by @win
-			boolean isFixedAsset = false;
-			*/
-			int assetGroupId = 0;
-			
-			//Goodwill - invoice is an Asset type Invoice
-			isAsset = SetGetUtil.get_AttrValueAsBoolean(model, MInvoiceLine.COLUMNNAME_A_CreateAsset);
-
-			//@win commenting this out to enable relating AR Invoice to Asset Disposal
-			/*
-			if (!isSOTrx) {
-				int product_id = SetGetUtil.get_AttrValueAsInt(m, MInvoiceLine.COLUMNNAME_M_Product_ID);
-				if (product_id > 0) {
-					MProduct prod = MProduct.get(m.getCtx(), product_id);
-					isAsset = (prod != null && prod.get_ID() > 0 && prod.isCreateAsset());
-					assetGroup_ID = prod.getA_Asset_Group_ID();
-					
-					//isFixedAsset = MAssetType.isFixedAssetGroup(m.getCtx(), assetGroup_ID); //commented by @win - remove asset type
-				}
-			}
-			*/
-			
-			int productId = SetGetUtil.get_AttrValueAsInt(model, MInvoiceLine.COLUMNNAME_M_Product_ID);
-			if (productId > 0) {
-				MProduct product = MProduct.get(model.getCtx(), productId);
-				if (product.isCreateAsset())
-				{
-					isAsset = (product != null && product.get_ID() > 0 && product.isCreateAsset());
-					assetGroupId = product.getA_Asset_Group_ID();
-				}
-				//Goodwill - if the product is not Asset Type
-				else 
-					assetGroupId = SetGetUtil.get_AttrValueAsInt(model, MInvoiceLine.COLUMNNAME_A_Asset_Group_ID);
-			}			
-			// end modification by @win
-			
-			model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_CreateAsset, isAsset);
-			if (isAsset) {
-				model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_Asset_Group_ID, assetGroupId);
-				/* comment by @win
-				m.set_AttrValue(MInvoiceLine.COLUMNNAME_IsFixedAssetInvoice, isFixedAsset);
-				*/
-				model.set_AttrValue("IsFixedAssetInvoice", isAsset);
-				// model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_CreateAsset, "Y"); // Redundant
-				
-			}
-			else {
-				model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_Asset_Group_ID, null);
-				model.set_AttrValue(MInvoiceLine.COLUMNNAME_A_Asset_ID, null);
-				model.set_AttrValue("IsFixedAssetInvoice", false);
-			}
-			//
-			// Validate persistent object: 
-			if (isAsset && (model instanceof MInvoiceLine)) {  // mckayERP - this will always fail
-				MInvoiceLine invoiceLine = (MInvoiceLine)model;
-				//
-				// If is expense, then asset is mandatory
-				if (MInvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.getA_Asset_ID() <= 0) {
-					throw new FillMandatoryException(MInvoiceLine.COLUMNNAME_A_Asset_ID);
-				}
-				//
-				// Check Amounts & Qty
-				if (invoiceLine.getLineNetAmt().signum() == 0) {
-					throw new FillMandatoryException(MInvoiceLine.COLUMNNAME_QtyEntered, MInvoiceLine.COLUMNNAME_PriceEntered);
-				}
-				//
-				// Check Product - fixed assets products shouldn't be stocked (but inventory objects are allowed)
-//				MProduct product = invoiceLine.getProduct();
-//				if (product.isStocked() && invoiceLine.get_ValueAsBoolean("IsFixedAssetInvoice")) {
-//					throw new AssetProductStockedException(product);
-//				}
-			}
-		}
+	private boolean afterChange(MInvoiceLine invoiceLine, int changeType) 
+	{
 		
-		//
 		// Update Invoice Header:
-		if (TYPE_AFTER_NEW == changeType || TYPE_AFTER_CHANGE == changeType || TYPE_AFTER_DELETE == changeType) {
-			int invoiceId = SetGetUtil.get_AttrValueAsInt(model, MInvoiceLine.COLUMNNAME_C_Invoice_ID);
+		if (TYPE_AFTER_NEW == changeType || TYPE_AFTER_CHANGE == changeType || TYPE_AFTER_DELETE == changeType) 
+		{
+			int invoiceId = invoiceLine.getC_InvoiceLine_ID();
 			String sql =
 				"UPDATE C_Invoice i SET IsFixedAssetInvoice"
 						+"=(SELECT COALESCE(MAX(il.IsFixedAssetInvoice),'N')"
 						+" FROM C_InvoiceLine il"
 						+" WHERE il.C_Invoice_ID=i.C_Invoice_ID"
-						+" AND il."+MInvoiceLine.COLUMNNAME_IsDescription+"='N'"
+						+" AND il."+MInvoiceLine.COLUMNNAME_IsFixedAssetInvoice+"='N'"
 						+")"
 				+" WHERE C_Invoice_ID=?";
-			DB.executeUpdateEx(sql, new Object[]{invoiceId}, model.get_TrxName());
+			DB.executeUpdateEx(sql, new Object[]{invoiceId},invoiceLine.get_TrxName());
+			return true;
 		}
+		return false;
 	}
 	
 	/**
@@ -445,41 +433,108 @@ implements org.compiere.model.ModelValidator, org.compiere.model.FactsValidator
 		return null;
 	} //beforeDelete
 	
-	private boolean beforeSave(MInvoiceLine invoiceLine, boolean newRecord)
+	/**
+	 * Ensure the invoice lines that impact assets are setup correctly.
+	 * This code is in the asset model validator due to dependency issues
+	 * with the Fixed Asset module.
+	 * @param invoiceLine
+	 * @param type
+	 * @return true if applied to the invoice line.
+	 */
+	private boolean beforeSave(MInvoiceLine invoiceLine, int type)
 	{
-		//Goodwill - Check for asset invoice 
-		if (invoiceLine.isA_CreateAsset())
+		
+		if (type != TYPE_CHANGE && type != TYPE_NEW)
+			return false;
+		
+		MProduct product = null;
+		MAsset asset = null;
+		
+		// If the product is asset related, force the Create Asset flag
+		if (invoiceLine.getM_Product_ID() > 0) {
+			product = (MProduct) invoiceLine.getM_Product();
+			if (product != null && product.isAssetProduct()) 
+			{
+				invoiceLine.setA_Asset_Group_ID(product.getA_Asset_Group_ID());
+				invoiceLine.setA_CreateUpdateAsset(true);
+			}
+		}
+		
+		// If the Create Asset flag is not set, ignore the rest.
+		if (!invoiceLine.isA_CreateUpdateAsset())  
 		{
-			I_M_Product product = invoiceLine.getM_Product();
-			if (X_C_InvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()) && product.getM_Product_Category().getA_Asset_Group_ID() == 0)
-				throw new AdempiereException("@A_Asset_Group_ID@ @NotFound@ @To@ @M_Product_ID@ : " + product.getName());
+			invoiceLine.setIsFixedAssetInvoice(false);
+			invoiceLine.setA_Asset_Group_ID(0);
+		}
+		else
+		{
+			// We're dealing with a fixed asset, so set the fixed asset flag
+			invoiceLine.setIsFixedAssetInvoice(true);
+			
+			// If an asset is identified, turn off the collective asset flag and check that 
+			// the asset group matches the asset
+			if (invoiceLine.getA_Asset_ID() > 0)
+			{
+				asset = (MAsset) invoiceLine.getA_Asset();
+				if (asset != null)
+				{
+					// Match that asset group to asset ID if required
+					invoiceLine.setA_Asset_Group_ID(asset.getA_Asset_Group_ID());	
+				}
+			}
+			
+			// Creating or updating and asset value.  There are two types: Capital and Expense
+			// A Capital type is used when purchasing or disposing of an asset.  The expense type 
+			// is used for items included in cost of an existing asset.  Capital types will generally
+			// add quantity and cost to an asset or add new assets. Expenses types will only change the 
+			// asset cost.  Neither type will affect the accumulated depreciation.
+			
+			if (X_C_InvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()))
+			{
+				// If this is a Capital Expense with an asset product identified, ensure the product is linked to an
+				// asset group.  
+				if (product != null && product.isAssetProduct())
+				{
+					invoiceLine.setA_Asset_Group_ID(product.getA_Asset_Group_ID());
+				}
+				
+				if (asset != null)
+				{
+					// Match that asset group to asset ID if required
+					if (invoiceLine.getA_Asset_Group_ID() <= 0)
+					{
+						invoiceLine.setA_Asset_Group_ID(asset.getA_Asset_Group_ID());
+					}
+					else if (invoiceLine.getA_Asset_Group_ID() != asset.getA_Asset_Group_ID())
+					{
+						throw new AdempiereException(Msg.translate(invoiceLine.getCtx(), "Asset Group on Invoice Line is different from Asset Group on Asset"));
+					}
+					
+					// Match the asset and product for capital types, if there is a product
+					if (product != null && product.isAssetProduct() && invoiceLine.getM_Product_ID() != asset.getM_Product_ID())
+					{
+						throw new AdempiereException(Msg.translate(invoiceLine.getCtx(), "Product on Invoice Line is different from Asset Product"));
+					}
+					
+					// If there is an asset identified, turn off the Collective Asset flag
+					invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
 
-			// Check for asset group and product differences
-			if (X_C_InvoiceLine.A_CAPVSEXP_Capital.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.getA_Asset_ID() > 0)
-			{
-				if (invoiceLine.getA_Asset_Group_ID() != invoiceLine.getA_Asset().getA_Asset_Group_ID())
-				{
-					throw new AdempiereException(Msg.translate(invoiceLine.getCtx(), "Asset Group on Invoice Line is different from Asset Group on Asset"));
-				}
-				if (invoiceLine.getM_Product_ID() != invoiceLine.getA_Asset().getM_Product_ID())
-				{
-					throw new AdempiereException(Msg.translate(invoiceLine.getCtx(), "Product on Invoice Line is different from Asset Product"));
 				}
 			}
 		
-			//Expense Asset_ID check
-			if (X_C_InvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.getA_Asset_ID() <= 0)
+			//Expense Asset_ID check - Expense types are related to a specific asset so the Asset ID must be set
+			if (X_C_InvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()))
 			{
-				throw new AdempiereException("@A_Asset_ID@ @NotFound@");
+				if (invoiceLine.getA_Asset_ID() <= 0)
+				{
+					throw new FillMandatoryException(MInvoiceLine.COLUMNNAME_A_Asset_ID);
+				}
+								
+				// Expense types are not collective
+				invoiceLine.set_ValueOfColumn("IsCollectiveAsset", false);
 			}
-			if (X_C_InvoiceLine.A_CAPVSEXP_Expense.equals(invoiceLine.getA_CapvsExp()) && invoiceLine.getA_Asset_ID() > 0)
-			{
-				invoiceLine.setA_Asset_ID(invoiceLine.getA_Asset().getA_Asset_ID());
-				invoiceLine.setA_Asset_Group_ID(invoiceLine.getA_Asset().getA_Asset_Group_ID());
-				invoiceLine.setA_CapvsExp(X_C_InvoiceLine.A_CAPVSEXP_Expense);
-			}
-		}//Goodwill - End check for asset invoice
-		
+			
+		}
 		return true;
 	}
 	

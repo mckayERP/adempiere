@@ -111,6 +111,8 @@ public class ProjectCreateAsset extends SvrProcess
 		MAssetAddition assetAdd = MAssetAddition.createAsset(project, product);
 		assetAdd.setDateAcct(m_DateTrx);
 		assetAdd.setDateDoc(m_DateTrx);
+		assetAdd.setA_CreateAsset(true);
+		assetAdd.setA_CapvsExp(MAssetAddition.A_CAPVSEXP_Capital);
 		assetAdd.setM_Product_ID(m_Product_ID);
 		if(m_UseLifeYears > 0) {
 			assetAdd.setDeltaUseLifeYears(m_UseLifeYears);

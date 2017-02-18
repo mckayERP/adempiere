@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Allow asset additions from an invoice" ReleaseNo="" SeqNo="430">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="5825" Table="AD_Field">
+        <Data AD_Column_ID="177" Column="DisplayLogic" oldValue="@A_CreateAsset@='Y'&amp;@IsCollectiveAsset@='N'">@A_CreateAsset@='Y'</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="20" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56252" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="92">100</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="30" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56253" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="130">110</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="40" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="5825" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="150">120</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="50" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56254" Table="AD_Field">
+        <Data AD_Column_ID="176" Column="IsDisplayed" oldValue="false">true</Data>
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="140">130</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="60" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="26002" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="120">140</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="70" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="10823" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="160">150</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="80" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3365" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="170">160</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="90" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3374" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="180">170</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="100" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="10824" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="190">180</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="110" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3373" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="200">190</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="120" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3372" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="210">200</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="130" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3364" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="230">210</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="140" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="6430" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="240">220</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="150" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="12747" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="250">230</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="160" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="13668" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="260">240</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="170" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="13669" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="270">250</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="180" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="74297" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="280">260</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="190" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="13693" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="280">270</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="200" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="13674" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="290">280</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="210" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="13675" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="300">290</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="220" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="3370" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="310">300</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="230" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="8266" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="320">310</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="240" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="8244" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="330">320</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="250" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="8267" Table="AD_Field">
+        <Data AD_Column_ID="181" Column="SeqNo" oldValue="340">330</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="260" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56253" Table="AD_Field">
+        <Data AD_Column_ID="183" Column="IsSameLine" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="270" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="5825" Table="AD_Field">
+        <Data AD_Column_ID="183" Column="IsSameLine" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="280" StepType="AD">
+      <PO AD_Table_ID="276" Action="U" Record_ID="53646" Table="AD_Element">
+        <Data AD_Column_ID="2605" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="2604" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="290" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="59453" Table="AD_Column">
+        <Data AD_Column_ID="113" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="112" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="300" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="59342" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="169" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="310" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="59367" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="169" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="320" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="56070" Table="AD_Column">
+        <Data AD_Column_ID="113" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="112" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="330" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56249" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="169" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="340" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="70525" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="169" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="350" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="56072" Table="AD_Column">
+        <Data AD_Column_ID="113" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="112" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="360" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56252" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" isOldNull="true">If selected, a new asset record will be created.  If deselected, an existing record will be updated.</Data>
+        <Data AD_Column_ID="169" Column="Description" isOldNull="true">Create a new asset record</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="370" StepType="AD">
+      <PO AD_Table_ID="276" Action="I" Record_ID="59159" Table="AD_Element">
+        <Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2597" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2594" Column="AD_Element_ID">59159</Data>
+        <Data AD_Column_ID="2602" Column="ColumnName">A_CreateUpdateAsset</Data>
+        <Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2598" Column="Created">2017-01-18 07:42:13.452</Data>
+        <Data AD_Column_ID="2600" Column="Updated">2017-01-18 07:42:13.452</Data>
+        <Data AD_Column_ID="2605" Column="Help">If selected, an asset will be created or updated.  If the asset doesn't exist or is not identified, it will be created.</Data>
+        <Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="6484" Column="EntityType">D</Data>
+        <Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2599" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2601" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2603" Column="Name">Create/Update Asset</Data>
+        <Data AD_Column_ID="2604" Column="Description">Create or Update an asset.</Data>
+        <Data AD_Column_ID="4299" Column="PrintName">Create/Update</Data>
+        <Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+        <Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="58588" Column="AD_Reference_ID">20</Data>
+        <Data AD_Column_ID="58589" Column="FieldLength">1</Data>
+        <Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="380" StepType="AD">
+      <PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+        <Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+        <Data AD_Column_ID="2641" Column="IsActive">true</Data>
+        <Data AD_Column_ID="2644" Column="Updated">2017-01-18 07:42:15.123</Data>
+        <Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+        <Data AD_Column_ID="2642" Column="Created">2017-01-18 07:42:15.123</Data>
+        <Data AD_Column_ID="2643" Column="CreatedBy">0</Data>
+        <Data AD_Column_ID="2645" Column="UpdatedBy">0</Data>
+        <Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+        <Data AD_Column_ID="2637" Column="AD_Element_ID">59159</Data>
+        <Data AD_Column_ID="2648" Column="Help">If selected, an asset will be created or updated.  If the asset doesn't exist or is not identified, it will be created.</Data>
+        <Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+        <Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+        <Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+        <Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+        <Data AD_Column_ID="2647" Column="Description">Create or Update an asset.</Data>
+        <Data AD_Column_ID="2646" Column="Name">Create/Update Asset</Data>
+        <Data AD_Column_ID="4300" Column="PrintName">Create/Update</Data>
+        <Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+      </PO>
+    </Step>
+    <Step SeqNo="390" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="56072" Table="AD_Column">
+        <Data AD_Column_ID="113" Column="Help" oldValue="If selected, a new asset record will be created.  If deselected, an existing record will be updated.">If selected, an asset will be created or updated.  If the asset doesn't exist or is not identified, it will be created.</Data>
+        <Data AD_Column_ID="112" Column="Description" oldValue="Create a new asset record">Create or Update an asset.</Data>
+        <Data AD_Column_ID="111" Column="Name" oldValue="Create Asset">Create/Update Asset</Data>
+        <Data AD_Column_ID="116" Column="ColumnName" oldValue="A_CreateAsset">A_CreateUpdateAsset</Data>
+        <Data AD_Column_ID="2608" Column="AD_Element_ID" oldValue="53646">59159</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="400" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56252" Table="AD_Field">
+        <Data AD_Column_ID="170" Column="Help" oldValue="If selected, a new asset record will be created.  If deselected, an existing record will be updated.">If selected, an asset will be created or updated.  If the asset doesn't exist or is not identified, it will be created.</Data>
+        <Data AD_Column_ID="169" Column="Description" oldValue="Create a new asset record">Create or Update an asset.</Data>
+        <Data AD_Column_ID="168" Column="Name" oldValue="Create Asset">Create/Update Asset</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="410" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56253" Table="AD_Field">
+        <Data AD_Column_ID="177" Column="DisplayLogic" oldValue="@A_CreateAsset@='Y'">@A_CreateUpdateAsset@='Y'</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="420" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="5825" Table="AD_Field">
+        <Data AD_Column_ID="177" Column="DisplayLogic" oldValue="@A_CreateAsset@='Y'">@A_CreateUpdateAsset@='Y'</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="430" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="56254" Table="AD_Field">
+        <Data AD_Column_ID="177" Column="DisplayLogic" oldValue="@A_CreateAsset@='Y'&amp;@A_CapvsExp@='Cap'&amp;@A_Asset_ID@&lt;1">@A_CreateUpdateAsset@='Y'&amp;@A_CapvsExp@='Cap'&amp;@A_Asset_ID@&lt;1</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="440" StepType="AD">
+      <PO AD_Table_ID="107" Action="U" Record_ID="26002" Table="AD_Field">
+        <Data AD_Column_ID="177" Column="DisplayLogic" oldValue="@A_CreateAsset@='Y'&amp;@A_CapvsExp@='Cap'&amp;@A_Asset_ID@&lt;1">@A_CreateUpdateAsset@='Y'&amp;@A_CapvsExp@='Cap'&amp;@A_Asset_ID@&lt;1</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="450" StepType="AD">
+      <PO AD_Table_ID="106" Action="U" Record_ID="53322" Table="AD_Tab">
+        <Data AD_Column_ID="166" Column="IsSingleRow" oldValue="true">false</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="460" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="55601" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="470" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="59306" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="480" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81925" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="490" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81934" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="500" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81930" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="510" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81926" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="520" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81935" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="530" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81927" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step SeqNo="540" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81928" Table="AD_Column">
+        <Data AD_Column_ID="11617" Column="IsAlwaysUpdateable" oldValue="false">true</Data>
+      </PO>
+    </Step>
+  </Migration>
+</Migrations>

@@ -138,11 +138,14 @@ public class MAsset extends X_A_Asset
 	 */
 	protected MAsset (MMatchInv match)
 	{
-		this(match.getCtx(), 0, match.get_TrxName());
+		this(match.getCtx(), match.getC_InvoiceLine().getA_Asset_ID(), match.get_TrxName());
+		
+		if (this.getA_Asset_ID() > 0)
+			return;
 		
 		MInvoiceLine invoiceLine = new MInvoiceLine(getCtx(), match.getC_InvoiceLine_ID(), get_TrxName());
 		MInOutLine inoutLine = new MInOutLine(getCtx(), match.getM_InOutLine_ID(), get_TrxName());
-		
+				
 		setIsOwned(true);
 		setIsInPosession(true);
 		setA_Asset_CreateDate(inoutLine.getM_InOut().getMovementDate());
@@ -170,6 +173,56 @@ public class MAsset extends X_A_Asset
 		setDescription(invoiceLine.getDescription());
 	}
 
+	/**
+	 * Construct from Invoice - don't use for stocked product assets
+	 * @param invoiceLine
+	 */
+	protected MAsset (MInvoiceLine invoiceLine)
+	{
+		this(invoiceLine.getCtx(), invoiceLine.getA_Asset_ID(), invoiceLine.get_TrxName());
+		
+		if (this.getA_Asset_ID() > 0)  // Asset exists
+			return;
+		
+		setIsOwned(true);
+		setIsInPosession(true);
+		setA_Asset_CreateDate(invoiceLine.getC_Invoice().getDateInvoiced());
+		
+		// Asset Group:
+		int A_Asset_Group_ID = invoiceLine.getA_Asset_Group_ID();
+		MProduct product = MProduct.get(getCtx(), invoiceLine.getM_Product_ID());
+		if (A_Asset_Group_ID <= 0 && product != null) {
+			A_Asset_Group_ID = product.getA_Asset_Group_ID();
+		}
+		if (A_Asset_Group_ID == 0)
+		{
+			// Use the default
+			A_Asset_Group_ID = MAssetGroup.getDefault_ID(SetGetUtil.wrap(invoiceLine));
+		}
+
+		setA_Asset_Group_ID(A_Asset_Group_ID);
+		setHelp(Msg.getMsg(MClient.get(getCtx()).getAD_Language(), "CreatedFromInvoiceLine", 
+				new Object[] {invoiceLine.getC_Invoice().getDocumentNo(), invoiceLine.getLine()}));
+		
+		String name = "";
+		if (invoiceLine.getM_Product_ID()>0)
+		{
+			name += product.getName() + "-";
+			setM_Product_ID(invoiceLine.getM_Product_ID());
+			setM_AttributeSetInstance_ID(invoiceLine.getM_AttributeSetInstance_ID());
+		}
+		if (invoiceLine.getC_Charge_ID()>0)
+		{
+			name += invoiceLine.getC_Charge().getName() + "-";
+		}
+
+		name += invoiceLine.getC_Invoice().getDocumentNo(); //Goodwill - change naming style
+		setName(name);
+		log.fine("name=" + name);
+		setDescription(invoiceLine.getDescription());
+	}
+
+	
 	/**
 	 * Construct from MIFixedAsset (import)
 	 * @param match match invoice
@@ -506,7 +559,7 @@ public class MAsset extends X_A_Asset
 		}
 		
 		//Goodwill - Check for Asset Group and Product's Asset Group
-		if (!getA_Asset_Group().equals(getM_Product().getM_Product_Category().getA_Asset_Group()))
+		if (getM_Product_ID() > 0 && !getA_Asset_Group().equals(getM_Product().getM_Product_Category().getA_Asset_Group()))
 		{
 			throw new AssetCheckDocumentException("Asset Group and Product's Asset Group are different");
 		}//End of Asset Group Check
@@ -539,17 +592,20 @@ public class MAsset extends X_A_Asset
 					new String[]{MBPartnerLocation.COLUMNNAME_C_Location_ID}
 			);
 		}
-		// TODO Why?
-		// Create ASI if not exist:
-		if (getM_Product_ID() > 0 && getM_AttributeSetInstance_ID() <= 0)
-		{
-			MProduct product = MProduct.get(getCtx(), getM_Product_ID());
-			MAttributeSetInstance asi = new MAttributeSetInstance(getCtx(), 0, product.getM_AttributeSet_ID(), get_TrxName());
-			asi.setSerNo(getSerNo());
-			asi.setDescription();
-			asi.saveEx();
-			setM_AttributeSetInstance_ID(asi.getM_AttributeSetInstance_ID());
-		}
+		// TODO Why? With the introduction of material policy tickets, ASI values are specifications
+		// for products.  An ASI value here is only relevant if the asset product has an attribute set
+		// defined.  The material policy ticket relates to fifo/lifo tracking for costing and is 
+		// attached to the asset product.
+//		// Create ASI if not exist:
+//		if (getM_Product_ID() > 0 && getM_AttributeSetInstance_ID() <= 0)
+//		{
+//			MProduct product = MProduct.get(getCtx(), getM_Product_ID());
+//			MAttributeSetInstance asi = new MAttributeSetInstance(getCtx(), 0, product.getM_AttributeSet_ID(), get_TrxName());
+//			asi.setSerNo(getSerNo());
+//			asi.setDescription();
+//			asi.saveEx();
+//			setM_AttributeSetInstance_ID(asi.getM_AttributeSetInstance_ID());
+//		}
 		// TODO: With the lines below, after creating the asset, the whole system goes much slower ??? 
 //		else if (is_ValueChanged(COLUMNNAME_SerNo) && getM_AttributeSetInstance_ID() > 0) {
 //			asi = new MAttributeSetInstance(getCtx(), getM_AttributeSetInstance_ID(), get_TrxName());
@@ -716,7 +772,7 @@ public class MAsset extends X_A_Asset
 	public void changeStatus(String newStatus, Timestamp date)
 	{
 		String status = getA_Asset_Status();
-		if (CLogMgt.isLevelFinest()) log.finest("Entering: " + status + "->" + newStatus + ", date=" + date);
+		log.finest("Entering: " + status + "->" + newStatus + ", date=" + date);
 		
 		//
 		// If date is null, use context #Date
