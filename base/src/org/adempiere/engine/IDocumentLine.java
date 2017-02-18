@@ -51,4 +51,8 @@ public interface IDocumentLine
 	public IDocumentLine getReversalDocumentLine();
 	public int getM_MPolicyTicket_ID();
 	public void setM_MPolicyTicket_ID(int M_MPolicyTicket_ID);
+	public boolean isReversal();
+	public int getM_Warehouse_ID();
+	public Timestamp getMovementDate();
+	public String getMovementType();
 }

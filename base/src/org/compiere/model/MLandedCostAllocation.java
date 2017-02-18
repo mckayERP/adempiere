@@ -232,19 +232,42 @@ public class MLandedCostAllocation extends X_C_LandedCostAllocation implements I
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
 	@Override
 	public int getC_DocType_ID() {
 		return -1;
+	}
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return getM_InOutLine().getM_InOut().getDateAcct();
+	}
+
+	@Override
+	public String getMovementType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }	//	MLandedCostAllocation

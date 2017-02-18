@@ -26,7 +26,6 @@ import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.IDocumentLine;
 import org.adempiere.engine.CostingMethodFactory;
 import org.adempiere.engine.ICostingMethod;
-
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -591,18 +590,46 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not Relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
 	@Override
 	public int getC_DocType_ID() {
 		return -1;
+	}
+
+
+	@Override
+	public boolean isReversal() {
+		// Not relevant
+		return false;
+	}
+
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// Not relevant
+		return 0;
+	}
+
+
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+
+	@Override
+	public String getMovementType() {
+		// Not relevant
+		return null;
 	}
 }	//	MMatchInv

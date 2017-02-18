@@ -388,5 +388,29 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine
 
 	public boolean isSOTrx(){
 		return false;
+	}
+
+	@Override
+	public boolean isReversal() {
+		// TODO determine if this is a reversal
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// This depends on the locator
+		return 0;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return this.getParent().getMovementDate();
+	}
+
+	@Override
+	public String getMovementType() {
+		// This is a special case - the line has two movement types.
+		// Return null. Callers will have to know which one they want.
+		return null;
 	}	
 }	//	MMovementLine

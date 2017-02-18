@@ -430,18 +430,58 @@ public class MInventoryLine extends X_M_InventoryLine implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
 	@Override
 	public int getC_DocType_ID() {
 		return getParent().getC_DocType_ID();
+	}
+	
+	/**
+	 * Determine the movement type for this line.
+	 * @return  The movement type reference code (I-, I+)
+	 */
+	public String getMovementType() {
+
+		// Set the movementType
+		String movementType = MTransaction.MOVEMENTTYPE_InventoryOut;
+
+		//Get Quantity Internal Use
+		BigDecimal qtyDiff = getQtyInternalUse().negate();
+		
+		//If Quantity Internal Use = Zero Then Physical Inventory  Else Internal Use Inventory
+		if (qtyDiff.signum() == 0)
+		{
+			qtyDiff = getQtyCount().subtract(getQtyBook());
+		}
+
+		if(qtyDiff.compareTo(Env.ZERO) > 0 )
+			movementType = MTransaction.MOVEMENTTYPE_InventoryIn;
+
+		return movementType;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		return this.getParent().getM_Warehouse_ID();
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return this.getParent().getMovementDate();
+	}
+
+	@Override
+	public boolean isReversal() {
+		
+		return this.getParent().isReversal();
 	}
 }	//	MInventoryLine
