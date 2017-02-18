@@ -109,7 +109,7 @@ public class MInOutLineMA extends X_M_InOutLineMA implements IInventoryAllocatio
 	/**
 	 * 	Parent Constructor
 	 *	@param parent parent
-	 *	@param M_AttributeSetInstance_ID asi
+	 *	@param M_MPolicyTicket_ID material policy ticket ID
 	 *	@param MovementQty qty
 	 */
 	public MInOutLineMA (MInOutLine parent, int M_MPolicyTicket_ID, BigDecimal MovementQty)
