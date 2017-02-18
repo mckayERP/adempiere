@@ -1374,6 +1374,8 @@ public abstract class PO
 				Object oo = m_IDs[i];
 				if (oo instanceof Integer)
 					pstmt.setInt(i+1, ((Integer)m_IDs[i]).intValue());
+				else if (oo instanceof Boolean)
+					pstmt.setString(i+1, ((Boolean) m_IDs[i]) ? "Y" : "N");
 				else
 					pstmt.setString(i+1, m_IDs[i].toString());
 			}
