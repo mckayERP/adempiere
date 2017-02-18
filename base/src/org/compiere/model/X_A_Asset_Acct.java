@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_A_Asset_Acct extends PO implements I_A_Asset_Acct, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20170112L;
 
     /** Standard Constructor */
     public X_A_Asset_Acct (Properties ctx, int A_Asset_Acct_ID, String trxName)
@@ -1002,6 +1001,161 @@ public class X_A_Asset_Acct extends PO implements I_A_Asset_Acct, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	public org.compiere.model.I_AD_Column getUOP_Column() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
+			.getPO(getUOP_Column_ID(), get_TrxName());	}
+
+	/** Set Qty Column.
+		@param UOP_Column_ID 
+		In Units of Production, this is the column in the Table that holds the number of units.
+	  */
+	public void setUOP_Column_ID (int UOP_Column_ID)
+	{
+		if (UOP_Column_ID < 1) 
+			set_Value (COLUMNNAME_UOP_Column_ID, null);
+		else 
+			set_Value (COLUMNNAME_UOP_Column_ID, Integer.valueOf(UOP_Column_ID));
+	}
+
+	/** Get Qty Column.
+		@return In Units of Production, this is the column in the Table that holds the number of units.
+	  */
+	public int getUOP_Column_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_UOP_Column_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Date SQL.
+		@param UOP_Date_SQL 
+		The SQL statement to determine the date.
+	  */
+	public void setUOP_Date_SQL (String UOP_Date_SQL)
+	{
+		set_Value (COLUMNNAME_UOP_Date_SQL, UOP_Date_SQL);
+	}
+
+	/** Get Date SQL.
+		@return The SQL statement to determine the date.
+	  */
+	public String getUOP_Date_SQL () 
+	{
+		return (String)get_Value(COLUMNNAME_UOP_Date_SQL);
+	}
+
+	public org.compiere.model.I_AD_Column getUOP_DateColumn() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
+			.getPO(getUOP_DateColumn_ID(), get_TrxName());	}
+
+	/** Set Date Column.
+		@param UOP_DateColumn_ID 
+		The column to use to filter the UOP query by date
+	  */
+	public void setUOP_DateColumn_ID (int UOP_DateColumn_ID)
+	{
+		if (UOP_DateColumn_ID < 1) 
+			set_Value (COLUMNNAME_UOP_DateColumn_ID, null);
+		else 
+			set_Value (COLUMNNAME_UOP_DateColumn_ID, Integer.valueOf(UOP_DateColumn_ID));
+	}
+
+	/** Get Date Column.
+		@return The column to use to filter the UOP query by date
+	  */
+	public int getUOP_DateColumn_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_UOP_DateColumn_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Depreciation Expense per Unit.
+		@param UOP_DepExpensePerUnit 
+		The factor which, when multiplied by the quantity/units in a period, gives the depreciation expense in that period.
+	  */
+	public void setUOP_DepExpensePerUnit (BigDecimal UOP_DepExpensePerUnit)
+	{
+		set_Value (COLUMNNAME_UOP_DepExpensePerUnit, UOP_DepExpensePerUnit);
+	}
+
+	/** Get Depreciation Expense per Unit.
+		@return The factor which, when multiplied by the quantity/units in a period, gives the depreciation expense in that period.
+	  */
+	public BigDecimal getUOP_DepExpensePerUnit () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_UOP_DepExpensePerUnit);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Qty SQL.
+		@param UOP_Qty_SQL 
+		The SQL select phrase that determines the quantity of units
+	  */
+	public void setUOP_Qty_SQL (String UOP_Qty_SQL)
+	{
+		set_Value (COLUMNNAME_UOP_Qty_SQL, UOP_Qty_SQL);
+	}
+
+	/** Get Qty SQL.
+		@return The SQL select phrase that determines the quantity of units
+	  */
+	public String getUOP_Qty_SQL () 
+	{
+		return (String)get_Value(COLUMNNAME_UOP_Qty_SQL);
+	}
+
+	/** Set SQL Where Clause.
+		@param UOP_SQLWhereClause 
+		The where clause that filters the table and column/qty entries such that the units of production relate to the asset.
+	  */
+	public void setUOP_SQLWhereClause (String UOP_SQLWhereClause)
+	{
+		set_Value (COLUMNNAME_UOP_SQLWhereClause, UOP_SQLWhereClause);
+	}
+
+	/** Get SQL Where Clause.
+		@return The where clause that filters the table and column/qty entries such that the units of production relate to the asset.
+	  */
+	public String getUOP_SQLWhereClause () 
+	{
+		return (String)get_Value(COLUMNNAME_UOP_SQLWhereClause);
+	}
+
+	public org.compiere.model.I_AD_Table getUOP_Table() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Table)MTable.get(getCtx(), org.compiere.model.I_AD_Table.Table_Name)
+			.getPO(getUOP_Table_ID(), get_TrxName());	}
+
+	/** Set UOP Table.
+		@param UOP_Table_ID 
+		The table where the units of production will be found.
+	  */
+	public void setUOP_Table_ID (int UOP_Table_ID)
+	{
+		if (UOP_Table_ID < 1) 
+			set_Value (COLUMNNAME_UOP_Table_ID, null);
+		else 
+			set_Value (COLUMNNAME_UOP_Table_ID, Integer.valueOf(UOP_Table_ID));
+	}
+
+	/** Get UOP Table.
+		@return The table where the units of production will be found.
+	  */
+	public int getUOP_Table_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_UOP_Table_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Valid from.

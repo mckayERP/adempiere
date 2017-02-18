@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20170111L;
 
     /** Standard Constructor */
     public X_A_Depreciation_Exp (Properties ctx, int A_Depreciation_Exp_ID, String trxName)
@@ -129,14 +128,17 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 	}
 
 	/** Set Accumulated Depreciation (delta).
-		@param A_Accumulated_Depr_Delta Accumulated Depreciation (delta)	  */
+		@param A_Accumulated_Depr_Delta 
+		The change is accumulated depreciation resulting from a transaction.
+	  */
 	public void setA_Accumulated_Depr_Delta (BigDecimal A_Accumulated_Depr_Delta)
 	{
 		set_Value (COLUMNNAME_A_Accumulated_Depr_Delta, A_Accumulated_Depr_Delta);
 	}
 
 	/** Get Accumulated Depreciation (delta).
-		@return Accumulated Depreciation (delta)	  */
+		@return The change is accumulated depreciation resulting from a transaction.
+	  */
 	public BigDecimal getA_Accumulated_Depr_Delta () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Accumulated_Depr_Delta);
@@ -221,15 +223,18 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 		return bd;
 	}
 
-	/** Set Delta Asset Cost.
-		@param A_Asset_Cost_Delta Delta Asset Cost	  */
+	/** Set Change in Asset Cost.
+		@param A_Asset_Cost_Delta 
+		The change in asset cost as a result of the asset transaction.
+	  */
 	public void setA_Asset_Cost_Delta (BigDecimal A_Asset_Cost_Delta)
 	{
 		set_Value (COLUMNNAME_A_Asset_Cost_Delta, A_Asset_Cost_Delta);
 	}
 
-	/** Get Delta Asset Cost.
-		@return Delta Asset Cost	  */
+	/** Get Change in Asset Cost.
+		@return The change in asset cost as a result of the asset transaction.
+	  */
 	public BigDecimal getA_Asset_Cost_Delta () 
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_A_Asset_Cost_Delta);
@@ -378,6 +383,31 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
         return new KeyNamePair(get_ID(), String.valueOf(getA_Depreciation_Exp_ID()));
     }
 
+	public org.compiere.model.I_A_Depreciation_Workfile getA_Depreciation_Workfile() throws RuntimeException
+    {
+		return (org.compiere.model.I_A_Depreciation_Workfile)MTable.get(getCtx(), org.compiere.model.I_A_Depreciation_Workfile.Table_Name)
+			.getPO(getA_Depreciation_Workfile_ID(), get_TrxName());	}
+
+	/** Set A_Depreciation_Workfile_ID.
+		@param A_Depreciation_Workfile_ID A_Depreciation_Workfile_ID	  */
+	public void setA_Depreciation_Workfile_ID (int A_Depreciation_Workfile_ID)
+	{
+		if (A_Depreciation_Workfile_ID < 1) 
+			set_Value (COLUMNNAME_A_Depreciation_Workfile_ID, null);
+		else 
+			set_Value (COLUMNNAME_A_Depreciation_Workfile_ID, Integer.valueOf(A_Depreciation_Workfile_ID));
+	}
+
+	/** Get A_Depreciation_Workfile_ID.
+		@return A_Depreciation_Workfile_ID	  */
+	public int getA_Depreciation_Workfile_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_A_Depreciation_Workfile_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** A_Entry_Type AD_Reference_ID=53257 */
 	public static final int A_ENTRY_TYPE_AD_Reference_ID=53257;
 	/** Depreciation = DEP */
@@ -424,6 +454,34 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_AcctSchema getC_AcctSchema() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_AcctSchema)MTable.get(getCtx(), org.compiere.model.I_C_AcctSchema.Table_Name)
+			.getPO(getC_AcctSchema_ID(), get_TrxName());	}
+
+	/** Set Accounting Schema.
+		@param C_AcctSchema_ID 
+		Rules for accounting
+	  */
+	public void setC_AcctSchema_ID (int C_AcctSchema_ID)
+	{
+		if (C_AcctSchema_ID < 1) 
+			set_Value (COLUMNNAME_C_AcctSchema_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_AcctSchema_ID, Integer.valueOf(C_AcctSchema_ID));
+	}
+
+	/** Get Accounting Schema.
+		@return Rules for accounting
+	  */
+	public int getC_AcctSchema_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_AcctSchema_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public I_C_ValidCombination getCR_Account() throws RuntimeException
     {
 		return (I_C_ValidCombination)MTable.get(getCtx(), I_C_ValidCombination.Table_Name)
@@ -447,34 +505,6 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 	public int getCR_Account_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_CR_Account_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public I_C_ValidCombination getDR_Account() throws RuntimeException
-    {
-		return (I_C_ValidCombination)MTable.get(getCtx(), I_C_ValidCombination.Table_Name)
-			.getPO(getDR_Account_ID(), get_TrxName());	}
-
-	/** Set Account (debit).
-		@param DR_Account_ID 
-		Account used
-	  */
-	public void setDR_Account_ID (int DR_Account_ID)
-	{
-		if (DR_Account_ID < 1) 
-			set_Value (COLUMNNAME_DR_Account_ID, null);
-		else 
-			set_Value (COLUMNNAME_DR_Account_ID, Integer.valueOf(DR_Account_ID));
-	}
-
-	/** Get Account (debit).
-		@return Account used
-	  */
-	public int getDR_Account_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_DR_Account_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -512,6 +542,34 @@ public class X_A_Depreciation_Exp extends PO implements I_A_Depreciation_Exp, I_
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	public I_C_ValidCombination getDR_Account() throws RuntimeException
+    {
+		return (I_C_ValidCombination)MTable.get(getCtx(), I_C_ValidCombination.Table_Name)
+			.getPO(getDR_Account_ID(), get_TrxName());	}
+
+	/** Set Account (debit).
+		@param DR_Account_ID 
+		Account used
+	  */
+	public void setDR_Account_ID (int DR_Account_ID)
+	{
+		if (DR_Account_ID < 1) 
+			set_Value (COLUMNNAME_DR_Account_ID, null);
+		else 
+			set_Value (COLUMNNAME_DR_Account_ID, Integer.valueOf(DR_Account_ID));
+	}
+
+	/** Get Account (debit).
+		@return Account used
+	  */
+	public int getDR_Account_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_DR_Account_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Expense.

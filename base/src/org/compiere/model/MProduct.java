@@ -440,13 +440,25 @@ public class MProduct extends X_M_Product
 
 	/**
 	 * 	Create Asset for this product
+	 *  @deprecated use isAssetProduct()
 	 *	@return true if asset is created
 	 */
+	@Deprecated 
 	public boolean isCreateAsset()
 	{
 		MProductCategory pc = MProductCategory.get(getCtx(), getM_Product_Category_ID());
 		return pc.getA_Asset_Group_ID() != 0;
-	}	//	isCreated
+	}	//	isCreateAsset
+
+	/**
+	 * 	Is this product related to an asset
+	 *	@return true if the product is related to an asset group
+	 */
+	public boolean isAssetProduct()
+	{
+		MProductCategory pc = MProductCategory.get(getCtx(), getM_Product_Category_ID());
+		return pc.getA_Asset_Group_ID() != 0;
+	}
 
 	/**
 	 * 	Get Attribute Set

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -40,27 +39,6 @@ public interface I_A_Asset_Group_Acct
     BigDecimal accessLevel = BigDecimal.valueOf(3);
 
     /** Load Meta Data */
-
-    /** Column name AD_Client_ID */
-    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
-
-	/** Get Client.
-	  * Client/Tenant for this installation.
-	  */
-	public int getAD_Client_ID();
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
 
     /** Column name A_Accumdepreciation_Acct */
     public static final String COLUMNNAME_A_Accumdepreciation_Acct = "A_Accumdepreciation_Acct";
@@ -254,6 +232,17 @@ public interface I_A_Asset_Group_Acct
 	/** Get Variable Percent (fiscal)	  */
 	public BigDecimal getA_Depreciation_Variable_Perc_F();
 
+    /** Column name A_Disposal_Gain_Acct */
+    public static final String COLUMNNAME_A_Disposal_Gain_Acct = "A_Disposal_Gain_Acct";
+
+	/** Set Disposal Gain Acct	  */
+	public void setA_Disposal_Gain_Acct (int A_Disposal_Gain_Acct);
+
+	/** Get Disposal Gain Acct	  */
+	public int getA_Disposal_Gain_Acct();
+
+	public I_C_ValidCombination getA_Disposal_Gain_A() throws RuntimeException;
+
     /** Column name A_Disposal_Loss_Acct */
     public static final String COLUMNNAME_A_Disposal_Loss_Acct = "A_Disposal_Loss_Acct";
 
@@ -404,6 +393,27 @@ public interface I_A_Asset_Group_Acct
 	/** Get Split Percent	  */
 	public BigDecimal getA_Split_Percent();
 
+    /** Column name AD_Client_ID */
+    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
+
+	/** Get Client.
+	  * Client/Tenant for this installation.
+	  */
+	public int getAD_Client_ID();
+
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
     /** Column name C_AcctSchema_ID */
     public static final String COLUMNNAME_C_AcctSchema_ID = "C_AcctSchema_ID";
 
@@ -491,6 +501,77 @@ public interface I_A_Asset_Group_Acct
 
 	/** Get Process Now	  */
 	public boolean isProcessing();
+
+    /** Column name UOP_Column_ID */
+    public static final String COLUMNNAME_UOP_Column_ID = "UOP_Column_ID";
+
+	/** Set Qty Column.
+	  * In Units of Production, this is the column in the Table that holds the number of units.
+	  */
+	public void setUOP_Column_ID (int UOP_Column_ID);
+
+	/** Get Qty Column.
+	  * In Units of Production, this is the column in the Table that holds the number of units.
+	  */
+	public int getUOP_Column_ID();
+
+	public org.compiere.model.I_AD_Column getUOP_Column() throws RuntimeException;
+
+    /** Column name UOP_DateColumn_ID */
+    public static final String COLUMNNAME_UOP_DateColumn_ID = "UOP_DateColumn_ID";
+
+	/** Set Date Column.
+	  * The column to use to filter the UOP query by date
+	  */
+	public void setUOP_DateColumn_ID (int UOP_DateColumn_ID);
+
+	/** Get Date Column.
+	  * The column to use to filter the UOP query by date
+	  */
+	public int getUOP_DateColumn_ID();
+
+	public org.compiere.model.I_AD_Column getUOP_DateColumn() throws RuntimeException;
+
+    /** Column name UOP_DepExpensePerUnit */
+    public static final String COLUMNNAME_UOP_DepExpensePerUnit = "UOP_DepExpensePerUnit";
+
+	/** Set Depreciation Expense per Unit.
+	  * The factor which, when multiplied by the quantity/units in a period, gives the depreciation expense in that period.
+	  */
+	public void setUOP_DepExpensePerUnit (BigDecimal UOP_DepExpensePerUnit);
+
+	/** Get Depreciation Expense per Unit.
+	  * The factor which, when multiplied by the quantity/units in a period, gives the depreciation expense in that period.
+	  */
+	public BigDecimal getUOP_DepExpensePerUnit();
+
+    /** Column name UOP_SQLWhereClause */
+    public static final String COLUMNNAME_UOP_SQLWhereClause = "UOP_SQLWhereClause";
+
+	/** Set SQL Where Clause.
+	  * The where clause that filters the table and column/qty entries such that the units of production relate to the asset.
+	  */
+	public void setUOP_SQLWhereClause (String UOP_SQLWhereClause);
+
+	/** Get SQL Where Clause.
+	  * The where clause that filters the table and column/qty entries such that the units of production relate to the asset.
+	  */
+	public String getUOP_SQLWhereClause();
+
+    /** Column name UOP_Table_ID */
+    public static final String COLUMNNAME_UOP_Table_ID = "UOP_Table_ID";
+
+	/** Set UOP Table.
+	  * The table where the units of production will be found.
+	  */
+	public void setUOP_Table_ID (int UOP_Table_ID);
+
+	/** Get UOP Table.
+	  * The table where the units of production will be found.
+	  */
+	public int getUOP_Table_ID();
+
+	public org.compiere.model.I_AD_Table getUOP_Table() throws RuntimeException;
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -41,27 +40,6 @@ public interface I_A_Depreciation_Exp
 
     /** Load Meta Data */
 
-    /** Column name AD_Client_ID */
-    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
-
-	/** Get Client.
-	  * Client/Tenant for this installation.
-	  */
-	public int getAD_Client_ID();
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
-
     /** Column name A_Account_Number_Acct */
     public static final String COLUMNNAME_A_Account_Number_Acct = "A_Account_Number_Acct";
 
@@ -85,10 +63,14 @@ public interface I_A_Depreciation_Exp
     /** Column name A_Accumulated_Depr_Delta */
     public static final String COLUMNNAME_A_Accumulated_Depr_Delta = "A_Accumulated_Depr_Delta";
 
-	/** Set Accumulated Depreciation (delta)	  */
+	/** Set Accumulated Depreciation (delta).
+	  * The change is accumulated depreciation resulting from a transaction.
+	  */
 	public void setA_Accumulated_Depr_Delta (BigDecimal A_Accumulated_Depr_Delta);
 
-	/** Get Accumulated Depreciation (delta)	  */
+	/** Get Accumulated Depreciation (delta).
+	  * The change is accumulated depreciation resulting from a transaction.
+	  */
 	public BigDecimal getA_Accumulated_Depr_Delta();
 
     /** Column name A_Accumulated_Depr_F */
@@ -132,10 +114,14 @@ public interface I_A_Depreciation_Exp
     /** Column name A_Asset_Cost_Delta */
     public static final String COLUMNNAME_A_Asset_Cost_Delta = "A_Asset_Cost_Delta";
 
-	/** Set Delta Asset Cost	  */
+	/** Set Change in Asset Cost.
+	  * The change in asset cost as a result of the asset transaction.
+	  */
 	public void setA_Asset_Cost_Delta (BigDecimal A_Asset_Cost_Delta);
 
-	/** Get Delta Asset Cost	  */
+	/** Get Change in Asset Cost.
+	  * The change in asset cost as a result of the asset transaction.
+	  */
 	public BigDecimal getA_Asset_Cost_Delta();
 
     /** Column name A_Asset_Disposed_ID */
@@ -202,6 +188,17 @@ public interface I_A_Depreciation_Exp
 	/** Get A_Depreciation_Exp_ID	  */
 	public int getA_Depreciation_Exp_ID();
 
+    /** Column name A_Depreciation_Workfile_ID */
+    public static final String COLUMNNAME_A_Depreciation_Workfile_ID = "A_Depreciation_Workfile_ID";
+
+	/** Set A_Depreciation_Workfile_ID	  */
+	public void setA_Depreciation_Workfile_ID (int A_Depreciation_Workfile_ID);
+
+	/** Get A_Depreciation_Workfile_ID	  */
+	public int getA_Depreciation_Workfile_ID();
+
+	public org.compiere.model.I_A_Depreciation_Workfile getA_Depreciation_Workfile() throws RuntimeException;
+
     /** Column name A_Entry_Type */
     public static final String COLUMNNAME_A_Entry_Type = "A_Entry_Type";
 
@@ -219,6 +216,42 @@ public interface I_A_Depreciation_Exp
 
 	/** Get Asset Period	  */
 	public int getA_Period();
+
+    /** Column name AD_Client_ID */
+    public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
+
+	/** Get Client.
+	  * Client/Tenant for this installation.
+	  */
+	public int getAD_Client_ID();
+
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
+    /** Column name C_AcctSchema_ID */
+    public static final String COLUMNNAME_C_AcctSchema_ID = "C_AcctSchema_ID";
+
+	/** Set Accounting Schema.
+	  * Rules for accounting
+	  */
+	public void setC_AcctSchema_ID (int C_AcctSchema_ID);
+
+	/** Get Accounting Schema.
+	  * Rules for accounting
+	  */
+	public int getC_AcctSchema_ID();
+
+	public org.compiere.model.I_C_AcctSchema getC_AcctSchema() throws RuntimeException;
 
     /** Column name CR_Account_ID */
     public static final String COLUMNNAME_CR_Account_ID = "CR_Account_ID";
@@ -251,21 +284,6 @@ public interface I_A_Depreciation_Exp
 	  */
 	public int getCreatedBy();
 
-    /** Column name DR_Account_ID */
-    public static final String COLUMNNAME_DR_Account_ID = "DR_Account_ID";
-
-	/** Set Account (debit).
-	  * Account used
-	  */
-	public void setDR_Account_ID (int DR_Account_ID);
-
-	/** Get Account (debit).
-	  * Account used
-	  */
-	public int getDR_Account_ID();
-
-	public I_C_ValidCombination getDR_Account() throws RuntimeException;
-
     /** Column name DateAcct */
     public static final String COLUMNNAME_DateAcct = "DateAcct";
 
@@ -291,6 +309,21 @@ public interface I_A_Depreciation_Exp
 	  * Optional short description of the record
 	  */
 	public String getDescription();
+
+    /** Column name DR_Account_ID */
+    public static final String COLUMNNAME_DR_Account_ID = "DR_Account_ID";
+
+	/** Set Account (debit).
+	  * Account used
+	  */
+	public void setDR_Account_ID (int DR_Account_ID);
+
+	/** Get Account (debit).
+	  * Account used
+	  */
+	public int getDR_Account_ID();
+
+	public I_C_ValidCombination getDR_Account() throws RuntimeException;
 
     /** Column name Expense */
     public static final String COLUMNNAME_Expense = "Expense";
