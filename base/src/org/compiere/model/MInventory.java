@@ -744,7 +744,7 @@ public class MInventory extends X_M_Inventory implements DocAction
 	 * 	Is Reversal
 	 *	@return reversal
 	 */
-	private boolean isReversal()
+	protected boolean isReversal()
 	{
 		return m_reversal;
 	}	//	isReversal
