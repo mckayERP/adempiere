@@ -1036,13 +1036,13 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
@@ -1072,6 +1072,12 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 	public IDocumentLine getReversalDocumentLine() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }	//	MPPCostCollector

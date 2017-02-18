@@ -355,5 +355,44 @@ public class MProductionLine extends X_M_ProductionLine  implements IDocumentLin
 				.setClient_ID().setParameters(X_C_DocType.DOCBASETYPE_MaterialProduction)
 				.firstId();
 	}
+
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public int getM_Warehouse_ID() {
+		return this.getM_Production().getM_Locator().getM_Warehouse_ID();
+	}
+
+
+	@Override
+	public Timestamp getMovementDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String getMovementType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/**
+	 * get Parent
+	 * @return Parent Movement
+	 */
+	public MProduction getParent() 
+	{
+		if (m_parent == null )
+			m_parent = new MProduction(getCtx(), getM_Production_ID(), get_TrxName());
+		return m_parent;
+	}	//	getParent
+
 	
 }

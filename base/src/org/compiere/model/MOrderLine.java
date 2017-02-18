@@ -1069,7 +1069,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public int getM_Locator_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
@@ -1081,19 +1081,18 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public int getReversalLine_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
 	@Override
 	public boolean isSOTrx() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getParent().isSOTrx();
 	}
 
 	@Override
 	public void setM_Locator_ID(int M_Locator_ID) {
-		// TODO Auto-generated method stub
+		// Not relevant
 
 	}
 
@@ -1109,18 +1108,36 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getC_DocType_ID() {
 		return getParent().getC_DocType_ID();
+	}
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+	@Override
+	public String getMovementType() {
+		// Not Relevant
+		return null;
 	}
 }	//	MOrderLine

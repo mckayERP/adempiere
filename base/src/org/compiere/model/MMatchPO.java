@@ -1082,18 +1082,42 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
 	@Override
 	public int getC_DocType_ID() {
 		return -1;
+	}
+
+	@Override
+	public boolean isReversal() {
+		// Not relevant
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// Not relevant
+		return 0;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+	@Override
+	public String getMovementType() {
+		// Not relevant
+		return null;
 	}
 }	//	MMatchPO
