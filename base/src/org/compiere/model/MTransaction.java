@@ -161,8 +161,8 @@ public class MTransaction extends X_M_Transaction
 		else
 			parameters.add(trx.getMovementType());
 			
-		whereClause.append(I_M_Transaction.COLUMNNAME_M_Transaction_ID).append("<>?");
-		parameters.add(trx.getM_Transaction_ID());
+		whereClause.append(I_M_Transaction.COLUMNNAME_M_MPolicyTicket_ID).append("=?");
+		parameters.add(trx.getM_MPolicyTicket_ID());
 		return new Query(trx.getCtx(), Table_Name, whereClause.toString(), trx.get_TrxName())
 		.setClient_ID()
 		.setParameters(parameters)
