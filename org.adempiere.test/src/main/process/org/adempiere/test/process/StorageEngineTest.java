@@ -78,7 +78,7 @@ public class StorageEngineTest extends SvrProcess {
 		m_warehouse_id = Env.getContextAsInt(ctx, "M_Warehouse_ID");
 		m_locator_id = MWarehouse.get(ctx, m_warehouse_id).getDefaultLocator().get_ID();
 		
-		MClient.MMPOLICY_FiFo.equals(product.getMMPolicy());
+		//MClient.MMPOLICY_FiFo.equals(product.getMMPolicy());
 		
 		qtyToOrder = new BigDecimal(10);
 

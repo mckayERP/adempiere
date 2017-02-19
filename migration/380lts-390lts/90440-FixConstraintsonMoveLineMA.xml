@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Migrations>
+  <Migration EntityType="D" Name="Fix constraints on M_MovementLineMA for new FIFO/LIFO method" ReleaseNo="" SeqNo="440">
+    <Step SeqNo="10" StepType="AD">
+      <PO AD_Table_ID="101" Action="U" Record_ID="81305" Table="AD_Column">
+        <Data AD_Column_ID="3360" Column="IsUpdateable" oldValue="true">false</Data>
+        <Data AD_Column_ID="120" Column="IsParent" oldValue="false">true</Data>
+      </PO>
+    </Step>
+    <Step DBType="ALL" Parse="Y" SeqNo="10" StepType="SQL">
+      <SQLStatement>ALTER TABLE adempiere.m_movementlinema DROP CONSTRAINT m_movementlinema_pkey;
+UPDATE M_MovementLineMA SET usetofields = 'N'
+where usetofields is null;
+
+ALTER TABLE adempiere.m_movementlinema
+  ADD CONSTRAINT m_movementlinema_pkey PRIMARY KEY(m_movementline_id, m_mpolicyticket_id, usetofields);
+</SQLStatement>
+      <RollbackStatement>ALTER TABLE adempiere.m_movementlinema DROP CONSTRAINT m_movementlinema_pkey;
+
+ALTER TABLE adempiere.m_movementlinema
+  ADD CONSTRAINT m_movementlinema_pkey PRIMARY KEY(m_movementline_id, m_mpolicyticket_id);
+</RollbackStatement>
+    </Step>
+  </Migration>
+</Migrations>
