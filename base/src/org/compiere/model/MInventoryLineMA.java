@@ -137,16 +137,16 @@ public class MInventoryLineMA extends X_M_InventoryLineMA implements IInventoryA
 	/**
 	 * 	Parent Constructor
 	 *	@param parent parent
-	 *	@param M_AttributeSetInstance_ID asi
+	 *	@param M_MPolicyTicket_ID asi
 	 *	@param MovementQty qty
 	 */
-	public MInventoryLineMA (MInventoryLine parent, int M_AttributeSetInstance_ID, BigDecimal MovementQty)
+	public MInventoryLineMA (MInventoryLine parent, int M_MPolicyTicket_ID, BigDecimal MovementQty)
 	{
 		this (parent.getCtx(), 0, parent.get_TrxName());
 		setClientOrg(parent);
 		setM_InventoryLine_ID(parent.getM_InventoryLine_ID());
 		//
-		setM_AttributeSetInstance_ID(M_AttributeSetInstance_ID);
+		this.setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		setMovementQty(MovementQty);
 	}	//	MInventoryLineMA
 	

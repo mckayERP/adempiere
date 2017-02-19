@@ -12,12 +12,12 @@ import org.compiere.util.Env;
 import org.adempiere.engine.IDocumentLine;
 
 
-public class MProductionLine extends X_M_ProductionLine  implements IDocumentLine{
+public class MProductionLine extends X_M_ProductionLine  implements IDocumentLine {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private MProduction parent;
+	private MProduction m_parent;
 
 
 
@@ -67,7 +67,7 @@ public class MProductionLine extends X_M_ProductionLine  implements IDocumentLin
 		setM_Production_ID( header.get_ID());
 		setAD_Client_ID(header.getAD_Client_ID());
 		setAD_Org_ID(header.getAD_Org_ID());
-		parent = header;
+		m_parent = header;
 	}
 	
 	
@@ -283,10 +283,10 @@ public class MProductionLine extends X_M_ProductionLine  implements IDocumentLin
 
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
-		if (parent == null )
-			parent = new MProduction(getCtx(), getM_Production_ID(), get_TrxName());
+		if (m_parent == null )
+			m_parent = new MProduction(getCtx(), getM_Production_ID(), get_TrxName());
 
-		if ( parent.getM_Product_ID() == getM_Product_ID() && parent.getProductionQty().signum() == getMovementQty().signum())
+		if ( m_parent.getM_Product_ID() == getM_Product_ID() && m_parent.getProductionQty().signum() == getMovementQty().signum())
 			setIsEndProduct(true);
 		else 
 			setIsEndProduct(false);

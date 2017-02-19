@@ -132,7 +132,7 @@ public class InventoryCountUpdate extends SvrProcess
 	{
 		int no = 0;
 		//
-		String sql = "SELECT * FROM M_InventoryLine WHERE M_Inventory_ID=? AND M_AttributeSetInstance_ID=0";
+		String sql = "SELECT * FROM M_InventoryLine WHERE M_Inventory_ID=? AND M_MPolicyTicket_ID=0";
 		PreparedStatement pstmt = null;
 		try
 		{
@@ -151,13 +151,12 @@ public class InventoryCountUpdate extends SvrProcess
 					if (storage.getQtyOnHand().signum() == 0)
 						continue;
 					onHand = onHand.add(storage.getQtyOnHand());
-					//	No ASI
-					if (storage.getM_AttributeSetInstance_ID() == 0 
+					//	No material policy ticket = orders/reservations only
+					if (storage.getM_MPolicyTicket_ID() == 0 
 						&& storages.length == 1)
 						continue;
 					//	Save ASI
-					ma = new MInventoryLineMA (il, 
-						storage.getM_AttributeSetInstance_ID(), storage.getQtyOnHand());
+					ma = new MInventoryLineMA (il, storage.getM_MPolicyTicket_ID(), storage.getQtyOnHand());
 					if (!ma.save())
 						;
 				}

@@ -19,6 +19,7 @@ package org.adempiere.engine;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,8 +32,11 @@ import org.compiere.model.MInOutLineMA;
 import org.compiere.model.MInventoryLine;
 import org.compiere.model.MLocator;
 import org.compiere.model.MMPolicyTicket;
+import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
+import org.compiere.model.MProductionLine;
+import org.compiere.model.MProjectIssue;
 import org.compiere.model.MStorage;
 import org.compiere.model.MTable;
 import org.compiere.model.MTransaction;
@@ -40,9 +44,12 @@ import org.compiere.model.MWarehouse;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_M_InOutLine;
+import org.compiere.process.DocAction;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
+import org.eevolution.model.MPPCostCollector;
 
 /**
  * Storage Engine
@@ -78,7 +85,8 @@ public class StorageEngine
 				isSOTrx,
 				true,
 				true,
-				false);
+				false,
+				true);
 	}
 
 	public static void createTransaction (
@@ -93,10 +101,14 @@ public class StorageEngine
 			boolean isSOTrx,
 			boolean deleteExistingMAEntries,
 			boolean processMA,
-			boolean useToFields
+			boolean useToFields,
+			boolean updateStorage
 		)
 	{	
 
+		if (movementQty.equals(Env.ZERO))
+			return; // Nothing to do
+		
 		MProduct product = MProduct.get(docLine.getCtx(), docLine.getM_Product_ID());
 		if (product == null || !product.isStocked())
 			return;
@@ -126,8 +138,9 @@ public class StorageEngine
 				// If the MA movement type is null, use the passed in value
 				String maMovementType = movementType;
 				if (ma.getMovementType() != null && ma.getMovementType().length() > 0)
+				{
 					maMovementType = ma.getMovementType();
-					
+				}	
 
 				updateStorageAndCreateTransaction(docLine, 
 						maMovementType, 
@@ -138,10 +151,12 @@ public class StorageEngine
 						m_warehouse_id,
 						reservationAttributeSetInstance_ID, 
 						o_M_Warehouse_ID,
-						ma.isUseToFields());
+						ma.isUseToFields(),
+						updateStorage);
 			}
 		}
-		else { // No material allocations.  Use the docLine material policy ticket
+		else 
+		{ // No material allocations.  Use the docLine material policy ticket
 			if (docLine.getM_MPolicyTicket_ID() == 0)
 				throw new AdempiereException ("@Error@ @FillMandatory@ @M_MPolicyTicket_ID@");
 
@@ -154,10 +169,17 @@ public class StorageEngine
 					m_warehouse_id,
 					reservationAttributeSetInstance_ID, 
 					o_M_Warehouse_ID,
-					useToFields);
+					useToFields,
+					updateStorage);			// Update storage
 		}
 	}
 
+
+	private static void processMA(IDocumentLine docLine, String movementType, 
+								Timestamp movementDate, boolean isSOTrx, int m_warehouse_id, int reservationAttributeSetInstance_ID, 
+								int o_M_Warehouse_ID, boolean useToFields, boolean updateStorage) {
+
+	}
 
 	/**
 	 * 	Check Material Policy<br>
@@ -373,8 +395,8 @@ public class StorageEngine
 			Timestamp minGuaranteeDate = movementDate;
 			
 			MStorage[] storages = MStorage.getWarehouse(line.getCtx(), m_warehouse_id, 
-					line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 0, 
-					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), line.get_TrxName());
+					line.getM_Product_ID(), m_attributeSetInstance_id, 0, 
+					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, m_locator_id, line.get_TrxName());
 			
 			BigDecimal qtyToDeliver = movementQty;
 			
@@ -439,8 +461,10 @@ public class StorageEngine
 	
 	private static int deleteMA(IDocumentLine model)
 	{
-		String sql = "DELETE FROM "+getTableNameMA(model)+" WHERE "+model.get_TableName()+"_ID=?";
-		int no = DB.executeUpdateEx(sql, new Object[]{model.get_ID()}, model.get_TrxName());
+		String sql = "DELETE FROM "+getTableNameMA(model)
+				+ " WHERE "+model.get_TableName()+"_ID=?"
+				+ " AND AD_Client_ID=?";
+		int no = DB.executeUpdateEx(sql, new Object[]{model.get_ID(),model.getAD_Client_ID()}, model.get_TrxName());
 		if (no > 0)
 			log.config("Delete old #" + no);
 		return no;
@@ -688,7 +712,8 @@ public class StorageEngine
 				M_Warehouse_ID,
 				reservationAttributeSetInstance_ID, 
 				o_M_Warehouse_ID,
-				false);
+				false,				// Use "to" fields
+				true);				// Update storage
 	}
 
 	private static void updateStorageAndCreateTransaction(
@@ -701,7 +726,8 @@ public class StorageEngine
 			int M_Warehouse_ID,
 			int reservationAttributeSetInstance_ID, 
 			int o_M_Warehouse_ID,
-			boolean useToFields) {
+			boolean useToFields,
+			boolean updateStorage) {
 		
 		boolean isOrder = docLine instanceof MOrderLine;
 		boolean incomingTrx = true;
@@ -738,58 +764,61 @@ public class StorageEngine
 		BigDecimal reservedDiff = getReservedDifference(docLine, isSOTrx, movementType, movementQty);
 		BigDecimal orderedDiff = getOrderedDifference(docLine, isSOTrx, movementType, movementQty);
 		int reservedOrderedTicketId = getOrderMPolicyTicket_ID(docLine); 
-						
-		//	Update Storage - see also VMatch.createMatchRecord
-		if (!MStorage.add(docLine.getCtx(), 
-			M_Warehouse_ID,
-			m_locator_id,
-			m_product_id, 
-			m_attributeSetInstance_id, 
-			reservationAttributeSetInstance_ID,
-			M_MPolicyTicket_ID,
-			reservedOrderedTicketId,
-			qty,
-			sameWarehouse ? reservedDiff : Env.ZERO,
-			sameWarehouse ? orderedDiff : Env.ZERO,
-			docLine.get_TrxName()))
-		{
-			throw new AdempiereException(); //Cannot correct Inventory (MA)
-		}
-		if (!sameWarehouse) {
-			//correct qtyOrdered/qtyReserved in warehouse of order
-			MWarehouse wh = MWarehouse.get(docLine.getCtx(), o_M_Warehouse_ID);
-			if (!MStorage.add(docLine.getCtx(), 
-					o_M_Warehouse_ID,
-					wh.getDefaultLocator().getM_Locator_ID(),
-					m_product_id, 
-					m_attributeSetInstance_id, 
-					reservationAttributeSetInstance_ID,
-					M_MPolicyTicket_ID,
-					reservedOrderedTicketId,
-					Env.ZERO,
-					reservedDiff,
-					orderedDiff,
-					docLine.get_TrxName()))
-				{
-					throw new AdempiereException(); //Cannot correct Inventory (MA)
-				}
-	
-		}
 		
-		// Update Date Last Inventory if the docLine is a Physical Inventory and not internal use
-		if(docLine instanceof MInventoryLine 
-				&& ((MInventoryLine) docLine).getQtyInternalUse().compareTo(Env.ZERO) == 0)
-		{	
-			MStorage storage = MStorage.get(docLine.getCtx(), m_locator_id, 
-					m_product_id, m_attributeSetInstance_id,
-					M_MPolicyTicket_ID, docLine.get_TrxName());						
-			storage.setDateLastInventory(movementDate);
-			if (!storage.save(docLine.get_TrxName()))
+		if (updateStorage)
+		{
+			//	Update Storage - see also VMatch.createMatchRecord
+			if (!MStorage.add(docLine.getCtx(), 
+				M_Warehouse_ID,
+				m_locator_id,
+				m_product_id, 
+				m_attributeSetInstance_id, 
+				reservationAttributeSetInstance_ID,
+				M_MPolicyTicket_ID,
+				reservedOrderedTicketId,
+				qty,
+				sameWarehouse ? reservedDiff : Env.ZERO,
+				sameWarehouse ? orderedDiff : Env.ZERO,
+				docLine.get_TrxName()))
 			{
-				throw new AdempiereException("Storage not updated(2)");
+				throw new AdempiereException("Could not update storage."); //Cannot correct Inventory (MA)
+			}
+			if (!sameWarehouse) {
+				//correct qtyOrdered/qtyReserved in warehouse of order
+				MWarehouse wh = MWarehouse.get(docLine.getCtx(), o_M_Warehouse_ID);
+				if (!MStorage.add(docLine.getCtx(), 
+						o_M_Warehouse_ID,
+						wh.getDefaultLocator().getM_Locator_ID(),
+						m_product_id, 
+						m_attributeSetInstance_id, 
+						reservationAttributeSetInstance_ID,
+						M_MPolicyTicket_ID,
+						reservedOrderedTicketId,
+						Env.ZERO,
+						reservedDiff,
+						orderedDiff,
+						docLine.get_TrxName()))
+					{
+						throw new AdempiereException(); //Cannot correct Inventory (MA)
+					}
+		
+			}
+			
+			// Update Date Last Inventory if the docLine is a Physical Inventory and not internal use
+			if(docLine instanceof MInventoryLine 
+					&& ((MInventoryLine) docLine).getQtyInternalUse().compareTo(Env.ZERO) == 0)
+			{	
+				MStorage storage = MStorage.get(docLine.getCtx(), m_locator_id, 
+						m_product_id, m_attributeSetInstance_id,
+						M_MPolicyTicket_ID, docLine.get_TrxName());						
+				storage.setDateLastInventory(movementDate);
+				if (!storage.save(docLine.get_TrxName()))
+				{
+					throw new AdempiereException("Storage not updated(2)");
+				}
 			}
 		}
-
+		
 		create(docLine, movementType ,movementDate, M_MPolicyTicket_ID , qty);
 	}
 
@@ -805,5 +834,157 @@ public class StorageEngine
 		}
 		else
 			return docLine.getM_MPolicyTicket_ID();
+	}
+	
+	public static boolean validateStorage(Properties ctx, String trxName) {
+		
+		// Ensure every transaction has a material policy ticket
+		String where = "COALESCE(M_MPolicyTicket_ID,0)=0";
+		
+		List<MTransaction> transactions = new Query(ctx, MTransaction.Table_Name, where, trxName)
+												.setClient_ID()
+												.list();
+		
+		for (MTransaction transaction : transactions)
+		{
+			
+			MMPolicyTicket ticket = MMPolicyTicket.getOrCreateFromTransaction(ctx, transaction, trxName);
+			transaction.setM_MPolicyTicket_ID(ticket.getM_MPolicyTicket_ID());
+			transaction.saveEx();
+			
+		}
+		
+		
+		List<String> tableNames = new ArrayList();
+		tableNames.add(MInOutLine.Table_Name);
+		tableNames.add(MInventoryLine.Table_Name);
+		tableNames.add(MMovementLine.Table_Name);
+		tableNames.add(MProductionLine.Table_Name);
+		tableNames.add(MProjectIssue.Table_Name);
+		tableNames.add(MPPCostCollector.Table_Name);
+		
+		// Ensure every document line has a transaction associated with it.
+		String whereTemplate  = "EXISTS (SELECT p.M_Product_ID FROM M_Product p WHERE tableName.M_Product_ID = p.M_Product_ID AND p.IsStocked='Y')"
+				+ " AND NOT EXISTS (SELECT M_Transaction_ID FROM M_Transaction WHERE tableName.tableName_ID = M_Transaction.tableName_ID)"
+				+ " AND tableName.processed = 'Y'";
+
+		for (String tableName : tableNames)
+		{
+			where = whereTemplate.replaceAll("tableName", tableName);
+			
+			List<MInOutLine> lines = new Query(ctx, tableName, where, trxName)
+											.setClient_ID()
+											.list();
+			
+			for (IDocumentLine line : lines)
+			{
+				if (line.getMovementQty().compareTo(Env.ZERO) == 0)
+					continue;
+				
+				int orderWarehouseID = 0;
+				int reservationAttributeSetInstance_ID = 0; // sLine.getM_AttributeSetInstance_ID();
+	
+				MOrderLine oLine = null;
+				String movementType = line.getMovementType();
+				Timestamp movementDate = line.getMovementDate();
+				int m_warehouse_id = line.getM_Warehouse_ID();
+				boolean isReversal = line.isReversal();
+				boolean isSOTrx = line.isSOTrx();
+				boolean deleteExistingMA = true;
+				boolean useToFields = false;
+				
+				
+				if (line instanceof MInOutLine)
+				{
+					oLine = (MOrderLine) ((MInOutLine) line).getC_OrderLine();
+				}				
+				
+				if (oLine != null) {
+					reservationAttributeSetInstance_ID = oLine.getM_AttributeSetInstance_ID();
+					orderWarehouseID = oLine.getM_Warehouse_ID();
+				}
+				
+				// Deal with the special case of to/from in the inventory line
+				if (line instanceof MMovementLine)
+				{
+					movementType = MTransaction.MOVEMENTTYPE_MovementFrom;
+					
+					// Process the "From" side of the move
+					
+					MLocator locator = new MLocator (ctx, line.getM_Locator_ID(), trxName);
+					m_warehouse_id = locator.getM_Warehouse_ID();
+
+					StorageEngine.createTransaction(
+							line,
+							MTransaction.MOVEMENTTYPE_MovementFrom, 
+							movementDate, 
+							line.getMovementQty(), 
+							isReversal,
+							m_warehouse_id,
+							0,								// Reservation Warehouse  - not relevant
+							0,								// Reservation ASI - not relevant
+							false,							// IsSOTrx=false
+							true,							// Delete existing MA Lines
+							false,							// Don't process the new MA Lines
+							false,							// Don't use the To fields
+							false);							// Update the storage record
+
+					// Set up for the "To" side
+					MLocator locatorTo = new MLocator (ctx, line.getM_LocatorTo_ID(), trxName);
+					m_warehouse_id = locatorTo.getM_Warehouse_ID();
+					movementType = MTransaction.MOVEMENTTYPE_MovementTo;
+					deleteExistingMA = false;
+					useToFields = true;
+				
+				}
+				
+				//  Create transaction but don't update the storage record
+				createTransaction (
+						line,
+						movementType, 
+						movementDate, 
+						line.getMovementQty(), 
+						isReversal,
+						m_warehouse_id,
+						orderWarehouseID,
+						reservationAttributeSetInstance_ID,
+						isSOTrx,
+						deleteExistingMA,				// Delete existing MA Lines
+						true,							// Process all the MA Lines
+						useToFields,					// Use the To fields?
+						false							// Update the storage record
+					);
+	
+			}
+		}		
+		// Delete the existing storage entries
+		String sql = "Delete FROM M_Storage "
+				+ "WHERE AD_Client_ID = ?";
+		int no = DB.executeUpdateEx(sql, new Object[]{Env.getAD_Client_ID(ctx)}, trxName);
+		if (no > 0)
+		{
+			log.config("Deleted old #" + no);
+		}
+		
+		// Rebuild the storage entries from M_Transaction
+		sql = "INSERT INTO M_Storage "
+			+ " (AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy, "
+			+ " M_Product_ID, M_Locator_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, "
+			+ " QtyOnHand, QtyReserved, QtyOrdered)"
+			+ " SELECT AD_Client_ID, AD_Org_ID, 'Y', NOW(), " + Env.getAD_User_ID(ctx) + ", NOW(), "
+			+ "       " + Env.getAD_User_ID(ctx) + ", "
+					+ "M_Product_ID, M_Locator_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID, "
+			+ "       SUM(MovementQty), 0.0, 0.0 "
+			+ "   FROM M_Transaction WHERE AD_Client_ID=" + Env.getAD_Client_ID(ctx)
+			+ "   GROUP BY AD_Client_ID, AD_Org_ID, M_Product_ID, M_Locator_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID"
+			+ "   HAVING SUM(MovementQty) != 0";
+		no = DB.executeUpdateEx(sql, trxName);
+		if (no > 0)
+		{
+			log.config("Rebuilt #" + no);
+		}
+
+		
+		return true;
 	}
 }

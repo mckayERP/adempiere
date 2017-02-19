@@ -368,14 +368,41 @@ public class Doc_InOut extends Doc
 				int C_Currency_ID = as.getC_Currency_ID();
 				//
 				DocLine line = p_lines[i];
-				BigDecimal costs = null;
+				BigDecimal costs = Env.ZERO;
+				BigDecimal quantity = Env.ZERO;
 				MProduct product = line.getProduct();
 				for (MCostDetail cost : line.getCostDetail(as, true))
 				{	
 						if (!MCostDetail.existsCost(cost))
+						{
+							if (cost.getQty().signum() == 0)
+							{
+								// If both cost and quantity are zero, there is no data to add
+								continue;
+							}
+							else // cost.getQty().signum() != 0
+							{
+								// In the case of a cost adjustment, the one cost detail may be 
+								// qty only with no cost.  In this case, capture the qty,
+								quantity = cost.getQty();
+							}
+						}
+						else // costs exists
+						{
+							// Capture the cost
+							costs = MCostDetail.getTotalCost(cost, as);
+							// If it is a regular cost detail with both cost and quantity, capture 
+							// the quantity. If it is a cost adjustment with no quantity, then use
+							// the quantity captured earlier.
+							if (cost.getQty().signum() != 0)
+							{
+								quantity = cost.getQty();
+							}
+						}
+
+						// If either the cost or quantity is zero, continue looking at cost details.
+						if (costs.equals(Env.ZERO) || quantity.equals(Env.ZERO))
 							continue;
-						
-						costs = MCostDetail.getTotalCost(cost, as);
 						
 						total = total.add(costs);
 						
@@ -393,7 +420,6 @@ public class Doc_InOut extends Doc
 						}
 						dr = fact.createLine(line, assets,
 							C_Currency_ID, costs, null);
-						dr.addDescription(description);
 						//
 						if (dr == null)
 						{
@@ -401,16 +427,17 @@ public class Doc_InOut extends Doc
 							log.log(Level.WARNING, p_Error);
 							return null;
 						}
+						dr.addDescription(description);
 						dr.setM_Locator_ID(line.getM_Locator_ID());
 						dr.setLocationFromBPartner(getC_BPartner_Location_ID(), true);   // from Loc
 						dr.setLocationFromLocator(line.getM_Locator_ID(), false);   // to Loc
                         dr.setM_Product_ID(cost.getM_Product_ID());
-                        dr.setQty(cost.getQty());
+                        dr.setQty(quantity);
 						if (m_DocStatus.equals(MInOut.DOCSTATUS_Reversed) && m_Reversal_ID !=0 && line.getReversalLine_ID() != 0)
 						{
 							//	Set AmtAcctDr from Original Shipment/Receipt
 							if (!dr.updateReverseLine (MInOut.Table_ID, 
-									m_Reversal_ID, line.getReversalLine_ID() , cost.getQty() ,Env.ONE))
+									m_Reversal_ID, line.getReversalLine_ID() , quantity ,Env.ONE))
 							{
 								p_Error = "Original Receipt not posted yet";
 								return null;
@@ -420,7 +447,6 @@ public class Doc_InOut extends Doc
 						cr = fact.createLine(line,
 							getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
 							C_Currency_ID, null, costs);
-						cr.addDescription(description);
 						//
 						if (cr == null)
 						{
@@ -428,16 +454,17 @@ public class Doc_InOut extends Doc
 							log.log(Level.WARNING, p_Error);
 							return null;
 						}
+						cr.addDescription(description);
 						cr.setM_Locator_ID(line.getM_Locator_ID());
 						cr.setLocationFromBPartner(getC_BPartner_Location_ID(), true);   //  from Loc
 						cr.setLocationFromLocator(line.getM_Locator_ID(), false);   //  to Loc
                         cr.setM_Product_ID(cost.getM_Product_ID());
-						cr.setQty(cost.getQty().negate());
+						cr.setQty(quantity.negate());
 						if (m_DocStatus.equals(MInOut.DOCSTATUS_Reversed) && m_Reversal_ID !=0 && line.getReversalLine_ID() != 0)
 						{
 							//	Set AmtAcctCr from Original Shipment/Receipt
 							if (!cr.updateReverseLine (MInOut.Table_ID, 
-									m_Reversal_ID, line.getReversalLine_ID(),cost.getQty().negate(),Env.ONE))
+									m_Reversal_ID, line.getReversalLine_ID(),quantity.negate(),Env.ONE))
 							{
 								p_Error = "Original Receipt not posted yet";
 								return null;
@@ -445,6 +472,8 @@ public class Doc_InOut extends Doc
 						}
 						cost.setProcessed(true);
 						cost.saveEx();
+						costs = Env.ZERO;
+						quantity = Env.ZERO;
 					}
 					
 					/*if (total == null || total.signum() == 0)
@@ -470,7 +499,7 @@ public class Doc_InOut extends Doc
 				MProduct product = line.getProduct();
 				for(MCostDetail cost : line.getCostDetail(as,true))
 				{	
-					if (!MCostDetail.existsCost(cost))
+					if (!MCostDetail.existsCost(cost) || cost.getQty().signum() == 0)
 						continue;
 					
 					costs = MCostDetail.getTotalCost(cost, as);
@@ -482,7 +511,6 @@ public class Doc_InOut extends Doc
 						dr = fact.createLine(line,
 							getAccount(Doc.ACCTTYPE_NotInvoicedReceipts, as),
 							C_Currency_ID, costs , null);
-						dr.addDescription(description);
 						//
 						if (dr == null)
 						{
@@ -490,6 +518,7 @@ public class Doc_InOut extends Doc
 							log.log(Level.WARNING, p_Error);
 							return null;
 						}
+						dr.addDescription(description);
 						dr.setM_Locator_ID(line.getM_Locator_ID());
 						dr.setLocationFromBPartner(getC_BPartner_Location_ID(), true);   //  from Loc
 						dr.setLocationFromLocator(line.getM_Locator_ID(), false);   //  to Loc

@@ -440,8 +440,8 @@ public class MMovement extends X_M_Movement implements DocAction
 						false,							// IsSOTrx=false
 						true,							// Delete existing MA Lines
 						false,							// Don't process the new MA Lines
-						false							// Don't use the To fields
-						);
+						false,							// Don't use the To fields
+						true);							// Update the storage record
 			}
 			catch (AdempiereException e) {
 				m_processMsg = e.getMessage();
@@ -462,8 +462,8 @@ public class MMovement extends X_M_Movement implements DocAction
 						false,							// IsSOTrx=false
 						false,							// Important! - don't delete existing MA entries
 						true,							// Process all the lines
-						true							// Use the To fields
-						);
+						true,							// Use the To fields
+						true);							// Update the storage record
 			}
 			catch (AdempiereException e) {
 				m_processMsg = e.getMessage();
