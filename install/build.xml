@@ -294,30 +294,36 @@
 	   includes="${env.ADEMPIERE_DIR}/**" />
 
 	<!-- Create Install TAR		-->
-  	<tar longfile="gnu" tarfile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz"
+  	<!--tar longfile="gnu" tarfile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz"
 	  	compression="gzip" >
   		<tarfileset dir="${build.dir}" includes="${env.ADEMPIERE_DIR}/**" excludes="${env.ADEMPIERE_DIR}/**/*.sh" >
-  		    </tarfileset>
+  		    </tarfileset -->
+  	
   		<!-- <tarfileset dir="${build.dir}" includes="Adempiere/**/*.sh" filemode="755"> -->
-  		<tarfileset dir="${build.dir}" includes="${env.ADEMPIERE_DIR}/**/*.sh">
+  	
+  	<!--tarfileset dir="${build.dir}" includes="${env.ADEMPIERE_DIR}/**/*.sh">
   		   </tarfileset>
-	</tar>  	
+	</tar -->  	
 
 	<!-- Create Checksums		-->
   	
+  	<!--
   	<checksum file="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz"/>
   	<sleep milliseconds="2000"/>
   	<loadfile property="myfile" srcFile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz.MD5">
   	     <filterchain>
-  	        <striplinebreaks/>
+  	        <striplinebsreaks/>
   	      </filterchain>
   	       
   	 </loadfile>  		
   	 <concat destfile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz.MD5">${myfile} Adempiere_${env.ADEMPIERE_VERSION_FILE}.tar.gz</concat>
+  	 
+  	 -->
   		<!-- Test with md5sum -c Adempiere_251.zip.MD5	-->
   		<checksum file="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.zip"/>
   	<sleep milliseconds="2000"/>
-  	  	<loadfile property="myfile2" srcFile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.zip.MD5">
+  	  	<!--loadfile property="myfile2" srcFile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.zip.MD5" -->
+  	    <loadfile property="myfile" srcFile="${build.dir}/Adempiere_${env.ADEMPIERE_VERSION_FILE}.zip.MD5">
   	  	    <filterchain>
   	  	        <striplinebreaks/>
   	  	   </filterchain>  	  	       
