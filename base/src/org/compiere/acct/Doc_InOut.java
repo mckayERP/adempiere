@@ -380,7 +380,7 @@ public class Doc_InOut extends Doc
 								// If both cost and quantity are zero, there is no data to add
 								continue;
 							}
-							else // cost.getQty().signum() > 0
+							else // cost.getQty().signum() != 0
 							{
 								// In the case of a cost adjustment, the one cost detail may be 
 								// qty only with no cost.  In this case, capture the qty,
@@ -394,7 +394,7 @@ public class Doc_InOut extends Doc
 							// If it is a regular cost detail with both cost and quantity, capture 
 							// the quantity. If it is a cost adjustment with no quantity, then use
 							// the quantity captured earlier.
-							if (cost.getQty().signum() > 0)
+							if (cost.getQty().signum() != 0)
 							{
 								quantity = cost.getQty();
 							}

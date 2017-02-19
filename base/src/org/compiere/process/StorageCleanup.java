@@ -22,12 +22,15 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.adempiere.engine.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MClient;
 import org.compiere.model.MClientInfo;
+import org.compiere.model.MColumn;
 import org.compiere.model.MLocator;
 import org.compiere.model.MMPolicyTicket;
 import org.compiere.model.MMovement;
@@ -37,6 +40,9 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MStorage;
+import org.compiere.model.MTable;
+import org.compiere.model.MTransaction;
+import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -79,7 +85,7 @@ public class StorageCleanup extends SvrProcess
 	{
 		log.info("");
 		removeMalformedASIValues();
-		ensureQtyOnHandHasTicket();
+		rebuildStorage();
 		ensureQtyOrderedReservedHasTickets();
 		coverNegativeQuantities();
 		removeEmptyStorage();
@@ -270,7 +276,7 @@ public class StorageCleanup extends SvrProcess
 
 	private void coverNegativeQuantities() {
 		// for each locator/product/asi combination.
-		String sql = "SELECT s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID "
+		String sql = "SELECT s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID, s.M_MPolicyTicket_ID "
 			+ "FROM M_Storage s "
 			+ "WHERE AD_Client_ID = ?"
 			+ " AND QtyOnHand < 0"
@@ -293,7 +299,7 @@ public class StorageCleanup extends SvrProcess
 				+ " AND s.M_Locator_ID=sl.M_Locator_ID"
 				+ " AND s.M_AttributeSetInstance_ID=sw.M_AttributeSetInstance_ID"
 				+ " AND sl.M_Warehouse_ID=swl.M_Warehouse_ID))"
-			+ " GROUP BY s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID";
+			+ " GROUP BY s.M_Product_ID, s.M_AttributeSetInstance_ID, s.M_Locator_ID, s.M_MPolicyTicket_ID";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		int lines = 0;
@@ -304,7 +310,7 @@ public class StorageCleanup extends SvrProcess
 			rs = pstmt.executeQuery ();
 			while (rs.next ())
 			{
-				lines += move (rs.getInt(1), rs.getInt(2), rs.getInt(3));
+				lines += move (rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4));
 			}
  		}
 		catch (Exception e)
@@ -318,79 +324,116 @@ public class StorageCleanup extends SvrProcess
 		}	
 	}
 
-	private void ensureQtyOnHandHasTicket() {
+	private void rebuildStorage() {
 		log.info("");
-		// Move/change qty on hand where M_MPolicyTicket_ID = 0 to a row with a policy ticket.
-		// As these are likely old entries, use a zero Timestamp as the move date.
-		String sql = "SELECT * FROM M_Storage "
-				+ "WHERE AD_Client_ID = ?"
-				+ " AND QtyOnHand != 0 AND COALESCE(M_MPolicyTicket_ID,0) = 0";
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		int no = 0;
-		try
-		{
-			pstmt = DB.prepareStatement (sql, get_TrxName());
-			pstmt.setInt(1, Env.getAD_Client_ID(getCtx()));
-			rs = pstmt.executeQuery ();
-			while (rs.next ())
-			{
-				no += addMissingPolicyTicket(new MStorage(getCtx(), rs, get_TrxName()));
-			}
- 		}
-		catch (Exception e)
-		{
-			log.log (Level.SEVERE, sql, e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
 		
-		log.info("Added missing policy tickets where qtyOnHand != 0: " + no);
+		StorageEngine.validateStorage(getCtx(), get_TrxName());
+		
+//		// Move/change qty on hand where M_MPolicyTicket_ID = 0 to a row with a policy ticket.
+//		// As these are likely old entries, use a zero Timestamp as the move date.
+//		String sql = "SELECT * FROM M_Storage "
+//				+ "WHERE AD_Client_ID = ?"
+//				+ " AND QtyOnHand != 0 AND COALESCE(M_MPolicyTicket_ID,0) = 0";
+//		PreparedStatement pstmt = null;
+//		ResultSet rs = null;
+//		no = 0;
+//		try
+//		{
+//			pstmt = DB.prepareStatement (sql, get_TrxName());
+//			pstmt.setInt(1, Env.getAD_Client_ID(getCtx()));
+//			rs = pstmt.executeQuery ();
+//			while (rs.next ())
+//			{
+//				no += addMissingPolicyTicket(new MStorage(getCtx(), rs, get_TrxName()));
+//			}
+// 		}
+//		catch (Exception e)
+//		{
+//			log.log (Level.SEVERE, sql, e);
+//		}
+//		finally
+//		{
+//			DB.close(rs, pstmt);
+//			rs = null; pstmt = null;
+//		}
+//		
+//		log.info("Added missing policy tickets where qtyOnHand != 0: " + no);
 	}
 
 	private void removeMalformedASIValues() {
 		log.info("");
-		//  Remove ASI values that have no attribute sets. ASI was replaced by the Material Policy Ticket as the
-		//  Method of FIFO/LIFO tracking in storage
-		String sql = "UPDATE M_Storage s "
-				+ "SET M_AttributeSetInstance_ID = 0 "
-				+ "WHERE s.M_AttributeSetInstance_ID != 0"
-				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
-				+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
-				+ " asi.M_AttributeSet_ID=0"
-				+ " AND asi.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
-		int no = DB.executeUpdate(sql, get_TrxName());
-		log.info("Set ASI values to zero where there was no Attribute Set #" + no);	
+		//  Remove ASI values that have no attribute sets. ASI was replaced by the Material 
+		//  Policy Ticket as the method of FIFO/LIFO tracking in storage
 		
-		sql = "UPDATE M_Storage s "
-				+ "SET M_AttributeSetInstance_ID = 0 "
-				+ "WHERE s.M_AttributeSetInstance_ID != 0"
-				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
-				+ " AND NOT EXISTS (SELECT 1 FROM M_AttributeInstance ai WHERE"
-				+ " ai.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID)";
-		no = DB.executeUpdate(sql, get_TrxName());
-		log.info("Set ASI values to zero where there were no Attribute values #" + no);	
-		
-		sql = "UPDATE M_Storage s "
-				+ " SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID from M_Product p"
-				+ "  WHERE s.M_Product_ID = p.M_Product_ID)"
-				+ "	WHERE COALESCE(M_AttributeSetInstance_ID,0) = 0"
-				+ "	AND EXISTS (SELECT M_AttributeSetInstance_ID from M_Product p"
-				+ "	WHERE s.M_Product_ID = p.M_Product_ID AND p.M_AttributeSetInstance_ID > 0)";
-		no = DB.executeUpdate(sql, get_TrxName());
-		log.info("Set ASI values to product ASI where there were no Attribute values and the product had a defined ASI #" + no);	
+		String where = "ColumnName=" + DB.TO_STRING("M_AttributeSetInstance_ID");
 
+		List<MColumn> columns = new Query(getCtx(),MColumn.Table_Name, where, get_TrxName())
+							.list();
+		
+		for (MColumn column : columns)
+		{
+			MTable table = (MTable) column.getAD_Table();
+			if (table.isView() 
+				|| table.getTableName().equals("M_AttributeSetInstance")
+				|| table.getTableName().equals("M_Product")
+				|| table.getTableName().equals("M_Storage")
+				)
+				continue;
+			
+			String sql = "UPDATE " + table.getTableName() + " t "
+					+ "SET M_AttributeSetInstance_ID = 0 "
+					+ "WHERE t.M_AttributeSetInstance_ID != 0"
+					+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+					+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
+					+ " asi.M_AttributeSet_ID=0"
+					+ " AND asi.M_AttributeSetInstance_ID = t.M_AttributeSetInstance_ID)";
+			int no = DB.executeUpdate(sql, get_TrxName());
+			log.info(table.getTableName() + ": Set ASI values to zero where there was no Attribute Set #" + no);	
+			
+			// Potentially valid if there is an attribute set defined.
+			sql = "UPDATE " + table.getTableName() + " t "
+					+ "SET M_AttributeSetInstance_ID = 0 "
+					+ "WHERE t.M_AttributeSetInstance_ID != 0"
+					+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
+					+ " AND NOT EXISTS (SELECT 1 FROM M_AttributeInstance ai WHERE"
+					+ " ai.M_AttributeSetInstance_ID = t.M_AttributeSetInstance_ID)"
+					+ " AND EXISTS (SELECT 1 FROM M_AttributeSetInstance asi WHERE"
+					+ " asi.M_AttributeSetInstance_ID = t.M_AttributeSetInstance_ID"
+					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_Lot + " is null"
+					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_M_Lot_ID + " is null"
+					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_GuaranteeDate + " is null"
+					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_SerNo + " is null)";
+			no = DB.executeUpdate(sql, get_TrxName());
+			log.info(table.getTableName() + ": Set ASI values to zero where there were no Attribute values #" + no);	
+		
+			// If the table has a product
+			where = "AD_Table_ID=" + table.getAD_Table_ID() + " AND "
+					+ "ColumnName=" + DB.TO_STRING("M_Product_ID");
+
+			 MColumn productColumn = new Query(getCtx(), MColumn.Table_Name, where, get_TrxName())
+								.first();
+	
+			if (productColumn == null)
+				continue;
+			
+			sql = "UPDATE " + table.getTableName() + " t "
+					+ " SET M_AttributeSetInstance_ID = (SELECT M_AttributeSetInstance_ID from M_Product p"
+					+ "  WHERE t.M_Product_ID = p.M_Product_ID)"
+					+ "	WHERE COALESCE(M_AttributeSetInstance_ID,0) = 0"
+					+ "	AND EXISTS (SELECT M_AttributeSetInstance_ID from M_Product p"
+					+ "	WHERE t.M_Product_ID = p.M_Product_ID AND p.M_AttributeSetInstance_ID > 0)";
+			no = DB.executeUpdate(sql, get_TrxName());
+			log.info(table.getTableName() + ": Set ASI values to product ASI where there were no Attribute values and the product had a defined ASI #" + no);	
+
+		}		
 	}
 
 	private void removeEmptyStorage() {
 		log.info("");
 		String sql = "DELETE FROM M_Storage "
 				+ "WHERE QtyOnHand = 0 AND QtyReserved = 0 AND QtyOrdered = 0"
-				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
-				+ " AND Created < SysDate-3";
+				+ " AND AD_Client_ID = " + Env.getAD_Client_ID(getCtx());
+//				+ " AND Created < SysDate-3";
 			int no = DB.executeUpdate(sql, get_TrxName());
 			log.info("Delete Empty #" + no);		
 	}
@@ -426,7 +469,7 @@ public class StorageCleanup extends SvrProcess
 	 *	@param target target storage
 	 *	@return no of movements
 	 */
-	private int move (int m_product_id, int m_locator_id, int m_attributeSetInstance_id)
+	private int move (int m_product_id, int m_locator_id, int m_attributeSetInstance_id, int m_mPolicyTicket_id)
 	{
 		log.info("");
 				

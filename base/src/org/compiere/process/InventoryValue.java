@@ -101,10 +101,10 @@ public class InventoryValue extends SvrProcess
 		//	Insert Standard Costs
 		sql = new StringBuffer ("INSERT INTO T_InventoryValue "
 			+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,"
-			+ " AD_Client_ID, AD_Org_ID, CostStandard) "
+			+ " AD_Client_ID, AD_Org_ID, CostStandard, M_CostElement_ID, M_CostType_ID ) "
 			+ "SELECT ").append(getAD_PInstance_ID())
 			.append(", w.M_Warehouse_ID, c.M_Product_ID, c.M_AttributeSetInstance_ID,"
-			+ " w.AD_Client_ID, w.AD_Org_ID, c.CurrentCostPrice "
+			+ " w.AD_Client_ID, w.AD_Org_ID, c.CurrentCostPrice, ce.M_CostElement_ID, c.M_CostType_ID  "
 			+ "FROM M_Warehouse w"
 			+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
 			+ " INNER JOIN C_AcctSchema acs ON (ci.C_AcctSchema1_ID=acs.C_AcctSchema_ID)"
@@ -122,10 +122,10 @@ public class InventoryValue extends SvrProcess
 		{
 			sql = new StringBuffer ("INSERT INTO T_InventoryValue "
 				+ "(AD_PInstance_ID, M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,"
-				+ " AD_Client_ID, AD_Org_ID, CostStandard, Cost, M_CostElement_ID) "
+				+ " AD_Client_ID, AD_Org_ID, CostStandard, Cost, M_CostElement_ID, M_CostType_ID ) "
 				+ "SELECT ").append(getAD_PInstance_ID())
 				.append(", w.M_Warehouse_ID, c.M_Product_ID, c.M_AttributeSetInstance_ID,"
-				+ " w.AD_Client_ID, w.AD_Org_ID, 0, c.CurrentCostPrice, c.M_CostElement_ID "
+				+ " w.AD_Client_ID, w.AD_Org_ID, 0, c.CurrentCostPrice, c.M_CostElement_ID, c.M_CostType_ID "
 				+ "FROM M_Warehouse w"
 				+ " INNER JOIN AD_ClientInfo ci ON (w.AD_Client_ID=ci.AD_Client_ID)"
 				+ " INNER JOIN C_AcctSchema acs ON (ci.C_AcctSchema1_ID=acs.C_AcctSchema_ID)"

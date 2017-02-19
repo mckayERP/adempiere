@@ -52,6 +52,9 @@ public class StandardCostingMethod extends AbstractCostingMethod implements
 			this.dateAccounting = ((MLandedCostAllocation) model).getC_InvoiceLine().getC_Invoice().getDateAcct();
 		else if (model instanceof MMatchInv)
 			this.dateAccounting = ((MMatchInv) model).getC_InvoiceLine().getC_Invoice().getDateAcct();
+		// TODO: test this.  If validating storage, the account date is required for MInOutLine, even if closed
+		else if (model instanceof MInOutLine)
+			this.dateAccounting = ((MInOutLine) model).getM_InOut().getDateAcct();
 		else
 			this.dateAccounting = null; // Is Necessary define that happen in this case when period is close
 	}
