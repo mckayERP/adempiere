@@ -55,7 +55,7 @@ import org.compiere.util.Trace;
  *  @author     Jorg Janke
  *  @version    $Id: CComboBox.java,v 1.2 2006/07/30 00:52:24 jjanke Exp $
  */
-public class CComboBox extends JComboBox
+public class CComboBox extends JComboBox<Object>
 	implements CEditor
 {
 	/**
@@ -74,7 +74,7 @@ public class CComboBox extends JComboBox
 	 * 		displayed list of items
 	 * @see DefaultComboBoxModel
 	 */
-	public CComboBox(ComboBoxModel aModel)
+	public CComboBox(ComboBoxModel<Object> aModel)
 	{
 		super(aModel);
 		init();
@@ -134,7 +134,7 @@ public class CComboBox extends JComboBox
 	 * @param items  an array of vectors to insert into the combo box
 	 * @see DefaultComboBoxModel
 	 */
-	public CComboBox(Vector items)
+	public CComboBox(Vector<Object> items)
 	{
 		super(items);
 		init();
@@ -259,7 +259,7 @@ public class CComboBox extends JComboBox
 	}   //  setIcon
 
 	   
-	public ComboBoxModel getCompleteComboBoxModel()
+	public ComboBoxModel<Object> getCompleteComboBoxModel()
 	{
 		return m_reducibleModel.getModel();
 	}   //   getCompleteComboBoxModel
@@ -267,7 +267,7 @@ public class CComboBox extends JComboBox
 	/**
 	 * @see javax.swing.JComboBox#setModel(javax.swing.ComboBoxModel)
 	 */
-	public void setModel(ComboBoxModel aModel) 
+	public void setModel(ComboBoxModel<Object> aModel) 
 	{
 		m_reducibleModel = (m_reducibleModel == null) ? new ReducibleModel() : m_reducibleModel;
 		m_reducibleModel.setModel(aModel);
@@ -577,7 +577,7 @@ public class CComboBox extends JComboBox
 	/**
 	 * A view adapter model to hide filtered choices in the underlying combo box model.
 	 */
-	private class ReducibleModel implements MutableComboBoxModel, ListDataListener 
+	private class ReducibleModel implements MutableComboBoxModel<Object>, ListDataListener 
 	{
 		/**
 		 * Default constructor.  Creates a ReducibleModel.
@@ -587,7 +587,7 @@ public class CComboBox extends JComboBox
 		}
 
 		/** The wrapped data model. */
-		private ComboBoxModel m_model;
+		private ComboBoxModel<Object> m_model;
 
 		/** The wrapped data model. */
 		private EventListenerList m_listenerList = new EventListenerList();
@@ -613,7 +613,7 @@ public class CComboBox extends JComboBox
 		{
 			checkMutableComboBoxModel();
 			m_modelData.add(anObject);
-			((MutableComboBoxModel)m_model).addElement(anObject);
+			((MutableComboBoxModel<Object>)m_model).addElement(anObject);
 		}
 
 		/* (non-Javadoc)
@@ -704,7 +704,7 @@ public class CComboBox extends JComboBox
 		/**
 		 * @return the wrapped model
 		 */
-		public ComboBoxModel getModel()
+		public ComboBoxModel<Object> getModel()
 		{
 			return m_model;
 		}
@@ -736,7 +736,7 @@ public class CComboBox extends JComboBox
 		{
 			checkMutableComboBoxModel();
 			m_modelData.add(index, anObject);
-			((MutableComboBoxModel)m_model).insertElementAt(anObject, index);
+			((MutableComboBoxModel<Object>)m_model).insertElementAt(anObject, index);
 		}
 
 		/**
@@ -776,7 +776,7 @@ public class CComboBox extends JComboBox
 			m_modelData.clear();
 			m_visibleData.clear();
 			while (m_model.getSize() > 0)
-				((MutableComboBoxModel)m_model).removeElementAt(0);
+				((MutableComboBoxModel<Object>)m_model).removeElementAt(0);
 
 			for (ListDataListener ldl : listeners)
 				addListDataListener(ldl);
@@ -795,7 +795,7 @@ public class CComboBox extends JComboBox
 			checkMutableComboBoxModel();
 			m_modelData.remove(anObject);
 			m_visibleData.clear();
-			((MutableComboBoxModel)m_model).removeElement(anObject);
+			((MutableComboBoxModel<Object>)m_model).removeElement(anObject);
 		}
 
 		/**
@@ -808,7 +808,7 @@ public class CComboBox extends JComboBox
 			checkMutableComboBoxModel();
 			m_modelData.remove(index);
 			m_visibleData.clear();
-			((MutableComboBoxModel)m_model).removeElementAt(index);
+			((MutableComboBoxModel<Object>)m_model).removeElementAt(index);
 		}
 
 		/* (non-Javadoc)
@@ -833,7 +833,7 @@ public class CComboBox extends JComboBox
 		 * 
 		 * @param model the model to set
 		 */
-		public void setModel(ComboBoxModel model)
+		public void setModel(ComboBoxModel<Object> model)
 		{
 			if (this.m_model != null)
 				this.m_model.removeListDataListener(this);
