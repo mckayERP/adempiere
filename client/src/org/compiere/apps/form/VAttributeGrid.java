@@ -518,7 +518,7 @@ public class VAttributeGrid extends CPanel
 		formatted = "";
 		if (m_M_Warehouse_ID != 0)
 		{
-			BigDecimal qty = MStorage.getQtyAvailable(m_M_Warehouse_ID, M_Product_ID, 0, null);
+			BigDecimal qty = MStorage.getQtyAvailable(m_M_Warehouse_ID, 0, M_Product_ID, 0, null);
 			if (qty == null)
 				formatted = "-";
 			else
