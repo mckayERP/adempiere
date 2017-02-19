@@ -103,10 +103,10 @@ public class VAttributeGrid extends CPanel
 		vector.add(new KeyNamePair(0,""));
 		for (int i = 0; i < m_attributes.length; i++)
 			vector.add(m_attributes[i].getKeyNamePair());
-		attributeCombo1 = new CComboBox(vector);
+		attributeCombo1 = new CComboBox();
 		selectPanel.add(attributeCombo1, null);
 		selectPanel.add(attributeLabel2, new ALayoutConstraint(1,0));
-		attributeCombo2 = new CComboBox(vector);
+		attributeCombo2 = new CComboBox();
 		selectPanel.add(attributeCombo2, null);
 		//
 		fillPicks();
