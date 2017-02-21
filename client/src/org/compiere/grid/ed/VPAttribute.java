@@ -44,6 +44,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 
 import org.adempiere.exceptions.DBException;
+import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.apps.ADialog;
 import org.compiere.apps.AEnv;
@@ -1159,5 +1160,11 @@ public class VPAttribute extends JComponent
 	{
 		m_text.requestFocus ();
 	}	//	requestFocus
+
+	@Override
+	public void addValueChangeListener(ValueChangeListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }	//	VPAttribute
