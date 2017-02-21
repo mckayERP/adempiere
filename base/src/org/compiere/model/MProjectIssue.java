@@ -193,11 +193,13 @@ public class MProjectIssue extends X_C_ProjectIssue implements IDocumentLine
 
 	@Override
 	public int getM_LocatorTo_ID() {
+		// Not relevant
 		return 0;
 	}
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
+		// Not relevant
 		return 0;
 	}
 
@@ -223,6 +225,42 @@ public class MProjectIssue extends X_C_ProjectIssue implements IDocumentLine
 
 	@Override
 	public IDocumentLine getReversalDocumentLine() {
+		return null;
+	}
+
+	@Override
+	public int getM_MPolicyTicket_ID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setM_MPolicyTicket_ID(int M_MPolicyTicket_ID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		
+		int m_warehouse_id = 0;
+		if (getM_Locator_ID() > 0)
+		{
+			m_warehouse_id = MLocator.get(getCtx(), getM_Locator_ID()).getM_Warehouse_ID();
+		}
+		
+		return m_warehouse_id;
+	}
+
+	@Override
+	public String getMovementType() {
+		// TODO need to define the movement type for project issue
 		return null;
 	}
 }	//	MProjectIssue

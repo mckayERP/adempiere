@@ -79,18 +79,14 @@ public interface I_C_InvoiceLine
 	/** Get Capital/Expense	  */
 	public String getA_CapvsExp();
 
-    /** Column name A_CreateUpdateAsset */
-    public static final String COLUMNNAME_A_CreateUpdateAsset = "A_CreateUpdateAsset";
+    /** Column name A_CreateAsset */
+    public static final String COLUMNNAME_A_CreateAsset = "A_CreateAsset";
 
-	/** Set Create/Update Asset.
-	  * Create or Update an asset.
-	  */
-	public void setA_CreateUpdateAsset (boolean A_CreateUpdateAsset);
+	/** Set Create Asset	  */
+	public void setA_CreateAsset (boolean A_CreateAsset);
 
-	/** Get Create/Update Asset.
-	  * Create or Update an asset.
-	  */
-	public boolean isA_CreateUpdateAsset();
+	/** Get Create Asset	  */
+	public boolean isA_CreateAsset();
 
     /** Column name A_Processed */
     public static final String COLUMNNAME_A_Processed = "A_Processed";
