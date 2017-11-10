@@ -41,7 +41,7 @@ import org.compiere.util.DB;
  * @author Nikunj Panelia
  *
  */
-public class CleanUpGW extends SvrProcess 
+public class GardenWorldCleanUp extends SvrProcess 
 {
 	protected void prepare() {
 		
