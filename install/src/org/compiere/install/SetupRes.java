@@ -69,6 +69,8 @@ public class SetupRes extends ListResourceBundle
 	{ "JavaHome", 				"Java Home" },
 	{ "JNPPortInfo", 			"Application Server JNP Port" },
 	{ "JNPPort", 				"JNP Port" },
+	{ "SSLPortInfo", 			"Application Secure Socket Layer Port" },
+	{ "SSLPort", 				"SSL Port" },
 	{ "MailUserInfo", 			"Adempiere Mail User" },
 	{ "MailUser", 				"Mail User" },
 	{ "MailPasswordInfo", 		"Adempiere Mail User Password" },
@@ -101,6 +103,7 @@ public class SetupRes extends ListResourceBundle
 	{ "ErrorAppsServer", 		"Error Apps Server (do not use localhost)" },
 	{ "ErrorWebPort", 			"Error Web Port" },
 	{ "ErrorJNPPort", 			"Error JNP Port" },
+	{ "ErrorSSLPort", 			"Error SSL Port" },	
 	{ "ErrorDatabaseServer", 	"Error Database Server (do not use localhost)" },
 	{ "ErrorDatabasePort", 		"Error Database Port" },
 	{ "ErrorJDBC", 				"Error JDBC Connection" },
@@ -116,7 +119,12 @@ public class SetupRes extends ListResourceBundle
 
 	{ "EnvironmentSaved", 		"Environment file saved .... starting Deployment\n"
 		+ "You can re-start the Application Server after program completes.\n"
-		+ "Please check Trace for errors.\n" }
+		+ "Please check Trace for errors.\n" },
+	
+	//
+	{ "JavaOptions",				"JVM Options"},
+	{ "JavaOptionsInfo",			"Java VM Options"},
+	
 
 	};
 

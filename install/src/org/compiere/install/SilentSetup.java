@@ -1,9 +1,11 @@
 package org.compiere.install;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
+import org.adempiere.configuration.ConfigurationData;
 import org.apache.tools.ant.Main;
 import org.compiere.util.CLogFile;
 import org.compiere.util.CLogMgt;
@@ -29,7 +31,7 @@ public class SilentSetup {
 		}
 		
 		Ini.setShowLicenseDialog(false);
-		ConfigurationData data = new ConfigurationData(null);
+		ConfigurationData data = new ConfigurationData();
 		if (!data.load()) return;
 		if (!data.test()) 
 		{
@@ -37,7 +39,12 @@ public class SilentSetup {
 			System.err.println("Warning: One or more of the configuration test failed.");
 			System.err.println("");
 		}
-		if (!data.save()) return;
+		try {
+			if (!data.save()) return;
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		/**	Run Ant	**/
 		try

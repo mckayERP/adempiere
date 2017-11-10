@@ -34,4 +34,10 @@ public interface IApplicationServer {
 	 * @return default naming service port
 	 */
 	public int getDefaultNamingServicePort();
+	
+	/**
+	 * Can the application server provide an initial context directly?
+	 * @return
+	 */
+	public boolean canGetInitialContext();
 }

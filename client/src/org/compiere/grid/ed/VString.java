@@ -288,8 +288,9 @@ public final class VString extends CTextField
 		{
 			fireVetoableChange(m_columnName, m_oldText, getText());
 		}
-		catch (PropertyVetoException pve)	
+		catch (PropertyVetoException pve)
 		{
+			setValue(m_oldText);
 		}
 	}	//	actionPerformed
 

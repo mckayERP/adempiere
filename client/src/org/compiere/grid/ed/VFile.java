@@ -444,6 +444,8 @@ public class VFile extends JComponent
 		}
 		catch (PropertyVetoException pve)	
 		{
+			m_setting = false;
+			setValue(m_oldText);  // Need to respect the veto
 		}
 		m_setting = false;
 	}	//	focusLost

@@ -14,7 +14,7 @@
  * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
-package org.compiere.install;
+package org.adempiere.configuration;
 
 import java.io.File;
 import java.io.FileReader;
@@ -66,9 +66,15 @@ public class ConfigOracle extends Config
 	 */
 	public void init()
 	{
-		p_data.setDatabasePort(String.valueOf(DB_Oracle.DEFAULT_PORT));
+		log.finest("");
+//		p_data.stopPropertyChangeProcessing(true);
+		p_data.setDatabaseDiscoveredList();  // Should also set the database discovered to the first entry
+		p_data.setProperty(ConfigurationData.ADEMPIERE_DB_NAME, getDatabaseName(p_data.getDatabaseDiscovered()));
+		p_data.setProperty(ConfigurationData.ADEMPIERE_DB_PORT, ""+ DB_Oracle.DEFAULT_PORT);
+		
+		enable();
 		//
-		p_data.setDatabaseSystemPassword(true);
+//		p_data.setDatabaseSystemPassword(true);
 	}	//	init
 	
 	/**
@@ -79,6 +85,9 @@ public class ConfigOracle extends Config
 	 */
 	public String[] discoverDatabases(String selected)
 	{
+		
+		log.finest("");
+		
 		if (p_discovered != null)
 			return p_discovered;
 		//
@@ -192,6 +201,20 @@ public class ConfigOracle extends Config
 			return nativeConnectioName;
 	}
 
+	@Override
+	public String getDatabaseName(int index) 
+	{
+		if (p_dbname == null)
+			return "";
+		
+		if (index < 0 || index > p_dbname.length)
+		{
+			log.severe("Index out of range.");
+		}
+	
+		return p_dbname[index];
+	}
+
 	/**
 	 * 	Get File tnmsnames.ora in StringBuffer
 	 * 	@param oraHome ORACLE_HOME
@@ -289,7 +312,7 @@ public class ConfigOracle extends Config
 	public String test()
 	{
 		//	Database Server
-		String server = p_data.getDatabaseServer();
+		String server = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_SERVER);
 		boolean pass = server != null && server.length() > 0;
 		//	&& server.toLowerCase().indexOf("localhost") == -1 
 		//	&& !server.equals("127.0.0.1");
@@ -305,35 +328,30 @@ public class ConfigOracle extends Config
 			error += " - " + e.getMessage();
 			pass = false;
 		}
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseServer, "ErrorDatabaseServer", 
-				pass, true, error); 
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_SERVER, pass, true, error);
+
 		log.info("OK: Database Server = " + databaseServer);
-		setProperty(ConfigurationData.ADEMPIERE_DB_SERVER, databaseServer.getHostName());
-		setProperty(ConfigurationData.ADEMPIERE_DB_TYPE, p_data.getDatabaseType());
-		setProperty(ConfigurationData.ADEMPIERE_DB_PATH, p_data.getDatabaseType());
 
 		//	Database Port
-		int databasePort = p_data.getDatabasePort();
-		pass = p_data.testPort (databaseServer, databasePort, true);
+		int databasePort = p_data.getPropertyAsInt(ConfigurationData.ADEMPIERE_DB_PORT);
+		pass = testPort (databaseServer, databasePort, true);
 		error = "DB Server Port = " + databasePort;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseServer, "ErrorDatabasePort",
-				pass, true, error);
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_PORT, pass, true, error);
+
 		if (!pass)
 			return error;
 		log.info("OK: Database Port = " + databasePort);
-		setProperty(ConfigurationData.ADEMPIERE_DB_PORT, String.valueOf(databasePort));
-
 
 		//	JDBC Database Info
-		String databaseName = p_data.getDatabaseName();	//	Service Name
-		String systemPassword = p_data.getDatabaseSystemPassword();
+		String databaseName = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_NAME);	//	Service Name
+		String systemPassword = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_SYSTEM_PASS);
 		pass = systemPassword != null && systemPassword.length() > 0;
 		error = "No Database System Password entered";
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseSystem, "ErrorJDBC",
-				pass, true,	error);
+
+		p_data.setTestError(ConfigurationData.TEST_DB_ADMIN_PASS, pass, true, error);
+
 		if (!pass)
 			return error;
 		//
@@ -344,44 +362,40 @@ public class ConfigOracle extends Config
 		pass = testJDBC(url, "system", systemPassword);
 		error = "Error connecting: " + url 
 			+ " - as system/" + systemPassword;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseSystem, "ErrorJDBC",
-				pass, true, error);
+
+		p_data.setTestError(ConfigurationData.TEST_DB_ADMIN_PASS, pass, true, error);
+
 		if (!pass)
 			return error;
 		log.info("OK: Connection = " + url);
-		setProperty(ConfigurationData.ADEMPIERE_DB_URL, url);
 		log.info("OK: Database System User " + databaseName);
-		setProperty(ConfigurationData.ADEMPIERE_DB_NAME, databaseName);
-		setProperty(ConfigurationData.ADEMPIERE_DB_SYSTEM, systemPassword);
 
 
 		//	Database User Info
-		String databaseUser = p_data.getDatabaseUser();	//	UID
-		String databasePassword = p_data.getDatabasePassword();	//	PWD
+		String databaseUser = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_USER);	//	UID
+		String databasePassword = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_PASSWORD);	//	PWD
 		pass = databasePassword != null && databasePassword.length() > 0;
 		error = "Invalid Database User Password";
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseUser, "ErrorJDBC",
-				pass, true, error); 
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_USER, pass, true, error);
+
 		if (!pass)
 			return error;
 		//	Ignore result as it might not be imported
 		pass = testJDBC(url, databaseUser, databasePassword);
 		error = "Cannot connect to User: " + databaseUser + "/" + databasePassword + " - Database may not be imported yet (OK on initial run).";
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseUser, "ErrorJDBC",
-				pass, false, error);
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_USER, pass, true, error);
+
 		if (pass)
 		{
 			log.info("OK: Database User = " + databaseUser);
 			if (m_con != null)
-				setProperty(ConfigurationData.ADEMPIERE_WEBSTORES, getWebStores(m_con));
+			{
+			}
 		}
 		else
 			log.warning(error);
-		setProperty(ConfigurationData.ADEMPIERE_DB_USER, databaseUser);
-		setProperty(ConfigurationData.ADEMPIERE_DB_PASSWORD, databasePassword);
 
 		//	TNS Name Info via sqlplus 
 		String sqlplus = "sqlplus system/" + systemPassword + "@"
@@ -392,9 +406,9 @@ public class ConfigOracle extends Config
 		log.config(sqlplus);
 		pass = testSQL(sqlplus);
 		error = "Error connecting via: " + sqlplus;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseSQL, "ErrorTNS", 
-				pass, true, error);
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_SQL, pass, true, error);
+
 		if (pass)
 			log.info("OK: Database SQL Connection");
 		
@@ -494,5 +508,22 @@ public class ConfigOracle extends Config
 			log.warning(sbErr.toString());
 		return result == 0;
 	}	//	testSQL
+
+	@Override
+	public void enable() {
+
+		p_data.setIsUsed(ConfigurationData.DATABASE_DISCOVERED,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_NAME,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_PASSWORD,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_USER,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_SYSTEM_PASS,true);
+
+	}
+
+	@Override
+	public String getDeployDir() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 			
 }	//	ConfigOracle

@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JFrame;
 
+import org.adempiere.configuration.KeyStoreMgt;
 import org.compiere.apps.AEnv;
 import org.compiere.apps.ALayout;
 import org.compiere.apps.ALayoutConstraint;
@@ -36,7 +37,8 @@ import org.compiere.swing.CTextField;
 
 
 /**
- *	Key Store Dialog
+ *	Key Store Dialog presents a Swing dialog that allows the user to change
+ *  the main keystore parameters. 
  *	
  *  @author Jorg Janke
  *  @version $Id: KeyStoreDialog.java,v 1.3 2006/07/30 00:57:42 jjanke Exp $
@@ -48,6 +50,28 @@ public class KeyStoreDialog extends CDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 6114800010246854563L;
+	
+
+	/**
+	 * Constructor
+	 * @param owner
+	 * 			The JFrame parent of the the KeyStore dialog
+	 * @param ksm
+	 * 			The KeyStoreMgt data to use 
+	 * @throws HeadlessException
+	 */
+	public KeyStoreDialog (JFrame owner, KeyStoreMgt ksm)
+			throws HeadlessException
+	{
+		this(owner, 
+				ksm.getCommonName(), 
+				ksm.getOrganizationUnit(),
+				ksm.getOrganization(),
+				ksm.getLocation(),
+				ksm.getState(),
+				ksm.getCountry());
+	}
+
 
 	/**
 	 * 	Constructor

@@ -13,40 +13,45 @@
  * For the text or an alternative of this public license, you may reach us    *
  * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
-package org.compiere.install;
+package org.adempiere.configuration;
 
 import java.net.InetAddress;
 import java.sql.Connection;
 
-import org.compiere.db.DB_MySQL;
+import org.compiere.db.DB_MariaDB;
 
 
 /**
- *
- * @author praneet tiwari
- * 
+ * Configuration class for MariaDB Database
+ * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
+ *		<li> FR [ 391 ] Add connection support to MariaDB
+ *		@see https://github.com/adempiere/adempiere/issues/464
  */
-public class ConfigMySQL extends Config {
-/**
+public class ConfigMariaDB extends Config {
+	/**
 	 * 	ConfigPostgreSQL
 	 *	@param data
 	 */
-	public ConfigMySQL (ConfigurationData data)
-	{
+	public ConfigMariaDB (ConfigurationData data) {
 		super (data);
 	}	//	ConfigPostgreSQL
 
 	/** Discovered TNS			*/
 	private String[] 			p_discovered = null;
-	/**	PostgreSQL DB Info			*/
-	private DB_MySQL			p_db = new DB_MySQL();
+	/**	MariaDB DB Info			*/
+	private DB_MariaDB			p_db = new DB_MariaDB();
 	
 	/**
 	 * 	Init
 	 */
-	public void init()
-	{
-		p_data.setDatabasePort(String.valueOf(DB_MySQL.DEFAULT_PORT));
+	public void init() {
+		
+		p_data.setDatabaseDiscoveredList();	// Not used
+//		p_data.setDatabaseDiscovered(""); // Not used
+		p_data.setProperty(ConfigurationData.ADEMPIERE_DB_NAME,"");	// Not used
+		p_data.setProperty(ConfigurationData.ADEMPIERE_DB_PORT, String.valueOf(DB_MariaDB.DEFAULT_PORT));
+		
+		enable();
 	}	//	init
 
 	/**
@@ -55,8 +60,7 @@ public class ConfigMySQL extends Config {
 	 *	@param selected selected database
 	 *	@return array of databases
 	 */
-	public String[] discoverDatabases(String selected)
-	{
+	public String[] discoverDatabases(String selected) {
 		if (p_discovered != null)
 			return p_discovered;
 		p_discovered = new String[]{};
@@ -68,10 +72,9 @@ public class ConfigMySQL extends Config {
 	 * 	Test
 	 *	@return error message or null if OK
 	 */
-	public String test()
-	{
+	public String test() {
 		//	Database Server
-		String server = p_data.getDatabaseServer();
+		String server = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_SERVER);
 		boolean pass = server != null && server.length() > 0;
 		// vpj-cd e-evolution && server.toLowerCase().indexOf("localhost") == -1                        
 		// vpj-cd e-evolution && !server.equals("127.0.0.1");
@@ -88,30 +91,26 @@ public class ConfigMySQL extends Config {
 			error += " - " + e.getMessage();
 			pass = false;
 		}
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseServer, "ErrorDatabaseServer", 
-				pass, true, error); 
+
+		p_data.setTestError(ConfigurationData.TEST_DB_SERVER, pass, true, error);
+		
 		log.info("OK: Database Server = " + databaseServer);
-		setProperty(ConfigurationData.ADEMPIERE_DB_SERVER, databaseServer.getHostName());
-		setProperty(ConfigurationData.ADEMPIERE_DB_TYPE, p_data.getDatabaseType());
-		setProperty(ConfigurationData.ADEMPIERE_DB_PATH, p_data.getDatabaseType());
 
 		//	Database Port
-		int databasePort = p_data.getDatabasePort();
-		pass = p_data.testPort (databaseServer, databasePort, true);
+		int databasePort = p_data.getPropertyAsInt(ConfigurationData.ADEMPIERE_DB_PORT);
+		pass = testPort (databaseServer, databasePort, true);
 		error = "DB Server Port = " + databasePort;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseServer, "ErrorDatabasePort",
-				pass, true, error);
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_PORT, pass, true, error);
+
 		if (!pass)
 			return error;
+		
 		log.info("OK: Database Port = " + databasePort);
-		setProperty(ConfigurationData.ADEMPIERE_DB_PORT, String.valueOf(databasePort));
-
 
 		//	JDBC Database Info
-		String databaseName = p_data.getDatabaseName();	//	Service Name
-		String systemPassword = p_data.getDatabaseSystemPassword();
+		String databaseName = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_NAME);	//	Service Name
+		String systemPassword = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_SYSTEM_PASS);
 
 		//	URL (derived)
 		String urlSystem = p_db.getConnectionURL(databaseServer.getHostName(), databasePort, 
@@ -119,42 +118,38 @@ public class ConfigMySQL extends Config {
 		pass = testJDBC(urlSystem, p_db.getSystemUser(), systemPassword);
 		error = "Error connecting: " + urlSystem 
 			+ " - " + p_db.getSystemUser() + "/" + systemPassword;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseSystem, "ErrorJDBC",
-				pass, true, error);
+		
+		p_data.setTestError(ConfigurationData.TEST_DB_ADMIN_PASS, pass, false,  error);
+		
 		if (!pass)
 			return error;
+		
 		log.info("OK: System Connection = " + urlSystem);
-		setProperty(ConfigurationData.ADEMPIERE_DB_SYSTEM, systemPassword);
-
 
 		//	Database User Info
-		String databaseUser = p_data.getDatabaseUser();	//	UID
-		String databasePassword = p_data.getDatabasePassword();	//	PWD
+		String databaseUser = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_USER);;	//	UID
+		String databasePassword = p_data.getProperty(ConfigurationData.ADEMPIERE_DB_PASSWORD);;	//	PWD
 		pass = databasePassword != null && databasePassword.length() > 0;
 		error = "Invalid Database User Password";
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseUser, "ErrorJDBC",
-				pass, true, error); 
+
+		p_data.setTestError(ConfigurationData.TEST_DB_PASS, pass, false, error);
+
 		if (!pass)
 			return error;
 		//
 		String url= p_db.getConnectionURL(databaseServer.getHostName(), databasePort, 
 			databaseName, databaseUser);
+		
 		//	Ignore result as it might not be imported
 		pass = testJDBC(url, databaseUser, databasePassword);
 		error = "Database imported? Cannot connect to User: " + databaseUser + "/" + databasePassword;
-		if (getPanel() != null)
-			signalOK(getPanel().okDatabaseUser, "ErrorJDBC",
-				pass, false, error);
+
+		p_data.setTestError(ConfigurationData.TEST_DB_USER, pass, false, error);
+
 		if (pass)
 			log.info("OK: Database User = " + databaseUser);
 		else
 			log.warning(error);
-		setProperty(ConfigurationData.ADEMPIERE_DB_URL, url);
-		setProperty(ConfigurationData.ADEMPIERE_DB_NAME, databaseName);
-		setProperty(ConfigurationData.ADEMPIERE_DB_USER, databaseUser);
-		setProperty(ConfigurationData.ADEMPIERE_DB_PASSWORD, databasePassword);
 
 		return null;
 	}	//	test
@@ -166,18 +161,31 @@ public class ConfigMySQL extends Config {
 	 *  @param pwd password
 	 * 	@return true if OK
 	 */
-	private boolean testJDBC (String url, String uid, String pwd)
-	{
-		try
-		{
+	private boolean testJDBC (String url, String uid, String pwd) {
+		try {
 			@SuppressWarnings("unused")
 			Connection conn = p_db.getDriverConnection(url, uid, pwd);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.severe(e.toString());
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public void enable() {
+
+		p_data.setIsUsed(ConfigurationData.DATABASE_DISCOVERED,false);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_NAME,false);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_PASSWORD,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_USER,true);
+		p_data.setIsUsed(ConfigurationData.ADEMPIERE_DB_SYSTEM_PASS,true);
+		
+	}
+
+	@Override
+	public String getDeployDir() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

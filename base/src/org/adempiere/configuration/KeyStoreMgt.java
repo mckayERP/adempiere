@@ -14,7 +14,7 @@
  * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
-package org.compiere.install;
+package org.adempiere.configuration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
-
-import javax.swing.JFrame;
 
 import org.compiere.Adempiere;
 import org.compiere.util.CLogMgt;
@@ -88,8 +86,21 @@ public class KeyStoreMgt
 	 * 	@param parent frame
 	 *	@return null or error message
 	 */
-	public String verify (JFrame parent)
+	@Deprecated
+	public String verify (Object parent)
 	{
+		return verify();
+	}
+	
+	/**
+	 * 	Verify/Create Key Store
+	 *	@return null or error message
+	 */
+	public String verify ()
+	{
+		// MckayERP Removed references to parent frame. For proper MVC, KeyStoreMgt cant
+		// refer to a specific interface 
+
 		KeyStore ks = null;
 		try
 		{
@@ -103,7 +114,7 @@ public class KeyStoreMgt
 		//	No KeyStore
 		if (ks == null)
 		{
-			createCertificate(CERTIFICATE_ALIAS, parent);
+			createCertificate(CERTIFICATE_ALIAS);
 			try
 			{
 				ks = getKeyStore();
@@ -208,14 +219,16 @@ public class KeyStoreMgt
 		return cert;
 	}	//	getCertificate
 	
-	
+
 	/**************************************************************************
 	 * 	Create Certificate
-	 *	@param alias alias
 	 * 	@param parent interactive dialog
 	 */
-	private void createCertificate (String alias, JFrame parent)
+	private void createCertificate (String alias)
 	{
+		// mckayERP Removed reference to param JFrame alias. For MVC, KeyStoreMgt cant
+		// refer to a specific interface
+
 		log.info("");
 		try
 		{
@@ -228,7 +241,8 @@ public class KeyStoreMgt
 			log.log(Level.SEVERE, "directory", e);
 		}
 		
-		String dname = getDname(this, parent);
+		// Removed reference to parent
+		String dname = getDname(this);
 		if (dname == null)
 			return;
 		//
@@ -273,13 +287,26 @@ public class KeyStoreMgt
 		country = c;
 	}
 	
+
 	/**
 	 * 	Get Distinguised Name
 	 * 	@param parent interactive dialog
 	 *	@return dname or null
 	 */
-	public static String getDname(KeyStoreMgt mgt, JFrame parent)
+	@Deprecated
+	public static String getDname(KeyStoreMgt mgt, Object panel)
 	{
+		return getDname(mgt);
+	};
+
+	/**
+	 * 	Get Distinguised Name
+	 *	@return dname or null
+	 */
+	public static String getDname(KeyStoreMgt mgt)
+	{
+		// mcKayERP - removed the argurment "KeyStoreDialog parent". For MVC,
+		// the KeyStoreMgt class should not depend on a specific interface
 		String cn = mgt.commonName;
 		if (cn == null)
 		{
@@ -309,19 +336,19 @@ public class KeyStoreMgt
 			? mgt.country
 			: System.getProperty("user.country");
 		//
-		if (parent != null)
-		{
-			KeyStoreDialog skd = new KeyStoreDialog(parent,
-				cn, ou, o, l, s, c);
-			if (!skd.isOK())
-				return null;
-			cn = skd.getCN();
-			ou = skd.getOU();
-			o = skd.getO();
-			l = skd.getL();
-			s = skd.getS();
-			c = skd.getC();
-		}
+//		if (parent != null)
+//		{
+//			KeyStoreDialog skd = new KeyStoreDialog(parent,
+//				cn, ou, o, l, s, c);
+//			if (!skd.isOK())
+//				return null;
+//			cn = skd.getCN();
+//			ou = skd.getOU();
+//			o = skd.getO();
+//			l = skd.getL();
+//			s = skd.getS();
+//			c = skd.getC();
+//		}
 
 		//
 		if (cn == null || cn.length() == 0)
@@ -506,5 +533,59 @@ public class KeyStoreMgt
 		System.out.println(new KeyStoreMgt (
 			"C:/Adempiere/keystore/myKeystore2", "myPassword".toCharArray()).verify(null));
 	}	//	main
+
+	
+	/**
+	 * @return the organizationUnit
+	 */
+	public String getOrganizationUnit() {
+	
+		return organizationUnit;
+	}
+
+	
+	/**
+	 * @return the location
+	 */
+	public String getLocation() {
+	
+		return location;
+	}
+
+	
+	/**
+	 * @return the state
+	 */
+	public String getState() {
+	
+		return state;
+	}
+
+	
+	/**
+	 * @return the country
+	 */
+	public String getCountry() {
+	
+		return country;
+	}
+
+	
+	/**
+	 * @return the commonName
+	 */
+	public String getCommonName() {
+	
+		return commonName;
+	}
+
+	
+	/**
+	 * @return the organization
+	 */
+	public String getOrganization() {
+	
+		return organization;
+	}
 	
 }	//	MyKeyStore

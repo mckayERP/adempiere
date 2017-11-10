@@ -1433,6 +1433,7 @@ public class CConnection implements Serializable, Cloneable
 
 	private InitialContext m_iContext = null;
 	private Hashtable m_env = null;
+	private Context m_context;
 
 	/**
 	 *  Get Application Server Initial Context
@@ -1443,7 +1444,32 @@ public class CConnection implements Serializable, Cloneable
 	{
 		if (useCache && m_iContext != null)
 			return m_iContext;
+		
+		// The application server may provide an initial context directly.  If so,
+		// use it to create the environment.
+		if (canGetInitialContext())
+		{
+			try {
+				m_iContext = new InitialContext();
+				m_context = (Context) m_iContext.lookup("java:/comp/env");
+				m_env = m_context.getEnvironment();
+			} catch (NamingException ex) {
+				m_okApps = false;
+				m_appsException = ex;
+				String connect = "Provider unknown.";
+				if (m_env != null)
+					connect = (String)m_env.get(Context.PROVIDER_URL);
+				log.severe(connect
+					+ "\n - " + ex.toString ()
+					+ "\n - " + m_env
+					+ "\n - " + m_iContext);
+				if (CLogMgt.isLevelFinest())
+					ex.printStackTrace();
+			}
+			return m_iContext;
+		}
 
+		//  If the initial context is not available directly, we have to build it.
 		//	Set Environment
 		if (m_env == null || !useCache)
 		{
@@ -1454,7 +1480,7 @@ public class CConnection implements Serializable, Cloneable
 					principal, credential);
 		}
 		String connect = (String)m_env.get(Context.PROVIDER_URL);
-		Env.setContext(Env.getCtx(), Context.PROVIDER_URL, connect);
+//		Env.setContext(Env.getCtx(), Context.PROVIDER_URL, connect);
 
 		//	Get Context
 		m_iContext = null;
@@ -1476,6 +1502,12 @@ public class CConnection implements Serializable, Cloneable
 		}
 		return m_iContext;
 	}	//	getInitialContext
+
+	private boolean canGetInitialContext() {
+		
+		return ASFactory.getApplicationServer()
+				.canGetInitialContext();
+	}
 
 	/**
 	 * 	Get Initial Environment

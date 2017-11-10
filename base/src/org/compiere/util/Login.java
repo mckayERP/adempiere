@@ -48,6 +48,9 @@ import org.compiere.model.*;
  */
 public class Login
 {
+	
+	private final static String[] ACCEPTABLE_JAVA_VERSIONS = new String[] {"1.7.0", "1.8.0"};
+	public final static String JAVA_VERSION_ERROR = "<> 1.7.0, 1.8.0";
 	/**
 	 *  Test Init - Set Environment for tests
 	 *	@param isClient client session
@@ -101,11 +104,16 @@ public class Login
         //if (jVersion.startsWith("1.6.0"))
 		//	return true;
         //Add ADEMPIERE-86 Add JAVA 7.0 support in ADempiere
-        if (jVersion.startsWith("1.7.0"))
-			return true;
-        //Add ADEMPIERE-86 Add JAVA 8.0 support in ADempiere
-        if (jVersion.startsWith("1.8.0"))
-            return true;
+//        if (jVersion.startsWith("1.7.0"))
+//			return true;
+//        //Add ADEMPIERE-86 Add JAVA 8.0 support in ADempiere
+//        if (jVersion.startsWith("1.8.0"))
+//            return true;
+		for (String version : ACCEPTABLE_JAVA_VERSIONS)
+		{
+			if (jVersion.startsWith(version))
+				return true;
+		}
         //end
 		//  Warning
 		boolean ok = false;
@@ -116,10 +124,11 @@ public class Login
 		//  Error Message
 		StringBuffer msg = new StringBuffer();
 		msg.append(System.getProperty("java.vm.name")).append(" - ").append(jVersion);
-		if (ok)
-			msg.append("(untested)");
+	//	if (ok)
+	//	msg.append("(untested)");
 		//msg.append(" <> 1.5.0, 1.6.0, 1.7.0 1.8.0");
-        msg.append(" <> 1.7.0 , 1.8.0");
+        msg.append(JAVA_VERSION_ERROR);
+        
 		//
 		if (isClient)
 			JOptionPane.showMessageDialog(null, msg.toString(),

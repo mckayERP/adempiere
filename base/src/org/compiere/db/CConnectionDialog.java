@@ -386,6 +386,10 @@ public class CConnectionDialog extends CDialog implements ActionListener
 		if (src == nameField)
 			m_cc.setName(nameField.getText());
 
+		//  port
+		if (src == appsPortField)
+			m_cc.setAppsPort(appsPortField.getText());
+
 		updateInfo();
 	}   //  actionPerformed
 

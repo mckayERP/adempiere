@@ -92,4 +92,10 @@ public class GlassFish implements IApplicationServer {
 		return 3700;
 	}
 
+	@Override
+	public boolean canGetInitialContext() {
+		
+		return false;
+	}
+
 }

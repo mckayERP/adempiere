@@ -68,4 +68,10 @@ public class JBoss implements IApplicationServer {
 	public int getDefaultNamingServicePort() {
 		return 1099;
 	}
+
+	@Override
+	public boolean canGetInitialContext() {
+		
+		return false;
+	}
 }
