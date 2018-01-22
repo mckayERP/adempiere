@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -268,6 +267,36 @@ public interface I_M_Product
 	  */
 	public String getDownloadURL();
 
+    /** Column name FTU_CAWIS_Manufacturer_ID */
+    public static final String COLUMNNAME_FTU_CAWIS_Manufacturer_ID = "FTU_CAWIS_Manufacturer_ID";
+
+	/** Set CAWIS Manufacturer.
+	  * The CAWIS manufacturer
+	  */
+	public void setFTU_CAWIS_Manufacturer_ID (int FTU_CAWIS_Manufacturer_ID);
+
+	/** Get CAWIS Manufacturer.
+	  * The CAWIS manufacturer
+	  */
+	public int getFTU_CAWIS_Manufacturer_ID();
+
+	public com.mckayerp.ftu.model.I_FTU_CAWIS_Manufacturer getFTU_CAWIS_Manufacturer() throws RuntimeException;
+
+    /** Column name FTU_CAWIS_Model_ID */
+    public static final String COLUMNNAME_FTU_CAWIS_Model_ID = "FTU_CAWIS_Model_ID";
+
+	/** Set CAWIS Model.
+	  * The CAWIS Model
+	  */
+	public void setFTU_CAWIS_Model_ID (int FTU_CAWIS_Model_ID);
+
+	/** Get CAWIS Model.
+	  * The CAWIS Model
+	  */
+	public int getFTU_CAWIS_Model_ID();
+
+	public com.mckayerp.ftu.model.I_FTU_CAWIS_Model getFTU_CAWIS_Model() throws RuntimeException;
+
     /** Column name Group1 */
     public static final String COLUMNNAME_Group1 = "Group1";
 
@@ -324,15 +353,6 @@ public interface I_M_Product
 	  * Comment or Hint
 	  */
 	public String getHelp();
-
-    /** Column name ISTOFORMULE */
-    public static final String COLUMNNAME_ISTOFORMULE = "ISTOFORMULE";
-
-	/** Set ISTOFORMULE	  */
-	public void setISTOFORMULE (boolean ISTOFORMULE);
-
-	/** Get ISTOFORMULE	  */
-	public boolean isTOFORMULE();
 
     /** Column name ImageURL */
     public static final String COLUMNNAME_ImageURL = "ImageURL";
@@ -529,6 +549,41 @@ public interface I_M_Product
 	  */
 	public boolean isSummary();
 
+    /** Column name ISTOFORMULE */
+    public static final String COLUMNNAME_ISTOFORMULE = "ISTOFORMULE";
+
+	/** Set ISTOFORMULE	  */
+	public void setISTOFORMULE (boolean ISTOFORMULE);
+
+	/** Get ISTOFORMULE	  */
+	public boolean isTOFORMULE();
+
+    /** Column name IsTrackAsComponent */
+    public static final String COLUMNNAME_IsTrackAsComponent = "IsTrackAsComponent";
+
+	/** Set Track as component.
+	  * Is this product to be tracked as a component?
+	  */
+	public void setIsTrackAsComponent (boolean IsTrackAsComponent);
+
+	/** Get Track as component.
+	  * Is this product to be tracked as a component?
+	  */
+	public boolean isTrackAsComponent();
+
+    /** Column name IsTuitionFee */
+    public static final String COLUMNNAME_IsTuitionFee = "IsTuitionFee";
+
+	/** Set Tuition Revenue.
+	  * Is the revenue from sales of this product part of the student tuition?
+	  */
+	public void setIsTuitionFee (boolean IsTuitionFee);
+
+	/** Get Tuition Revenue.
+	  * Is the revenue from sales of this product part of the student tuition?
+	  */
+	public boolean isTuitionFee();
+
     /** Column name IsVerified */
     public static final String COLUMNNAME_IsVerified = "IsVerified";
 
@@ -568,21 +623,6 @@ public interface I_M_Product
 	  */
 	public int getLowLevel();
 
-    /** Column name M_AttributeSetInstance_ID */
-    public static final String COLUMNNAME_M_AttributeSetInstance_ID = "M_AttributeSetInstance_ID";
-
-	/** Set Attribute Set Instance.
-	  * Product Attribute Set Instance
-	  */
-	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID);
-
-	/** Get Attribute Set Instance.
-	  * Product Attribute Set Instance
-	  */
-	public int getM_AttributeSetInstance_ID();
-
-	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
-
     /** Column name M_AttributeSet_ID */
     public static final String COLUMNNAME_M_AttributeSet_ID = "M_AttributeSet_ID";
 
@@ -597,6 +637,21 @@ public interface I_M_Product
 	public int getM_AttributeSet_ID();
 
 	public org.compiere.model.I_M_AttributeSet getM_AttributeSet() throws RuntimeException;
+
+    /** Column name M_AttributeSetInstance_ID */
+    public static final String COLUMNNAME_M_AttributeSetInstance_ID = "M_AttributeSetInstance_ID";
+
+	/** Set Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID);
+
+	/** Get Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public int getM_AttributeSetInstance_ID();
+
+	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
 
     /** Column name M_FreightCategory_ID */
     public static final String COLUMNNAME_M_FreightCategory_ID = "M_FreightCategory_ID";
@@ -762,19 +817,6 @@ public interface I_M_Product
 
 	public org.compiere.model.I_R_MailText getR_MailText() throws RuntimeException;
 
-    /** Column name SKU */
-    public static final String COLUMNNAME_SKU = "SKU";
-
-	/** Set SKU.
-	  * Stock Keeping Unit
-	  */
-	public void setSKU (String SKU);
-
-	/** Get SKU.
-	  * Stock Keeping Unit
-	  */
-	public String getSKU();
-
     /** Column name S_ExpenseType_ID */
     public static final String COLUMNNAME_S_ExpenseType_ID = "S_ExpenseType_ID";
 
@@ -859,18 +901,18 @@ public interface I_M_Product
 	  */
 	public int getShelfWidth();
 
-    /** Column name UPC */
-    public static final String COLUMNNAME_UPC = "UPC";
+    /** Column name SKU */
+    public static final String COLUMNNAME_SKU = "SKU";
 
-	/** Set UPC/EAN.
-	  * Bar Code (Universal Product Code or its superset European Article Number)
+	/** Set SKU.
+	  * Stock Keeping Unit
 	  */
-	public void setUPC (String UPC);
+	public void setSKU (String SKU);
 
-	/** Get UPC/EAN.
-	  * Bar Code (Universal Product Code or its superset European Article Number)
+	/** Get SKU.
+	  * Stock Keeping Unit
 	  */
-	public String getUPC();
+	public String getSKU();
 
     /** Column name UnitsPerPack */
     public static final String COLUMNNAME_UnitsPerPack = "UnitsPerPack";
@@ -897,6 +939,19 @@ public interface I_M_Product
 	  * Units Per Pallet
 	  */
 	public BigDecimal getUnitsPerPallet();
+
+    /** Column name UPC */
+    public static final String COLUMNNAME_UPC = "UPC";
+
+	/** Set UPC/EAN.
+	  * Bar Code (Universal Product Code or its superset European Article Number)
+	  */
+	public void setUPC (String UPC);
+
+	/** Get UPC/EAN.
+	  * Bar Code (Universal Product Code or its superset European Article Number)
+	  */
+	public String getUPC();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

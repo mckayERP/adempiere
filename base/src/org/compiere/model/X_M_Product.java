@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20170412L;
 
     /** Standard Constructor */
     public X_M_Product (Properties ctx, int M_Product_ID, String trxName)
@@ -69,7 +68,6 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 			setIsWebStoreFeatured (false);
 			setLowLevel (0);
 // 0
-			setM_AttributeSetInstance_ID (0);
 			setM_Product_Category_ID (0);
 			setM_Product_ID (0);
 			setName (null);
@@ -398,6 +396,62 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return (String)get_Value(COLUMNNAME_DownloadURL);
 	}
 
+	public com.mckayerp.ftu.model.I_FTU_CAWIS_Manufacturer getFTU_CAWIS_Manufacturer() throws RuntimeException
+    {
+		return (com.mckayerp.ftu.model.I_FTU_CAWIS_Manufacturer)MTable.get(getCtx(), com.mckayerp.ftu.model.I_FTU_CAWIS_Manufacturer.Table_Name)
+			.getPO(getFTU_CAWIS_Manufacturer_ID(), get_TrxName());	}
+
+	/** Set CAWIS Manufacturer.
+		@param FTU_CAWIS_Manufacturer_ID 
+		The CAWIS manufacturer
+	  */
+	public void setFTU_CAWIS_Manufacturer_ID (int FTU_CAWIS_Manufacturer_ID)
+	{
+		if (FTU_CAWIS_Manufacturer_ID < 1) 
+			set_Value (COLUMNNAME_FTU_CAWIS_Manufacturer_ID, null);
+		else 
+			set_Value (COLUMNNAME_FTU_CAWIS_Manufacturer_ID, Integer.valueOf(FTU_CAWIS_Manufacturer_ID));
+	}
+
+	/** Get CAWIS Manufacturer.
+		@return The CAWIS manufacturer
+	  */
+	public int getFTU_CAWIS_Manufacturer_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_CAWIS_Manufacturer_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public com.mckayerp.ftu.model.I_FTU_CAWIS_Model getFTU_CAWIS_Model() throws RuntimeException
+    {
+		return (com.mckayerp.ftu.model.I_FTU_CAWIS_Model)MTable.get(getCtx(), com.mckayerp.ftu.model.I_FTU_CAWIS_Model.Table_Name)
+			.getPO(getFTU_CAWIS_Model_ID(), get_TrxName());	}
+
+	/** Set CAWIS Model.
+		@param FTU_CAWIS_Model_ID 
+		The CAWIS Model
+	  */
+	public void setFTU_CAWIS_Model_ID (int FTU_CAWIS_Model_ID)
+	{
+		if (FTU_CAWIS_Model_ID < 1) 
+			set_Value (COLUMNNAME_FTU_CAWIS_Model_ID, null);
+		else 
+			set_Value (COLUMNNAME_FTU_CAWIS_Model_ID, Integer.valueOf(FTU_CAWIS_Model_ID));
+	}
+
+	/** Get CAWIS Model.
+		@return The CAWIS Model
+	  */
+	public int getFTU_CAWIS_Model_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_CAWIS_Model_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Group1.
 		@param Group1 Group1	  */
 	public void setGroup1 (String Group1)
@@ -481,27 +535,6 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 	public String getHelp () 
 	{
 		return (String)get_Value(COLUMNNAME_Help);
-	}
-
-	/** Set ISTOFORMULE.
-		@param ISTOFORMULE ISTOFORMULE	  */
-	public void setISTOFORMULE (boolean ISTOFORMULE)
-	{
-		set_Value (COLUMNNAME_ISTOFORMULE, Boolean.valueOf(ISTOFORMULE));
-	}
-
-	/** Get ISTOFORMULE.
-		@return ISTOFORMULE	  */
-	public boolean isTOFORMULE () 
-	{
-		Object oo = get_Value(COLUMNNAME_ISTOFORMULE);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
 	}
 
 	/** Set Image URL.
@@ -833,6 +866,75 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return false;
 	}
 
+	/** Set ISTOFORMULE.
+		@param ISTOFORMULE ISTOFORMULE	  */
+	public void setISTOFORMULE (boolean ISTOFORMULE)
+	{
+		set_Value (COLUMNNAME_ISTOFORMULE, Boolean.valueOf(ISTOFORMULE));
+	}
+
+	/** Get ISTOFORMULE.
+		@return ISTOFORMULE	  */
+	public boolean isTOFORMULE () 
+	{
+		Object oo = get_Value(COLUMNNAME_ISTOFORMULE);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Track as component.
+		@param IsTrackAsComponent 
+		Is this product to be tracked as a component?
+	  */
+	public void setIsTrackAsComponent (boolean IsTrackAsComponent)
+	{
+		set_Value (COLUMNNAME_IsTrackAsComponent, Boolean.valueOf(IsTrackAsComponent));
+	}
+
+	/** Get Track as component.
+		@return Is this product to be tracked as a component?
+	  */
+	public boolean isTrackAsComponent () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsTrackAsComponent);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Tuition Revenue.
+		@param IsTuitionFee 
+		Is the revenue from sales of this product part of the student tuition?
+	  */
+	public void setIsTuitionFee (boolean IsTuitionFee)
+	{
+		set_Value (COLUMNNAME_IsTuitionFee, Boolean.valueOf(IsTuitionFee));
+	}
+
+	/** Get Tuition Revenue.
+		@return Is the revenue from sales of this product part of the student tuition?
+	  */
+	public boolean isTuitionFee () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsTuitionFee);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Verified.
 		@param IsVerified 
 		The BOM configuration has been verified
@@ -901,34 +1003,6 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return ii.intValue();
 	}
 
-	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException
-    {
-		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
-			.getPO(getM_AttributeSetInstance_ID(), get_TrxName());	}
-
-	/** Set Attribute Set Instance.
-		@param M_AttributeSetInstance_ID 
-		Product Attribute Set Instance
-	  */
-	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
-	{
-		if (M_AttributeSetInstance_ID < 0) 
-			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
-	}
-
-	/** Get Attribute Set Instance.
-		@return Product Attribute Set Instance
-	  */
-	public int getM_AttributeSetInstance_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstance_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_M_AttributeSet getM_AttributeSet() throws RuntimeException
     {
 		return (org.compiere.model.I_M_AttributeSet)MTable.get(getCtx(), org.compiere.model.I_M_AttributeSet.Table_Name)
@@ -952,6 +1026,34 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 	public int getM_AttributeSet_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSet_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException
+    {
+		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
+			.getPO(getM_AttributeSetInstance_ID(), get_TrxName());	}
+
+	/** Set Attribute Set Instance.
+		@param M_AttributeSetInstance_ID 
+		Product Attribute Set Instance
+	  */
+	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
+	{
+		if (M_AttributeSetInstance_ID < 0) 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
+	}
+
+	/** Get Attribute Set Instance.
+		@return Product Attribute Set Instance
+	  */
+	public int getM_AttributeSetInstance_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstance_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -1269,23 +1371,6 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set SKU.
-		@param SKU 
-		Stock Keeping Unit
-	  */
-	public void setSKU (String SKU)
-	{
-		set_Value (COLUMNNAME_SKU, SKU);
-	}
-
-	/** Get SKU.
-		@return Stock Keeping Unit
-	  */
-	public String getSKU () 
-	{
-		return (String)get_Value(COLUMNNAME_SKU);
-	}
-
 	public org.compiere.model.I_S_ExpenseType getS_ExpenseType() throws RuntimeException
     {
 		return (org.compiere.model.I_S_ExpenseType)MTable.get(getCtx(), org.compiere.model.I_S_ExpenseType.Table_Name)
@@ -1430,21 +1515,21 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set UPC/EAN.
-		@param UPC 
-		Bar Code (Universal Product Code or its superset European Article Number)
+	/** Set SKU.
+		@param SKU 
+		Stock Keeping Unit
 	  */
-	public void setUPC (String UPC)
+	public void setSKU (String SKU)
 	{
-		set_Value (COLUMNNAME_UPC, UPC);
+		set_Value (COLUMNNAME_SKU, SKU);
 	}
 
-	/** Get UPC/EAN.
-		@return Bar Code (Universal Product Code or its superset European Article Number)
+	/** Get SKU.
+		@return Stock Keeping Unit
 	  */
-	public String getUPC () 
+	public String getSKU () 
 	{
-		return (String)get_Value(COLUMNNAME_UPC);
+		return (String)get_Value(COLUMNNAME_SKU);
 	}
 
 	/** Set UnitsPerPack.
@@ -1485,6 +1570,23 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set UPC/EAN.
+		@param UPC 
+		Bar Code (Universal Product Code or its superset European Article Number)
+	  */
+	public void setUPC (String UPC)
+	{
+		set_Value (COLUMNNAME_UPC, UPC);
+	}
+
+	/** Get UPC/EAN.
+		@return Bar Code (Universal Product Code or its superset European Article Number)
+	  */
+	public String getUPC () 
+	{
+		return (String)get_Value(COLUMNNAME_UPC);
 	}
 
 	/** Set Search Key.
