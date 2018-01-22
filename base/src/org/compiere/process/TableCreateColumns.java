@@ -123,6 +123,7 @@ public class TableCreateColumns extends SvrProcess
 				try {
 					conn.close();
 				} catch (Exception e) {}
+				conn = null;
 			}
 		}
 	}	//	doIt
