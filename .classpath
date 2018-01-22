@@ -34,6 +34,8 @@
 	<classpathentry kind="src" path="com.kkalice.adempiere.migrate/src"/>
 	<classpathentry kind="src" path="org.adempiere.test/src/test/scala"/>
 	<classpathentry kind="src" path="org.adempiere.test/src/main/scala"/>
+	<classpathentry kind="src" path="org.adempiere.test/src/main/client"/>
+	<classpathentry kind="src" path="org.adempiere.test/src/main/process"/>
 	<classpathentry exported="true" kind="lib" path="tools/lib/jstl.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
@@ -105,11 +107,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="tools/lib/commons-logging.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="tools/lib/commons-net-1.4.0.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
@@ -151,11 +148,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="tools/lib/xjavadoc-1.1.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="tools/lib/xml-apis.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
@@ -233,7 +225,6 @@
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/zul.jar" sourcepath="zkwebui/WEB-INF/lib/zul-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/commons-el.jar"/>
-	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/commons-io.jar"/>
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/fckez.jar"/>
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/Filters.jar"/>
 	<classpathentry exported="true" kind="lib" path="zkwebui/WEB-INF/lib/gmapsz.jar"/>
@@ -344,7 +335,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="tools/lib/OpenForecast-0.5.0.jar"/>
 	<classpathentry kind="lib" path="packages/liberoWM.jar"/>
-	<classpathentry kind="lib" path="tools/lib/commons-io.jar"/>
 	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xfire-all-1.2.6.jar"/>
 	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xbean.jar"/>
 	<classpathentry kind="lib" path="org.adempiere.webservice/WEB-INF/lib/xbean-spring-2.8.jar"/>
@@ -355,10 +345,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SBT: org.scala-lang:scala-library:2.11.7:jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SBT: javax.servlet:javax.servlet-api:3.0.1:jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SBT: org.scalatest:scalatest_2.11:2.2.4:jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_60">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="tools/lib/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="tools/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="tools/lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="zkwebui/WEB-INF/lib/commons-io-2.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

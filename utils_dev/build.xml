@@ -42,7 +42,13 @@
 	</target>
 	<target name="build" depends="jar">
 		<ant inheritAll="false" dir="install"/>		
-	</target>	
+	</target>
+	<target name="copy" depends="">
+	      <echo message="=========== Update Adempiere"/>
+	        <copy todir="${env.ADEMPIERE_INSTALL}">
+	            <fileset dir="install/build" includes="Adempiere_*"/>
+	        </copy>
+    </target>
 	<target name="clean">
 		<ant inheritAll="false" dir="tools" target="clean"/>
 		<ant inheritAll="false" dir="base" target="clean"/>
@@ -87,11 +93,7 @@
 	<!-- ================================================ -->
 	<!-- Adempiere Local Install                           -->
 	<!-- ================================================ -->
-	<target name="install" depends="" description="Environment dependent">
-		<echo message="=========== Install Adempiere"/>
-		<copy todir="${env.ADEMPIERE_INSTALL}" verbose="true">
-			<fileset dir="install/build" includes="Adempiere_*"/>
-		</copy>
+	<target name="install" depends="copy" description="Environment dependent">
 		<!-- Delete Existing stuff, but not utils + data 	-->
 		<delete failonerror="false" includeEmptyDirs="true">
 			<fileset dir="${env.ADEMPIERE_HOME}/migration" includes="**/*" />
@@ -115,11 +117,7 @@
 	<!-- ================================================ -->
 	<!-- Adempiere Local Update                           -->
 	<!-- ================================================ -->
-	<target name="updateDeploy" depends="" description="Environment dependent">
-		<echo message="=========== Update Adempiere"/>
-		<copy todir="${env.ADEMPIERE_INSTALL}">
-			<fileset dir="install/build" includes="Adempiere_*"/>
-		</copy>
+	<target name="updateDeploy" depends="copy" description="Environment dependent">
 		<!-- Delete Existing stuff, but not utils + data 	-->
 		<delete failonerror="false" includeEmptyDirs="true">
 			<fileset dir="${env.ADEMPIERE_HOME}/migration" includes="**/*" />

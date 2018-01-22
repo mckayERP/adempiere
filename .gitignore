@@ -40,3 +40,4 @@ migration/postgresql.properties
 ._*
 install/patch/
 /test.properties
+*.orig
