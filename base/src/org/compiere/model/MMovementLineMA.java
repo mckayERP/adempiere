@@ -165,7 +165,8 @@ public class MMovementLineMA extends X_M_MovementLineMA implements IInventoryAll
 	{
 		StringBuffer sb = new StringBuffer ("MMovementLineMA[");
 		sb.append("M_MovementLine_ID=").append(getM_MovementLine_ID())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
+			.append(", Movement Type=").append(getMovementType())
 			.append(", Qty=").append(getMovementQty())
 			.append ("]");
 		return sb.toString ();
