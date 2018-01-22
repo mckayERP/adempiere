@@ -1240,6 +1240,9 @@ public class MOrder extends X_C_Order implements DocAction
 			m_processMsg = "Cannot reserve Stock";
 			return DocAction.STATUS_Invalid;
 		}
+		
+		// This will create the correct tax, but any changes to 
+		// order lines will invalidate it.
 		if (!calculateTaxTotal())
 		{
 			m_processMsg = "Error calculating tax";
@@ -1717,6 +1720,15 @@ public class MOrder extends X_C_Order implements DocAction
 		MOrder counter = createCounterDoc();
 		if (counter != null)
 			info.append(" - @CounterDoc@: @Order@=").append(counter.getDocumentNo());
+		
+		// Finally, update the tax.  This will create the correct tax.
+		//  Any changes to the order lines will invalidate it.
+		if (!calculateTaxTotal())
+		{
+			m_processMsg = "Error calculating tax";
+			return DocAction.STATUS_Invalid;
+		}
+
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)

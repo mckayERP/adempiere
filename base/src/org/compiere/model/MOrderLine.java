@@ -986,7 +986,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 				if (!updateOrderTax(true))
 					return false;
 		}
-		return updateHeaderTax();
+		return updateHeaderTax(newRecord, success);
 	}	//	afterSave
 
 	/**
@@ -1004,7 +1004,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 			ra.delete(true);
 		}
 		
-		return updateHeaderTax();
+		return updateHeaderTax(false, success);
 	}	//	afterDelete
 	
 	/**
@@ -1033,12 +1033,16 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	
 	/**
 	 *	Update Tax & Header
+	 * @param success 
+	 * @param newRecord 
 	 *	@return true if header updated
 	 */
-	private boolean updateHeaderTax()
+	private boolean updateHeaderTax(boolean newRecord, boolean success)
 	{
+		log.fine("");
+		
 		//	Recalculate Tax for this Tax
-		if (!getParent().isProcessed())
+		if (!getParent().isProcessed()  && newRecord )
 			if (!updateOrderTax(false))
 				return false;
 		
