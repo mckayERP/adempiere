@@ -155,7 +155,7 @@ public class DataEngine
 			p_AD_ReportView_ID = format.getAD_ReportView_ID();
 		}
 		//	
-		if (p_AD_ReportView_ID != 0)
+		if (p_AD_ReportView_ID > 0)  // mckayERP != 0 allows the "null" value of -1 which causes an error.
 		{
 			String sql = "SELECT t.AD_Table_ID, t.TableName, rv.Name, rv.WhereClause "
 				+ "FROM AD_Table t"
