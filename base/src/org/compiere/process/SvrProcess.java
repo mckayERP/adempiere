@@ -38,6 +38,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
+import org.compiere.util.Util;
 
 /**
  *  Server Process Template
@@ -188,7 +189,7 @@ public abstract class SvrProcess implements ProcessCall
 			success = false;
 		
 		//	Parse Variables
-		msg = Msg.parseTranslation(ctx, msg);
+		msg = Util.cleanAmp(Msg.parseTranslation(ctx, msg));
 		processInfo.setSummary (msg, !success);
 		
 		return success;
