@@ -794,8 +794,12 @@ public abstract class PO
 				m_newValues[index] = new Integer (((BigDecimal)value).intValue());
 			//	Set Boolean
 			else if (p_info.getColumnClass(index) == Boolean.class
-				&& ("Y".equals(value) || "N".equals(value)) )
+				&& ("Y".equals(value) || "N".equals(value)) || value == null)  
+			{
+				// If YN fields are added to an existing table, the default null should be 
+				// read as 'N'
 				m_newValues[index] = new Boolean("Y".equals(value));
+			}
 			// added by vpj-cd
 			// To solve BUG [ 1618423 ] Set Project Type button in Project window throws warning
 			// generated because C_Project.C_Project_Type_ID is defined as button in dictionary
@@ -1450,8 +1454,8 @@ public abstract class PO
 					m_oldValues[index] = decrypt(index, rs.getString(columnName));
 				else
 					m_oldValues[index] = loadSpecial(rs, index);
-				//	NULL
-				if (rs.wasNull() && m_oldValues[index] != null)
+				//	NULL - except boolean - null == "N" or false
+				if (rs.wasNull() && clazz != Boolean.class && m_oldValues[index] != null)
 					m_oldValues[index] = null;
 				//
 				if (CLogMgt.isLevelAll())
