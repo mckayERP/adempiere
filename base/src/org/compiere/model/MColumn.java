@@ -868,6 +868,7 @@ public class MColumn extends X_AD_Column
 		//	Find Column in Database
 		Connection conn = null;
 		ResultSet rs= null;
+		String trxName = null;
 		try {
 			// This will not see tables or columns added in the current transaction.
 			conn = DB.getConnectionRO();
@@ -947,7 +948,7 @@ public class MColumn extends X_AD_Column
 			if ( sql == null )
 				return "No sql. No changes made.";
 
-			String trxName = get_TrxName();
+			trxName = get_TrxName();
 			if (!isDirectLoad())
 				trxName = Trx.createTrxName("SyncColumn");
 			
@@ -997,6 +998,7 @@ public class MColumn extends X_AD_Column
 				try {
 					conn.close();
 				} catch (Exception e) {}
+				conn = null;
 			}
 		}
 	}

@@ -899,6 +899,7 @@ public class MTable extends X_AD_Table
 				try {
 					conn.close();
 				} catch (Exception e) {}
+				conn = null;
 			}
 		}
 
@@ -1085,6 +1086,7 @@ public class MTable extends X_AD_Table
 				try {
 					conn.close();
 				} catch (Exception e) {}
+				conn = null;
 			}
 		}
 	}
