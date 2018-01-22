@@ -123,7 +123,7 @@ public class StorageCleanup extends SvrProcess
 		// Get all the order lines that have zero MPolicyTicket and set the storage qtyReserved
 		sql = "SELECT ol.* FROM C_OrderLine ol "
 				+ " JOIN M_Product p ON (p.M_Product_ID = ol.M_Product_ID AND p.isStocked='Y')"
-				+ " JOIN C_Order o ON (o.C_Order_ID=ol.C_Order_ID AND o.docstatus in ('IP','CO'))"
+				+ " JOIN C_Order o ON (o.C_Order_ID=ol.C_Order_ID AND o.docstatus in ('IN','IP','CO'))"
 				+ " WHERE o.AD_Client_ID = " + Env.getAD_Client_ID(getCtx())
 				+ "	AND ABS(ol.QtyDelivered) < ABS(ol.QtyOrdered)"
 				+ " 	AND COALESCE(M_MPolicyTicket_ID,0)=0";
@@ -404,7 +404,7 @@ public class StorageCleanup extends SvrProcess
 					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_GuaranteeDate + " is null"
 					+ " AND asi." + MAttributeSetInstance.COLUMNNAME_SerNo + " is null)";
 			no = DB.executeUpdate(sql, get_TrxName());
-			log.info(table.getTableName() + ": Set ASI values to zero where there were no Attribute values #" + no);	
+			log.info(table.getTableName() + ": Set ASI values to zero where there were no Attribute values and no Lot/Date/Serial No #" + no);	
 		
 			// If the table has a product
 			where = "AD_Table_ID=" + table.getAD_Table_ID() + " AND "
@@ -504,8 +504,8 @@ public class StorageCleanup extends SvrProcess
 		// Find the negative entries
 		for (MStorage storage : storages) 
 		{
-			// Ignore positive entries
-			if (storage.getQtyOnHand().signum() >= 0)
+			// Ignore positive and zero entries
+			if (storage.getQtyOnHand().signum() > 0)
 				continue;
 			
 			qtyRequired = qtyRequired.subtract(storage.getQtyOnHand());
@@ -543,7 +543,7 @@ public class StorageCleanup extends SvrProcess
 		BigDecimal qtyMoved = Env.ZERO;
 		BigDecimal qtyMovedTotal = Env.ZERO;
 
-		if (sources.length == 0)
+		if (sources.length == 0 || qtyToMove.compareTo(Env.ZERO) == 0)
 			return Env.ZERO;
 
 		//	Create Movement
@@ -558,7 +558,10 @@ public class StorageCleanup extends SvrProcess
 		
 		int lines = 0;
 		for (MStorage source : sources)
-		{			
+		{	
+			if (source.getQtyOnHand().compareTo(Env.ZERO) == 0)
+				continue;
+			
 			//	Movement Line
 			MMovementLine ml = new MMovementLine(mMovement);
 			ml.setM_Product_ID(m_product_id);
