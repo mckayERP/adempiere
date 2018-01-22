@@ -21,6 +21,8 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.compiere.process.ProcessInfo;
+import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
 
@@ -65,6 +67,8 @@ public class MMailText extends X_R_MailText
 	private MBPartner	m_bpartner = null;
 	/** Parse PO			*/
 	private PO			m_po = null;
+	/** Parse process info	*/
+	private ProcessInfo m_pi = null;
 	/** Translated Header	*/
 	private String		m_MailHeader = null;
 	/** Translated Text		*/
@@ -160,9 +164,56 @@ public class MMailText extends X_R_MailText
 		//	Parse PO
 		text = parse (text, m_po);
 		//
+		text = parse (text, m_pi);
+		
 		return text;
 	}	//	parse
 	
+	private String parse(String text, ProcessInfo pi) {
+		if (pi == null || text.indexOf('@') == -1)
+			return text;
+		
+		String inStr = text;
+		String token;
+		StringBuffer outStr = new StringBuffer();
+
+		int i = inStr.indexOf('@');
+		while (i != -1)
+		{
+			outStr.append(inStr.substring(0, i));			// up to @
+			inStr = inStr.substring(i+1, inStr.length());	// from first @
+
+			int j = inStr.indexOf('@');						// next @
+			if (j < 0)										// no second tag
+			{
+				inStr = "@" + inStr;
+				break;
+			}
+
+			token = inStr.substring(0, j);
+			outStr.append(parseParameter(token, pi));		// replace context
+
+			inStr = inStr.substring(j+1, inStr.length());	// from second @
+			i = inStr.indexOf('@');
+		}
+
+		outStr.append(inStr);           					//	add remainder
+		return outStr.toString();
+	}
+
+	private String parseParameter(String token, ProcessInfo pi) {
+		
+		ProcessInfoParameter[] parameters = pi.getParameter();
+		for (ProcessInfoParameter parameter : parameters)
+		{
+			if(parameter.getParameterName().equals(token))
+			{
+				return parameter.getParameterAsString();
+			}
+		}
+		return "@" + token + "@";
+	}
+
 	/**
 	 * 	Parse text
 	 *	@param text text
@@ -374,6 +425,14 @@ public class MMailText extends X_R_MailText
 		return trl;
 	}	//	getTranslation
 	
+	public ProcessInfo getProcessInfo() {
+		return m_pi;
+	}
+
+	public void setProcessInfo(ProcessInfo pi) {
+		this.m_pi = pi;
+	}
+
 	/**
 	 *	MailText Translation VO
 	 */
