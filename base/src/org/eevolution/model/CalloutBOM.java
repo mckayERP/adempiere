@@ -71,7 +71,8 @@ public class CalloutBOM extends CalloutEngine
 		bomLine.setDescription(product.getDescription());
 		bomLine.setHelp(product.getHelp());
 		bomLine.setC_UOM_ID(product.getC_UOM_ID());
-		bomLine.setM_AttributeSetInstance_ID(product.getEnvAttributeSetInstance(ctx,WindowNo) == null ? 0 : product.getEnvAttributeSetInstance(ctx,WindowNo) );
+//		bomLine.setM_AttributeSetInstance_ID(product.getEnvAttributeSetInstance(ctx,WindowNo) == null ? 0 : product.getEnvAttributeSetInstance(ctx,WindowNo) );
+		bomLine.setM_AttributeSetInstance_ID(product.getEnvAttributeSetInstance(ctx,WindowNo,mTab.getField("M_AttributeSetInstance_ID").getAD_Column_ID()));
 		return "";
 	}
         
@@ -131,8 +132,7 @@ public class CalloutBOM extends CalloutEngine
         bom.setDescription(product.getDescription());
         bom.setHelp(product.getHelp());
         bom.setC_UOM_ID(product.getC_UOM_ID());
-		if (product.getEnvAttributeSetInstance(ctx,WindowNo) != null)
-			bom.setM_AttributeSetInstance_ID(product.getEnvAttributeSetInstance(ctx,WindowNo));
+		bom.setM_AttributeSetInstance_ID(product.getEnvAttributeSetInstance(ctx,WindowNo,mTab.getField("M_AttributeSetInstance_ID").getAD_Column_ID()));
         
 		return "";
 	}	//	getdefaults
