@@ -113,7 +113,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 		
 		if (gridField != null && gridField.isAutocomplete()
 				&& m_lookup instanceof MLookup
-				&& m_lookup.getDisplayType() == DisplayType.Search)
+				&& DisplayType.isLookup(m_lookup.getDisplayType()))
 		{
 			autoComplete = new WSearchEditorAutoComplete(this, (MLookup)m_lookup);
 		}
