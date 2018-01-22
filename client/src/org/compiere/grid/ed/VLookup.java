@@ -1019,7 +1019,7 @@ public class VLookup extends JComponent
 				}
 				// multipleSelection assumed false for custom info windows
 				Info ig = factory.create (frame, true, m_lookup.getWindowNo(),
-					m_tableName, m_keyColumnName, record_id, queryValue, multipleSelection, whereClause);
+					m_tableName, m_keyColumnName, record_id, queryValue, multipleSelection, true, whereClause);
 				ig.setVisible(true);
 				cancelled = ig.isCancelled();
 				result = ig.getSelectedKeys();
@@ -1731,11 +1731,11 @@ public class VLookup extends JComponent
 			return;
 
 		//avoid repeated query
-		if (m_lookup.isValidated() && m_lookup.isLoaded())
-		{
-			m_haveFocus = true;
-			return;
-		}
+//		if (m_lookup.isValidated() && m_lookup.isLoaded())
+//		{
+//			m_haveFocus = true;
+//			return;
+//		}
 		//
 		m_haveFocus = true;     //  prevents calling focus gained twice
 		m_settingFocus = true;  //  prevents actionPerformed

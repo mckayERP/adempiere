@@ -129,7 +129,7 @@ public abstract class Info extends CDialog
 	 *  @return special or general Info Window
 	 */
 	@Deprecated
-	public static Info create (Frame frame, boolean modal, int WindowNo,
+	public Info create (Frame frame, boolean modal, int WindowNo,
 		String tableName, String keyColumn, String value,
 		boolean multiSelection, String whereClause)	
 	{
