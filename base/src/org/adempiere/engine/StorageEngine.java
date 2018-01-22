@@ -105,9 +105,9 @@ public class StorageEngine
 			boolean updateStorage
 		)
 	{	
-
-		if (movementQty.equals(Env.ZERO))
-			return; // Nothing to do
+		// Orders have zero movement qty but still need to be processed.
+		//if (movementQty.equals(Env.ZERO)) 
+		//	return; // Nothing to do
 		
 		MProduct product = MProduct.get(docLine.getCtx(), docLine.getM_Product_ID());
 		if (product == null || !product.isStocked())
@@ -501,13 +501,27 @@ public class StorageEngine
 		final String tableName = getTableNameMA(model);
 		final String trxName = model.get_TrxName();
 		
-		IInventoryAllocation ma = (IInventoryAllocation)MTable.get(ctx, tableName).getPO(0, trxName);
-		ma.setAD_Org_ID(model.getAD_Org_ID());
-		setReferenceLine_ID((PO)ma, model);
-		ma.setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
-		ma.setMovementType(movementType);
-		ma.setMovementQty(MovementQty);
-		ma.setUseToFields(useToFields);
+		// Check if the line_id and ticket are used in this MA.  In which case, add the movement qty.
+		IInventoryAllocation ma = new Query(ctx, tableName, getWhereClause(model), trxName)
+									.setClient_ID()
+									.setParameters(model.get_ID(), M_MPolicyTicket_ID)
+									.firstOnly();
+		
+		// If not found, create a new one.
+		if (ma==null)
+		{
+			ma = (IInventoryAllocation)MTable.get(ctx, tableName).getPO(0, trxName);
+			ma.setAD_Org_ID(model.getAD_Org_ID());
+			setReferenceLine_ID((PO)ma, model);
+			ma.setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
+			ma.setMovementType(movementType);
+			ma.setMovementQty(MovementQty);
+			ma.setUseToFields(useToFields);
+		}
+		else
+		{
+			ma.setMovementQty(ma.getMovementQty().add(MovementQty));
+		}
 		
 		saveMA(ma);
 		log.fine("##: " + ma);
@@ -549,7 +563,16 @@ public class StorageEngine
 		model.set_ValueOfColumn(refColumnName, ref.get_ID());
 		
 	}
+
+	private static String getWhereClause(IDocumentLine ref)
+	{
 		
+		String refColumnName = ref.get_TableName()+"_ID";
+		
+		return refColumnName + "=? AND M_MPolicyTicket_ID=?";  
+		
+	}
+
 	/**
 	 * 	Set (default) Locator based on qty.
 	 * 	@param Qty quantity
