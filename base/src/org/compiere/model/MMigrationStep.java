@@ -361,6 +361,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 			         } catch (SQLException se) {
 			             ;  // all out of luck
 			         }
+			         conn = null;
 		         }
 		         saveEx();
 		     }
@@ -774,7 +775,7 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		return "successfully rolled back";
 	}
 	
-	private void getData() {
+	public List<MMigrationData> getData() {
 		String where = "AD_MigrationStep_ID = " + getAD_MigrationStep_ID();
 		m_migrationData = MTable.get(getCtx(), MMigrationData.Table_ID)
 		.createQuery(where, null)  // null trx to not lock the table
@@ -782,9 +783,10 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		.list();
 		if (m_migrationData.size() == 0)
 			log.fine("No migration data for step: " + toString());
+		return m_migrationData;
 	}
 	
-	private List<MMigrationData> getKeyData() {
+	public List<MMigrationData> getKeyData() {
 		String where = "AD_MigrationStep_ID = " + getAD_MigrationStep_ID();
 		where += " AND EXISTS (SELECT 1 FROM AD_Column c " +
 				" WHERE c.AD_Column_ID = AD_MigrationData.AD_Column_ID" +

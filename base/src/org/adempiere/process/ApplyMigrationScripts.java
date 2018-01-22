@@ -141,10 +141,11 @@ public class ApplyMigrationScripts extends SvrProcess {
 				if (statementReady) {
 					if (sqlBuf.length() == 0)
 						continue;
-					Connection conn = DB.getConnectionRW();
-					conn.setAutoCommit(false);
 					Statement stmt = null;
+					Connection conn = null;
 					try {
+						conn = DB.getConnectionRW();
+						conn.setAutoCommit(false);
 						stmt = conn.createStatement();
 						stmt.execute(sqlBuf.toString());
 						System.out.print(".");
@@ -156,12 +157,19 @@ public class ApplyMigrationScripts extends SvrProcess {
 						log.severe(e.getMessage());
 					} finally {
 						stmt.close();
-						if(execOk)
-							conn.commit();
-						else
-							conn.rollback();
-						conn.setAutoCommit(true);
-						conn.close();
+				        if (conn!= null) {
+				        	try {
+				        		if(execOk)
+									conn.commit();
+								else
+									conn.rollback();
+								conn.setAutoCommit(true);
+								conn.close();
+					        } catch (SQLException se) {
+					             ;  // all out of luck
+					        }
+					        conn = null;
+				         }
 						if(!execOk)
 							return false;
 					}

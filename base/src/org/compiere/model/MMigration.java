@@ -261,7 +261,16 @@ public class MMigration extends X_AD_Migration {
 		log.log(Level.CONFIG, this.toString() + " ---> " + status + " (" + getStatusCode() + ")");
 	}
 	
-	private int[] getStepIds(boolean all, boolean rollback) {
+	/**
+	 * Returns an array of IDs of the associated steps for this migration.  
+	 * @param all if set to false, will return a subset based on the rollback parameter.
+	 * Otherwise, all steps will be returned.
+	 * @param rollback if true will return the applied steps, if false will return the 
+	 * unapplied steps. The order of the array will be by Sequence Number descending if 
+	 * rollback is true and ascending if false.
+	 * @return An int array of the step IDs 
+	 */
+	public int[] getStepIds(boolean all, boolean rollback) {
 		String where = "AD_Migration_ID = " + getAD_Migration_ID();
 		if (!all) {
 			where += " AND statuscode != " + DB.TO_STRING(rollback ? "U" : "A");

@@ -59,7 +59,17 @@ public class MigrationToXML extends SvrProcess {
 		
 		  //set up a transformer
         TransformerFactory transfac = TransformerFactory.newInstance();
-        transfac.setAttribute("indent-number", 2);
+        // There is a conflict with some libraries and the java 1.8 implementation
+        // of the transformer that causes an exception for indent-number.
+        // Trap the exception and carry on.
+        try {
+        	transfac.setAttribute("indent-number", 2);
+        }
+        catch (IllegalArgumentException e)
+        {
+        	log.fine(e.getMessage());
+        }
+        
         Transformer trans;
         
 		trans = transfac.newTransformer();
