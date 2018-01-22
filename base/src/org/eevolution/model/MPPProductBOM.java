@@ -78,7 +78,7 @@ public class MPPProductBOM extends X_PP_Product_BOM
 		String whereClause = MPPProductBOM.COLUMNNAME_Value+"=? AND M_Product_ID=?";
 		return new Query (product.getCtx(), X_PP_Product_BOM.Table_Name, whereClause, product.get_TrxName())
 					.setClient_ID()
-					.setParameters(product.getValue(), product.getM_Product_ID()).setOnlyActiveRecords(true)
+					.setParameters(product.getValue(), product.getM_Product_ID())
 					.setOnlyActiveRecords(true)
 					.list();
 		
