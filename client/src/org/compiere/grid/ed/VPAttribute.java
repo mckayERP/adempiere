@@ -72,6 +72,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Ini;
 import org.compiere.util.Msg;
 import org.compiere.util.ValueNamePair;
+import org.eevolution.model.MPPProductBOM;
 
 /**
  *  Product Attribute Set Instance Editor
@@ -304,9 +305,9 @@ public class VPAttribute extends JComponent
 	 *  value changing so this variable provides a means to test if a change has occurred.
 	 */
 	private String m_lastDisplay;
-	private int M_Product_ID = 0;
-	private int M_ProductBOM_ID = 0;
-	private int M_AttributeSet_ID;
+	private int m_product_id = 0;
+	private int pp_product_bom_id = 0;
+	private int m_attributeSet_id;
 	private MLookup m_lookup;
 
 	/**	No Instance Key					*/
@@ -447,21 +448,25 @@ public class VPAttribute extends JComponent
 		setM_Product_ID();
 		// Enable or disable controls
 		MAttributeSet as = null;
-		MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
+		MProduct product = MProduct.get(Env.getCtx(), m_product_id);
 		if (product !=null && product.getM_AttributeSet() != null) {
 			as = product.getAttributeSet();
 		}
 		
 		boolean enabled = true;
 		if (as != null) {
-			// Enable the control if the control has a non zero value or is not excluded.
-			enabled = ((m_value != null && !NO_INSTANCE.equals(m_value)) || !as.excludeEntry(m_AD_Column_ID, Env.isSOTrx(Env.getCtx(),m_WindowNo)));
-			m_button.setEnabled(m_readWrite && (isProductWindow || m_searchOnly || enabled));
-			m_text.setEnabled(m_readWrite && (isProductWindow || m_searchOnly || enabled));
+			// Check if there are any product attributes
+			if (isProductWindow && as.getMAttributes(false).length == 0)
+				enabled = false;  // No product attributes to set - no point in enabling the dialog in the product window
+			else
+				// Enable the control if the control has a non zero value or is not excluded.
+				enabled = ((m_value != null && !NO_INSTANCE.equals(m_value)) || !as.excludeEntry(m_AD_Column_ID, Env.isSOTrx(Env.getCtx(),m_WindowNo)));
+			m_button.setEnabled(m_readWrite && (m_searchOnly || enabled));
+			m_text.setEnabled(m_readWrite && (m_searchOnly || enabled));
 		}
 		else {
-			m_button.setEnabled(m_readWrite && (isProductWindow || m_searchOnly));
-			m_text.setEnabled(m_readWrite && (isProductWindow || m_searchOnly));
+			m_button.setEnabled(m_readWrite && (m_searchOnly));
+			m_text.setEnabled(m_readWrite && (m_searchOnly));
 		}
 		
 		if (m_GridField != null) {  // The column is found
@@ -484,20 +489,23 @@ public class VPAttribute extends JComponent
 	}
 
 	/**
-	 * Set the M_Product_ID value from the context.  If there is a M_ProductBOM_ID 
+	 * Set the M_Product_ID value from the context.  If there is a PP_Product_BOM_ID 
 	 * defined, that ID will be used.
+	 * 
+	 * TODO Not sure this is a good idea.  The ASI on bom lines will be controlled by the bom header product.
 	 */
 	private void setM_Product_ID() {
 		// Get the product
 		if (m_GridTab != null) {
-			M_Product_ID = Env.getContextAsInt (Env.getCtx (), m_WindowNo, m_GridTab.getTabNo(), "M_Product_ID");
-			M_ProductBOM_ID = Env.getContextAsInt (Env.getCtx (), m_WindowNo, m_GridTab.getTabNo(), "M_ProductBOM_ID");
+			m_product_id = Env.getContextAsInt (Env.getCtx(), m_WindowNo, m_GridTab.getTabNo(), "M_Product_ID");
+//			pp_product_bom_id = Env.getContextAsInt (Env.getCtx(), m_WindowNo, m_GridTab.getTabNo(), "PP_Product_BOM_ID");
 		} else {
-			M_Product_ID = Env.getContextAsInt (Env.getCtx (), m_WindowNo, "M_Product_ID");
-			M_ProductBOM_ID = Env.getContextAsInt (Env.getCtx (), m_WindowNo, "M_ProductBOM_ID");
+			m_product_id = Env.getContextAsInt (Env.getCtx(), m_WindowNo, "M_Product_ID");
+//			pp_product_bom_id = Env.getContextAsInt (Env.getCtx(), m_WindowNo, "PP_Product_BOM_ID");
 		}
-		if (M_ProductBOM_ID != 0)	//	Use BOM Component
-			M_Product_ID = M_ProductBOM_ID;		
+//		MPPProductBOM bom = MPPProductBOM.get(Env.getCtx(), pp_product_bom_id);
+//		if (pp_product_bom_id != 0 && bom != null)	//	Use BOM Component
+//			m_product_id = bom.getM_Product_ID();		
 	}
 
 	/**
@@ -556,8 +564,9 @@ public class VPAttribute extends JComponent
 			m_columnName = "M_AttributeSetInstance_ID";
 			m_AD_Column_ID = 0;
 		}
+		//  Determine if we are in the Product window, by the Product or BOM tab.
 		//	M_Product.M_AttributeSetInstance_ID = 8418
-		isProductWindow = m_AD_Column_ID == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID);
+		isProductWindow = MProduct.isASIinProductWindow(m_AD_Column_ID);
 		
 		enableControl();
 	}	//	setField
@@ -731,6 +740,40 @@ public class VPAttribute extends JComponent
 			return;
 		}
 		log.fine("");
+				
+		//	Exclude ability to enter ASI
+		boolean exclude = false;
+		
+		MProduct product = null;
+		MAttributeSet mas = null;
+		
+		if (m_product_id != 0)
+		{
+			product = MProduct.get(Env.getCtx(), m_product_id);
+			m_attributeSet_id = product.getM_AttributeSet_ID();
+			if (m_attributeSet_id != 0)
+			{
+				mas = MAttributeSet.get(Env.getCtx(), m_attributeSet_id);
+				exclude = mas.excludeEntry(m_AD_Column_ID, Env.isSOTrx(Env.getCtx(), m_WindowNo));
+			}
+		}
+		
+		if (mas != null && mas.getMAttributes(false).length==0 && isProductWindow )
+		{
+			log.info("No action: Product window and no product attributes");
+			m_text.setText(m_lastDisplay);
+			return;			
+		}
+		// If the VPAttribute component is in a dialog/search don't need to find a specific ASI.
+		// Also, if there is no product or attribute set, there can be no ASI
+		if (m_searchOnly || !isProductWindow && (m_product_id == 0 || m_attributeSet_id == 0 
+													|| product == null || exclude))
+		{
+			log.info("No action: M_Product_ID == 0 || m_attributeSet_id == 0 || product == null || exclude");
+			m_text.setText(m_lastDisplay);
+			return;
+		}
+
 		//	Nothing entered
 		if (text == null || text.length() == 0 || text.equals("%"))
 		{
@@ -742,33 +785,6 @@ public class VPAttribute extends JComponent
 		log.fine(m_columnName + " - " + "\"" + text + "\"");
 		
 		setM_Product_ID();
-		
-		//	Exclude ability to enter ASI
-		boolean exclude = false;
-		
-		MProduct product = null;
-		MAttributeSet mas = null;
-		
-		if (M_Product_ID != 0)
-		{
-			product = MProduct.get(Env.getCtx(), M_Product_ID);
-			M_AttributeSet_ID = product.getM_AttributeSet_ID();
-			if (M_AttributeSet_ID != 0)
-			{
-				mas = MAttributeSet.get(Env.getCtx(), M_AttributeSet_ID);
-				exclude = mas.excludeEntry(m_AD_Column_ID, Env.isSOTrx(Env.getCtx(), m_WindowNo));
-			}
-		}
-		
-		// If the VPAttribute component is in a dialog/search don't need to find a specific ASI.
-		// Also, if there is no product or attribute set, there can be no ASI
-		if (m_searchOnly || !isProductWindow && (M_Product_ID == 0 || M_AttributeSet_ID == 0 
-													|| product == null || exclude))
-		{
-			log.info("No action: M_Product_ID == 0 || M_AttributeSet_ID == 0 || product == null || exclude");
-			m_text.setText(m_lastDisplay);
-			return;
-		}
 
 		// The control will accept text input and will try to match that text
 		// against Attribute Set Instances as follows:
@@ -778,126 +794,15 @@ public class VPAttribute extends JComponent
 		// as well as the Locator, if this information is available.
 		// If a match is not found, the dialog box will be opened.
 		
-		// Test the text to see if it is in the form of a number.
-		Integer asiIDToFind = -1;
+		Integer asiIDToFind = MAttributeSetInstance.getByMatchOfIDSerialNumberLotORDate(Env.getCtx(),m_attributeSet_id, text,null);
 		
-		String where = "";
-		try {
-			asiIDToFind = Integer.parseInt(text);
-		}
-		catch (NumberFormatException e) {
-			asiIDToFind = -1;
-		}
-
-
+		// Check integrity of the result
 		if (asiIDToFind > 0) {
-
-			try {
-				where = MAttributeSetInstance.COLUMNNAME_M_AttributeSetInstance_ID + "= ?";
-				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
-								.setClient_ID()
-								.setOnlyActiveRecords(true)
-								.setParameters(asiIDToFind)
-								.firstIdOnly();  // returns ID or -1 if not found.
-				// Check integrity of the result
-				if (asiIDToFind > 0) {
-					if (!product.isValidAttributeSetInstance(Env.getCtx(), Env.isSOTrx(Env.getCtx(), m_WindowNo), m_AD_Column_ID, asiIDToFind)){
-						asiIDToFind = -1;
-					}
-				}
-			}
-			catch (DBException e) {
-				asiIDToFind = -2; // multiple results
-			}		
-		}
-
-		
-		if (asiIDToFind == -1 ) { // Not found, 
-			// Try to match the lot code
-			try {
-				where = MAttributeSetInstance.COLUMNNAME_Lot + "= ?";
-				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
-									.setClient_ID()
-									.setOnlyActiveRecords(true)
-									.setParameters(text)
-									.firstIdOnly();  // returns ID or -1 if not found.
-				// Check integrity of the result
-				if (asiIDToFind > 0) {
-					if (!product.isValidAttributeSetInstance(Env.getCtx(), Env.isSOTrx(Env.getCtx(), m_WindowNo), m_AD_Column_ID, asiIDToFind)){
-						asiIDToFind = -1;
-					}
-					else
-						log.fine("Valid lot number found.  M_AttributeSetInstance_ID = " + asiIDToFind);
-				}
-			}
-			catch (DBException e) {
-				asiIDToFind = -2; // multiple results
+			if (!product.isValidAttributeSetInstance(Env.getCtx(), Env.isSOTrx(Env.getCtx(), m_WindowNo), m_AD_Column_ID, asiIDToFind)){
+				asiIDToFind = -1;
 			}
 		}
 
-		if (asiIDToFind == -1 ) { // Not found, 
-			// Try to match the serial number code
-			try {
-				where = MAttributeSetInstance.COLUMNNAME_SerNo + "= ?";
-				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
-									.setClient_ID()
-									.setOnlyActiveRecords(true)
-									.setParameters(text)
-									.firstIdOnly();  // returns ID or -1 if not found.
-				// Check integrity of the result
-				if (asiIDToFind > 0) {
-					if (!product.isValidAttributeSetInstance(Env.getCtx(), Env.isSOTrx(Env.getCtx(), m_WindowNo), m_AD_Column_ID, asiIDToFind)){
-						asiIDToFind = -1;
-					}
-					else
-						log.fine("Valid serial number found.  M_AttributeSetInstance_ID = " + asiIDToFind);
-				}
-			}
-			catch (DBException e) {
-				asiIDToFind = -2; // multiple results
-			}
-		}
-		
-
-		if (asiIDToFind == -1 ) { // Not found, 
-			// Try to match the Guarantee Date - Date has to be entered in the 
-			// system date format pattern 
-			Timestamp ts = null;
-			SimpleDateFormat dateFormat = DisplayType.getDateFormat();
-			try
-			{
-				java.util.Date date = dateFormat.parse(text);
-				ts = new Timestamp(date.getTime());
-			}
-			catch (ParseException pe)
-			{
-				log.fine("Entered text not in date format " + dateFormat.getDateFormatSymbols().toString());
-				log.fine(pe.getMessage());
-				ts = null;
-			}
-			
-			if (ts != null) {
-				try {
-					where = MAttributeSetInstance.COLUMNNAME_GuaranteeDate + "= ?";
-					asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
-										.setClient_ID()
-										.setOnlyActiveRecords(true)
-										.setParameters(ts)
-										.firstIdOnly();  // returns ID or -1 if not found.
-					// Check integrity of the result
-					if (asiIDToFind > 0) {
-						if (!product.isValidAttributeSetInstance(Env.getCtx(), Env.isSOTrx(Env.getCtx(), m_WindowNo), m_AD_Column_ID, asiIDToFind)){
-							asiIDToFind = -1;
-						}
-						else
-							log.fine("Valid Gurantee Date found.  M_AttributeSetInstance_ID = " + asiIDToFind);
-					}
-				}
-				catch (DBException e) {
-					asiIDToFind = -2; // multiple results
-				}
-			}
-		}
 		
 		// If we have found a value, set it
 		if (asiIDToFind > 0) {
@@ -913,7 +818,8 @@ public class VPAttribute extends JComponent
 					&& mas.isSerNo() 
 					&& mas.isSerNoMandatory()
 					&& product.isASIMandatory(Env.isSOTrx(Env.getCtx(), m_WindowNo), product.getAD_Org_ID())
-					&& !isProductWindow) {
+					&& !isProductWindow
+					&& !m_searchOnly) {
 				
 				MAttributeSetInstance instanceASI = new MAttributeSetInstance (Env.getCtx(), 0, product.getM_AttributeSet_ID(), null);
 				
@@ -978,13 +884,13 @@ public class VPAttribute extends JComponent
 		boolean exclude = false;
 		boolean changed = false;
 		
-		if (M_Product_ID != 0)
+		if (m_product_id != 0)
 		{
-			MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
-			M_AttributeSet_ID = product.getM_AttributeSet_ID();
-			if (M_AttributeSet_ID != 0)
+			MProduct product = MProduct.get(Env.getCtx(), m_product_id);
+			m_attributeSet_id = product.getM_AttributeSet_ID();
+			if (m_attributeSet_id != 0)
 			{
-				MAttributeSet mas = MAttributeSet.get(Env.getCtx(), M_AttributeSet_ID);
+				MAttributeSet mas = MAttributeSet.get(Env.getCtx(), m_attributeSet_id);
 				exclude = mas.excludeEntry(m_AD_Column_ID, Env.isSOTrx(Env.getCtx(), m_WindowNo));
 			}
 		}
@@ -1019,9 +925,9 @@ public class VPAttribute extends JComponent
 			m_button.setEnabled(true);
 			return;
 		}
-		else if (!isProductWindow && (M_Product_ID == 0 || M_AttributeSet_ID == 0))
+		else if (!isProductWindow && (m_product_id == 0 || m_attributeSet_id == 0))
 		{
-			log.info("No action: M_Product_ID == 0 || M_AttributeSet_ID == 0");
+			log.info("No action: M_Product_ID == 0 || m_attributeSet_id == 0");
 			M_AttributeSetInstance_ID = 0;
 			changed = M_AttributeSetInstance_ID != oldValueInt;
 		}
@@ -1033,7 +939,7 @@ public class VPAttribute extends JComponent
 		else
 		{
 			VPAttributeDialog vad = new VPAttributeDialog (Env.getFrame (this), 
-				M_AttributeSetInstance_ID, M_Product_ID, m_C_BPartner_ID,
+				M_AttributeSetInstance_ID, m_product_id, m_C_BPartner_ID,
 				isProductWindow, m_AD_Column_ID, m_WindowNo, isReadWrite());
 			if (vad.isChanged() || vad.getM_AttributeSetInstance_ID() != oldValueInt)
 			{

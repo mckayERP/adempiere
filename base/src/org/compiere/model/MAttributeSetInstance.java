@@ -22,11 +22,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.DBException;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -588,5 +591,145 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	
 	public String toString() {
 		return "ASI=" + this.getM_AttributeSetInstance_ID() + " AS=" + this.getM_AttributeSet_ID();
+	}
+
+
+	/**
+	 * Find the ID of an Attribute Set Instance where the text string matches
+	 * <li> the M_AttributeSetInstance_ID
+	 * <li> the serial number
+	 * <li> the lot code or
+	 * <li> the guarantee date.
+	 * @param ctx - the context
+	 * @param text 
+	 * 		- a text string. If the string represents a date, it must be in 
+	 * 		the correct local format.
+	 * @param trxName - the transaction name to use or null
+	 * @return Integer representing the M_AttributeSetInstance_ID found.  
+	 * The value of -1 indicates nothing was found. -2 indicates that multiple possible matches were found.
+	 */
+	public static Integer getByMatchOfIDSerialNumberLotORDate(Properties ctx, Integer m_attributeSet_id,
+			String text, String trxName) {
+		
+		List<Object> parameters = new ArrayList<Object>();
+		
+		// Test the text to see if it is in the form of a number.
+		Integer asiIDToFind = -1;
+		
+		String where = "";
+		try {
+			asiIDToFind = Integer.parseInt(text);
+		}
+		catch (NumberFormatException e) {
+			asiIDToFind = -1;
+		}
+
+
+		if (asiIDToFind > 0) {
+
+			try {
+				parameters.add(asiIDToFind);
+				where = MAttributeSetInstance.COLUMNNAME_M_AttributeSetInstance_ID + "=?";
+				if (m_attributeSet_id.compareTo(I_ZERO)>0)
+				{
+					where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
+					parameters.add(m_attributeSet_id);
+				}
+				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
+								.setClient_ID()
+								.setOnlyActiveRecords(true)
+								.setParameters(parameters)
+								.firstIdOnly();  // returns ID or -1 if not found.
+			}
+			catch (DBException e) {
+				asiIDToFind = -2; // multiple results
+			}		
+		}
+
+		
+		if (asiIDToFind == -1 ) { // Not found, 
+			// Try to match the lot code
+			try {
+				parameters.clear();
+				parameters.add(text);
+				where = MAttributeSetInstance.COLUMNNAME_Lot + "= ?";
+				if (m_attributeSet_id.compareTo(I_ZERO)>0)
+				{
+					where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
+					parameters.add(m_attributeSet_id);
+				}
+				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
+									.setClient_ID()
+									.setOnlyActiveRecords(true)
+									.setParameters(parameters)
+									.firstIdOnly();  // returns ID or -1 if not found.
+			}
+			catch (DBException e) {
+				asiIDToFind = -2; // multiple results
+			}
+		}
+
+		if (asiIDToFind == -1 ) { // Not found, 
+			// Try to match the serial number code
+			try {
+				parameters.clear();
+				parameters.add(text);
+				where = MAttributeSetInstance.COLUMNNAME_SerNo + "= ?";
+				if (m_attributeSet_id.compareTo(I_ZERO)>0)
+				{
+					where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
+					parameters.add(m_attributeSet_id);
+				}
+				asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
+									.setClient_ID()
+									.setOnlyActiveRecords(true)
+									.setParameters(parameters)
+									.firstIdOnly();  // returns ID or -1 if not found.
+			}
+			catch (DBException e) {
+				asiIDToFind = -2; // multiple results
+			}
+		}
+		
+
+		if (asiIDToFind == -1 ) { // Not found, 
+			// Try to match the Guarantee Date - Date has to be entered in the 
+			// system date format pattern 
+			Timestamp ts = null;
+			SimpleDateFormat dateFormat = DisplayType.getDateFormat();
+			try
+			{
+				java.util.Date date = dateFormat.parse(text);
+				ts = new Timestamp(date.getTime());
+			}
+			catch (ParseException pe)
+			{
+				// Entered text not in date format 
+				ts = null;
+			}
+			
+			if (ts != null) {
+				try {
+					parameters.clear();
+					parameters.add(ts);
+					where = MAttributeSetInstance.COLUMNNAME_GuaranteeDate + "= ?";
+					if (m_attributeSet_id.compareTo(I_ZERO)>0)
+					{
+						where += " AND " + MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID + "=?";
+						parameters.add(m_attributeSet_id);
+					}
+					asiIDToFind = new Query(Env.getCtx(), MAttributeSetInstance.Table_Name, where, null)
+										.setClient_ID()
+										.setOnlyActiveRecords(true)
+										.setParameters(ts, m_attributeSet_id)
+										.firstIdOnly();  // returns ID or -1 if not found.
+				}
+				catch (DBException e) {
+					asiIDToFind = -2; // multiple results
+				}
+			}
+		}
+		
+		return asiIDToFind;
 	}
 }	//	MAttributeSetInstance

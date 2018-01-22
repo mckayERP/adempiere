@@ -230,6 +230,7 @@ public class VPAttributeDialog extends CDialog
 	
 	/** List of Editors				*/
 	private ArrayList<MEditor>		m_editors = new ArrayList<MEditor>();
+	private ArrayList<MAttribute>	m_attributes = new ArrayList<MAttribute>();
 	/** Length of Instance value (40)	*/
 	private static final int		INSTANCE_VALUE_LENGTH = 40;
 
@@ -261,6 +262,7 @@ public class VPAttributeDialog extends CDialog
 	private boolean hasProductASI = false;
 	private int productASI_id = 0;
 	private MAttributeSetInstance productASI = null;
+	
 
 	/**
 	 *	Layout
@@ -293,6 +295,9 @@ public class VPAttributeDialog extends CDialog
 			return false;
 		
 		MAttributeSet as = null;
+		// Clear the attribute list
+		m_attributes = new ArrayList<MAttribute>();
+		m_editors = new ArrayList<MEditor>();
 		
 //		if (m_attributeSetInstance_id > 0)
 			instanceASI = MAttributeSetInstance.get(Env.getCtx(), m_attributeSetInstance_id, m_product_id);
@@ -625,6 +630,7 @@ public class VPAttributeDialog extends CDialog
 				editor.setEditable(false);
  			}
 			
+ 			m_attributes.add (attribute);
 			m_editors.add (new MEditor(editor, product));
 		}
 		else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(attribute.getAttributeValueType()))
@@ -641,6 +647,7 @@ public class VPAttributeDialog extends CDialog
 			if (readOnly) {
  				editor.setReadWrite(false);
 			}
+ 			m_attributes.add (attribute);
 			m_editors.add (new MEditor(editor, product));
 		}
 		else	//	Text Field
@@ -656,6 +663,7 @@ public class VPAttributeDialog extends CDialog
  				editor.setReadWrite(false);
 				editor.setEditable(false);
 			}
+ 			m_attributes.add (attribute);
 			m_editors.add (new MEditor(editor,product));
 		}
 	}	//	addAttributeLine
@@ -983,17 +991,16 @@ public class VPAttributeDialog extends CDialog
 		// Get the set of attribute values from the editors and check for missing
 		// mandatory fields.  The order of the attributes is set by the order that
 		// editors are created. 
-		MAttribute[] attributes = as.getMAttributes();
-		Object[] values = new Object[attributes.length];
-		for (int i = 0; i < attributes.length; i++)
+		Object[] values = new Object[m_attributes.size()];
+		for (int i = 0; i < m_attributes.size(); i++)
 		{
 			
-			if (MAttribute.ATTRIBUTEVALUETYPE_List.equals(attributes[i].getAttributeValueType()))
+			if (MAttribute.ATTRIBUTEVALUETYPE_List.equals(m_attributes.get(i).getAttributeValueType()))
 			{
 				CComboBox editor = (CComboBox)m_editors.get(i).editor;
 				values[i] = (MAttributeValue)editor.getSelectedItem();
 			}
-			else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(attributes[i].getAttributeValueType()))
+			else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(m_attributes.get(i).getAttributeValueType()))
 			{
 				VNumber editor = (VNumber)m_editors.get(i).editor;
 				values[i] = (BigDecimal)editor.getValue();
@@ -1003,9 +1010,9 @@ public class VPAttributeDialog extends CDialog
 				VString editor = (VString)m_editors.get(i).editor;
 				values[i] = editor.getText();
 			}
-			log.fine(attributes[i].getName() + "=" + values[i]);
-			if (attributes[i].isMandatory() && values[i] == null)
-				mandatory += " - " + attributes[i].getName();
+			log.fine(m_attributes.get(i).getName() + "=" + values[i]);
+			if (m_attributes.get(i).isMandatory() && values[i] == null)
+				mandatory += " - " + m_attributes.get(i).getName();
 
 		}
 		//  Prevent save if the mandatory fields are not filled.
@@ -1075,22 +1082,22 @@ public class VPAttributeDialog extends CDialog
 		//  m_readWrite is true
 		if (m_attributeSetInstance_id > 0 && !instanceASI.hasValues(values)) {
 			//	Save all Attribute value instances
-			for (int i = 0; i < attributes.length; i++)
+			for (int i = 0; i < m_attributes.size(); i++)
 			{
-				if (MAttribute.ATTRIBUTEVALUETYPE_List.equals(attributes[i].getAttributeValueType()))
+				if (MAttribute.ATTRIBUTEVALUETYPE_List.equals(m_attributes.get(i).getAttributeValueType()))
 				{
 					MAttributeValue value = (MAttributeValue)values[i];
-					attributes[i].setMAttributeInstance(m_attributeSetInstance_id, value);
+					m_attributes.get(i).setMAttributeInstance(m_attributeSetInstance_id, value);
 				}
-				else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(attributes[i].getAttributeValueType()))
+				else if (MAttribute.ATTRIBUTEVALUETYPE_Number.equals(m_attributes.get(i).getAttributeValueType()))
 				{
 					BigDecimal value = (BigDecimal)values[i];
-					attributes[i].setMAttributeInstance(m_attributeSetInstance_id, value);
+					m_attributes.get(i).setMAttributeInstance(m_attributeSetInstance_id, value);
 				}
 				else
 				{
 					String value = (String) values[i];
-					attributes[i].setMAttributeInstance(m_attributeSetInstance_id, value);
+					m_attributes.get(i).setMAttributeInstance(m_attributeSetInstance_id, value);
 				}
 			}
 			m_changed = true;			
