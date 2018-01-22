@@ -26,6 +26,8 @@ import org.compiere.util.CCache;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.eevolution.model.MPPProductBOM;
+import org.eevolution.model.MPPProductBOMLine;
 
 /**
  * 	Product Model
@@ -1065,14 +1067,17 @@ public class MProduct extends X_M_Product
 	 * (See #281)
 	 * @param ctx the current context
 	 * @param windowNo number
-	 * @param AD_Column_ID the ID of the column being set.  This is used to test to see if the column 
+	 * @param ad_column_id the ID of the column being set.  This is used to test to see if the column 
 	 * is excluded by the Attribute Set.
 	 * @return The Attribute Set Instance ID or zero
 	 */
-	public Integer getEnvAttributeSetInstance(Properties ctx, int windowNo, int AD_Column_ID) {
+	public Integer getEnvAttributeSetInstance(Properties ctx, int windowNo, int ad_column_id) {
 
 		if (getM_AttributeSet_ID() == 0)  // Product has no attribute set so no ASI
 			return I_ZERO;
+
+		
+		Boolean isProductWindow = MProduct.isASIinProductWindow(ad_column_id);
 
 		//	Get Attribute Set
 		MAttributeSet as = getAttributeSet();
@@ -1082,10 +1087,10 @@ public class MProduct extends X_M_Product
 		boolean isSOTrx = Env.getContext(ctx, windowNo, 0, "IsSOTrx").equals("Y")?true:false;
 		
 		//  Test excludes on this column/transaction type
-		if (as.excludeEntry(AD_Column_ID, isSOTrx))
+		if (as.excludeEntry(ad_column_id, isSOTrx))
 			return I_ZERO;
 
-		if (!as.isInstanceAttribute()) {
+		if (!as.isInstanceAttribute() || isProductWindow) {
 			// The product has a non-instance attribute set - no instance attributes, lot, serial no. etc...
 			// If the product also has an ASI defined, use the product ASI everywhere
 			if (getM_AttributeSetInstance_ID() > 0)
@@ -1112,7 +1117,6 @@ public class MProduct extends X_M_Product
 			if (as.isInstanceAttribute() && getM_AttributeSetInstance_ID() > 0 && M_AttributeSetInstance_ID > 0) {
 				// It is unlikely that the this routine will be called from the product window but test 
 				// the window just in case
-				Boolean isProductWindow = AD_Column_ID == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID);
 				if (!isProductWindow && M_AttributeSetInstance_ID == this.getM_AttributeSetInstance_ID())
 					M_AttributeSetInstance_ID = I_ZERO;
 			}
@@ -1127,7 +1131,7 @@ public class MProduct extends X_M_Product
 	 * set instance itself are not excluded. (See #281)
 	 * @param ctx
 	 * @param windowNo
-	 * @param AD_Column_ID
+	 * @param AD_Column_ID of the M_AttributeSetInstance_ID field
 	 * @param m_AttributeSetInstance_ID 
 	 * @return Return true if the Attribute Set Instance is valid, not excluded and complete, otherwise false.
 	 */
@@ -1140,9 +1144,8 @@ public class MProduct extends X_M_Product
 		
 		// Product has no attribute set. Return false if there is an instance
 		if (getM_AttributeSet_ID() == 0  && M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0)  
-			//return false;  
-			return true;  // Hold my nose.  Needed to make the FIFO/LIFO work.
-
+			return false;  
+			
 		MAttributeSet as = getAttributeSet();
 		if (as == null) {
 			if (M_AttributeSetInstance_ID.compareTo(I_ZERO) != 0) {
@@ -1168,8 +1171,7 @@ public class MProduct extends X_M_Product
 		
 		//  If the product has a instance attribute set - instance attributes, lot, serial no. etc...
 		//  and the window is not the Product window, check that the instance values are set.
-		Boolean isProductWindow = AD_Column_ID == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID);
-		if (isProductWindow)
+		if (MProduct.isASIinProductWindow(AD_Column_ID))
 			return true;  // In the product window, anything goes as long as there is a match in the attribute set.
 		
 		// Not in the product window - instances are possible
@@ -1248,6 +1250,51 @@ public class MProduct extends X_M_Product
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * For attribute set instances, determine if the column provided is in the Product window or Product BOM tab. 
+	 * @param ad_column_id
+	 * @return
+	 */
+	public static Boolean isASIinProductWindow(int ad_column_id)
+	{
+		return ad_column_id == MColumn.getColumn_ID(MProduct.Table_Name, MProduct.COLUMNNAME_M_AttributeSetInstance_ID)
+				|| ad_column_id == MColumn.getColumn_ID(MPPProductBOM.Table_Name, MPPProductBOM.COLUMNNAME_M_AttributeSetInstance_ID)
+				|| ad_column_id == MColumn.getColumn_ID(MPPProductBOMLine.Table_Name, MPPProductBOMLine.COLUMNNAME_M_AttributeSetInstance_ID);
+
+	}
+
+	/**
+	 * Test if this product is a valid substitute for the given "master" product. 
+	 * To be a substitute, this product has to be included in the list of 
+	 * substitute products, and the substitute record must be active.
+	 * @param masterProduct
+	 * 			The product with a list of substitutes.
+	 * @return 
+	 * 			True if this product is a valid substitute, otherwise false.
+	 */
+	public boolean isValidSubstitueFor(MProduct masterProduct) {
+		
+		if (masterProduct == null)
+			return false;
+		
+		String where = X_M_Substitute.COLUMNNAME_M_Product_ID + "=?";
+		List<X_M_Substitute> subs = new Query(getCtx(), X_M_Substitute.Table_Name, where, get_TrxName())
+										.setClient_ID()
+										.setOnlyActiveRecords(true)
+										.setParameters(masterProduct.getM_Product_ID())
+										.list();
+		
+		for (X_M_Substitute sub : subs)
+		{
+			if (sub != null && sub.getSubstitute_ID() == this.getM_Product_ID())
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }	//	MProduct
