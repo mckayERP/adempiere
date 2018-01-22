@@ -340,10 +340,10 @@ public class MProductionLine extends X_M_ProductionLine  implements IDocumentLin
 	}
 
 	public int getM_AttributeSetInstanceTo_ID(){
-		return -1;
+		return getM_AttributeSetInstance_ID();
 	}
 	public int getM_LocatorTo_ID(){
-		return -1;
+		return getM_Locator_ID();
 	}
 
 	public int getC_DocType_ID(){

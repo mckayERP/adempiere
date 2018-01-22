@@ -837,13 +837,13 @@ implements IDocumentLine
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
 		// Not relevant
-		return -1;
+		return getM_AttributeSetInstance_ID();
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
 		// Not relevant
-		return -1;
+		return getM_Locator_ID();
 	}
 
 	@Override
