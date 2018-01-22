@@ -1345,11 +1345,17 @@ public class MInOut extends X_M_InOut implements DocAction
 			log.fine("Material Transaction Complete.");
 
 
-			//	Correct Order Line
-			if (product != null && oLine != null && isSOTrx())		//	other in VMatch.createMatchRecord
-				oLine.setQtyReserved(oLine.getQtyReserved().add(QtySO));
-			else if (product != null && oLine != null && !isSOTrx())
-				oLine.setQtyReserved(oLine.getQtyReserved().add(QtyPO));
+			//	Correct Order Line qty reserved - stocked products only
+			if (product != null && oLine != null)
+			{
+				if (product.isStocked())
+				{
+					if (isSOTrx())		//	other in VMatch.createMatchRecord
+						oLine.setQtyReserved(oLine.getQtyReserved().add(QtySO));
+					else 
+						oLine.setQtyReserved(oLine.getQtyReserved().add(QtyPO));
+				}
+			}
 
 			//	Update Sales Order Line
 			if (oLine != null)
