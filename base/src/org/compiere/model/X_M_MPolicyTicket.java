@@ -29,7 +29,7 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20170206L;
+	private static final long serialVersionUID = 20170619L;
 
     /** Standard Constructor */
     public X_M_MPolicyTicket (Properties ctx, int M_MPolicyTicket_ID, String trxName)
@@ -125,6 +125,34 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 		return ii.intValue();
 	}
 
+	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException
+    {
+		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
+			.getPO(getM_AttributeSetInstance_ID(), get_TrxName());	}
+
+	/** Set Attribute Set Instance.
+		@param M_AttributeSetInstance_ID 
+		Product Attribute Set Instance
+	  */
+	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
+	{
+		if (M_AttributeSetInstance_ID < 0) 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
+	}
+
+	/** Get Attribute Set Instance.
+		@return Product Attribute Set Instance
+	  */
+	public int getM_AttributeSetInstance_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstance_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
     {
 		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_Name)
@@ -181,6 +209,34 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Locator)MTable.get(getCtx(), org.compiere.model.I_M_Locator.Table_Name)
+			.getPO(getM_Locator_ID(), get_TrxName());	}
+
+	/** Set Locator.
+		@param M_Locator_ID 
+		Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID)
+	{
+		if (M_Locator_ID < 1) 
+			set_Value (COLUMNNAME_M_Locator_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Locator_ID, Integer.valueOf(M_Locator_ID));
+	}
+
+	/** Get Locator.
+		@return Warehouse Locator
+	  */
+	public int getM_Locator_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_MovementLine getM_MovementLine() throws RuntimeException
     {
 		return (org.compiere.model.I_M_MovementLine)MTable.get(getCtx(), org.compiere.model.I_M_MovementLine.Table_Name)
@@ -232,6 +288,34 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
+			.getPO(getM_Product_ID(), get_TrxName());	}
+
+	/** Set Product.
+		@param M_Product_ID 
+		Product, Service, Item
+	  */
+	public void setM_Product_ID (int M_Product_ID)
+	{
+		if (M_Product_ID < 1) 
+			set_Value (COLUMNNAME_M_Product_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Product_ID, Integer.valueOf(M_Product_ID));
+	}
+
+	/** Get Product.
+		@return Product, Service, Item
+	  */
+	public int getM_Product_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Product_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_ProductionLine getM_ProductionLine() throws RuntimeException
     {
 		return (org.compiere.model.I_M_ProductionLine)MTable.get(getCtx(), org.compiere.model.I_M_ProductionLine.Table_Name)
@@ -255,6 +339,31 @@ public class X_M_MPolicyTicket extends PO implements I_M_MPolicyTicket, I_Persis
 	public int getM_ProductionLine_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_ProductionLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Transaction getM_Transaction() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Transaction)MTable.get(getCtx(), org.compiere.model.I_M_Transaction.Table_Name)
+			.getPO(getM_Transaction_ID(), get_TrxName());	}
+
+	/** Set Inventory Transaction.
+		@param M_Transaction_ID Inventory Transaction	  */
+	public void setM_Transaction_ID (int M_Transaction_ID)
+	{
+		if (M_Transaction_ID < 1) 
+			set_Value (COLUMNNAME_M_Transaction_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Transaction_ID, Integer.valueOf(M_Transaction_ID));
+	}
+
+	/** Get Inventory Transaction.
+		@return Inventory Transaction	  */
+	public int getM_Transaction_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Transaction_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

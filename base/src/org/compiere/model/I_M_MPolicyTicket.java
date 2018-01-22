@@ -120,6 +120,21 @@ public interface I_M_MPolicyTicket
 	  */
 	public boolean isActive();
 
+    /** Column name M_AttributeSetInstance_ID */
+    public static final String COLUMNNAME_M_AttributeSetInstance_ID = "M_AttributeSetInstance_ID";
+
+	/** Set Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID);
+
+	/** Get Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public int getM_AttributeSetInstance_ID();
+
+	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
+
     /** Column name M_InOutLine_ID */
     public static final String COLUMNNAME_M_InOutLine_ID = "M_InOutLine_ID";
 
@@ -150,6 +165,21 @@ public interface I_M_MPolicyTicket
 
 	public org.compiere.model.I_M_InventoryLine getM_InventoryLine() throws RuntimeException;
 
+    /** Column name M_Locator_ID */
+    public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
+
+	/** Set Locator.
+	  * Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID);
+
+	/** Get Locator.
+	  * Warehouse Locator
+	  */
+	public int getM_Locator_ID();
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException;
+
     /** Column name M_MovementLine_ID */
     public static final String COLUMNNAME_M_MovementLine_ID = "M_MovementLine_ID";
 
@@ -178,6 +208,21 @@ public interface I_M_MPolicyTicket
 	  */
 	public int getM_MPolicyTicket_ID();
 
+    /** Column name M_Product_ID */
+    public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
+
+	/** Set Product.
+	  * Product, Service, Item
+	  */
+	public void setM_Product_ID (int M_Product_ID);
+
+	/** Get Product.
+	  * Product, Service, Item
+	  */
+	public int getM_Product_ID();
+
+	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
+
     /** Column name M_ProductionLine_ID */
     public static final String COLUMNNAME_M_ProductionLine_ID = "M_ProductionLine_ID";
 
@@ -192,6 +237,17 @@ public interface I_M_MPolicyTicket
 	public int getM_ProductionLine_ID();
 
 	public org.compiere.model.I_M_ProductionLine getM_ProductionLine() throws RuntimeException;
+
+    /** Column name M_Transaction_ID */
+    public static final String COLUMNNAME_M_Transaction_ID = "M_Transaction_ID";
+
+	/** Set Inventory Transaction	  */
+	public void setM_Transaction_ID (int M_Transaction_ID);
+
+	/** Get Inventory Transaction	  */
+	public int getM_Transaction_ID();
+
+	public org.compiere.model.I_M_Transaction getM_Transaction() throws RuntimeException;
 
     /** Column name MovementDate */
     public static final String COLUMNNAME_MovementDate = "MovementDate";
