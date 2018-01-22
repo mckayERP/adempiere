@@ -72,6 +72,11 @@ public final class MLookup extends Lookup implements Serializable
 		if (MLookupCache.loadFromCache (m_info, m_lookup))
 			return;
 
+		// Set the MPAttributeLookup
+		if(m_info.DisplayType == DisplayType.PAttribute) {
+			setMPAttributeLookup(new MPAttributeLookup(Env.getCtx(), this.getWindowNo()));
+		}
+
 		//  Don't load Search or CreatedBy/UpdatedBy
 		if (m_info.DisplayType == DisplayType.Search 
 			|| m_info.IsCreadedUpdatedBy)
@@ -83,10 +88,6 @@ public final class MLookup extends Lookup implements Serializable
 			return;						//	required when parent needs to be selected (e.g. price from product)
 		}
 		
-		// Set the MPAttributeLookup
-		if(m_info.DisplayType == DisplayType.PAttribute) {
-			setMPAttributeLookup(new MPAttributeLookup(Env.getCtx(), this.getWindowNo()));
-		}
 		//
 		//m_loader = new MLoader();
 	//	if (TabNo != 0)
