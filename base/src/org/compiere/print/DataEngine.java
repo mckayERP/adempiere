@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
+import org.compiere.model.MLookupInfo;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
 import org.compiere.model.MTable;
@@ -395,26 +397,49 @@ public class DataEngine
 						|| (AD_Reference_ID == DisplayType.Search && AD_Reference_Value_ID != 0)
 					)
 				{
-					if (ColumnSQL.length() > 0)
-					{
-						lookupSQL = ColumnSQL;
-					}
+					
+
 					if (AD_Reference_Value_ID <= 0)
 					{
 						log.warning(ColumnName + " - AD_Reference_Value_ID not set");
 						continue;
 					}
+
+					if (ColumnSQL.length() > 0)
+					{
+						lookupSQL = ColumnSQL;
+					}
+					
 					TableReference tr = getTableReference(AD_Reference_Value_ID);
 					String display = tr.DisplayColumn;
-					//	=> A.Name AS AName, Table.ID,
-					if (tr.IsValueDisplayed)
-						sqlSELECT.append(m_synonym).append(".Value||'-'||");
-					sqlSELECT.append(m_synonym).append(".").append(display);
-					sqlSELECT.append(" AS ").append(m_synonym).append(display).append(",")
-						.append(lookupSQL).append(" AS ").append(ColumnName).append(",");
-					groupByColumns.add(m_synonym+display);
-					groupByColumns.add(lookupSQL);
-					orderName = m_synonym + display;
+					// Use the display SQL if it exists 
+					if (tr.DisplaySQL != null && !tr.DisplaySQL.isEmpty())
+					{
+						// The display SQL will be from the table reference record
+						// Replace the TableName.ColumnName with the m_synonym.ColumnName
+						// This assumes the reference SQL uses fully qualified references
+						// to the target table
+						display = tr.DisplaySQL;
+						display = display.replaceAll(tr.TableName + ".", m_synonym + ".");
+						sqlSELECT.append(display).append(" AS ").append(m_synonym).append(ColumnName)
+							.append(",")
+							.append(lookupSQL).append(" AS ").append(ColumnName).append(",");
+						groupByColumns.add(m_synonym+ColumnName);
+						groupByColumns.add(lookupSQL);
+						orderName = m_synonym + ColumnName;
+					}
+					else
+					{
+						//	=> A.Name AS AName, Table.ID,
+						if (tr.IsValueDisplayed)
+							sqlSELECT.append(m_synonym).append(".Value||'-'||");
+						sqlSELECT.append(m_synonym).append(".").append(display);
+						sqlSELECT.append(" AS ").append(m_synonym).append(display).append(",")
+							.append(lookupSQL).append(" AS ").append(ColumnName).append(",");
+						groupByColumns.add(m_synonym+display);
+						groupByColumns.add(lookupSQL);
+						orderName = m_synonym + display;
+					}
 
 					//	=> x JOIN table A ON (x.KeyColumn=A.Key)
 					if (IsMandatory)
@@ -756,7 +781,8 @@ public class DataEngine
 		TableReference tr = new TableReference();
 		//
 		String SQL = "SELECT t.TableName, ck.ColumnName AS KeyColumn,"	//	1..2
-			+ " cd.ColumnName AS DisplayColumn, rt.IsValueDisplayed, cd.IsTranslated "
+			+ " cd.ColumnName AS DisplayColumn, rt.IsValueDisplayed, cd.IsTranslated, "
+			+ " rt.DisplaySQL "
 			+ "FROM AD_Ref_Table rt"
 			+ " INNER JOIN AD_Table t ON (rt.AD_Table_ID = t.AD_Table_ID)"
 			+ " INNER JOIN AD_Column ck ON (rt.AD_Key = ck.AD_Column_ID)"
@@ -777,6 +803,7 @@ public class DataEngine
 				tr.DisplayColumn = rs.getString(3);
 				tr.IsValueDisplayed = "Y".equals(rs.getString(4));
 				tr.IsTranslated = "Y".equals(rs.getString(5));
+				tr.DisplaySQL = rs.getString(6);
 			}
 		}
 		catch (SQLException ex)
@@ -1202,6 +1229,7 @@ public class DataEngine
  */
 class TableReference
 {
+	public String DisplaySQL;
 	/** Table Name		*/
 	public String 	TableName;
 	/** Key Column		*/

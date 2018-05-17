@@ -135,6 +135,25 @@ public class MLookupInfo implements Serializable, Cloneable
 	public MLookupInfo (String sqlQuery, String tableName, String keyColumn, 
 		int zoomWindow, int zoomWindowPO, MQuery zoomQuery, boolean isAlert)
 	{
+		this(sqlQuery, tableName, keyColumn, zoomWindow, zoomWindowPO, zoomQuery, null, isAlert);
+	}
+
+	/**************************************************************************
+	 *  Constructor.
+	 * 	(called from MLookupFactory)
+	 *  @param sqlQuery SQL query
+	 *  @param tableName table name
+	 *  @param keyColumn key column
+	 *  @param zoomWindow zoom window
+	 *  @param zoomWindowPO PO zoom window
+	 *  @param displayQuery The subquery to use when displaying the column 
+	 *  @param zoomQuery zoom query
+	 * @param isAlert 
+	 */
+	public MLookupInfo (String sqlQuery, String tableName, String keyColumn, 
+		int zoomWindow, int zoomWindowPO, MQuery zoomQuery, String displaySQL, boolean isAlert)
+	{
+
 		if (sqlQuery == null)
 			throw new IllegalArgumentException("SqlQuery is null");
 		Query = sqlQuery;
@@ -146,12 +165,15 @@ public class MLookupInfo implements Serializable, Cloneable
 		ZoomWindowPO = zoomWindowPO;
 		ZoomQuery = zoomQuery;
 		IsAlert  = isAlert;
+		DisplaySQL = displaySQL;
 	}   //  MLookupInfo
 	
 	static final long serialVersionUID = -7958664359250070233L;
 
 	/** SQL Query       */
 	public String       Query = null;
+	/** Display Query       */
+	public String       DisplaySQL = null;
 	/** Table Name      */
 	public String       TableName = "";
 	/** Key Column      */
