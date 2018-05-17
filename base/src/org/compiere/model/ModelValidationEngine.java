@@ -246,8 +246,9 @@ public class ModelValidationEngine
 		}
 		//
 		
-		if (AD_User_ID == 0 && AD_Role_ID == 0)
-			; // don't validate for user system on role system
+		if ((AD_User_ID == 0 && AD_Role_ID == 0) || AD_User_ID == 100)
+			; // don't validate for user system on role system or super user on any client/role to allow correction
+			  // of mistakes.
 		else
 			if (missingModelValidationMessage != null) {
 				MSystem system = MSystem.get(Env.getCtx());
