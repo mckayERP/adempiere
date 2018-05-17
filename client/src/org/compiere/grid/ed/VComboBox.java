@@ -16,10 +16,12 @@
  *****************************************************************************/
 package org.compiere.grid.ed;
 
+import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 
 import javax.swing.ComboBoxModel;
 
+import org.compiere.model.GridField;
 import org.compiere.model.MLocator;
 import org.compiere.swing.CComboBox;
 import org.compiere.util.CLogger;
@@ -39,7 +41,7 @@ import org.compiere.util.ValueNamePair;
  *  				<li>release/380 add changes to record and compare values similar to
  *  					ADEMPIERE-72
  */
-public class VComboBox extends CComboBox
+public class VComboBox extends CComboBox implements VEditor
 {
 	/**
 	 * 
@@ -48,6 +50,8 @@ public class VComboBox extends CComboBox
 
 	/** The old Value - for comparison at future points in time.	*/
 	private Object				m_oldValue;
+
+	private GridField m_mField;
 
 	/**
 	 *  Constructor
@@ -114,7 +118,8 @@ public class VComboBox extends CComboBox
 
 			if (key == null || ID == null)
 			{
-				if (key == null && ID == null)
+				// Likely the null entry of an editable combobox?
+				if (key == null && ID == null)  // Wont' happen. key == null will cause return above.
 				{
 					setSelectedIndex(i);
 					return;
@@ -224,6 +229,28 @@ public class VComboBox extends CComboBox
 				return true;
 			else
 				return false;
+	}
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(org.compiere.model.GridField.PROPERTY))
+			setValue(evt.getNewValue());	
+	}
+	@Override
+	public void setField(GridField field) {
+		
+		m_mField = field;
+		
+	}
+	@Override
+	public GridField getField() {
+		// TODO Auto-generated method stub
+		return m_mField;
+	}
+	@Override
+	public void dispose() {
+		
+		m_mField = null;
+		
 	}
 
 }	//	VComboBox
