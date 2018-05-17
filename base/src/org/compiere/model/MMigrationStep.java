@@ -396,7 +396,10 @@ public class MMigrationStep extends X_AD_MigrationStep {
 		else if ( DisplayType.isNumeric(column.getAD_Reference_ID()) ){
 			return new BigDecimal(value);
 		}
-		else if (DisplayType.isID(column.getAD_Reference_ID()) ) {
+		else if (DisplayType.isID(column.getAD_Reference_ID()) 
+				|| (DisplayType.Button == column.getAD_Reference_ID() 
+					&& column.getAD_Reference_Value_ID() == 0
+					&& column.getColumnName().equals("Record_ID"))) {
 			return Integer.valueOf(value);
 		}	
 		else if (DisplayType.YesNo == column.getAD_Reference_ID() ) {
