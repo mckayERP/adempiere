@@ -24,10 +24,11 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,6 +63,7 @@ import org.compiere.apps.StatusBar;
 import org.compiere.grid.ed.Calculator;
 import org.compiere.grid.ed.VCheckBox;
 import org.compiere.grid.ed.VComboBox;
+import org.compiere.grid.ed.VEditor;
 import org.compiere.grid.ed.VLookup;
 import org.compiere.grid.ed.VPAttribute;
 import org.compiere.minigrid.IDColumn;
@@ -109,7 +111,7 @@ import org.jdesktop.swingx.JXTaskPane;
  * 					https://adempiere.atlassian.net/browse/ADEMPIERE-72
  */
 public abstract class Info extends CDialog
-	implements ListSelectionListener, PropertyChangeListener
+	implements ListSelectionListener, PropertyChangeListener, VetoableChangeListener
 {
 	/**
 	 * 
@@ -357,7 +359,7 @@ public abstract class Info extends CDialog
 			String tempClause = "";
 			tempClause = Env.parseContext(Env.getCtx(), p_WindowNo, whereClause, false, false);
 			if (tempClause.length() == 0)
-				log.log(Level.SEVERE, "Cannot parse context= " + whereClause);
+				log.log(Level.WARNING, "Cannot parse context= " + whereClause);
 			setWhereClause(tempClause);
 		}
 
@@ -1137,6 +1139,41 @@ public abstract class Info extends CDialog
 		return;
 	}
 
+	@Override
+	public void vetoableChange(PropertyChangeEvent e)
+			throws PropertyVetoException {
+
+		if(!p_loadedOK)
+			return;
+
+		Object source = null;
+		
+		if(e.getSource() != null)
+		{
+			// No vetos here - just set the value
+			source = e.getSource();
+			((VEditor) source).setValue(e.getNewValue());
+			
+			// Check if we need to reset the table.  The flag is reset when
+			// the table is reset.  The first change triggers the reset.
+			p_resetColumns = p_resetColumns || columnIsDynamic(source);
+		}
+		
+		p_triggerRefresh = true;
+
+        // Refresh if the autoquery feature is selected or the refresh button is clicked.
+		if (p_triggerRefresh && (p_refreshNow || autoQuery()))
+		{
+			//  Something changed so save the state and prepare for the query
+			executeQuery();
+		}
+		
+		//  Reset the flags
+		p_triggerRefresh = false;
+    	p_refreshNow = false;
+
+	}
+
 	/**************************************************************************
 	 *	(Button) Action Listener & Popup Menu
 	 *  @param e event
@@ -1245,10 +1282,14 @@ public abstract class Info extends CDialog
 
 				if (tf.getParent() instanceof VLookup)
 				{
-					// Ignore it.  User typed into the VLookup text field.
-					// Look for events form the VLookup VComboBox component
-					// instead.
-					return;
+					// See if the combo box is active
+					if (((VLookup) tf.getParent()).getCombo() != null)
+					{
+						// Ignore it.  User typed into the VLookup text field.
+						// Look for events from the VLookup VComboBox component
+						// instead.
+						return;
+					}
 				}
 				else if (tf.hasChanged() || hasOutstandingChanges())  //  The change may have come from another field
 				{

@@ -21,6 +21,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -300,10 +302,10 @@ public class InfoProduct extends Info implements ActionListener, ChangeListener
 		labelASI.setText(Msg.translate(Env.getCtx(), "M_AttributeSetInstance_ID"));
 		fASI_ID = new VPAttribute((GridTab) null, false, false, true, p_WindowNo, 
 				MLookupFactory.get (Env.getCtx(), p_WindowNo, 0, 
-						MColumn.getColumn_ID(MAttributeSetInstance.Table_Name, MAttributeSetInstance.COLUMNNAME_M_AttributeSet_ID),
+						MColumn.getColumn_ID(MAttributeSetInstance.Table_Name, MAttributeSetInstance.COLUMNNAME_M_AttributeSetInstance_ID),
 						DisplayType.PAttribute), true);
 		fASI_ID.setBackground(AdempierePLAF.getInfoBackground());
-		fASI_ID.addActionListener(this);
+		fASI_ID.addVetoableChangeListener(this);
 
 		labelVendor.setText(Msg.translate(Env.getCtx(), "Vendor"));
 		fVendor_ID = new VLookup("C_BPartner_ID", false, false, true,
@@ -489,7 +491,14 @@ public class InfoProduct extends Info implements ActionListener, ChangeListener
 	    		
 				//  Find the ASI used by the product on the lead row
 				MProduct mp = MProduct.get(Env.getCtx(), m_M_Product_ID);
-				m_M_AttributeSetInstance_ID = mp.getM_AttributeSetInstance_ID();				
+				if (mp != null)
+				{
+					m_M_AttributeSetInstance_ID = mp.getM_AttributeSetInstance_ID();
+				}
+				else
+				{
+					m_M_AttributeSetInstance_ID = 0;
+				}
 
 	    		//  Warehouse tab
 				sql = m_sqlWarehouse;
@@ -1938,4 +1947,5 @@ public class InfoProduct extends Info implements ActionListener, ChangeListener
     	checkOnlyStock.setValue(false);  	//  Show everything
 		checkAND.setSelected(true); 		//  Use AND
 	}
+
 }	//	InfoProduct
