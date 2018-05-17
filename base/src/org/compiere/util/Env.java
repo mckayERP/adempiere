@@ -586,7 +586,7 @@ public final class Env
 		//
 		if (s == null && ! onlyTab)
 			return getContext(ctx, WindowNo, context, onlyWindow);
-		return s;
+		return s != null ? s : "";
 	}	//	getContext
 
 	/**
@@ -651,6 +651,31 @@ public final class Env
 	public static int getContextAsInt(Properties ctx, int WindowNo, String context, boolean onlyWindow)
 	{
 		String s = getContext(ctx, WindowNo, context, onlyWindow);
+		if (s.length() == 0)
+			return 0;
+		//
+		try
+		{
+			return Integer.parseInt(s);
+		}
+		catch (NumberFormatException e)
+		{
+			s_log.log(Level.SEVERE, "(" + context + ") = " + s, e);
+		}
+		return 0;
+	}	//	getContextAsInt
+
+	/**
+	 *	Get Context and convert it to an integer (0 if error)
+	 *  @param ctx context
+	 *  @param WindowNo window no
+	 *  @param context context key
+	 *  @param onlyWindow  if true, no defaults are used unless explicitly asked for
+	 *  @return value or 0
+	 */
+	public static int getContextAsInt(Properties ctx, int WindowNo, int TabNo, String context, boolean onlyTab, boolean onlyWindow)
+	{
+		String s = getContext(ctx, WindowNo, TabNo, context, onlyTab, onlyWindow);
 		if (s.length() == 0)
 			return 0;
 		//
@@ -1286,6 +1311,24 @@ public final class Env
 	public static String parseContext (Properties ctx, int WindowNo, String value,
 		boolean onlyWindow, boolean ignoreUnparsable)
 	{
+		return parseContext(ctx, WindowNo, value, onlyWindow, ignoreUnparsable, "");
+	}
+
+	/**
+	 *	Parse Context replaces global or Window context @tag@ with actual value.
+	 *
+	 *  @tag@ are ignored otherwise "" is returned
+	 *  @param ctx context
+	 *	@param WindowNo	Number of Window
+	 *	@param value Message to be parsed
+	 *  @param onlyWindow if true, no defaults are used
+	 * 	@param ignoreUnparsable if true, unsuccessful @return parsed String or "" if not successful and ignoreUnparsable
+	 *  @param replaceUnparseableWithThis replace unparsable variables with this string, for example "null" 
+	 *	@return parsed context 
+	 */
+	public static String parseContext (Properties ctx, int WindowNo, String value,
+		boolean onlyWindow, boolean ignoreUnparsable, String replaceUnparseableWithThis)
+	{
 		if (value == null || value.length() == 0)
 			return "";
 
@@ -1313,9 +1356,20 @@ public final class Env
 				ctxInfo = getContext(ctx, token);	// get global context
 			if (ctxInfo.length() == 0)
 			{
-				s_log.config("No Context Win=" + WindowNo + " for: " + token);
 				if (!ignoreUnparsable)
+				{
+					s_log.config("No Context Win=" + WindowNo + " for: " + token);
 					return "";						//	token not found
+				}
+				else if (replaceUnparseableWithThis != null)
+				{
+					s_log.fine("No context Win=" + WindowNo + " for: " + token + ". Replace with " + replaceUnparseableWithThis);
+					outStr.append(replaceUnparseableWithThis);
+				}
+				else
+				{
+					s_log.fine("No Context Win=" + WindowNo + " for: " + token + ". Replace with empty string.");
+				}
 			}
 			else
 				outStr.append(ctxInfo);				// replace context with Context
