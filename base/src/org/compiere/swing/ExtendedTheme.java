@@ -21,6 +21,7 @@ public interface ExtendedTheme {
 	public final static ColorUIResource DEFAULT_INFO_BG = new ColorUIResource(253, 237, 207);	//	light yellow
 	public final static ColorUIResource DEFAULT_SELECTED_BG = new ColorUIResource(240, 248, 255);	//	light gray
 	public final static ColorUIResource DEFAULT_READONLY_BG = new ColorUIResource(255, 245, 238);	//	light yellow
+	public final static ColorUIResource DEFAULT_OK_FG = new ColorUIResource(0, 204, 0);	//	Dark green
 	
 	public void setUIProperties(Map<?, ?> propertyMap);
 	
@@ -31,4 +32,5 @@ public interface ExtendedTheme {
 	public final static String INFO_BG_KEY = "Info.background";
 	public final static String SELECTED_BG_KEY = "TextField.selectedBackground";
 	public final static String READONLY_BG_KEY = "TextField.readonlyBackground";
+	public final static String OK_FG_KEY = "TextField.okForeground";
 }

@@ -43,8 +43,10 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
 import org.adempiere.plaf.AdempierePLAF;
+import org.compiere.model.MImage;
 import org.compiere.swing.ColorBlind;
 import org.compiere.swing.ThemeUtils;
+import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.ValueNamePair;
 
@@ -364,6 +366,9 @@ public class CompiereColor implements Serializable
 
 	/*************************************************************************/
 
+	/** Color Name */
+	private String			m_colorName = "-/-";
+	
 	/** Type - Default: Gradient    */
 	private String  		m_type = TYPE_GRADIENT;
 
@@ -391,6 +396,9 @@ public class CompiereColor implements Serializable
 
 	/** Background                              */
 	private ColorBackground m_back = null;
+	
+	/** AD_Image_ID reference */
+	private int m_AD_Image_ID = 0;
 
 	/** Diry marker for repaining Background    */
 	private boolean m_dirty = true;
@@ -909,6 +917,10 @@ public class CompiereColor implements Serializable
 		getColorBackground(c).paintRect (g,c, x,y, w,h);
 	}   //  paintRect
 
+	public ColorBackground getColorBackground(Rectangle bounds)
+	{
+		return new ColorBackground(bounds);
+	}
 	/**
 	 *  Get Background
 	 *  @param c Componenr
@@ -937,7 +949,7 @@ public class CompiereColor implements Serializable
 	 */
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer ("AdempiereColor[");
+		StringBuffer sb = new StringBuffer ("AdempiereColor['").append(getColorName()).append("': ");
 		if (isFlat())
 			sb.append("Flat")
 				.append(" ").append(ThemeUtils.getColorAsString(getFlatColor()));
@@ -966,7 +978,7 @@ public class CompiereColor implements Serializable
 	 *  Parse String Representation and set Attributes
 	 *  @param str parse string
 	 */
-	private void parseAttributres (String str)
+	public void parseAttributres (String str)
 	{
 		if (str.indexOf("[Flat ") != -1)
 		{
@@ -1021,6 +1033,42 @@ public class CompiereColor implements Serializable
 	{
 		m_dirty = dirty;
 	}   //  setDirty
+
+
+/**
+	 * @return the m_AD_Image_ID
+	 */
+	public int getAD_Image_ID() {
+		return m_AD_Image_ID;
+	}
+
+	/**
+	 * @param m_AD_Image_ID the m_AD_Image_ID to set
+	 */
+	public void setAD_Image_ID(int ad_image_id) {
+		m_AD_Image_ID = ad_image_id;
+		
+		if (m_AD_Image_ID > 0)
+		{
+			MImage image = MImage.get(Env.getCtx(), m_AD_Image_ID);
+			setTextureURL(image.getImageURL());
+		}
+	}
+
+
+/**
+	 * @return the m_colorName
+	 */
+	public String getColorName() {
+		return m_colorName;
+	}
+
+	/**
+	 * @param m_colorName the m_colorName to set
+	 */
+	public void setColorName(String colorName) {
+		this.m_colorName = colorName;
+	}
 
 
 /******************************************************************************
@@ -1188,7 +1236,33 @@ public class ColorBackground
 	}   //  fillBackground
 
 	/**
-	 *  Paint/copy background to component
+	 *  Paint/copy background to component. Do not check the bounds.
+	 *  Useful when the background image was calculated for the 
+	 *  component alone and not the parent container.
+	 *  @param g graphics
+	 *  @param c component
+	 */
+	public void paintNoCheck (Graphics g, JComponent c)
+	{
+		Rectangle bounds = c.getBounds();
+		// check (bounds);  // No check.
+		//
+		int h = m_backImage.getHeight();
+		int w = m_backImage.getWidth();
+		//  Copy Background
+		g.drawImage (m_backImage,
+			0, 0, 	//  destination start point
+			w, h, //  destination end point
+			0, 0,                   //  source start
+			w, h, 					//  source end
+			c);
+	}   //  paint
+
+	
+	/**
+	 *  Paint/copy background to component.  This creates a background 
+	 *  image for the background of the parent component and copies
+	 *  the portion of that image into the bounds of the component.
 	 *  @param g graphics
 	 *  @param c component
 	 */

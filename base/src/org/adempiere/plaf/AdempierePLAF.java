@@ -180,7 +180,14 @@ public final class AdempierePLAF
 	 */
 	public static Color getTextColor_OK()
 	{
-		return getTextColor_Normal();
+//		return getTextColor_Normal();
+//		return ColorBlind.getDichromatColor(UIManager.getColor("textHighlight"));
+//		return ColorBlind.getDichromatColor(UIManager.getColor("txt_ok"));
+		Color c = UIManager.getColor(ExtendedTheme.OK_FG_KEY);
+		if (c == null)
+			c = ExtendedTheme.DEFAULT_OK_FG;
+		return ColorBlind.getDichromatColor(c);
+
 	}   //  getText_OK
 
 	/**

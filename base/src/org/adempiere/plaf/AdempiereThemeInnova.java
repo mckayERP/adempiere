@@ -82,7 +82,7 @@ public class AdempiereThemeInnova extends org.adempiere.plaf.AdempiereTheme
 	info =  new ColorUIResource(251, 248, 251); // somewhat white
 
 	/** Foreground Text OK        */
-	txt_ok =new ColorUIResource(0, 153, 255); // blue ;
+	txt_ok =new ColorUIResource(0, 255, 100); // Green ;
 	/** Foreground Text Error     */
 	txt_error = new ColorUIResource(255, 0, 51); // red ;
         

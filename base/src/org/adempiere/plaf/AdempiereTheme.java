@@ -418,7 +418,9 @@ public class AdempiereTheme extends com.jgoodies.looks.plastic.PlasticTheme {
     			ExtendedTheme.INFO_BG_KEY,
     			info,
     			ExtendedTheme.MANDATORY_BG_KEY,
-    			mandatory
+    			mandatory,
+    			ExtendedTheme.OK_FG_KEY,
+    			txt_ok
     		};  
         table.putDefaults(uiDefaults);
     }
