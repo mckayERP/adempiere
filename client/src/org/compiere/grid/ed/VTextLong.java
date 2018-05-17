@@ -103,7 +103,7 @@ public class VTextLong extends CTextPane
 	public static String startEditor(Container jc, String header, String text, boolean editable)
 	{
 		//	Find frame
-		JFrame frame = Env.getFrame(jc);
+		JFrame frame = (JFrame) Env.getFrame(jc);
 		//	Start it
 		HTMLEditor ed = new HTMLEditor (frame, header, text, editable);
 		String s = ed.getHtmlText();

@@ -18,6 +18,7 @@ package org.compiere.grid;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -65,7 +66,7 @@ public class RecordAccessDialog extends CDialog
 	 *	@param AD_Table_ID table
 	 *	@param Record_ID record
 	 */
-	public RecordAccessDialog(JFrame owner, int AD_Table_ID, int Record_ID)
+	public RecordAccessDialog(Frame owner, int AD_Table_ID, int Record_ID)
 	{
 		super(owner, Msg.translate(Env.getCtx(), "RecordAccessDialog"));
 		log.info("AD_Table_ID=" + AD_Table_ID + ", Record_ID=" + Record_ID);

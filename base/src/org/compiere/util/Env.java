@@ -18,6 +18,7 @@ package org.compiere.util;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -1508,7 +1509,7 @@ public final class Env
 	{
 		if (container == null)
 			return 0;
-		JFrame winFrame = getFrame(container);
+		JFrame winFrame = (JFrame) getFrame(container);
 		if (winFrame == null)
 			return 0;
 
@@ -1518,7 +1519,7 @@ public final class Env
 			Container cmp = (Container)s_windows.get(i);
 			if (cmp != null)
 			{
-				JFrame cmpFrame = getFrame(cmp);
+				JFrame cmpFrame = (JFrame) getFrame(cmp);
 				if (winFrame.equals(cmpFrame))
 					return i;
 			}
@@ -1536,7 +1537,7 @@ public final class Env
 		JFrame retValue = null;
 		try
 		{
-			retValue = getFrame ((Container)s_windows.get(WindowNo));
+			retValue = (JFrame) getFrame ((Container)s_windows.get(WindowNo));
 		}
 		catch (Exception e)
 		{
@@ -1576,15 +1577,15 @@ public final class Env
 	/**************************************************************************
 	 *	Get Frame of Window
 	 *  @param container Container
-	 *  @return JFrame of container or null
+	 *  @return Frame of container or null
 	 */
-	public static JFrame getFrame (Container container)
+	public static Frame getFrame (Container container)
 	{
 		Container element = container;
 		while (element != null)
 		{
-			if (element instanceof JFrame)
-				return (JFrame)element;
+			if (element instanceof Frame)
+				return (Frame)element;
 			element = element.getParent();
 		}
 		return null;
