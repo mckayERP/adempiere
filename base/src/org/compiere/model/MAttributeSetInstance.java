@@ -588,7 +588,7 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		// Else - assume the values are set
 		return true;
 	}	
-	
+
 	public String toString() {
 		return "ASI=" + this.getM_AttributeSetInstance_ID() + " AS=" + this.getM_AttributeSet_ID();
 	}
@@ -732,4 +732,34 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		
 		return asiIDToFind;
 	}
+	
+	/**
+	 * Determines if this ASI includes instance attributes.  
+	 * @return true if instance attributes values exist.
+	 */
+	public boolean hasInstanceValues() {
+		
+		MAttributeSet as = this.getMAttributeSet();
+		if (as == null)
+			return false;
+		
+		MAttribute[] attributes = as.getMAttributes();
+		
+		for (int i = 0; i < attributes.length; i++) {
+			MAttribute attribute = attributes[i];
+			
+			if (attribute == null || !attribute.isInstanceAttribute())
+				continue;
+				
+			log.finest(attribute.getName());
+			MAttributeInstance instance = attribute.getMAttributeInstance (getM_AttributeSetInstance_ID());
+
+			if (instance == null)
+				return false;
+		}
+
+		// Else - assume the values are set
+		return true;
+	}	
+
 }	//	MAttributeSetInstance
