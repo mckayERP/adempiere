@@ -1272,12 +1272,15 @@ public class MProduct extends X_M_Product
 	 * @param masterProduct
 	 * 			The product with a list of substitutes.
 	 * @return 
-	 * 			True if this product is a valid substitute, otherwise false.
+	 * 			True if this product is equivalent or a valid substitute, otherwise false.
 	 */
 	public boolean isValidSubstitueFor(MProduct masterProduct) {
 		
 		if (masterProduct == null)
 			return false;
+		
+		if(this.getM_Product_ID() == masterProduct.getM_Product_ID())
+			return true;
 		
 		String where = X_M_Substitute.COLUMNNAME_M_Product_ID + "=?";
 		List<X_M_Substitute> subs = new Query(getCtx(), X_M_Substitute.Table_Name, where, get_TrxName())
