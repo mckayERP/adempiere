@@ -10,11 +10,14 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.Range;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.Dataset;
@@ -22,6 +25,7 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 
 public class MChart extends X_AD_Chart {
 
@@ -34,8 +38,14 @@ public class MChart extends X_AD_Chart {
 	private Dataset dataset;
 	private HashMap<String,MQuery> queries;
 
+	private String m_newName;
+
+	private String m_newRangeLabel;
+
+	private String m_newDomainLabel;
+
 	public MChart(Properties ctx, int AD_Chart_ID, String trxName) {
-		super(ctx, AD_Chart_ID, trxName);
+		super(ctx, AD_Chart_ID, trxName);		
 	}
 
 	public MChart(Properties ctx, ResultSet rs, String trxName) {
@@ -48,6 +58,7 @@ public class MChart extends X_AD_Chart {
 		{
 			ds.addData(this);
 		}
+		
 	}
 
 	public CategoryDataset getCategoryDataset() {
@@ -175,12 +186,14 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createXYBarChart() {
+		IntervalXYDataset data = getXYDataset();  // Sets the labels
+
 		JFreeChart chart = ChartFactory.createXYBarChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
 				true,
-				getRangeLabel(),                  // range axis label
-				getXYDataset(),                  // data
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -193,11 +206,13 @@ public class MChart extends X_AD_Chart {
 	}
 	
 	private JFreeChart createTimeSeriesChart() {
+		IntervalXYDataset data = getXYDataset();  // Sets the labels
+
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getXYDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				isDisplayLegend(),                     // include legend
 				true,                     // tooltips?
 				true                     // URLs?
@@ -208,11 +223,12 @@ public class MChart extends X_AD_Chart {
 	}
 	
 	private JFreeChart createWaterfallChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		JFreeChart chart = ChartFactory.createWaterfallChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 					? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -225,32 +241,38 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createRingChart() {
-		final JFreeChart chart = ChartFactory.createRingChart(getName(),
-				getPieDataset(), isDisplayLegend(), true, true);
+		PieDataset data = getPieDataset(); // Sets name
+		final JFreeChart chart = ChartFactory.createRingChart(getName(true),
+				data, isDisplayLegend(), true, true);
 	
 		return chart;
 	}
 
 	private JFreeChart createPieChart() {
-		final JFreeChart chart = ChartFactory.createPieChart(getName(),
-				getPieDataset(), false, true, true);
+		PieDataset data = getPieDataset(); // Sets name
+		final JFreeChart chart = ChartFactory.createPieChart(getName(true),
+				data, false, true, true);
 	
 		return chart;
 	}
 
 	private JFreeChart create3DPieChart() {
-		final JFreeChart chart = ChartFactory.createPieChart3D(getName(),
-				getPieDataset(), false, true, true);
+		PieDataset data = getPieDataset(); // Sets name
+		final JFreeChart chart = ChartFactory
+				.createPieChart3D(
+						getName(true),
+						data, false, true, true);
 	
 		return chart;
 	}
 
 	private JFreeChart createBarChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		JFreeChart chart = ChartFactory.createBarChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -269,11 +291,12 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart create3DBarChart() {
-		JFreeChart chart = ChartFactory.createBarChart3D(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
+		JFreeChart chart = ChartFactory.createBarChart(
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -286,11 +309,12 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createStackedBarChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		JFreeChart chart = ChartFactory.createStackedBarChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -310,11 +334,12 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart create3DStackedBarChart() {
-		JFreeChart chart = ChartFactory.createStackedBarChart3D(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
+		JFreeChart chart = ChartFactory.createStackedBarChart(
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -327,12 +352,13 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createAreaChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		// create the chart...
 		JFreeChart chart = ChartFactory.createAreaChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title - allow overwrite by the dataset
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -345,12 +371,13 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createStackedAreaChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		// create the chart...
 		JFreeChart chart = ChartFactory.createStackedAreaChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -363,12 +390,15 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart createLineChart() {
+		
+		CategoryDataset data = getCategoryDataset();
+		
 		// create the chart...
 		JFreeChart chart = ChartFactory.createLineChart(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+				getName(true),         // chart title
+				getDomainLabel(true),               // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -382,12 +412,13 @@ public class MChart extends X_AD_Chart {
 	}
 
 	private JFreeChart create3DLineChart() {
+		CategoryDataset data = getCategoryDataset();  // Sets the labels
 		// create the chart...
-		JFreeChart chart = ChartFactory.createLineChart3D(
-				getName(),         // chart title
-				getDomainLabel(),               // domain axis label
-				getRangeLabel(),                  // range axis label
-				getCategoryDataset(),                  // data
+		JFreeChart chart = ChartFactory.createLineChart(
+				getName(true),         // chart title
+				getDomainLabel(true),             // domain axis label
+				getRangeLabel(true),                  // range axis label
+				data,                  // data
 				X_AD_Chart.CHARTORIENTATION_Horizontal.equals(getChartOrientation()) 
 				? PlotOrientation.HORIZONTAL : PlotOrientation.VERTICAL, // orientation
 				isDisplayLegend(),                     // include legend
@@ -402,9 +433,16 @@ public class MChart extends X_AD_Chart {
 
 	private void setupCategoryChart(JFreeChart chart) {
 		CategoryPlot plot = chart.getCategoryPlot();
+		
+		//  xAxis - Category
 		CategoryAxis xAxis = (CategoryAxis)plot.getDomainAxis();
 	    xAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-	
+
+		//  xAxis - Category
+		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+		yAxis.setAutoRangeIncludesZero(false);
+		yAxis.setAutoRange(true);
+
 	    CategoryItemRenderer renderer = plot.getRenderer();
 	    renderer.setSeriesPaint(0, Color.RED);
 		renderer.setSeriesPaint(1, Color.BLUE);
@@ -417,6 +455,54 @@ public class MChart extends X_AD_Chart {
 		renderer.setSeriesPaint(8, Color.PINK);
 		
 		plot.setRenderer(renderer);
+	}
+
+	/** Get Name, allow overwrite by the data set
+	 * @return Alphanumeric identifier of the entity
+	 */
+	String getName (boolean allowOverWrite) 
+	{
+		if (allowOverWrite && m_newName != null && !m_newName.isEmpty())
+			return m_newName;
+		
+		return getName();
+	}
+
+	String getRangeLabel(boolean allowOverWrite) 
+	{
+		if (allowOverWrite && m_newRangeLabel != null && !m_newRangeLabel.isEmpty())
+			return m_newRangeLabel;
+		
+		return getRangeLabel();
+	}
+
+	String getDomainLabel(boolean allowOverWrite) 
+	{
+		if (allowOverWrite && m_newDomainLabel != null && !m_newDomainLabel.isEmpty())
+			return m_newDomainLabel;
+		
+		return getDomainLabel();
+	}
+
+	void setName(String name, boolean labelOnly) {
+		if (labelOnly)
+			this.m_newName = name;
+		else
+			this.setName(name);
+	}
+
+	void setRangeLabel(String rangeLabel, boolean labelOnly) {
+		if (labelOnly)
+			this.m_newRangeLabel = rangeLabel;
+		else
+			this.setRangeLabel(rangeLabel);
+	}
+
+	void setDomainLabel(String domainLabel, boolean labelOnly) {
+		if (labelOnly)
+			this.m_newDomainLabel = domainLabel;
+		else
+			this.setDomainLabel(domainLabel);
 	}
 
 }

@@ -2,6 +2,7 @@ package org.compiere.grid.ed;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -22,12 +23,9 @@ import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.PieSectionEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
-import org.jfree.data.xy.XYDataset;
 
 public class VChart extends CPanel implements ChartMouseListener, VEditor {
 	
@@ -56,6 +54,8 @@ public class VChart extends CPanel implements ChartMouseListener, VEditor {
 	public void createChart()
 	{
 		JFreeChart chart = chartModel.createChart();
+		chart.getPlot().setBackgroundPaint(Color.WHITE);
+		
 		if (chartPanel != null)
 			remove(chartPanel);
 	
@@ -79,8 +79,11 @@ public class VChart extends CPanel implements ChartMouseListener, VEditor {
 	@Override
 	public void dispose() {}
 
+	// getName needs to return the column name, not the chart title.
+//	@Override
+//	public String getName() {return chartModel.getName();}
 	@Override
-	public String getName() {return chartModel.getName();}
+	public String getName() {return super.getName();}
 
 	@Override
 	public void removeVetoableChangeListener(VetoableChangeListener listener) {}

@@ -112,7 +112,7 @@ public class GraphBuilder {
 	}
 
 	private JFreeChart createBarChart() {
-		JFreeChart chart = ChartFactory.createBarChart3D(
+		JFreeChart chart = ChartFactory.createBarChart(
 				m_goal.getMeasure().getName(),         // chart title
 				m_X_AxisLabel,               // domain axis label
 				m_Y_AxisLabel,                  // range axis label
@@ -167,7 +167,7 @@ public class GraphBuilder {
 
 	private JFreeChart createLineChart() {
 		// create the chart...
-		JFreeChart chart = ChartFactory.createLineChart3D(
+		JFreeChart chart = ChartFactory.createLineChart(
 				m_goal.getMeasure().getName(),         // chart title
 				m_X_AxisLabel,               // domain axis label
 				m_Y_AxisLabel,                  // range axis label

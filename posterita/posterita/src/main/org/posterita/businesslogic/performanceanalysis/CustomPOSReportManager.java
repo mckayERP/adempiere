@@ -237,7 +237,9 @@ public class CustomPOSReportManager
 			
 			if(series == null)
 			{
-				series = new TimeSeries(seriesName,Day.class);
+				// Upgrade to jfreechart 1.5.0 - TimeSeries defaults to a day series.
+				series = new TimeSeries(seriesName);
+//				series = new TimeSeries(seriesName,Day.class);
 				series.add(new Day(day,month,year),price);
 				
 				dataset.addSeries(series);				

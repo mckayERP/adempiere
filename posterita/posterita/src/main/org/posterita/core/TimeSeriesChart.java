@@ -84,7 +84,13 @@ public class TimeSeriesChart extends AbstractChart
 		{
 			XYPlot plot = (XYPlot) chart.getPlot();	
 			XYLineAndShapeRenderer render = (XYLineAndShapeRenderer) plot.getRenderer();
-			render.setBaseShapesVisible(true);
+			if (dataset != null)
+			{
+				for (int i=0; i< dataset.getSeriesCount(); i++)
+				{
+					render.setSeriesShapesVisible(i, true);
+				}
+			}
 		}
 		
 		//setting subtitle
@@ -99,8 +105,14 @@ public class TimeSeriesChart extends AbstractChart
 		{
 			XYPlot plot = (XYPlot) chart.getPlot();	
 			XYLineAndShapeRenderer render = (XYLineAndShapeRenderer) plot.getRenderer();
-			render.setItemLabelGenerator(new StandardXYItemLabelGenerator());
-			render.setItemLabelsVisible(true);			
+			if (dataset != null)
+			{
+				for (int i=0; i< dataset.getSeriesCount(); i++)
+				{
+					render.setSeriesItemLabelGenerator(i, new StandardXYItemLabelGenerator());
+					render.setSeriesItemLabelsVisible(i, true);
+				}
+			}
 		}
 		
 		return chart;
@@ -188,7 +200,9 @@ public class TimeSeriesChart extends AbstractChart
 			
 			if(series == null)
 			{
-				series = new TimeSeries(seriesName,Day.class);
+				// Upgrade to jfreechart 1.5.0 - TimeSeries defaults to a day series.
+				series = new TimeSeries(seriesName);
+//				series = new TimeSeries(seriesName,Day.class);
 				series.add(new Day(day,month,year),value);
 				
 				timeSeriesCollection.addSeries(series);				
@@ -207,8 +221,12 @@ public class TimeSeriesChart extends AbstractChart
 	{
 		PreparedStatement pstmt = DB.prepareStatement(sql,null);
 		
-		ArrayList<Object[]> dataSource = ReportManager.getReportData(pstmt);		
-		TimeSeries series = new TimeSeries(key,Day.class);
+		ArrayList<Object[]> dataSource = ReportManager.getReportData(pstmt);	
+
+		// Upgrade to jfreechart 1.5.0 - TimeSeries defaults to a day series.
+		TimeSeries series = new TimeSeries(key);
+//		TimeSeries series = new TimeSeries(key,Day.class);
+
 		int count = 0;		
 		
 		for (Object[] data : dataSource) 

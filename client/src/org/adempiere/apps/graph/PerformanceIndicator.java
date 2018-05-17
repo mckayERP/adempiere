@@ -42,14 +42,15 @@ import org.compiere.swing.CMenuItem;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DialShape;
 import org.jfree.chart.plot.MeterInterval;
 import org.jfree.chart.plot.MeterPlot;
+import org.jfree.ui.RectangleInsets;
 import org.jfree.data.Range;
 import org.jfree.data.general.DefaultValueDataset;
-import org.jfree.ui.RectangleInsets;
 
 /**
  * 	Performance Indicator
@@ -194,7 +195,7 @@ public class PerformanceIndicator extends JPanel
         plot.setTickSize(2000);
         plot.setTickLabelFont(new Font("SansSerif", Font.BOLD, 12));
         plot.setTickLabelPaint(Color.white);
-        plot.setInsets(new RectangleInsets(1.0, 2.0, 3.0, 4.0)); 
+        plot.setInsets(new RectangleInsets(1.0, 2.0, 3.0, 4.0));
 
         chart = new JFreeChart( m_text, new Font("SansSerif", Font.BOLD, 15), plot,false);
         
@@ -214,7 +215,7 @@ public class PerformanceIndicator extends JPanel
         		);   
         chartPanel.setPreferredSize(indicatordimension);
 
-        chartPanel.addChartMouseListener( new org.jfree.chart.ChartMouseListener() 
+        chartPanel.addChartMouseListener( new ChartMouseListener() 
         {
             public void chartMouseClicked(org.jfree.chart.ChartMouseEvent e) 
             {

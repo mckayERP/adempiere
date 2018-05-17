@@ -45,6 +45,63 @@ public class MChartDatasource extends X_AD_ChartDatasource {
 
 	public void addData(MChart parent) {
 		
+		//  In case the data source wants to set the chart name and labels
+		//  they can be over written as the data is added.  The last
+		//  data source processed will control the values.  Recommended that
+		//  the name and labels be the same on all associated data sources or
+		//  used only on one as the order is not controlled. Otherwise, they
+		//  can be left blank in which case the Chart definition will be used.
+		String chartName = parent.getName(true);
+		String domainLabel = parent.getDomainLabel(true);
+		String rangeLabel = parent.getRangeLabel(true);
+		
+		String chartNameSQL = getChartNameColumn();
+		String domainLabelSQL = getDomainLabelColumn();
+		String rangeLabelSQL = getRangeLabelColumn();
+		
+		String labelSelect = "";
+		if (chartNameSQL == null)
+		{
+			labelSelect += ", " + DB.TO_STRING(chartName);
+		}
+		else
+		{
+			labelSelect += ", " + chartNameSQL;
+		}
+
+		if (domainLabelSQL == null)
+		{
+			labelSelect += ", " + DB.TO_STRING(domainLabel);
+
+		}
+		else
+		{
+			labelSelect += ", " + domainLabelSQL;
+		}
+
+		if (rangeLabelSQL == null)
+		{
+			labelSelect += ", " + DB.TO_STRING(rangeLabel);
+		}
+		else
+		{
+			labelSelect += ", " + rangeLabelSQL;
+		}
+		
+		// Check the label values.  Expressions need to be added to the Group By clause
+		// but non-integer constants shouldn't be.
+		String labelGroupBy = "";
+		
+		// TODO test for DB style strings
+		if (chartNameSQL != null && !chartNameSQL.isEmpty())
+			labelGroupBy += ", " + chartNameSQL;
+		if (domainLabelSQL != null && !domainLabelSQL.isEmpty())
+			labelGroupBy += ", " + domainLabelSQL;
+		if (rangeLabelSQL != null && !rangeLabelSQL.isEmpty())
+			labelGroupBy += ", " + rangeLabelSQL;
+		
+		
+
 		String value = getValueColumn();
 		String category;
 		String unit = "D";
@@ -84,12 +141,12 @@ public class MChartDatasource extends X_AD_ChartDatasource {
 		String where = getWhereClause();
 		if ( !Util.isEmpty(where))
 		{
-			where = Env.parseContext(getCtx(), parent.getWindowNo(), where, true);
+			where = Env.parseContext(getCtx(), parent.getWindowNo(), where, true, true, "null");
 		}
 		
 		boolean hasWhere = false;
 		
-		String sql = "SELECT " + value + ", " + category  + ", " + series
+		String sql = "SELECT " + value + ", " + category  + ", " + series + labelSelect
 		+ " FROM " + getFromClause();
 		if ( !Util.isEmpty(where))
 		{
@@ -122,9 +179,11 @@ public class MChartDatasource extends X_AD_ChartDatasource {
 		sql = role.addAccessSQL(sql, null, true, false);
 		
 		if (hasSeries)
-			sql += " GROUP BY " + series + ", " + category + " ORDER BY " + series + ", "  + category;
+			sql += " GROUP BY " + series + ", " + category + labelGroupBy
+					+ " ORDER BY " + series + ", "  + category;
 		else
-			sql += " GROUP BY " + category + " ORDER BY " + category;
+			sql += " GROUP BY " + category + labelGroupBy
+					+ " ORDER BY " + category;
 		
 		log.log(Level.FINE, sql);
 		
@@ -204,6 +263,15 @@ public class MChartDatasource extends X_AD_ChartDatasource {
 				{
 					map.put(seriesName + "__" + key, query);
 				}
+				
+				chartName = rs.getString(4);
+				domainLabel = rs.getString(5);
+				rangeLabel = rs.getString(6);;
+
+				parent.setName(chartName, true);
+				parent.setDomainLabel(domainLabel, true);
+				parent.setRangeLabel(rangeLabel, true);
+
 			}
 		}
 		catch (SQLException e)

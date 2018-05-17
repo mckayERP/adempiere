@@ -1040,12 +1040,7 @@ public class GridController extends CPanel
 		{
 			Component comp = comps[i];
 			String columnName = comp.getName();
-			
-			if ( comp instanceof VChart && isSingleRow())
-			{
-				((VChart) comp).createChart();
-			}
-			
+						
 			if (columnName != null && columnName.length() > 0)
 			{
 				GridField mField = m_mTab.getField(columnName);
@@ -1055,6 +1050,13 @@ public class GridController extends CPanel
 					{
 						if (!comp.isVisible())
 							comp.setVisible(true);		//  visibility
+						
+						// Allow chart display to be controlled by the display logic.
+						if ( comp instanceof VChart && isSingleRow())
+						{
+							((VChart) comp).createChart();
+						}
+
 						/**
 						 * Feature Request [1707462]
 						 * Enable runtime change of VFormat
@@ -1092,6 +1094,12 @@ public class GridController extends CPanel
 					{
 						if (comp.isVisible())
 							comp.setVisible(false);
+						// Allow chart display to be controlled by the display logic.
+						if ( comp instanceof VChart && isSingleRow())
+						{
+							((VChart) comp).dispose();
+						}
+
 						hiddens.add(columnName);
 					}
 				}

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -41,15 +40,6 @@ public interface I_AD_ChartDatasource
 
     /** Load Meta Data */
 
-    /** Column name AD_ChartDatasource_ID */
-    public static final String COLUMNNAME_AD_ChartDatasource_ID = "AD_ChartDatasource_ID";
-
-	/** Set Chart Datasource	  */
-	public void setAD_ChartDatasource_ID (int AD_ChartDatasource_ID);
-
-	/** Get Chart Datasource	  */
-	public int getAD_ChartDatasource_ID();
-
     /** Column name AD_Chart_ID */
     public static final String COLUMNNAME_AD_Chart_ID = "AD_Chart_ID";
 
@@ -60,6 +50,15 @@ public interface I_AD_ChartDatasource
 	public int getAD_Chart_ID();
 
 	public org.compiere.model.I_AD_Chart getAD_Chart() throws RuntimeException;
+
+    /** Column name AD_ChartDatasource_ID */
+    public static final String COLUMNNAME_AD_ChartDatasource_ID = "AD_ChartDatasource_ID";
+
+	/** Set Chart Datasource	  */
+	public void setAD_ChartDatasource_ID (int AD_ChartDatasource_ID);
+
+	/** Get Chart Datasource	  */
+	public int getAD_ChartDatasource_ID();
 
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
@@ -110,6 +109,19 @@ public interface I_AD_ChartDatasource
 	  */
 	public String getCategoryColumn();
 
+    /** Column name ChartNameColumn */
+    public static final String COLUMNNAME_ChartNameColumn = "ChartNameColumn";
+
+	/** Set Chart Name Column.
+	  * The SQL column/expression where the chart name can be found. 
+	  */
+	public void setChartNameColumn (String ChartNameColumn);
+
+	/** Get Chart Name Column.
+	  * The SQL column/expression where the chart name can be found. 
+	  */
+	public String getChartNameColumn();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -151,6 +163,19 @@ public interface I_AD_ChartDatasource
 	  * Optional short description of the record
 	  */
 	public String getDescription();
+
+    /** Column name DomainLabelColumn */
+    public static final String COLUMNNAME_DomainLabelColumn = "DomainLabelColumn";
+
+	/** Set Domain Label Column.
+	  * The SQL column/expression where the chart domain label can be found. 
+	  */
+	public void setDomainLabelColumn (String DomainLabelColumn);
+
+	/** Get Domain Label Column.
+	  * The SQL column/expression where the chart domain label can be found. 
+	  */
+	public String getDomainLabelColumn();
 
     /** Column name EntityType */
     public static final String COLUMNNAME_EntityType = "EntityType";
@@ -218,6 +243,19 @@ public interface I_AD_ChartDatasource
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
+
+    /** Column name RangeLabelColumn */
+    public static final String COLUMNNAME_RangeLabelColumn = "RangeLabelColumn";
+
+	/** Set Range Label Column.
+	  * The SQL column/expression where the chart Range label can be found. 
+	  */
+	public void setRangeLabelColumn (String RangeLabelColumn);
+
+	/** Get Range Label Column.
+	  * The SQL column/expression where the chart Range label can be found. 
+	  */
+	public String getRangeLabelColumn();
 
     /** Column name SeriesColumn */
     public static final String COLUMNNAME_SeriesColumn = "SeriesColumn";

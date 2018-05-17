@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180406L;
 
     /** Standard Constructor */
     public X_AD_ChartDatasource (Properties ctx, int AD_ChartDatasource_ID, String trxName)
@@ -38,8 +37,8 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
       super (ctx, AD_ChartDatasource_ID, trxName);
       /** if (AD_ChartDatasource_ID == 0)
         {
-			setAD_ChartDatasource_ID (0);
 			setAD_Chart_ID (0);
+			setAD_ChartDatasource_ID (0);
 			setEntityType (null);
 // D
 			setFromClause (null);
@@ -78,26 +77,6 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
       return sb.toString();
     }
 
-	/** Set Chart Datasource.
-		@param AD_ChartDatasource_ID Chart Datasource	  */
-	public void setAD_ChartDatasource_ID (int AD_ChartDatasource_ID)
-	{
-		if (AD_ChartDatasource_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_ChartDatasource_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_ChartDatasource_ID, Integer.valueOf(AD_ChartDatasource_ID));
-	}
-
-	/** Get Chart Datasource.
-		@return Chart Datasource	  */
-	public int getAD_ChartDatasource_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_ChartDatasource_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_AD_Chart getAD_Chart() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_Chart)MTable.get(getCtx(), org.compiere.model.I_AD_Chart.Table_Name)
@@ -118,6 +97,26 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
 	public int getAD_Chart_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Chart_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Chart Datasource.
+		@param AD_ChartDatasource_ID Chart Datasource	  */
+	public void setAD_ChartDatasource_ID (int AD_ChartDatasource_ID)
+	{
+		if (AD_ChartDatasource_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_ChartDatasource_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_ChartDatasource_ID, Integer.valueOf(AD_ChartDatasource_ID));
+	}
+
+	/** Get Chart Datasource.
+		@return Chart Datasource	  */
+	public int getAD_ChartDatasource_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_ChartDatasource_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -168,6 +167,23 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
 		return (String)get_Value(COLUMNNAME_CategoryColumn);
 	}
 
+	/** Set Chart Name Column.
+		@param ChartNameColumn 
+		The SQL column/expression where the chart name can be found. 
+	  */
+	public void setChartNameColumn (String ChartNameColumn)
+	{
+		set_Value (COLUMNNAME_ChartNameColumn, ChartNameColumn);
+	}
+
+	/** Get Chart Name Column.
+		@return The SQL column/expression where the chart name can be found. 
+	  */
+	public String getChartNameColumn () 
+	{
+		return (String)get_Value(COLUMNNAME_ChartNameColumn);
+	}
+
 	/** Set Date Column.
 		@param DateColumn 
 		Fully qualified date column
@@ -200,6 +216,23 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	/** Set Domain Label Column.
+		@param DomainLabelColumn 
+		The SQL column/expression where the chart domain label can be found. 
+	  */
+	public void setDomainLabelColumn (String DomainLabelColumn)
+	{
+		set_Value (COLUMNNAME_DomainLabelColumn, DomainLabelColumn);
+	}
+
+	/** Get Domain Label Column.
+		@return The SQL column/expression where the chart domain label can be found. 
+	  */
+	public String getDomainLabelColumn () 
+	{
+		return (String)get_Value(COLUMNNAME_DomainLabelColumn);
 	}
 
 	/** EntityType AD_Reference_ID=389 */
@@ -280,6 +313,23 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
     {
         return new KeyNamePair(get_ID(), getName());
     }
+
+	/** Set Range Label Column.
+		@param RangeLabelColumn 
+		The SQL column/expression where the chart Range label can be found. 
+	  */
+	public void setRangeLabelColumn (String RangeLabelColumn)
+	{
+		set_Value (COLUMNNAME_RangeLabelColumn, RangeLabelColumn);
+	}
+
+	/** Get Range Label Column.
+		@return The SQL column/expression where the chart Range label can be found. 
+	  */
+	public String getRangeLabelColumn () 
+	{
+		return (String)get_Value(COLUMNNAME_RangeLabelColumn);
+	}
 
 	/** Set Series Column.
 		@param SeriesColumn Series Column	  */

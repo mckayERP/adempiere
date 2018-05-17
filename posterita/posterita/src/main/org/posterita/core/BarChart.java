@@ -36,7 +36,6 @@ import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.jdbc.JDBCCategoryDataset;
-
 import org.posterita.exceptions.OperationException;
 
 public class BarChart extends AbstractChart
@@ -83,7 +82,7 @@ public class BarChart extends AbstractChart
 			break;
 			
 		case BARCHART_3D:
-			chart = ChartFactory.createBarChart3D(title,xLabel,yLabel,dataset,orientation,showLegend,showTooltip,true);
+			chart = ChartFactory.createBarChart(title,xLabel,yLabel,dataset,orientation,showLegend,showTooltip,true);
 			break;
 			
 		default:
@@ -111,8 +110,14 @@ public class BarChart extends AbstractChart
 		if(showLabels)
 		{
 			CategoryItemRenderer itemRender = plot.getRenderer();
-			itemRender.setItemLabelGenerator(new StandardCategoryItemLabelGenerator());		
-			itemRender.setItemLabelsVisible(true);
+			if (dataset != null)
+			{
+				for (int i=0; i< dataset.getRowCount(); i++)
+				{
+					itemRender.setSeriesItemLabelGenerator(i, new StandardCategoryItemLabelGenerator());
+					itemRender.setSeriesItemLabelsVisible(i, true);
+				}
+			}
 		}
 		
 		return chart;

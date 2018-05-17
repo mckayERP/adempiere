@@ -63,15 +63,28 @@
 	      <pathelement path="../extend/Extend.jar"/>
 	      <pathelement path="../lib/CSTools.jar"/>
 	      <pathelement path="../lib/oracle.jar"/>
-      	<!-- SHW: old Lib <pathelement path="../JasperReportsTools/lib/jasperreports-3.7.3.jar"/>--> 
+      	
+  <!-- Jasper Reports 5.1.0
       	  <pathelement path="../JasperReportsTools/lib/jasperreports-5.1.0.jar"/>
-      	  <!-- SHW: old Lib <pathelement path="../JasperReportsTools/lib/commons-digester-1.7.jar"/> -->
       	  <pathelement path="../JasperReportsTools/lib/commons-digester-2.1.jar"/>
 	      <pathelement path="../tools/lib/commons-logging-1.2.jar"/>
-      	  <!-- SHW: old Lib <pathelement path="../JasperReportsTools/lib/commons-beanutils-1.7.jar"/>  -->  
       	  <pathelement path="../JasperReportsTools/lib/commons-beanutils-1.8.0.jar"/>
-	      <!-- SHW:new library  --> 
-	      <pathelement path="../JasperReportsTools/lib/jasperreports-fonts-5.1.0.jar"/> 	
+	      <pathelement path="../JasperReportsTools/lib/jasperreports-fonts-5.1.0.jar"/>
+   -->
+   <!--  MJM: Jasper Reports 6.5.1 - JasperStudio compatible -->
+      	  <pathelement path="../JasperReportsTools/lib/jasperreports-6.5.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/jasperreports-chart-customizers-6.5.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/jasperreports-chart-themes-6.5.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/jasperreports-fonts-6.1.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/jasperreports-functions-6.5.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/jasperreports-metadata-6.5.1.jar"/>
+          <pathelement path="../JasperReportsTools/lib/spring-beans-3.2.18.RELEASE.jar"/>
+          <pathelement path="../JasperReportsTools/lib/spring-core-3.2.18.RELEASE.jar"/>
+          <pathelement path="../JasperReportsTools/lib/spring-expression-3.2.18.RELEASE.jar"/>
+          <pathelement path="../tools/lib/org.jfree.chart-osgi_1.0.19.jar"/>
+          <pathelement path="../tools/lib/org.jfree.jcommon-osgi_1.0.23.jar"/>
+   <!-- End upgrade 6.5.1 -->   	
+      	
       	  <pathelement path="../tools/lib/xercesImpl.jar"/>
       	  <!-- mckayERP old Lib <pathelement path="../tools/lib/xml-apis.jar"/> -->
   	      <pathelement path="../tools/lib/xml-apis-1.4.01.jar"/>
@@ -140,9 +153,35 @@
   	  duplicate="preserve">
       <fileset dir="${needed.dir}"/>
   	  <!-- SHW: old Lib <zipfileset src="../JasperReportsTools/lib/jasperreports-3.7.3.jar" > -->
-  	  <zipfileset src="../JasperReportsTools/lib/jasperreports-5.1.0.jar" >
+      <!-- MJM: old lib <zipfileset src="../JasperReportsTools/lib/jasperreports-5.1.0.jar" > -->
+  	  <zipfileset src="../JasperReportsTools/lib/jasperreports-6.5.1.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
+  <!-- MJM: New libs upgrade to Jasper Reports 6.5.1 compatible with Jasper Studio-->
+      <zipfileset src="../JasperReportsTools/lib/jasperreports-chart-customizers-6.5.1.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/jasperreports-chart-themes-6.5.1.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/jasperreports-fonts-6.1.1.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/jasperreports-functions-6.5.1.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/jasperreports-metadata-6.5.1.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/spring-beans-3.2.18.RELEASE.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/spring-core-3.2.18.RELEASE.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
+      <zipfileset src="../JasperReportsTools/lib/spring-expression-3.2.18.RELEASE.jar" >
+        <patternset refid="manifest.exclude"/>
+      </zipfileset>
   	  <!-- SHW: old Lib <zipfileset src="../JasperReportsTools/lib/commons-digester-1.7.jar" > -->
   	  <zipfileset src="../JasperReportsTools/lib/commons-digester-2.1.jar" >
 		<patternset refid="manifest.exclude"/>
@@ -154,10 +193,11 @@
   	  <zipfileset src="../JasperReportsTools/lib/commons-beanutils-1.8.0.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
-      <!-- SHW: new lib--> 
-      <zipfileset src="../JasperReportsTools/lib/jasperreports-fonts-5.1.0.jar" >
-  		<patternset refid="manifest.exclude"/>
-  	  </zipfileset>
+      <!-- MJM: old lib 
+        <zipfileset src="../JasperReportsTools/lib/jasperreports-fonts-5.1.0.jar" > 
+  		  <patternset refid="manifest.exclude"/>
+  	    </zipfileset> 
+  	  -->
   	  <zipfileset src="../tools/lib/xercesImpl.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
