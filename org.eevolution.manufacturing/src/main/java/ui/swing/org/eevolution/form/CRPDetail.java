@@ -32,7 +32,7 @@ import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer3D;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.TextAnchor;
 
@@ -69,7 +69,7 @@ public class CRPDetail {
 			MUOM uom) {
 
 		JFreeChart chart = ChartFactory
-				.createBarChart3D(title,
+				.createBarChart(title,
 						Msg.translate(Env.getCtx(), "Day"), // X-Axis label
 						Msg.translate(Env.getCtx(),
 								(uom == null) ? "" : uom.getName()), // Y-Axis
@@ -92,16 +92,17 @@ public class CRPDetail {
 		plot.setDomainGridlinesVisible(true);
 		plot.setDomainGridlinePaint(Color.GRAY);
 
-		BarRenderer3D barrenderer = (BarRenderer3D) plot.getRenderer();
+		BarRenderer barrenderer = (BarRenderer) plot.getRenderer();
 		barrenderer.setDrawBarOutline(false);
-		barrenderer.setBaseItemLabelGenerator(new LabelGenerator());
-		barrenderer.setBaseItemLabelsVisible(true);
+//		TODO update for jFreeChart 1.5.0
+//		barrenderer.setBaseItemLabelGenerator(new LabelGenerator());
+//		barrenderer.setBaseItemLabelsVisible(true);
 		barrenderer.setSeriesPaint(0, new Color(10, 80, 150, 128));
 		barrenderer.setSeriesPaint(1, new Color(180, 60, 50, 128));
 
-		ItemLabelPosition itemlabelposition = new ItemLabelPosition(
-				ItemLabelAnchor.OUTSIDE12, TextAnchor.TOP_CENTER);
-		barrenderer.setPositiveItemLabelPosition(itemlabelposition);
+//		ItemLabelPosition itemlabelposition = new ItemLabelPosition(
+//				ItemLabelAnchor.OUTSIDE12, TextAnchor.TOP_CENTER);
+//		barrenderer.setPositiveItemLabelPosition(itemlabelposition);
 
 		CategoryAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setCategoryLabelPositions(CategoryLabelPositions

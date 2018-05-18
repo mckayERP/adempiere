@@ -57,10 +57,10 @@ public class CRP {
      */
     protected JFreeChart  createChart(CategoryDataset dataset  , String title, MUOM uom) 
 	{
-		JFreeChart chart = ChartFactory.createBarChart3D(title," "," ",dataset,PlotOrientation.VERTICAL,true,true,false);
+		JFreeChart chart = ChartFactory.createBarChart(title," "," ",dataset,PlotOrientation.VERTICAL,true,true,false);
 		if(uom == null || uom.isHour())
 		{
-			chart = ChartFactory.createBarChart3D
+			chart = ChartFactory.createBarChart
 	        ( title ,
 	          Msg.translate(Env.getCtx(), "Days"),    // X-Axis label
 	          Msg.translate(Env.getCtx(), "Hours"),   // Y-Axis label
@@ -73,7 +73,7 @@ public class CRP {
 		}
 		else
 		{
-			chart = ChartFactory.createBarChart3D
+			chart = ChartFactory.createBarChart
 	        ( title ,
 	          Msg.translate(Env.getCtx(), "Days"),            // X-Axis label
 	          Msg.translate(Env.getCtx(), "Kilo"),             // Y-Axis label

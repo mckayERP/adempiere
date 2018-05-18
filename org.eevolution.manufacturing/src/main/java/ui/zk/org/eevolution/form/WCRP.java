@@ -157,7 +157,7 @@ public class WCRP extends CRP implements IFormController, EventListener {
 		row.appendChild(dateFrom.getComponent());
 		centerPanel.appendChild(chartPanel);
 
-		JFreeChart jchart = ChartFactory.createBarChart3D("",
+		JFreeChart jchart = ChartFactory.createBarChart("",
 				Msg.translate(Env.getCtx(), "Days"), // X-Axis label
 				Msg.translate(Env.getCtx(), "Hours"), // Y-Axis label
 				new DefaultCategoryDataset(), // Dataset
