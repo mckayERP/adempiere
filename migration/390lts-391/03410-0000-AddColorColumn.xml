@@ -1,0 +1,757 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Migrations>
+<Migration EntityType="D" Name="Add IsColorColumn to AD_Column to allow tabs to show rows wi" ReleaseNo="3.9.1" SeqNo="3410">
+<Step SeqNo="20" StepType="AD">
+<PO AD_Table_ID="276" Action="I" Record_ID="59931" Table="AD_Element">
+<Data AD_Column_ID="6284" Column="PO_Help" isNewNull="true"/>
+<Data AD_Column_ID="2597" Column="IsActive">true</Data>
+<Data AD_Column_ID="2594" Column="AD_Element_ID">59931</Data>
+<Data AD_Column_ID="2602" Column="ColumnName">IsColorColumn</Data>
+<Data AD_Column_ID="2595" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="2598" Column="Created">2018-03-25 08:42:17.648</Data>
+<Data AD_Column_ID="2600" Column="Updated">2018-03-25 08:42:17.648</Data>
+<Data AD_Column_ID="2605" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="6283" Column="PO_Description" isNewNull="true"/>
+<Data AD_Column_ID="6484" Column="EntityType">D</Data>
+<Data AD_Column_ID="2596" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="2599" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="2601" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="2603" Column="Name">Color Column</Data>
+<Data AD_Column_ID="2604" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="4299" Column="PrintName">Color Column</Data>
+<Data AD_Column_ID="6286" Column="PO_PrintName" isNewNull="true"/>
+<Data AD_Column_ID="6285" Column="PO_Name" isNewNull="true"/>
+<Data AD_Column_ID="58588" Column="AD_Reference_ID">20</Data>
+<Data AD_Column_ID="58589" Column="FieldLength">1</Data>
+<Data AD_Column_ID="58590" Column="AD_Reference_Value_ID" isNewNull="true"/>
+</PO>
+</Step>
+<Step SeqNo="30" StepType="AD">
+<PO AD_Table_ID="277" Action="I" Record_ID="0" Table="AD_Element_Trl">
+<Data AD_Column_ID="6448" Column="PO_Description" isNewNull="true"/>
+<Data AD_Column_ID="2641" Column="IsActive">true</Data>
+<Data AD_Column_ID="2644" Column="Updated">2018-03-25 08:42:18.593</Data>
+<Data AD_Column_ID="2642" Column="Created">2018-03-25 08:42:18.593</Data>
+<Data AD_Column_ID="2643" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="2645" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="2638" Column="AD_Language">es_MX</Data>
+<Data AD_Column_ID="2637" Column="AD_Element_ID">59931</Data>
+<Data AD_Column_ID="2648" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="2640" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="6450" Column="PO_Name" isNewNull="true"/>
+<Data AD_Column_ID="2649" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="6449" Column="PO_Help" isNewNull="true"/>
+<Data AD_Column_ID="2639" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="2647" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="2646" Column="Name">Color Column</Data>
+<Data AD_Column_ID="4300" Column="PrintName">Color Column</Data>
+<Data AD_Column_ID="6451" Column="PO_PrintName" isNewNull="true"/>
+</PO>
+</Step>
+<Step SeqNo="40" StepType="AD">
+<PO AD_Table_ID="101" Action="I" Record_ID="87585" Table="AD_Column">
+<Data AD_Column_ID="548" Column="IsActive">true</Data>
+<Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+<Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+<Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+<Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+<Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+<Data AD_Column_ID="109" Column="AD_Column_ID">87585</Data>
+<Data AD_Column_ID="114" Column="AD_Table_ID">107</Data>
+<Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+<Data AD_Column_ID="6482" Column="EntityType">U</Data>
+<Data AD_Column_ID="110" Column="Version">0</Data>
+<Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+<Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+<Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="551" Column="Updated">2018-03-25 08:44:41.615</Data>
+<Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+<Data AD_Column_ID="127" Column="SeqNo">0</Data>
+<Data AD_Column_ID="113" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+<Data AD_Column_ID="120" Column="IsParent">false</Data>
+<Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="118" Column="FieldLength">1</Data>
+<Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+<Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+<Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+<Data AD_Column_ID="549" Column="Created">2018-03-25 08:44:41.615</Data>
+<Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+<Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+<Data AD_Column_ID="119" Column="IsKey">false</Data>
+<Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+<Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+<Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+<Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+<Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+<Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+<Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+<Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+<Data AD_Column_ID="112" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="111" Column="Name">Color Column</Data>
+<Data AD_Column_ID="116" Column="ColumnName">IsColorColumn</Data>
+<Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+<Data AD_Column_ID="2608" Column="AD_Element_ID">59931</Data>
+<Data AD_Column_ID="68024" Column="IsRange">false</Data>
+</PO>
+</Step>
+<Step SeqNo="50" StepType="AD">
+<PO AD_Table_ID="752" Action="I" Record_ID="87585" Table="AD_Column_Trl">
+<Data AD_Column_ID="12959" Column="IsActive">true</Data>
+<Data AD_Column_ID="12955" Column="AD_Column_ID">87585</Data>
+<Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="12960" Column="Created">2018-03-25 08:44:42.837</Data>
+<Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="12952" Column="Updated">2018-03-25 08:44:42.837</Data>
+<Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+<Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="12957" Column="Name">Color Column</Data>
+</PO>
+</Step>
+<Step SeqNo="60" StepType="AD">
+<PO AD_Table_ID="107" Action="I" Record_ID="86278" Table="AD_Field">
+<Data AD_Column_ID="7714" Column="EntityType">D</Data>
+<Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+<Data AD_Column_ID="62479" Column="SeqNoGrid">340</Data>
+<Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+<Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+<Data AD_Column_ID="578" Column="IsActive">true</Data>
+<Data AD_Column_ID="182" Column="SortNo">0</Data>
+<Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+<Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="579" Column="Created">2018-03-25 08:46:56.946</Data>
+<Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="180" Column="DisplayLength">0</Data>
+<Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+<Data AD_Column_ID="174" Column="AD_Column_ID">87585</Data>
+<Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+<Data AD_Column_ID="184" Column="IsHeading">false</Data>
+<Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+<Data AD_Column_ID="181" Column="SeqNo">340</Data>
+<Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+<Data AD_Column_ID="172" Column="AD_Tab_ID">107</Data>
+<Data AD_Column_ID="167" Column="AD_Field_ID">86278</Data>
+<Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="581" Column="Updated">2018-03-25 08:46:56.946</Data>
+<Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+<Data AD_Column_ID="170" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+<Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+<Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+<Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+<Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+<Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+<Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+<Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+<Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+<Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+<Data AD_Column_ID="169" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="168" Column="Name">Color Column</Data>
+<Data AD_Column_ID="59704" Column="PreferredWidth">0</Data>
+<Data AD_Column_ID="87585" Column="IsColorColumn" isNewNull="true"/>
+</PO>
+</Step>
+<Step SeqNo="70" StepType="AD">
+<PO AD_Table_ID="127" Action="I" Record_ID="86278" Table="AD_Field_Trl">
+<Data AD_Column_ID="671" Column="IsActive">true</Data>
+<Data AD_Column_ID="284" Column="AD_Field_ID">86278</Data>
+<Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+<Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="674" Column="Updated">2018-03-25 08:46:57.986</Data>
+<Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="672" Column="Created">2018-03-25 08:46:57.986</Data>
+<Data AD_Column_ID="288" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="286" Column="Name">Color Column</Data>
+<Data AD_Column_ID="287" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+</PO>
+</Step>
+<Step SeqNo="80" StepType="AD">
+<PO AD_Table_ID="101" Action="U" Record_ID="87585" Table="AD_Column">
+<Data AD_Column_ID="6482" Column="EntityType" oldValue="U">D</Data>
+</PO>
+</Step>
+<Step SeqNo="90" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="86278" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="340">190</Data>
+</PO>
+</Step>
+<Step SeqNo="100" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="133" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="190">200</Data>
+</PO>
+</Step>
+<Step SeqNo="110" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="136" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="200">210</Data>
+</PO>
+</Step>
+<Step SeqNo="120" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="59621" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="210">220</Data>
+</PO>
+</Step>
+<Step SeqNo="130" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="142" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="220">230</Data>
+</PO>
+</Step>
+<Step SeqNo="140" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="139" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="230">240</Data>
+</PO>
+</Step>
+<Step SeqNo="150" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="138" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="240">250</Data>
+</PO>
+</Step>
+<Step SeqNo="160" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="8343" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="250">260</Data>
+</PO>
+</Step>
+<Step SeqNo="170" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="140" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="260">270</Data>
+</PO>
+</Step>
+<Step SeqNo="180" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="141" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="270">280</Data>
+</PO>
+</Step>
+<Step SeqNo="190" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="13425" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="280">290</Data>
+</PO>
+</Step>
+<Step SeqNo="200" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="54401" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="290">300</Data>
+</PO>
+</Step>
+<Step SeqNo="210" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="54402" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="300">310</Data>
+</PO>
+</Step>
+<Step SeqNo="220" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="13424" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="310">320</Data>
+</PO>
+</Step>
+<Step SeqNo="230" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="53280" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="320">330</Data>
+</PO>
+</Step>
+<Step SeqNo="240" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="62851" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="330">340</Data>
+</PO>
+</Step>
+<Step SeqNo="250" StepType="AD">
+<PO AD_Table_ID="101" Action="I" Record_ID="87586" Table="AD_Column">
+<Data AD_Column_ID="548" Column="IsActive">true</Data>
+<Data AD_Column_ID="3360" Column="IsUpdateable">true</Data>
+<Data AD_Column_ID="1692" Column="Callout" isNewNull="true"/>
+<Data AD_Column_ID="11617" Column="IsAlwaysUpdateable">false</Data>
+<Data AD_Column_ID="13448" Column="ColumnSQL" isNewNull="true"/>
+<Data AD_Column_ID="117" Column="DefaultValue" isNewNull="true"/>
+<Data AD_Column_ID="109" Column="AD_Column_ID">87586</Data>
+<Data AD_Column_ID="114" Column="AD_Table_ID">53223</Data>
+<Data AD_Column_ID="3389" Column="ValueMax" isNewNull="true"/>
+<Data AD_Column_ID="6482" Column="EntityType">EE07</Data>
+<Data AD_Column_ID="110" Column="Version">0</Data>
+<Data AD_Column_ID="227" Column="AD_Reference_Value_ID" isNewNull="true"/>
+<Data AD_Column_ID="124" Column="IsMandatory">false</Data>
+<Data AD_Column_ID="125" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="550" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="551" Column="Updated">2018-03-25 12:54:37.435</Data>
+<Data AD_Column_ID="126" Column="IsIdentifier">false</Data>
+<Data AD_Column_ID="127" Column="SeqNo">0</Data>
+<Data AD_Column_ID="113" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="3388" Column="ValueMin" isNewNull="true"/>
+<Data AD_Column_ID="120" Column="IsParent">false</Data>
+<Data AD_Column_ID="359" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="360" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="118" Column="FieldLength">1</Data>
+<Data AD_Column_ID="6244" Column="IsSelectionColumn">false</Data>
+<Data AD_Column_ID="226" Column="AD_Reference_ID">20</Data>
+<Data AD_Column_ID="6483" Column="IsSyncDatabase">N</Data>
+<Data AD_Column_ID="549" Column="Created">2018-03-25 12:54:37.435</Data>
+<Data AD_Column_ID="115" Column="AD_Val_Rule_ID" isNewNull="true"/>
+<Data AD_Column_ID="1179" Column="VFormat" isNewNull="true"/>
+<Data AD_Column_ID="119" Column="IsKey">false</Data>
+<Data AD_Column_ID="3369" Column="AD_Process_ID" isNewNull="true"/>
+<Data AD_Column_ID="552" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="6245" Column="ReadOnlyLogic" isNewNull="true"/>
+<Data AD_Column_ID="54358" Column="InfoFactoryClass" isNewNull="true"/>
+<Data AD_Column_ID="50218" Column="MandatoryLogic" isNewNull="true"/>
+<Data AD_Column_ID="56149" Column="IsAutocomplete">false</Data>
+<Data AD_Column_ID="56187" Column="IsAllowLogging">true</Data>
+<Data AD_Column_ID="56352" Column="FormatPattern" isNewNull="true"/>
+<Data AD_Column_ID="128" Column="IsEncrypted">N</Data>
+<Data AD_Column_ID="112" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="111" Column="Name">Color Column</Data>
+<Data AD_Column_ID="116" Column="ColumnName">IsColorColumn</Data>
+<Data AD_Column_ID="59702" Column="AD_Chart_ID" isNewNull="true"/>
+<Data AD_Column_ID="2608" Column="AD_Element_ID">59931</Data>
+<Data AD_Column_ID="68024" Column="IsRange">false</Data>
+</PO>
+</Step>
+<Step SeqNo="260" StepType="AD">
+<PO AD_Table_ID="752" Action="I" Record_ID="87586" Table="AD_Column_Trl">
+<Data AD_Column_ID="12959" Column="IsActive">true</Data>
+<Data AD_Column_ID="12955" Column="AD_Column_ID">87586</Data>
+<Data AD_Column_ID="12956" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="12958" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="12960" Column="Created">2018-03-25 12:54:39.058</Data>
+<Data AD_Column_ID="12961" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="12951" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="12952" Column="Updated">2018-03-25 12:54:39.058</Data>
+<Data AD_Column_ID="12953" Column="AD_Language">es_MX</Data>
+<Data AD_Column_ID="12954" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="12957" Column="Name">Color Column</Data>
+</PO>
+</Step>
+<Step SeqNo="270" StepType="AD">
+<PO AD_Table_ID="107" Action="I" Record_ID="86279" Table="AD_Field">
+<Data AD_Column_ID="180" Column="DisplayLength">0</Data>
+<Data AD_Column_ID="62478" Column="IsDisplayedGrid">true</Data>
+<Data AD_Column_ID="62479" Column="SeqNoGrid">380</Data>
+<Data AD_Column_ID="59703" Column="IsEmbedded">false</Data>
+<Data AD_Column_ID="74868" Column="IsAllowCopy">true</Data>
+<Data AD_Column_ID="578" Column="IsActive">true</Data>
+<Data AD_Column_ID="182" Column="SortNo">0</Data>
+<Data AD_Column_ID="186" Column="IsEncrypted">false</Data>
+<Data AD_Column_ID="582" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="384" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="579" Column="Created">2018-03-25 12:55:31.631</Data>
+<Data AD_Column_ID="383" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="176" Column="IsDisplayed">true</Data>
+<Data AD_Column_ID="174" Column="AD_Column_ID">87586</Data>
+<Data AD_Column_ID="183" Column="IsSameLine">false</Data>
+<Data AD_Column_ID="184" Column="IsHeading">false</Data>
+<Data AD_Column_ID="185" Column="IsFieldOnly">false</Data>
+<Data AD_Column_ID="181" Column="SeqNo">380</Data>
+<Data AD_Column_ID="2745" Column="IsCentrallyMaintained">true</Data>
+<Data AD_Column_ID="172" Column="AD_Tab_ID">53247</Data>
+<Data AD_Column_ID="167" Column="AD_Field_ID">86279</Data>
+<Data AD_Column_ID="580" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="581" Column="Updated">2018-03-25 12:55:31.631</Data>
+<Data AD_Column_ID="2007" Column="IsReadOnly">false</Data>
+<Data AD_Column_ID="170" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="5375" Column="AD_FieldGroup_ID" isNewNull="true"/>
+<Data AD_Column_ID="9969" Column="ObscureType" isNewNull="true"/>
+<Data AD_Column_ID="15011" Column="AD_Reference_ID" isNewNull="true"/>
+<Data AD_Column_ID="177" Column="DisplayLogic" isNewNull="true"/>
+<Data AD_Column_ID="15013" Column="IsMandatory" isNewNull="true"/>
+<Data AD_Column_ID="7714" Column="EntityType">EE07</Data>
+<Data AD_Column_ID="53265" Column="DefaultValue" isNewNull="true"/>
+<Data AD_Column_ID="54356" Column="AD_Reference_Value_ID" isNewNull="true"/>
+<Data AD_Column_ID="54357" Column="AD_Val_Rule_ID" isNewNull="true"/>
+<Data AD_Column_ID="54359" Column="InfoFactoryClass" isNewNull="true"/>
+<Data AD_Column_ID="57957" Column="Included_Tab_ID" isNewNull="true"/>
+<Data AD_Column_ID="169" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+<Data AD_Column_ID="168" Column="Name">Color Column</Data>
+<Data AD_Column_ID="59704" Column="PreferredWidth">0</Data>
+<Data AD_Column_ID="87585" Column="IsColorColumn">false</Data>
+</PO>
+</Step>
+<Step SeqNo="280" StepType="AD">
+<PO AD_Table_ID="127" Action="I" Record_ID="86279" Table="AD_Field_Trl">
+<Data AD_Column_ID="671" Column="IsActive">true</Data>
+<Data AD_Column_ID="284" Column="AD_Field_ID">86279</Data>
+<Data AD_Column_ID="285" Column="AD_Language">es_MX</Data>
+<Data AD_Column_ID="1204" Column="AD_Client_ID">0</Data>
+<Data AD_Column_ID="674" Column="Updated">2018-03-25 12:55:32.664</Data>
+<Data AD_Column_ID="675" Column="UpdatedBy">0</Data>
+<Data AD_Column_ID="673" Column="CreatedBy">0</Data>
+<Data AD_Column_ID="672" Column="Created">2018-03-25 12:55:32.664</Data>
+<Data AD_Column_ID="288" Column="Help">The Color Column value should be a numeric. A value of zero will appear have the default color (black).  A negative value will use the "issue" color, typically red.  A positive value will use the "OK" color, typically green or blue.</Data>
+<Data AD_Column_ID="289" Column="IsTranslated">false</Data>
+<Data AD_Column_ID="1205" Column="AD_Org_ID">0</Data>
+<Data AD_Column_ID="286" Column="Name">Color Column</Data>
+<Data AD_Column_ID="287" Column="Description">Is this field to be used to change the color of the displayed data in the row?</Data>
+</PO>
+</Step>
+<Step SeqNo="290" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="86279" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="380">280</Data>
+</PO>
+</Step>
+<Step SeqNo="300" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65294" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="280">290</Data>
+</PO>
+</Step>
+<Step SeqNo="310" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65300" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="290">300</Data>
+</PO>
+</Step>
+<Step SeqNo="320" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="57440" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="300">310</Data>
+</PO>
+</Step>
+<Step SeqNo="330" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65292" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="310">320</Data>
+</PO>
+</Step>
+<Step SeqNo="340" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="68533" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="320">330</Data>
+</PO>
+</Step>
+<Step SeqNo="350" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65293" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="330">340</Data>
+</PO>
+</Step>
+<Step SeqNo="360" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65298" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="340">350</Data>
+</PO>
+</Step>
+<Step SeqNo="370" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="65297" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="350">360</Data>
+</PO>
+</Step>
+<Step SeqNo="380" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="64393" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="360">370</Data>
+</PO>
+</Step>
+<Step SeqNo="390" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="64394" Table="AD_Field">
+<Data AD_Column_ID="181" Column="SeqNo" oldValue="370">380</Data>
+</PO>
+</Step>
+<Step SeqNo="400" StepType="AD">
+<PO AD_Table_ID="107" Action="U" Record_ID="86279" Table="AD_Field">
+<Data AD_Column_ID="183" Column="IsSameLine" oldValue="false">true</Data>
+</PO>
+</Step>
+<Step DBType="ALL" Parse="Y" SeqNo="410" StepType="SQL">
+<Comments>Update AD_Field_v</Comments>
+<SQLStatement>-- View: adempiere.ad_field_v
+
+DROP VIEW adempiere.ad_field_v;
+
+CREATE OR REPLACE VIEW adempiere.ad_field_v AS 
+ SELECT t.ad_window_id,
+    f.ad_tab_id,
+    f.ad_field_id,
+    tbl.ad_table_id,
+    f.ad_column_id,
+    f.name,
+    f.description,
+    f.help,
+    f.isdisplayed,
+    f.displaylogic,
+    f.displaylength,
+    f.seqno,
+    f.sortno,
+    f.issameline,
+    f.isheading,
+    f.isfieldonly,
+    f.isreadonly,
+    f.isencrypted AS isencryptedfield,
+    f.iscolorcolumn,
+    f.obscuretype,
+    c.columnname,
+    c.columnsql,
+    c.fieldlength,
+    c.vformat,
+    COALESCE(f.defaultvalue, c.defaultvalue) AS defaultvalue,
+    c.iskey,
+    c.isparent,
+    COALESCE(f.ismandatory, c.ismandatory) AS ismandatory,
+    c.isidentifier,
+    c.istranslated,
+    COALESCE(f.ad_reference_value_id, c.ad_reference_value_id) AS ad_reference_value_id,
+    c.callout,
+    COALESCE(f.ad_reference_id, c.ad_reference_id) AS ad_reference_id,
+    COALESCE(f.ad_val_rule_id, c.ad_val_rule_id) AS ad_val_rule_id,
+    c.ad_process_id,
+    c.isalwaysupdateable,
+    c.readonlylogic,
+    c.mandatorylogic,
+    c.isupdateable,
+    c.isencrypted AS isencryptedcolumn,
+    c.isselectioncolumn,
+    c.isrange,
+    tbl.tablename,
+    c.valuemin,
+    c.valuemax,
+    fg.name AS fieldgroup,
+    vr.code AS validationcode,
+    f.included_tab_id,
+    fg.fieldgrouptype,
+    fg.iscollapsedbydefault,
+    COALESCE(f.infofactoryclass, c.infofactoryclass) AS infofactoryclass,
+    c.isautocomplete,
+    f.preferredwidth,
+    c.ad_chart_id,
+    f.isdisplayedgrid,
+    f.seqnogrid,
+    f.isembedded,
+    f.isallowcopy
+   FROM adempiere.ad_field f
+     JOIN adempiere.ad_tab t ON f.ad_tab_id = t.ad_tab_id
+     LEFT JOIN adempiere.ad_fieldgroup fg ON f.ad_fieldgroup_id = fg.ad_fieldgroup_id
+     LEFT JOIN adempiere.ad_column c ON f.ad_column_id = c.ad_column_id
+     JOIN adempiere.ad_table tbl ON c.ad_table_id = tbl.ad_table_id
+     JOIN adempiere.ad_reference r ON c.ad_reference_id = r.ad_reference_id
+     LEFT JOIN adempiere.ad_val_rule vr ON vr.ad_val_rule_id = COALESCE(f.ad_val_rule_id, c.ad_val_rule_id)
+  WHERE f.isactive = 'Y'::bpchar AND c.isactive = 'Y'::bpchar;
+
+ALTER TABLE adempiere.ad_field_v
+  OWNER TO adempiere;
+</SQLStatement>
+<RollbackStatement>-- View: adempiere.ad_field_v
+
+DROP VIEW adempiere.ad_field_v;
+
+CREATE OR REPLACE VIEW adempiere.ad_field_v AS 
+ SELECT t.ad_window_id,
+    f.ad_tab_id,
+    f.ad_field_id,
+    tbl.ad_table_id,
+    f.ad_column_id,
+    f.name,
+    f.description,
+    f.help,
+    f.isdisplayed,
+    f.displaylogic,
+    f.displaylength,
+    f.seqno,
+    f.sortno,
+    f.issameline,
+    f.isheading,
+    f.isfieldonly,
+    f.isreadonly,
+    f.isencrypted AS isencryptedfield,
+    f.obscuretype,
+    c.columnname,
+    c.columnsql,
+    c.fieldlength,
+    c.vformat,
+    COALESCE(f.defaultvalue, c.defaultvalue) AS defaultvalue,
+    c.iskey,
+    c.isparent,
+    COALESCE(f.ismandatory, c.ismandatory) AS ismandatory,
+    c.isidentifier,
+    c.istranslated,
+    COALESCE(f.ad_reference_value_id, c.ad_reference_value_id) AS ad_reference_value_id,
+    c.callout,
+    COALESCE(f.ad_reference_id, c.ad_reference_id) AS ad_reference_id,
+    COALESCE(f.ad_val_rule_id, c.ad_val_rule_id) AS ad_val_rule_id,
+    c.ad_process_id,
+    c.isalwaysupdateable,
+    c.readonlylogic,
+    c.mandatorylogic,
+    c.isupdateable,
+    c.isencrypted AS isencryptedcolumn,
+    c.isselectioncolumn,
+    c.isrange,
+    tbl.tablename,
+    c.valuemin,
+    c.valuemax,
+    fg.name AS fieldgroup,
+    vr.code AS validationcode,
+    f.included_tab_id,
+    fg.fieldgrouptype,
+    fg.iscollapsedbydefault,
+    COALESCE(f.infofactoryclass, c.infofactoryclass) AS infofactoryclass,
+    c.isautocomplete,
+    f.preferredwidth,
+    c.ad_chart_id,
+    f.isdisplayedgrid,
+    f.seqnogrid,
+    f.isembedded,
+    f.isallowcopy
+   FROM adempiere.ad_field f
+     JOIN adempiere.ad_tab t ON f.ad_tab_id = t.ad_tab_id
+     LEFT JOIN adempiere.ad_fieldgroup fg ON f.ad_fieldgroup_id = fg.ad_fieldgroup_id
+     LEFT JOIN adempiere.ad_column c ON f.ad_column_id = c.ad_column_id
+     JOIN adempiere.ad_table tbl ON c.ad_table_id = tbl.ad_table_id
+     JOIN adempiere.ad_reference r ON c.ad_reference_id = r.ad_reference_id
+     LEFT JOIN adempiere.ad_val_rule vr ON vr.ad_val_rule_id = COALESCE(f.ad_val_rule_id, c.ad_val_rule_id)
+  WHERE f.isactive = 'Y'::bpchar AND c.isactive = 'Y'::bpchar;
+
+ALTER TABLE adempiere.ad_field_v
+  OWNER TO adempiere;
+</RollbackStatement>
+</Step>
+<Step DBType="ALL" Parse="Y" SeqNo="420" StepType="SQL">
+<Comments>Update AD_Field_vt</Comments>
+<SQLStatement>-- View: adempiere.ad_field_vt
+
+DROP VIEW adempiere.ad_field_vt;
+
+CREATE OR REPLACE VIEW adempiere.ad_field_vt AS 
+ SELECT trl.ad_language,
+    t.ad_window_id,
+    f.ad_tab_id,
+    f.ad_field_id,
+    tbl.ad_table_id,
+    f.ad_column_id,
+    trl.name,
+    trl.description,
+    trl.help,
+    f.isdisplayed,
+    f.displaylogic,
+    f.displaylength,
+    f.seqno,
+    f.sortno,
+    f.issameline,
+    f.isheading,
+    f.isfieldonly,
+    f.isreadonly,
+    f.isencrypted AS isencryptedfield,
+    f.iscolorcolumn,
+    f.obscuretype,
+    c.columnname,
+    c.columnsql,
+    c.fieldlength,
+    c.vformat,
+    COALESCE(f.defaultvalue, c.defaultvalue) AS defaultvalue,
+    c.iskey,
+    c.isparent,
+    COALESCE(f.ismandatory, c.ismandatory) AS ismandatory,
+    c.isidentifier,
+    c.istranslated,
+    COALESCE(f.ad_reference_value_id, c.ad_reference_value_id) AS ad_reference_value_id,
+    c.callout,
+    COALESCE(f.ad_reference_id, c.ad_reference_id) AS ad_reference_id,
+    COALESCE(f.ad_val_rule_id, c.ad_val_rule_id) AS ad_val_rule_id,
+    c.ad_process_id,
+    c.isalwaysupdateable,
+    c.readonlylogic,
+    c.mandatorylogic,
+    c.isupdateable,
+    c.isencrypted AS isencryptedcolumn,
+    c.isselectioncolumn,
+    tbl.tablename,
+    c.valuemin,
+    c.valuemax,
+    fgt.name AS fieldgroup,
+    vr.code AS validationcode,
+    f.included_tab_id,
+    fg.fieldgrouptype,
+    fg.iscollapsedbydefault,
+    COALESCE(f.infofactoryclass, c.infofactoryclass) AS infofactoryclass,
+    c.isautocomplete,
+    f.preferredwidth AS preferredwith,
+    c.ad_chart_id,
+    f.isdisplayedgrid,
+    f.seqnogrid,
+    f.isembedded,
+    f.isallowcopy
+   FROM adempiere.ad_field f
+     JOIN adempiere.ad_field_trl trl ON f.ad_field_id = trl.ad_field_id
+     JOIN adempiere.ad_tab t ON f.ad_tab_id = t.ad_tab_id
+     LEFT JOIN adempiere.ad_fieldgroup fg ON f.ad_fieldgroup_id = fg.ad_fieldgroup_id
+     LEFT JOIN adempiere.ad_fieldgroup_trl fgt ON f.ad_fieldgroup_id = fgt.ad_fieldgroup_id AND trl.ad_language::text = fgt.ad_language::text
+     LEFT JOIN adempiere.ad_column c ON f.ad_column_id = c.ad_column_id
+     JOIN adempiere.ad_table tbl ON c.ad_table_id = tbl.ad_table_id
+     JOIN adempiere.ad_reference r ON c.ad_reference_id = r.ad_reference_id
+     LEFT JOIN adempiere.ad_val_rule vr ON vr.ad_val_rule_id = COALESCE(f.ad_val_rule_id, c.ad_val_rule_id)
+  WHERE f.isactive = 'Y'::bpchar AND c.isactive = 'Y'::bpchar;
+
+ALTER TABLE adempiere.ad_field_vt
+  OWNER TO adempiere;
+</SQLStatement>
+<RollbackStatement>-- View: adempiere.ad_field_vt
+
+DROP VIEW adempiere.ad_field_vt;
+
+CREATE OR REPLACE VIEW adempiere.ad_field_vt AS 
+ SELECT trl.ad_language,
+    t.ad_window_id,
+    f.ad_tab_id,
+    f.ad_field_id,
+    tbl.ad_table_id,
+    f.ad_column_id,
+    trl.name,
+    trl.description,
+    trl.help,
+    f.isdisplayed,
+    f.displaylogic,
+    f.displaylength,
+    f.seqno,
+    f.sortno,
+    f.issameline,
+    f.isheading,
+    f.isfieldonly,
+    f.isreadonly,
+    f.isencrypted AS isencryptedfield,
+    f.obscuretype,
+    c.columnname,
+    c.columnsql,
+    c.fieldlength,
+    c.vformat,
+    COALESCE(f.defaultvalue, c.defaultvalue) AS defaultvalue,
+    c.iskey,
+    c.isparent,
+    COALESCE(f.ismandatory, c.ismandatory) AS ismandatory,
+    c.isidentifier,
+    c.istranslated,
+    COALESCE(f.ad_reference_value_id, c.ad_reference_value_id) AS ad_reference_value_id,
+    c.callout,
+    COALESCE(f.ad_reference_id, c.ad_reference_id) AS ad_reference_id,
+    COALESCE(f.ad_val_rule_id, c.ad_val_rule_id) AS ad_val_rule_id,
+    c.ad_process_id,
+    c.isalwaysupdateable,
+    c.readonlylogic,
+    c.mandatorylogic,
+    c.isupdateable,
+    c.isencrypted AS isencryptedcolumn,
+    c.isselectioncolumn,
+    tbl.tablename,
+    c.valuemin,
+    c.valuemax,
+    fgt.name AS fieldgroup,
+    vr.code AS validationcode,
+    f.included_tab_id,
+    fg.fieldgrouptype,
+    fg.iscollapsedbydefault,
+    COALESCE(f.infofactoryclass, c.infofactoryclass) AS infofactoryclass,
+    c.isautocomplete,
+    f.preferredwidth AS preferredwith,
+    c.ad_chart_id,
+    f.isdisplayedgrid,
+    f.seqnogrid,
+    f.isembedded,
+    f.isallowcopy
+   FROM adempiere.ad_field f
+     JOIN adempiere.ad_field_trl trl ON f.ad_field_id = trl.ad_field_id
+     JOIN adempiere.ad_tab t ON f.ad_tab_id = t.ad_tab_id
+     LEFT JOIN adempiere.ad_fieldgroup fg ON f.ad_fieldgroup_id = fg.ad_fieldgroup_id
+     LEFT JOIN adempiere.ad_fieldgroup_trl fgt ON f.ad_fieldgroup_id = fgt.ad_fieldgroup_id AND trl.ad_language::text = fgt.ad_language::text
+     LEFT JOIN adempiere.ad_column c ON f.ad_column_id = c.ad_column_id
+     JOIN adempiere.ad_table tbl ON c.ad_table_id = tbl.ad_table_id
+     JOIN adempiere.ad_reference r ON c.ad_reference_id = r.ad_reference_id
+     LEFT JOIN adempiere.ad_val_rule vr ON vr.ad_val_rule_id = COALESCE(f.ad_val_rule_id, c.ad_val_rule_id)
+  WHERE f.isactive = 'Y'::bpchar AND c.isactive = 'Y'::bpchar;
+
+ALTER TABLE adempiere.ad_field_vt
+  OWNER TO adempiere;
+</RollbackStatement>
+</Step>
+</Migration>
+</Migrations>
