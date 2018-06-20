@@ -500,7 +500,7 @@ public class ProcessCtl implements Runnable
 			if (m_parent instanceof Container)
 			{
 				//swing client
-				JFrame frame = (JFrame) Env.getFrame((Container)m_parent);
+				JFrame frame = Env.getFrame((Container)m_parent);
 				if (frame instanceof AWindow)
 					((AWindow)frame).setBusyTimer(m_pi.getEstSeconds());
 				else

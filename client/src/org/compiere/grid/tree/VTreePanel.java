@@ -1006,7 +1006,7 @@ public final class VTreePanel extends CPanel
 	 */
 	private void setBusy (boolean busy)
 	{
-		JFrame frame = (JFrame) Env.getFrame(this);
+		JFrame frame = Env.getFrame(this);
 		log.info("frame: " + frame);
 		if (frame == null)  //  during init
 			return;

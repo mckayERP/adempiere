@@ -1305,7 +1305,7 @@ public final class APanel extends CPanel
 	{
 		m_isLocked = busy;
 		//
-		JFrame frame = (JFrame) Env.getFrame(this);
+		JFrame frame = Env.getFrame(this);
 		if (frame == null)  //  during init
 			return;
 		if (frame instanceof AWindow)
