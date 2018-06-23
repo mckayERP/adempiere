@@ -105,6 +105,14 @@ public class PrintDataElement
 	{
 		return m_value;
 	}	//	getValue
+	
+	public Object getGenericFunctionValue()
+	{
+		if (isDate())
+			return (Timestamp) m_value;
+		
+		return getFunctionValue();
+	}
 
 	/**
 	 * 	Get Function Value

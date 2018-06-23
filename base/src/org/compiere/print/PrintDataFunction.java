@@ -17,6 +17,7 @@
 package org.compiere.print;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
@@ -42,16 +43,24 @@ public class PrintDataFunction
 
 	/** The Sum				*/
 	private BigDecimal	m_sum = Env.ZERO;
+	/** The Timestamp Sum				*/
+	private Timestamp	m_tsSum = new Timestamp(0);
+
 	/** The Count			*/
 	private int			m_count = 0;
 	/** Total Count			*/
 	private int			m_totalCount = 0;
 	/** Minimum				*/
 	private BigDecimal	m_min = null;
+	/** Minimum Timestamp				*/
+	private Timestamp	m_tsMin = null;
 	/** Maximum				*/
 	private BigDecimal	m_max = null;
+	/** Maximum Timestamp				*/
+	private Timestamp	m_tsMax = null;
 	/** Sum of Squares		*/
 	private BigDecimal	m_sumSquare = Env.ZERO;
+	private boolean m_isTimestamp;
 
 	/** Sum			*/
 	static public final char		F_SUM = 'S';
@@ -79,6 +88,53 @@ public class PrintDataFunction
 	static private final String[]	FUNCTION_NAMES = new String[]
 		{"Sum",     "Mean",    "Count",   "Min",     "Max",     "Variance", "Deviation"};
 
+	
+	/**
+	 * 	Add Value to Counter
+	 * 	@param bd data
+	 */
+	public void addValue (Object bd)
+	{
+		if (bd instanceof Timestamp)
+		{
+			m_isTimestamp = true;
+			Timestamp dp = (Timestamp) bd;
+			//  Add timestamps - works with intervals
+			m_tsSum = new Timestamp(m_tsSum.getTime() + dp.getTime());
+			
+			// Min
+			if (m_tsMin == null)
+			{
+				m_tsMin = dp;
+			}
+			else
+			{
+				if (dp.before(m_tsMin))
+					m_tsMin = dp;
+			}
+			
+			// Max
+			if (m_tsMax == null)
+			{
+				m_tsMax = dp;
+			}
+			else
+			{
+				if (dp.after(m_tsMax))
+					m_tsMax = dp;
+			}
+			
+			m_count++;
+			
+			m_totalCount++;
+		}
+		else
+		{
+			m_isTimestamp = false;
+			addValue ((BigDecimal) bd);
+		}
+	}	//	addValue
+	
 	/**
 	 * 	Add Value to Counter
 	 * 	@param bd data
@@ -105,6 +161,30 @@ public class PrintDataFunction
 		m_totalCount++;
 	}	//	addValue
 
+	public Object getGenericValue(char function)
+	{
+		if (m_isTimestamp)
+		{
+			//	Sum
+			if (function == F_SUM)
+				return m_tsSum;
+			//	Min/Max
+			if (function == F_MIN)
+				return m_tsMin;
+			if (function == F_MAX)
+				return m_tsMax;
+			//	Count
+			BigDecimal count = new BigDecimal(m_count);
+			if (function == F_COUNT)
+				return count;
+			
+			// Other functions are not implemented for Timestamp data
+			return Env.ZERO;
+
+		}
+		else
+			return getValue(function);
+	}
 	/**
 	 * 	Get Function Value
 	 *  @param function function
@@ -165,6 +245,9 @@ public class PrintDataFunction
 		m_sumSquare = Env.ZERO;
 		m_min = null;
 		m_max = null;
+		m_tsSum = new Timestamp(0);
+		m_tsMin = null;
+		m_tsMax = null;
 	}	//	reset
 
 	/**

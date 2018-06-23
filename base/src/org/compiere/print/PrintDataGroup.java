@@ -201,6 +201,27 @@ public class PrintDataGroup
 		return false;
 	}	//	isFunctionColumn
 
+	/**************************************************************************
+	 * 	Add Value to groups
+	 * 	@param functionColumnName column name
+	 * 	@param functionValue value
+	 */
+	public void addValue (String functionColumnName, Object functionValue)
+	{
+		if (!isFunctionColumn(functionColumnName))
+			return;
+		//	Group Breaks
+		for (int i = 0; i < m_groups.size(); i++)
+		{
+			String groupColumnName = (String)m_groups.get(i);
+			String key = groupColumnName + DELIMITER + functionColumnName;
+			PrintDataFunction pdf = (PrintDataFunction)m_groupFunction.get(key);
+			if (pdf == null)
+				pdf = new PrintDataFunction();
+			pdf.addValue(functionValue);
+			m_groupFunction.put(key, pdf);
+		}
+	}	//	addValue
 	
 	/**************************************************************************
 	 * 	Add Value to groups
@@ -223,6 +244,23 @@ public class PrintDataGroup
 			m_groupFunction.put(key, pdf);
 		}
 	}	//	addValue
+
+	/**
+	 * 	Get Value
+	 * 	@param groupColumnName group column name (or TOTAL)
+	 * 	@param functionColumnName function column name
+	 * 	@param function function
+	 * 	@return value
+	 */
+	public Object getGenericValue (String groupColumnName, String functionColumnName,
+		char function)
+	{
+		String key = groupColumnName + DELIMITER + functionColumnName;
+		PrintDataFunction pdf = (PrintDataFunction)m_groupFunction.get(key);
+		if (pdf == null)
+			return null;
+		return pdf.getGenericValue(function);
+	}	//	getValue
 
 	/**
 	 * 	Get Value

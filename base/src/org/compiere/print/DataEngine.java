@@ -986,7 +986,7 @@ public class DataEngine
 						/** Report Summary FR [ 2011569 ]**/ 
 						if(!m_summary)
 							pd.addNode(pde);
-						m_group.addValue(pde.getColumnName(), pde.getFunctionValue());
+						m_group.addValue(pde.getColumnName(), pde.getGenericFunctionValue());
 					}
 				}	//	for all columns
 
@@ -1035,7 +1035,7 @@ public class DataEngine
 							else if (m_group.isFunctionColumn(pdc.getColumnName(), functions[f]))
 							{
 								pd.addNode(new PrintDataElement(pdc.getColumnName(),
-									m_group.getValue(group_pdc.getColumnName(), 
+									m_group.getGenericValue(group_pdc.getColumnName(), 
 										pdc.getColumnName(), functions[f]),
 									PrintDataFunction.getFunctionDisplayType(functions[f],
 											pdc.getDisplayType()),pdc.getFormatPattern()));
@@ -1143,7 +1143,7 @@ public class DataEngine
 					else if (m_group.isFunctionColumn(pdc.getColumnName(), functions[f]))
 					{
 						pd.addNode(new PrintDataElement(pdc.getColumnName(),
-							m_group.getValue(group_pdc.getColumnName(), 
+							m_group.getGenericValue(group_pdc.getColumnName(), 
 								pdc.getColumnName(), functions[f]), 
 							PrintDataFunction.getFunctionDisplayType(functions[f], pdc.getDisplayType()), 
 								false, pdc.isPageBreak(), pdc.getFormatPattern()));
@@ -1196,7 +1196,7 @@ public class DataEngine
 				else if (m_group.isFunctionColumn(pdc.getColumnName(), PrintDataFunction.F_SUM))
 				{
 					pd.addNode(new PrintDataElement(pdc.getColumnName(),
-						m_group.getValue(PrintDataGroup.TOTAL, pdc.getColumnName(), PrintDataFunction.F_SUM),
+						m_group.getGenericValue(PrintDataGroup.TOTAL, pdc.getColumnName(), PrintDataFunction.F_SUM),
 						PrintDataFunction.getFunctionDisplayType(PrintDataFunction.F_SUM,
 								pdc.getDisplayType()), false, false, pdc.getFormatPattern()));
 				}
