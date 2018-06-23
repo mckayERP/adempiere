@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -49,19 +48,6 @@ public interface I_AD_User
 	  */
 	public int getAD_Client_ID();
 
-    /** Column name AD_OrgTrx_ID */
-    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
-
-	/** Set Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
-
-	/** Get Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID();
-
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
@@ -74,6 +60,19 @@ public interface I_AD_User
 	  * Organizational entity within client
 	  */
 	public int getAD_Org_ID();
+
+    /** Column name AD_OrgTrx_ID */
+    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
+
+	/** Set Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
+
+	/** Get Trx Organization.
+	  * Performing or initiating organization
+	  */
+	public int getAD_OrgTrx_ID();
 
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
@@ -88,14 +87,18 @@ public interface I_AD_User
 	  */
 	public int getAD_User_ID();
 
-    /** Column name BPName */
-    public static final String COLUMNNAME_BPName = "BPName";
+    /** Column name Birthday */
+    public static final String COLUMNNAME_Birthday = "Birthday";
 
-	/** Set BP Name	  */
-	public void setBPName (String BPName);
+	/** Set Birthday.
+	  * Birthday or Anniversary day
+	  */
+	public void setBirthday (Timestamp Birthday);
 
-	/** Get BP Name	  */
-	public String getBPName();
+	/** Get Birthday.
+	  * Birthday or Anniversary day
+	  */
+	public Timestamp getBirthday();
 
     /** Column name BP_Location_ID */
     public static final String COLUMNNAME_BP_Location_ID = "BP_Location_ID";
@@ -112,18 +115,14 @@ public interface I_AD_User
 
 	public I_C_Location getBP_Location() throws RuntimeException;
 
-    /** Column name Birthday */
-    public static final String COLUMNNAME_Birthday = "Birthday";
+    /** Column name BPName */
+    public static final String COLUMNNAME_BPName = "BPName";
 
-	/** Set Birthday.
-	  * Birthday or Anniversary day
-	  */
-	public void setBirthday (Timestamp Birthday);
+	/** Set BP Name	  */
+	public void setBPName (String BPName);
 
-	/** Get Birthday.
-	  * Birthday or Anniversary day
-	  */
-	public Timestamp getBirthday();
+	/** Get BP Name	  */
+	public String getBPName();
 
     /** Column name C_BPartner_ID */
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
@@ -335,6 +334,37 @@ public interface I_AD_User
 	  */
 	public Timestamp getEMailVerifyDate();
 
+    /** Column name EmergContactRelationship */
+    public static final String COLUMNNAME_EmergContactRelationship = "EmergContactRelationship";
+
+	/** Set Emergency Contact Relationship	  */
+	public void setEmergContactRelationship (String EmergContactRelationship);
+
+	/** Get Emergency Contact Relationship	  */
+	public String getEmergContactRelationship();
+
+    /** Column name EmergencyContactName */
+    public static final String COLUMNNAME_EmergencyContactName = "EmergencyContactName";
+
+	/** Set Emergency Contact Name.
+	  * The name of the person to contact if there is an emergency.
+	  */
+	public void setEmergencyContactName (String EmergencyContactName);
+
+	/** Get Emergency Contact Name.
+	  * The name of the person to contact if there is an emergency.
+	  */
+	public String getEmergencyContactName();
+
+    /** Column name EmergencyContactPhone */
+    public static final String COLUMNNAME_EmergencyContactPhone = "EmergencyContactPhone";
+
+	/** Set Emergency Contact Phone	  */
+	public void setEmergencyContactPhone (String EmergencyContactPhone);
+
+	/** Get Emergency Contact Phone	  */
+	public String getEmergencyContactPhone();
+
     /** Column name Fax */
     public static final String COLUMNNAME_Fax = "Fax";
 
@@ -413,19 +443,6 @@ public interface I_AD_User
 	  */
 	public boolean isSalesLead();
 
-    /** Column name LDAPUser */
-    public static final String COLUMNNAME_LDAPUser = "LDAPUser";
-
-	/** Set LDAP User Name.
-	  * User Name used for authorization via LDAP (directory) services
-	  */
-	public void setLDAPUser (String LDAPUser);
-
-	/** Get LDAP User Name.
-	  * User Name used for authorization via LDAP (directory) services
-	  */
-	public String getLDAPUser();
-
     /** Column name LastContact */
     public static final String COLUMNNAME_LastContact = "LastContact";
 
@@ -451,6 +468,19 @@ public interface I_AD_User
 	  * Result of last contact
 	  */
 	public String getLastResult();
+
+    /** Column name LDAPUser */
+    public static final String COLUMNNAME_LDAPUser = "LDAPUser";
+
+	/** Set LDAP User Name.
+	  * User Name used for authorization via LDAP (directory) services
+	  */
+	public void setLDAPUser (String LDAPUser);
+
+	/** Get LDAP User Name.
+	  * User Name used for authorization via LDAP (directory) services
+	  */
+	public String getLDAPUser();
 
     /** Column name LeadSource */
     public static final String COLUMNNAME_LeadSource = "LeadSource";

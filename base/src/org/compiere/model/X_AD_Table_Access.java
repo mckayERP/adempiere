@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_Table_Access extends PO implements I_AD_Table_Access, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_Table_Access (Properties ctx, int AD_Table_Access_ID, String trxName)
@@ -38,10 +37,10 @@ public class X_AD_Table_Access extends PO implements I_AD_Table_Access, I_Persis
       super (ctx, AD_Table_Access_ID, trxName);
       /** if (AD_Table_Access_ID == 0)
         {
-			setAD_Role_ID (0);
-			setAD_Table_ID (0);
 			setAccessTypeRule (null);
 // A
+			setAD_Role_ID (0);
+			setAD_Table_ID (0);
 			setIsCanExport (false);
 			setIsCanReport (false);
 			setIsExclude (true);
@@ -77,6 +76,32 @@ public class X_AD_Table_Access extends PO implements I_AD_Table_Access, I_Persis
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** AccessTypeRule AD_Reference_ID=293 */
+	public static final int ACCESSTYPERULE_AD_Reference_ID=293;
+	/** Accessing = A */
+	public static final String ACCESSTYPERULE_Accessing = "A";
+	/** Reporting = R */
+	public static final String ACCESSTYPERULE_Reporting = "R";
+	/** Exporting = E */
+	public static final String ACCESSTYPERULE_Exporting = "E";
+	/** Set Access Type.
+		@param AccessTypeRule 
+		The type of access for this rule
+	  */
+	public void setAccessTypeRule (String AccessTypeRule)
+	{
+
+		set_ValueNoCheck (COLUMNNAME_AccessTypeRule, AccessTypeRule);
+	}
+
+	/** Get Access Type.
+		@return The type of access for this rule
+	  */
+	public String getAccessTypeRule () 
+	{
+		return (String)get_Value(COLUMNNAME_AccessTypeRule);
+	}
 
 	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException
     {
@@ -141,32 +166,6 @@ public class X_AD_Table_Access extends PO implements I_AD_Table_Access, I_Persis
     {
         return new KeyNamePair(get_ID(), String.valueOf(getAD_Table_ID()));
     }
-
-	/** AccessTypeRule AD_Reference_ID=293 */
-	public static final int ACCESSTYPERULE_AD_Reference_ID=293;
-	/** Accessing = A */
-	public static final String ACCESSTYPERULE_Accessing = "A";
-	/** Reporting = R */
-	public static final String ACCESSTYPERULE_Reporting = "R";
-	/** Exporting = E */
-	public static final String ACCESSTYPERULE_Exporting = "E";
-	/** Set Access Type.
-		@param AccessTypeRule 
-		The type of access for this rule
-	  */
-	public void setAccessTypeRule (String AccessTypeRule)
-	{
-
-		set_ValueNoCheck (COLUMNNAME_AccessTypeRule, AccessTypeRule);
-	}
-
-	/** Get Access Type.
-		@return The type of access for this rule
-	  */
-	public String getAccessTypeRule () 
-	{
-		return (String)get_Value(COLUMNNAME_AccessTypeRule);
-	}
 
 	/** Set Can Export.
 		@param IsCanExport 

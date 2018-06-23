@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -92,19 +91,6 @@ public interface I_AD_UserQuery
 
 	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException;
 
-    /** Column name AD_UserQuery_ID */
-    public static final String COLUMNNAME_AD_UserQuery_ID = "AD_UserQuery_ID";
-
-	/** Set User Query.
-	  * Saved User Query
-	  */
-	public void setAD_UserQuery_ID (int AD_UserQuery_ID);
-
-	/** Get User Query.
-	  * Saved User Query
-	  */
-	public int getAD_UserQuery_ID();
-
     /** Column name AD_User_ID */
     public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
 
@@ -119,6 +105,19 @@ public interface I_AD_UserQuery
 	public int getAD_User_ID();
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+
+    /** Column name AD_UserQuery_ID */
+    public static final String COLUMNNAME_AD_UserQuery_ID = "AD_UserQuery_ID";
+
+	/** Set User Query.
+	  * Saved User Query
+	  */
+	public void setAD_UserQuery_ID (int AD_UserQuery_ID);
+
+	/** Get User Query.
+	  * Saved User Query
+	  */
+	public int getAD_UserQuery_ID();
 
     /** Column name Code */
     public static final String COLUMNNAME_Code = "Code";

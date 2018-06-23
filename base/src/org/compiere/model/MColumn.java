@@ -337,9 +337,11 @@ public class MColumn extends X_AD_Column
 		
 		//	BR [ 9223372036854775807 ]
 		//  Skip the validation if this is a Direct Load (from a migration) or the Element is changing.
+		//  This is causing problems with packin - the table may not be visible - may need the context to 
+		//  work
 		if (!isDirectLoad() 
 		    && (this.get_Value(MColumn.COLUMNNAME_AD_Element_ID).equals(get_ValueOld(MColumn.COLUMNNAME_AD_Element_ID))))
-			validLookup(getColumnName(), getAD_Reference_ID(), getAD_Reference_Value_ID());
+//			validLookup(getColumnName(), getAD_Reference_ID(), getAD_Reference_Value_ID());
 		
 		/** Views are not updateable
 		UPDATE AD_Column c

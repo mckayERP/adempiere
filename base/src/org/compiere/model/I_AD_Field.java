@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -64,6 +63,19 @@ public interface I_AD_Field
 
 	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException;
 
+    /** Column name AD_Field_ID */
+    public static final String COLUMNNAME_AD_Field_ID = "AD_Field_ID";
+
+	/** Set Field.
+	  * Field on a database table
+	  */
+	public void setAD_Field_ID (int AD_Field_ID);
+
+	/** Get Field.
+	  * Field on a database table
+	  */
+	public int getAD_Field_ID();
+
     /** Column name AD_FieldGroup_ID */
     public static final String COLUMNNAME_AD_FieldGroup_ID = "AD_FieldGroup_ID";
 
@@ -78,19 +90,6 @@ public interface I_AD_Field
 	public int getAD_FieldGroup_ID();
 
 	public org.compiere.model.I_AD_FieldGroup getAD_FieldGroup() throws RuntimeException;
-
-    /** Column name AD_Field_ID */
-    public static final String COLUMNNAME_AD_Field_ID = "AD_Field_ID";
-
-	/** Set Field.
-	  * Field on a database table
-	  */
-	public void setAD_Field_ID (int AD_Field_ID);
-
-	/** Get Field.
-	  * Field on a database table
-	  */
-	public int getAD_Field_ID();
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -329,6 +328,32 @@ public interface I_AD_Field
 	  * Information maintained in System Element table
 	  */
 	public boolean isCentrallyMaintained();
+
+    /** Column name IsColorColumn */
+    public static final String COLUMNNAME_IsColorColumn = "IsColorColumn";
+
+	/** Set Color Column.
+	  * Is this field to be used to change the color of the displayed data in the row?
+	  */
+	public void setIsColorColumn (boolean IsColorColumn);
+
+	/** Get Color Column.
+	  * Is this field to be used to change the color of the displayed data in the row?
+	  */
+	public boolean isColorColumn();
+
+    /** Column name IsConditionalFormat */
+    public static final String COLUMNNAME_IsConditionalFormat = "IsConditionalFormat";
+
+	/** Set Conditional Format.
+	  * Select this checkbox to enable conditional formatting on this field.
+	  */
+	public void setIsConditionalFormat (boolean IsConditionalFormat);
+
+	/** Get Conditional Format.
+	  * Select this checkbox to enable conditional formatting on this field.
+	  */
+	public boolean isConditionalFormat();
 
     /** Column name IsDisplayed */
     public static final String COLUMNNAME_IsDisplayed = "IsDisplayed";

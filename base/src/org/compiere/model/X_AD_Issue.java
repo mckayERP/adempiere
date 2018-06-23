@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_Issue (Properties ctx, int AD_Issue_ID, String trxName)
@@ -82,6 +81,34 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	public org.compiere.model.I_A_Asset getA_Asset() throws RuntimeException
+    {
+		return (org.compiere.model.I_A_Asset)MTable.get(getCtx(), org.compiere.model.I_A_Asset.Table_Name)
+			.getPO(getA_Asset_ID(), get_TrxName());	}
+
+	/** Set Asset.
+		@param A_Asset_ID 
+		Asset used internally or by customers
+	  */
+	public void setA_Asset_ID (int A_Asset_ID)
+	{
+		if (A_Asset_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_A_Asset_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_A_Asset_ID, Integer.valueOf(A_Asset_ID));
+	}
+
+	/** Get Asset.
+		@return Asset used internally or by customers
+	  */
+	public int getA_Asset_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_A_Asset_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	public org.compiere.model.I_AD_Form getAD_Form() throws RuntimeException
     {
@@ -190,34 +217,6 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_A_Asset getA_Asset() throws RuntimeException
-    {
-		return (org.compiere.model.I_A_Asset)MTable.get(getCtx(), org.compiere.model.I_A_Asset.Table_Name)
-			.getPO(getA_Asset_ID(), get_TrxName());	}
-
-	/** Set Asset.
-		@param A_Asset_ID 
-		Asset used internally or by customers
-	  */
-	public void setA_Asset_ID (int A_Asset_ID)
-	{
-		if (A_Asset_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_A_Asset_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_A_Asset_ID, Integer.valueOf(A_Asset_ID));
-	}
-
-	/** Get Asset.
-		@return Asset used internally or by customers
-	  */
-	public int getA_Asset_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_A_Asset_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	/** Set Comments.
 		@param Comments 
 		Comments or additional information
@@ -235,23 +234,6 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
 		return (String)get_Value(COLUMNNAME_Comments);
 	}
 
-	/** Set DB Address.
-		@param DBAddress 
-		JDBC URL of the database server
-	  */
-	public void setDBAddress (String DBAddress)
-	{
-		set_ValueNoCheck (COLUMNNAME_DBAddress, DBAddress);
-	}
-
-	/** Get DB Address.
-		@return JDBC URL of the database server
-	  */
-	public String getDBAddress () 
-	{
-		return (String)get_Value(COLUMNNAME_DBAddress);
-	}
-
 	/** Set Database.
 		@param DatabaseInfo 
 		Database Information
@@ -267,6 +249,23 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
 	public String getDatabaseInfo () 
 	{
 		return (String)get_Value(COLUMNNAME_DatabaseInfo);
+	}
+
+	/** Set DB Address.
+		@param DBAddress 
+		JDBC URL of the database server
+	  */
+	public void setDBAddress (String DBAddress)
+	{
+		set_ValueNoCheck (COLUMNNAME_DBAddress, DBAddress);
+	}
+
+	/** Get DB Address.
+		@return JDBC URL of the database server
+	  */
+	public String getDBAddress () 
+	{
+		return (String)get_Value(COLUMNNAME_DBAddress);
 	}
 
 	/** Set Error Trace.
@@ -308,30 +307,6 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
 	public String getIsReproducible () 
 	{
 		return (String)get_Value(COLUMNNAME_IsReproducible);
-	}
-
-	/** IsVanillaSystem AD_Reference_ID=319 */
-	public static final int ISVANILLASYSTEM_AD_Reference_ID=319;
-	/** Yes = Y */
-	public static final String ISVANILLASYSTEM_Yes = "Y";
-	/** No = N */
-	public static final String ISVANILLASYSTEM_No = "N";
-	/** Set Vanilla System.
-		@param IsVanillaSystem 
-		The system was NOT compiled from Source - i.e. standard distribution
-	  */
-	public void setIsVanillaSystem (String IsVanillaSystem)
-	{
-
-		set_Value (COLUMNNAME_IsVanillaSystem, IsVanillaSystem);
-	}
-
-	/** Get Vanilla System.
-		@return The system was NOT compiled from Source - i.e. standard distribution
-	  */
-	public String getIsVanillaSystem () 
-	{
-		return (String)get_Value(COLUMNNAME_IsVanillaSystem);
 	}
 
 	/** IssueSource AD_Reference_ID=104 */
@@ -394,6 +369,30 @@ public class X_AD_Issue extends PO implements I_AD_Issue, I_Persistent
     {
         return new KeyNamePair(get_ID(), getIssueSummary());
     }
+
+	/** IsVanillaSystem AD_Reference_ID=319 */
+	public static final int ISVANILLASYSTEM_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String ISVANILLASYSTEM_Yes = "Y";
+	/** No = N */
+	public static final String ISVANILLASYSTEM_No = "N";
+	/** Set Vanilla System.
+		@param IsVanillaSystem 
+		The system was NOT compiled from Source - i.e. standard distribution
+	  */
+	public void setIsVanillaSystem (String IsVanillaSystem)
+	{
+
+		set_Value (COLUMNNAME_IsVanillaSystem, IsVanillaSystem);
+	}
+
+	/** Get Vanilla System.
+		@return The system was NOT compiled from Source - i.e. standard distribution
+	  */
+	public String getIsVanillaSystem () 
+	{
+		return (String)get_Value(COLUMNNAME_IsVanillaSystem);
+	}
 
 	/** Set Java Info.
 		@param JavaInfo 

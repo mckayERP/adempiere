@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_PrintFormat extends PO implements I_AD_PrintFormat, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20160314L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_PrintFormat (Properties ctx, int AD_PrintFormat_ID, String trxName)
@@ -231,9 +230,9 @@ public class X_AD_PrintFormat extends PO implements I_AD_PrintFormat, I_Persiste
 	public void setAD_ReportView_ID (int AD_ReportView_ID)
 	{
 		if (AD_ReportView_ID < 1) 
-			set_Value (COLUMNNAME_AD_ReportView_ID, null);
+			set_ValueNoCheck (COLUMNNAME_AD_ReportView_ID, null);
 		else 
-			set_Value (COLUMNNAME_AD_ReportView_ID, Integer.valueOf(AD_ReportView_ID));
+			set_ValueNoCheck (COLUMNNAME_AD_ReportView_ID, Integer.valueOf(AD_ReportView_ID));
 	}
 
 	/** Get Report View.
@@ -259,9 +258,9 @@ public class X_AD_PrintFormat extends PO implements I_AD_PrintFormat, I_Persiste
 	public void setAD_Table_ID (int AD_Table_ID)
 	{
 		if (AD_Table_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, null);
+			set_Value (COLUMNNAME_AD_Table_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
+			set_Value (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
 	}
 
 	/** Get Table.

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -62,19 +61,6 @@ public interface I_AD_WorkflowProcessorLog
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name AD_WorkflowProcessorLog_ID */
-    public static final String COLUMNNAME_AD_WorkflowProcessorLog_ID = "AD_WorkflowProcessorLog_ID";
-
-	/** Set Workflow Processorl Log.
-	  * Result of the execution of the Workflow Processor
-	  */
-	public void setAD_WorkflowProcessorLog_ID (int AD_WorkflowProcessorLog_ID);
-
-	/** Get Workflow Processorl Log.
-	  * Result of the execution of the Workflow Processor
-	  */
-	public int getAD_WorkflowProcessorLog_ID();
-
     /** Column name AD_WorkflowProcessor_ID */
     public static final String COLUMNNAME_AD_WorkflowProcessor_ID = "AD_WorkflowProcessor_ID";
 
@@ -89,6 +75,19 @@ public interface I_AD_WorkflowProcessorLog
 	public int getAD_WorkflowProcessor_ID();
 
 	public org.compiere.model.I_AD_WorkflowProcessor getAD_WorkflowProcessor() throws RuntimeException;
+
+    /** Column name AD_WorkflowProcessorLog_ID */
+    public static final String COLUMNNAME_AD_WorkflowProcessorLog_ID = "AD_WorkflowProcessorLog_ID";
+
+	/** Set Workflow Processorl Log.
+	  * Result of the execution of the Workflow Processor
+	  */
+	public void setAD_WorkflowProcessorLog_ID (int AD_WorkflowProcessorLog_ID);
+
+	/** Get Workflow Processorl Log.
+	  * Result of the execution of the Workflow Processor
+	  */
+	public int getAD_WorkflowProcessorLog_ID();
 
     /** Column name BinaryData */
     public static final String COLUMNNAME_BinaryData = "BinaryData";

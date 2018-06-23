@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_PrintGraph extends PO implements I_AD_PrintGraph, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_PrintGraph (Properties ctx, int AD_PrintGraph_ID, String trxName)
@@ -122,6 +121,34 @@ public class X_AD_PrintGraph extends PO implements I_AD_PrintGraph, I_Persistent
 	public int getAD_PrintGraph_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_PrintGraph_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_AD_PrintFormatItem getData_PrintFormatItem() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_PrintFormatItem)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormatItem.Table_Name)
+			.getPO(getData_PrintFormatItem_ID(), get_TrxName());	}
+
+	/** Set Data Column.
+		@param Data_PrintFormatItem_ID 
+		Data Column for Pie and Line Charts
+	  */
+	public void setData_PrintFormatItem_ID (int Data_PrintFormatItem_ID)
+	{
+		if (Data_PrintFormatItem_ID < 1) 
+			set_Value (COLUMNNAME_Data_PrintFormatItem_ID, null);
+		else 
+			set_Value (COLUMNNAME_Data_PrintFormatItem_ID, Integer.valueOf(Data_PrintFormatItem_ID));
+	}
+
+	/** Get Data Column.
+		@return Data Column for Pie and Line Charts
+	  */
+	public int getData_PrintFormatItem_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Data_PrintFormatItem_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -234,34 +261,6 @@ public class X_AD_PrintGraph extends PO implements I_AD_PrintGraph, I_Persistent
 	public int getData4_PrintFormatItem_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_Data4_PrintFormatItem_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_AD_PrintFormatItem getData_PrintFormatItem() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_PrintFormatItem)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormatItem.Table_Name)
-			.getPO(getData_PrintFormatItem_ID(), get_TrxName());	}
-
-	/** Set Data Column.
-		@param Data_PrintFormatItem_ID 
-		Data Column for Pie and Line Charts
-	  */
-	public void setData_PrintFormatItem_ID (int Data_PrintFormatItem_ID)
-	{
-		if (Data_PrintFormatItem_ID < 1) 
-			set_Value (COLUMNNAME_Data_PrintFormatItem_ID, null);
-		else 
-			set_Value (COLUMNNAME_Data_PrintFormatItem_ID, Integer.valueOf(Data_PrintFormatItem_ID));
-	}
-
-	/** Get Data Column.
-		@return Data Column for Pie and Line Charts
-	  */
-	public int getData_PrintFormatItem_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_Data_PrintFormatItem_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -31,7 +30,7 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_User (Properties ctx, int AD_User_ID, String trxName)
@@ -126,18 +125,21 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set BP Name.
-		@param BPName BP Name	  */
-	public void setBPName (String BPName)
+	/** Set Birthday.
+		@param Birthday 
+		Birthday or Anniversary day
+	  */
+	public void setBirthday (Timestamp Birthday)
 	{
-		set_Value (COLUMNNAME_BPName, BPName);
+		set_Value (COLUMNNAME_Birthday, Birthday);
 	}
 
-	/** Get BP Name.
-		@return BP Name	  */
-	public String getBPName () 
+	/** Get Birthday.
+		@return Birthday or Anniversary day
+	  */
+	public Timestamp getBirthday () 
 	{
-		return (String)get_Value(COLUMNNAME_BPName);
+		return (Timestamp)get_Value(COLUMNNAME_Birthday);
 	}
 
 	public I_C_Location getBP_Location() throws RuntimeException
@@ -168,21 +170,18 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Birthday.
-		@param Birthday 
-		Birthday or Anniversary day
-	  */
-	public void setBirthday (Timestamp Birthday)
+	/** Set BP Name.
+		@param BPName BP Name	  */
+	public void setBPName (String BPName)
 	{
-		set_Value (COLUMNNAME_Birthday, Birthday);
+		set_Value (COLUMNNAME_BPName, BPName);
 	}
 
-	/** Get Birthday.
-		@return Birthday or Anniversary day
-	  */
-	public Timestamp getBirthday () 
+	/** Get BP Name.
+		@return BP Name	  */
+	public String getBPName () 
 	{
-		return (Timestamp)get_Value(COLUMNNAME_Birthday);
+		return (String)get_Value(COLUMNNAME_BPName);
 	}
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
@@ -500,6 +499,51 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_EMailVerifyDate);
 	}
 
+	/** Set Emergency Contact Relationship.
+		@param EmergContactRelationship Emergency Contact Relationship	  */
+	public void setEmergContactRelationship (String EmergContactRelationship)
+	{
+		set_Value (COLUMNNAME_EmergContactRelationship, EmergContactRelationship);
+	}
+
+	/** Get Emergency Contact Relationship.
+		@return Emergency Contact Relationship	  */
+	public String getEmergContactRelationship () 
+	{
+		return (String)get_Value(COLUMNNAME_EmergContactRelationship);
+	}
+
+	/** Set Emergency Contact Name.
+		@param EmergencyContactName 
+		The name of the person to contact if there is an emergency.
+	  */
+	public void setEmergencyContactName (String EmergencyContactName)
+	{
+		set_Value (COLUMNNAME_EmergencyContactName, EmergencyContactName);
+	}
+
+	/** Get Emergency Contact Name.
+		@return The name of the person to contact if there is an emergency.
+	  */
+	public String getEmergencyContactName () 
+	{
+		return (String)get_Value(COLUMNNAME_EmergencyContactName);
+	}
+
+	/** Set Emergency Contact Phone.
+		@param EmergencyContactPhone Emergency Contact Phone	  */
+	public void setEmergencyContactPhone (String EmergencyContactPhone)
+	{
+		set_Value (COLUMNNAME_EmergencyContactPhone, EmergencyContactPhone);
+	}
+
+	/** Get Emergency Contact Phone.
+		@return Emergency Contact Phone	  */
+	public String getEmergencyContactPhone () 
+	{
+		return (String)get_Value(COLUMNNAME_EmergencyContactPhone);
+	}
+
 	/** Set Fax.
 		@param Fax 
 		Facsimile number
@@ -605,23 +649,6 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 		return false;
 	}
 
-	/** Set LDAP User Name.
-		@param LDAPUser 
-		User Name used for authorization via LDAP (directory) services
-	  */
-	public void setLDAPUser (String LDAPUser)
-	{
-		set_Value (COLUMNNAME_LDAPUser, LDAPUser);
-	}
-
-	/** Get LDAP User Name.
-		@return User Name used for authorization via LDAP (directory) services
-	  */
-	public String getLDAPUser () 
-	{
-		return (String)get_Value(COLUMNNAME_LDAPUser);
-	}
-
 	/** Set Last Contact.
 		@param LastContact 
 		Date this individual was last contacted
@@ -654,6 +681,23 @@ public class X_AD_User extends PO implements I_AD_User, I_Persistent
 	public String getLastResult () 
 	{
 		return (String)get_Value(COLUMNNAME_LastResult);
+	}
+
+	/** Set LDAP User Name.
+		@param LDAPUser 
+		User Name used for authorization via LDAP (directory) services
+	  */
+	public void setLDAPUser (String LDAPUser)
+	{
+		set_Value (COLUMNNAME_LDAPUser, LDAPUser);
+	}
+
+	/** Get LDAP User Name.
+		@return User Name used for authorization via LDAP (directory) services
+	  */
+	public String getLDAPUser () 
+	{
+		return (String)get_Value(COLUMNNAME_LDAPUser);
 	}
 
 	/** LeadSource AD_Reference_ID=53415 */

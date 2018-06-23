@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -49,6 +48,21 @@ public interface I_AD_Tab
 	  */
 	public int getAD_Client_ID();
 
+    /** Column name AD_Column_ID */
+    public static final String COLUMNNAME_AD_Column_ID = "AD_Column_ID";
+
+	/** Set Column.
+	  * Column in the table
+	  */
+	public void setAD_Column_ID (int AD_Column_ID);
+
+	/** Get Column.
+	  * Column in the table
+	  */
+	public int getAD_Column_ID();
+
+	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException;
+
     /** Column name AD_ColumnSortOrder_ID */
     public static final String COLUMNNAME_AD_ColumnSortOrder_ID = "AD_ColumnSortOrder_ID";
 
@@ -78,21 +92,6 @@ public interface I_AD_Tab
 	public int getAD_ColumnSortYesNo_ID();
 
 	public org.compiere.model.I_AD_Column getAD_ColumnSortYesNo() throws RuntimeException;
-
-    /** Column name AD_Column_ID */
-    public static final String COLUMNNAME_AD_Column_ID = "AD_Column_ID";
-
-	/** Set Column.
-	  * Column in the table
-	  */
-	public void setAD_Column_ID (int AD_Column_ID);
-
-	/** Get Column.
-	  * Column in the table
-	  */
-	public int getAD_Column_ID();
-
-	public org.compiere.model.I_AD_Column getAD_Column() throws RuntimeException;
 
     /** Column name AD_Image_ID */
     public static final String COLUMNNAME_AD_Image_ID = "AD_Image_ID";

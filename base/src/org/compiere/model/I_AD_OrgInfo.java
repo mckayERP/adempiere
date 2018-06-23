@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -49,6 +48,19 @@ public interface I_AD_OrgInfo
 	  */
 	public int getAD_Client_ID();
 
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
     /** Column name AD_OrgType_ID */
     public static final String COLUMNNAME_AD_OrgType_ID = "AD_OrgType_ID";
 
@@ -63,19 +75,6 @@ public interface I_AD_OrgInfo
 	public int getAD_OrgType_ID();
 
 	public org.compiere.model.I_AD_OrgType getAD_OrgType() throws RuntimeException;
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
 
     /** Column name C_Calendar_ID */
     public static final String COLUMNNAME_C_Calendar_ID = "C_Calendar_ID";
@@ -123,19 +122,6 @@ public interface I_AD_OrgInfo
 	  */
 	public int getCreatedBy();
 
-    /** Column name DUNS */
-    public static final String COLUMNNAME_DUNS = "DUNS";
-
-	/** Set D-U-N-S.
-	  * Dun & Bradstreet Number
-	  */
-	public void setDUNS (String DUNS);
-
-	/** Get D-U-N-S.
-	  * Dun & Bradstreet Number
-	  */
-	public String getDUNS();
-
     /** Column name DropShip_Warehouse_ID */
     public static final String COLUMNNAME_DropShip_Warehouse_ID = "DropShip_Warehouse_ID";
 
@@ -150,6 +136,19 @@ public interface I_AD_OrgInfo
 	public int getDropShip_Warehouse_ID();
 
 	public org.compiere.model.I_M_Warehouse getDropShip_Warehouse() throws RuntimeException;
+
+    /** Column name DUNS */
+    public static final String COLUMNNAME_DUNS = "DUNS";
+
+	/** Set D-U-N-S.
+	  * Dun & Bradstreet Number
+	  */
+	public void setDUNS (String DUNS);
+
+	/** Get D-U-N-S.
+	  * Dun & Bradstreet Number
+	  */
+	public String getDUNS();
 
     /** Column name EMail */
     public static final String COLUMNNAME_EMail = "EMail";

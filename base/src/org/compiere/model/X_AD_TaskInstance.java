@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_TaskInstance extends PO implements I_AD_TaskInstance, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_TaskInstance (Properties ctx, int AD_TaskInstance_ID, String trxName)
@@ -38,8 +37,8 @@ public class X_AD_TaskInstance extends PO implements I_AD_TaskInstance, I_Persis
       super (ctx, AD_TaskInstance_ID, trxName);
       /** if (AD_TaskInstance_ID == 0)
         {
-			setAD_TaskInstance_ID (0);
 			setAD_Task_ID (0);
+			setAD_TaskInstance_ID (0);
         } */
     }
 
@@ -71,6 +70,29 @@ public class X_AD_TaskInstance extends PO implements I_AD_TaskInstance, I_Persis
       return sb.toString();
     }
 
+	/** Set OS Task.
+		@param AD_Task_ID 
+		Operation System Task
+	  */
+	public void setAD_Task_ID (int AD_Task_ID)
+	{
+		if (AD_Task_ID < 1) 
+			set_Value (COLUMNNAME_AD_Task_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_Task_ID, Integer.valueOf(AD_Task_ID));
+	}
+
+	/** Get OS Task.
+		@return Operation System Task
+	  */
+	public int getAD_Task_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Task_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Task Instance.
 		@param AD_TaskInstance_ID Task Instance	  */
 	public void setAD_TaskInstance_ID (int AD_TaskInstance_ID)
@@ -98,27 +120,4 @@ public class X_AD_TaskInstance extends PO implements I_AD_TaskInstance, I_Persis
     {
         return new KeyNamePair(get_ID(), String.valueOf(getAD_TaskInstance_ID()));
     }
-
-	/** Set OS Task.
-		@param AD_Task_ID 
-		Operation System Task
-	  */
-	public void setAD_Task_ID (int AD_Task_ID)
-	{
-		if (AD_Task_ID < 1) 
-			set_Value (COLUMNNAME_AD_Task_ID, null);
-		else 
-			set_Value (COLUMNNAME_AD_Task_ID, Integer.valueOf(AD_Task_ID));
-	}
-
-	/** Get OS Task.
-		@return Operation System Task
-	  */
-	public int getAD_Task_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Task_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
 }

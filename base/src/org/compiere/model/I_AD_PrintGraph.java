@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -106,6 +105,21 @@ public interface I_AD_PrintGraph
 	  */
 	public int getCreatedBy();
 
+    /** Column name Data_PrintFormatItem_ID */
+    public static final String COLUMNNAME_Data_PrintFormatItem_ID = "Data_PrintFormatItem_ID";
+
+	/** Set Data Column.
+	  * Data Column for Pie and Line Charts
+	  */
+	public void setData_PrintFormatItem_ID (int Data_PrintFormatItem_ID);
+
+	/** Get Data Column.
+	  * Data Column for Pie and Line Charts
+	  */
+	public int getData_PrintFormatItem_ID();
+
+	public org.compiere.model.I_AD_PrintFormatItem getData_PrintFormatItem() throws RuntimeException;
+
     /** Column name Data1_PrintFormatItem_ID */
     public static final String COLUMNNAME_Data1_PrintFormatItem_ID = "Data1_PrintFormatItem_ID";
 
@@ -165,21 +179,6 @@ public interface I_AD_PrintGraph
 	public int getData4_PrintFormatItem_ID();
 
 	public org.compiere.model.I_AD_PrintFormatItem getData4_PrintFormatItem() throws RuntimeException;
-
-    /** Column name Data_PrintFormatItem_ID */
-    public static final String COLUMNNAME_Data_PrintFormatItem_ID = "Data_PrintFormatItem_ID";
-
-	/** Set Data Column.
-	  * Data Column for Pie and Line Charts
-	  */
-	public void setData_PrintFormatItem_ID (int Data_PrintFormatItem_ID);
-
-	/** Get Data Column.
-	  * Data Column for Pie and Line Charts
-	  */
-	public int getData_PrintFormatItem_ID();
-
-	public org.compiere.model.I_AD_PrintFormatItem getData_PrintFormatItem() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -40,6 +39,19 @@ public interface I_AD_Form
     BigDecimal accessLevel = BigDecimal.valueOf(4);
 
     /** Load Meta Data */
+
+    /** Column name AccessLevel */
+    public static final String COLUMNNAME_AccessLevel = "AccessLevel";
+
+	/** Set Data Access Level.
+	  * Access Level required
+	  */
+	public void setAccessLevel (String AccessLevel);
+
+	/** Get Data Access Level.
+	  * Access Level required
+	  */
+	public String getAccessLevel();
 
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
@@ -74,19 +86,6 @@ public interface I_AD_Form
 	  * Organizational entity within client
 	  */
 	public int getAD_Org_ID();
-
-    /** Column name AccessLevel */
-    public static final String COLUMNNAME_AccessLevel = "AccessLevel";
-
-	/** Set Data Access Level.
-	  * Access Level required
-	  */
-	public void setAccessLevel (String AccessLevel);
-
-	/** Get Data Access Level.
-	  * Access Level required
-	  */
-	public String getAccessLevel();
 
     /** Column name Classname */
     public static final String COLUMNNAME_Classname = "Classname";

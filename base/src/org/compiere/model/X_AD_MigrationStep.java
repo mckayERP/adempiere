@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_MigrationStep (Properties ctx, int AD_MigrationStep_ID, String trxName)
@@ -38,8 +37,8 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
       super (ctx, AD_MigrationStep_ID, trxName);
       /** if (AD_MigrationStep_ID == 0)
         {
-			setAD_MigrationStep_ID (0);
 			setAD_Migration_ID (0);
+			setAD_MigrationStep_ID (0);
 			setSeqNo (0);
 			setStepType (null);
         } */
@@ -73,27 +72,30 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
       return sb.toString();
     }
 
-	/** Set Migration step.
-		@param AD_MigrationStep_ID 
-		A single step in the migration process
+	/** Action AD_Reference_ID=53238 */
+	public static final int ACTION_AD_Reference_ID=53238;
+	/** Insert = I */
+	public static final String ACTION_Insert = "I";
+	/** Delete = D */
+	public static final String ACTION_Delete = "D";
+	/** Update = U */
+	public static final String ACTION_Update = "U";
+	/** Set Action.
+		@param Action 
+		Indicates the Action to be performed
 	  */
-	public void setAD_MigrationStep_ID (int AD_MigrationStep_ID)
+	public void setAction (String Action)
 	{
-		if (AD_MigrationStep_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_MigrationStep_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_MigrationStep_ID, Integer.valueOf(AD_MigrationStep_ID));
+
+		set_Value (COLUMNNAME_Action, Action);
 	}
 
-	/** Get Migration step.
-		@return A single step in the migration process
+	/** Get Action.
+		@return Indicates the Action to be performed
 	  */
-	public int getAD_MigrationStep_ID () 
+	public String getAction () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_MigrationStep_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		return (String)get_Value(COLUMNNAME_Action);
 	}
 
 	public org.compiere.model.I_AD_Migration getAD_Migration() throws RuntimeException
@@ -119,6 +121,29 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
 	public int getAD_Migration_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Migration_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Migration step.
+		@param AD_MigrationStep_ID 
+		A single step in the migration process
+	  */
+	public void setAD_MigrationStep_ID (int AD_MigrationStep_ID)
+	{
+		if (AD_MigrationStep_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_MigrationStep_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_MigrationStep_ID, Integer.valueOf(AD_MigrationStep_ID));
+	}
+
+	/** Get Migration step.
+		@return A single step in the migration process
+	  */
+	public int getAD_MigrationStep_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_MigrationStep_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -150,32 +175,6 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Action AD_Reference_ID=53238 */
-	public static final int ACTION_AD_Reference_ID=53238;
-	/** Insert = I */
-	public static final String ACTION_Insert = "I";
-	/** Delete = D */
-	public static final String ACTION_Delete = "D";
-	/** Update = U */
-	public static final String ACTION_Update = "U";
-	/** Set Action.
-		@param Action 
-		Indicates the Action to be performed
-	  */
-	public void setAction (String Action)
-	{
-
-		set_Value (COLUMNNAME_Action, Action);
-	}
-
-	/** Get Action.
-		@return Indicates the Action to be performed
-	  */
-	public String getAction () 
-	{
-		return (String)get_Value(COLUMNNAME_Action);
 	}
 
 	/** Apply AD_Reference_ID=53312 */
@@ -330,20 +329,6 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
 		return (String)get_Value(COLUMNNAME_RollbackStatement);
 	}
 
-	/** Set SQLStatement.
-		@param SQLStatement SQLStatement	  */
-	public void setSQLStatement (String SQLStatement)
-	{
-		set_Value (COLUMNNAME_SQLStatement, SQLStatement);
-	}
-
-	/** Get SQLStatement.
-		@return SQLStatement	  */
-	public String getSQLStatement () 
-	{
-		return (String)get_Value(COLUMNNAME_SQLStatement);
-	}
-
 	/** Set Sequence.
 		@param SeqNo 
 		Method of ordering records; lowest number comes first
@@ -371,6 +356,20 @@ public class X_AD_MigrationStep extends PO implements I_AD_MigrationStep, I_Pers
     {
         return new KeyNamePair(get_ID(), String.valueOf(getSeqNo()));
     }
+
+	/** Set SQLStatement.
+		@param SQLStatement SQLStatement	  */
+	public void setSQLStatement (String SQLStatement)
+	{
+		set_Value (COLUMNNAME_SQLStatement, SQLStatement);
+	}
+
+	/** Get SQLStatement.
+		@return SQLStatement	  */
+	public String getSQLStatement () 
+	{
+		return (String)get_Value(COLUMNNAME_SQLStatement);
+	}
 
 	/** StatusCode AD_Reference_ID=53311 */
 	public static final int STATUSCODE_AD_Reference_ID=53311;

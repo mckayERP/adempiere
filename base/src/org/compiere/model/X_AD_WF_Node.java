@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -33,7 +32,7 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_WF_Node (Properties ctx, int AD_WF_Node_ID, String trxName)
@@ -41,10 +40,10 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
       super (ctx, AD_WF_Node_ID, trxName);
       /** if (AD_WF_Node_ID == 0)
         {
-			setAD_WF_Node_ID (0);
-			setAD_Workflow_ID (0);
 			setAction (null);
 // Z
+			setAD_WF_Node_ID (0);
+			setAD_Workflow_ID (0);
 			setCost (Env.ZERO);
 			setDuration (0);
 			setEntityType (null);
@@ -91,6 +90,54 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Action AD_Reference_ID=302 */
+	public static final int ACTION_AD_Reference_ID=302;
+	/** Wait (Sleep) = Z */
+	public static final String ACTION_WaitSleep = "Z";
+	/** User Choice = C */
+	public static final String ACTION_UserChoice = "C";
+	/** Sub Workflow = F */
+	public static final String ACTION_SubWorkflow = "F";
+	/** Set Variable = V */
+	public static final String ACTION_SetVariable = "V";
+	/** User Window = W */
+	public static final String ACTION_UserWindow = "W";
+	/** User Form = X */
+	public static final String ACTION_UserForm = "X";
+	/** Apps Task = T */
+	public static final String ACTION_AppsTask = "T";
+	/** Apps Report = R */
+	public static final String ACTION_AppsReport = "R";
+	/** Apps Process = P */
+	public static final String ACTION_AppsProcess = "P";
+	/** Document Action = D */
+	public static final String ACTION_DocumentAction = "D";
+	/** EMail = M */
+	public static final String ACTION_EMail = "M";
+	/** User Workbench = B */
+	public static final String ACTION_UserWorkbench = "B";
+	/** Smart View = Q */
+	public static final String ACTION_SmartView = "Q";
+	/** Smart Browse = S */
+	public static final String ACTION_SmartBrowse = "S";
+	/** Set Action.
+		@param Action 
+		Indicates the Action to be performed
+	  */
+	public void setAction (String Action)
+	{
+
+		set_Value (COLUMNNAME_Action, Action);
+	}
+
+	/** Get Action.
+		@return Indicates the Action to be performed
+	  */
+	public String getAction () 
+	{
+		return (String)get_Value(COLUMNNAME_Action);
+	}
 
 	public org.adempiere.model.I_AD_Browse getAD_Browse() throws RuntimeException
     {
@@ -420,54 +467,6 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Action AD_Reference_ID=302 */
-	public static final int ACTION_AD_Reference_ID=302;
-	/** Wait (Sleep) = Z */
-	public static final String ACTION_WaitSleep = "Z";
-	/** User Choice = C */
-	public static final String ACTION_UserChoice = "C";
-	/** Sub Workflow = F */
-	public static final String ACTION_SubWorkflow = "F";
-	/** Set Variable = V */
-	public static final String ACTION_SetVariable = "V";
-	/** User Window = W */
-	public static final String ACTION_UserWindow = "W";
-	/** User Form = X */
-	public static final String ACTION_UserForm = "X";
-	/** Apps Task = T */
-	public static final String ACTION_AppsTask = "T";
-	/** Apps Report = R */
-	public static final String ACTION_AppsReport = "R";
-	/** Apps Process = P */
-	public static final String ACTION_AppsProcess = "P";
-	/** Document Action = D */
-	public static final String ACTION_DocumentAction = "D";
-	/** EMail = M */
-	public static final String ACTION_EMail = "M";
-	/** User Workbench = B */
-	public static final String ACTION_UserWorkbench = "B";
-	/** Smart View = Q */
-	public static final String ACTION_SmartView = "Q";
-	/** Smart Browse = S */
-	public static final String ACTION_SmartBrowse = "S";
-	/** Set Action.
-		@param Action 
-		Indicates the Action to be performed
-	  */
-	public void setAction (String Action)
-	{
-
-		set_Value (COLUMNNAME_Action, Action);
-	}
-
-	/** Get Action.
-		@return Indicates the Action to be performed
-	  */
-	public String getAction () 
-	{
-		return (String)get_Value(COLUMNNAME_Action);
-	}
-
 	/** Set Attribute Name.
 		@param AttributeName 
 		Name of the Attribute
@@ -597,6 +596,12 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 	public static final String DOCACTION_Unlock = "XL";
 	/** Wait Complete = WC */
 	public static final String DOCACTION_WaitComplete = "WC";
+	/** Enter = ME */
+	public static final String DOCACTION_Enter = "ME";
+	/** Defer = MD */
+	public static final String DOCACTION_Defer = "MD";
+	/** Rectify = MR */
+	public static final String DOCACTION_Rectify = "MR";
 	/** Set Document Action.
 		@param DocAction 
 		The targeted status of the document
@@ -1216,26 +1221,6 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 		return (String)get_Value(COLUMNNAME_Value);
 	}
 
-	/** Set Wait Time.
-		@param WaitTime 
-		Time in minutes to wait (sleep)
-	  */
-	public void setWaitTime (int WaitTime)
-	{
-		set_Value (COLUMNNAME_WaitTime, Integer.valueOf(WaitTime));
-	}
-
-	/** Get Wait Time.
-		@return Time in minutes to wait (sleep)
-	  */
-	public int getWaitTime () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_WaitTime);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	/** Set Waiting Time.
 		@param WaitingTime 
 		Workflow Simulation Waiting time
@@ -1251,6 +1236,26 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 	public int getWaitingTime () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_WaitingTime);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Wait Time.
+		@param WaitTime 
+		Time in minutes to wait (sleep)
+	  */
+	public void setWaitTime (int WaitTime)
+	{
+		set_Value (COLUMNNAME_WaitTime, Integer.valueOf(WaitTime));
+	}
+
+	/** Get Wait Time.
+		@return Time in minutes to wait (sleep)
+	  */
+	public int getWaitTime () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_WaitTime);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -1324,26 +1329,6 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Y Position.
-		@param YPosition 
-		Absolute Y (vertical) position in 1/72 of an inch
-	  */
-	public void setYPosition (int YPosition)
-	{
-		set_Value (COLUMNNAME_YPosition, Integer.valueOf(YPosition));
-	}
-
-	/** Get Y Position.
-		@return Absolute Y (vertical) position in 1/72 of an inch
-	  */
-	public int getYPosition () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_YPosition);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	/** Set Yield %.
 		@param Yield 
 		The Yield is the percentage of a lot that is expected to be of acceptable wuality may fall below 100 percent
@@ -1359,6 +1344,26 @@ public class X_AD_WF_Node extends PO implements I_AD_WF_Node, I_Persistent
 	public int getYield () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_Yield);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Y Position.
+		@param YPosition 
+		Absolute Y (vertical) position in 1/72 of an inch
+	  */
+	public void setYPosition (int YPosition)
+	{
+		set_Value (COLUMNNAME_YPosition, Integer.valueOf(YPosition));
+	}
+
+	/** Get Y Position.
+		@return Absolute Y (vertical) position in 1/72 of an inch
+	  */
+	public int getYPosition () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_YPosition);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

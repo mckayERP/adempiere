@@ -29,7 +29,7 @@ public class X_AD_ChartDatasource extends PO implements I_AD_ChartDatasource, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180406L;
+	private static final long serialVersionUID = 20180620L;
 
     /** Standard Constructor */
     public X_AD_ChartDatasource (Properties ctx, int AD_ChartDatasource_ID, String trxName)

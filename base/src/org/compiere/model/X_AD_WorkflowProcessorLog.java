@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -29,7 +28,7 @@ public class X_AD_WorkflowProcessorLog extends PO implements I_AD_WorkflowProces
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_WorkflowProcessorLog (Properties ctx, int AD_WorkflowProcessorLog_ID, String trxName)
@@ -37,8 +36,8 @@ public class X_AD_WorkflowProcessorLog extends PO implements I_AD_WorkflowProces
       super (ctx, AD_WorkflowProcessorLog_ID, trxName);
       /** if (AD_WorkflowProcessorLog_ID == 0)
         {
-			setAD_WorkflowProcessorLog_ID (0);
 			setAD_WorkflowProcessor_ID (0);
+			setAD_WorkflowProcessorLog_ID (0);
 			setIsError (false);
         } */
     }
@@ -71,29 +70,6 @@ public class X_AD_WorkflowProcessorLog extends PO implements I_AD_WorkflowProces
       return sb.toString();
     }
 
-	/** Set Workflow Processorl Log.
-		@param AD_WorkflowProcessorLog_ID 
-		Result of the execution of the Workflow Processor
-	  */
-	public void setAD_WorkflowProcessorLog_ID (int AD_WorkflowProcessorLog_ID)
-	{
-		if (AD_WorkflowProcessorLog_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_WorkflowProcessorLog_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_WorkflowProcessorLog_ID, Integer.valueOf(AD_WorkflowProcessorLog_ID));
-	}
-
-	/** Get Workflow Processorl Log.
-		@return Result of the execution of the Workflow Processor
-	  */
-	public int getAD_WorkflowProcessorLog_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WorkflowProcessorLog_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_AD_WorkflowProcessor getAD_WorkflowProcessor() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_WorkflowProcessor)MTable.get(getCtx(), org.compiere.model.I_AD_WorkflowProcessor.Table_Name)
@@ -117,6 +93,29 @@ public class X_AD_WorkflowProcessorLog extends PO implements I_AD_WorkflowProces
 	public int getAD_WorkflowProcessor_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WorkflowProcessor_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Workflow Processorl Log.
+		@param AD_WorkflowProcessorLog_ID 
+		Result of the execution of the Workflow Processor
+	  */
+	public void setAD_WorkflowProcessorLog_ID (int AD_WorkflowProcessorLog_ID)
+	{
+		if (AD_WorkflowProcessorLog_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_WorkflowProcessorLog_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_WorkflowProcessorLog_ID, Integer.valueOf(AD_WorkflowProcessorLog_ID));
+	}
+
+	/** Get Workflow Processorl Log.
+		@return Result of the execution of the Workflow Processor
+	  */
+	public int getAD_WorkflowProcessorLog_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WorkflowProcessorLog_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -40,6 +39,21 @@ public interface I_AD_Issue
     BigDecimal accessLevel = BigDecimal.valueOf(6);
 
     /** Load Meta Data */
+
+    /** Column name A_Asset_ID */
+    public static final String COLUMNNAME_A_Asset_ID = "A_Asset_ID";
+
+	/** Set Asset.
+	  * Asset used internally or by customers
+	  */
+	public void setA_Asset_ID (int A_Asset_ID);
+
+	/** Get Asset.
+	  * Asset used internally or by customers
+	  */
+	public int getA_Asset_ID();
+
+	public org.compiere.model.I_A_Asset getA_Asset() throws RuntimeException;
 
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
@@ -120,21 +134,6 @@ public interface I_AD_Issue
 
 	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException;
 
-    /** Column name A_Asset_ID */
-    public static final String COLUMNNAME_A_Asset_ID = "A_Asset_ID";
-
-	/** Set Asset.
-	  * Asset used internally or by customers
-	  */
-	public void setA_Asset_ID (int A_Asset_ID);
-
-	/** Get Asset.
-	  * Asset used internally or by customers
-	  */
-	public int getA_Asset_ID();
-
-	public org.compiere.model.I_A_Asset getA_Asset() throws RuntimeException;
-
     /** Column name Comments */
     public static final String COLUMNNAME_Comments = "Comments";
 
@@ -164,19 +163,6 @@ public interface I_AD_Issue
 	  */
 	public int getCreatedBy();
 
-    /** Column name DBAddress */
-    public static final String COLUMNNAME_DBAddress = "DBAddress";
-
-	/** Set DB Address.
-	  * JDBC URL of the database server
-	  */
-	public void setDBAddress (String DBAddress);
-
-	/** Get DB Address.
-	  * JDBC URL of the database server
-	  */
-	public String getDBAddress();
-
     /** Column name DatabaseInfo */
     public static final String COLUMNNAME_DatabaseInfo = "DatabaseInfo";
 
@@ -189,6 +175,19 @@ public interface I_AD_Issue
 	  * Database Information
 	  */
 	public String getDatabaseInfo();
+
+    /** Column name DBAddress */
+    public static final String COLUMNNAME_DBAddress = "DBAddress";
+
+	/** Set DB Address.
+	  * JDBC URL of the database server
+	  */
+	public void setDBAddress (String DBAddress);
+
+	/** Get DB Address.
+	  * JDBC URL of the database server
+	  */
+	public String getDBAddress();
 
     /** Column name ErrorTrace */
     public static final String COLUMNNAME_ErrorTrace = "ErrorTrace";
@@ -229,19 +228,6 @@ public interface I_AD_Issue
 	  */
 	public String getIsReproducible();
 
-    /** Column name IsVanillaSystem */
-    public static final String COLUMNNAME_IsVanillaSystem = "IsVanillaSystem";
-
-	/** Set Vanilla System.
-	  * The system was NOT compiled from Source - i.e. standard distribution
-	  */
-	public void setIsVanillaSystem (String IsVanillaSystem);
-
-	/** Get Vanilla System.
-	  * The system was NOT compiled from Source - i.e. standard distribution
-	  */
-	public String getIsVanillaSystem();
-
     /** Column name IssueSource */
     public static final String COLUMNNAME_IssueSource = "IssueSource";
 
@@ -267,6 +253,19 @@ public interface I_AD_Issue
 	  * Issue Summary
 	  */
 	public String getIssueSummary();
+
+    /** Column name IsVanillaSystem */
+    public static final String COLUMNNAME_IsVanillaSystem = "IsVanillaSystem";
+
+	/** Set Vanilla System.
+	  * The system was NOT compiled from Source - i.e. standard distribution
+	  */
+	public void setIsVanillaSystem (String IsVanillaSystem);
+
+	/** Get Vanilla System.
+	  * The system was NOT compiled from Source - i.e. standard distribution
+	  */
+	public String getIsVanillaSystem();
 
     /** Column name JavaInfo */
     public static final String COLUMNNAME_JavaInfo = "JavaInfo";

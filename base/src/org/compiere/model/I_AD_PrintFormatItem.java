@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 package org.compiere.model;
 
@@ -107,6 +106,21 @@ public interface I_AD_PrintFormatItem
 
 	public org.compiere.model.I_AD_PrintFont getAD_PrintFont() throws RuntimeException;
 
+    /** Column name AD_PrintFormat_ID */
+    public static final String COLUMNNAME_AD_PrintFormat_ID = "AD_PrintFormat_ID";
+
+	/** Set Print Format.
+	  * Data Print Format
+	  */
+	public void setAD_PrintFormat_ID (int AD_PrintFormat_ID);
+
+	/** Get Print Format.
+	  * Data Print Format
+	  */
+	public int getAD_PrintFormat_ID();
+
+	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException;
+
     /** Column name AD_PrintFormatChild_ID */
     public static final String COLUMNNAME_AD_PrintFormatChild_ID = "AD_PrintFormatChild_ID";
 
@@ -134,21 +148,6 @@ public interface I_AD_PrintFormatItem
 	  * Item/Column in the Print format
 	  */
 	public int getAD_PrintFormatItem_ID();
-
-    /** Column name AD_PrintFormat_ID */
-    public static final String COLUMNNAME_AD_PrintFormat_ID = "AD_PrintFormat_ID";
-
-	/** Set Print Format.
-	  * Data Print Format
-	  */
-	public void setAD_PrintFormat_ID (int AD_PrintFormat_ID);
-
-	/** Get Print Format.
-	  * Data Print Format
-	  */
-	public int getAD_PrintFormat_ID();
-
-	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException;
 
     /** Column name AD_PrintGraph_ID */
     public static final String COLUMNNAME_AD_PrintGraph_ID = "AD_PrintGraph_ID";
@@ -288,12 +287,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsAveraged */
     public static final String COLUMNNAME_IsAveraged = "IsAveraged";
 
-	/** Set Calculate Mean (µ).
+	/** Set Calculate Mean (μ).
 	  * Calculate Average of numeric content or length
 	  */
 	public void setIsAveraged (boolean IsAveraged);
 
-	/** Get Calculate Mean (µ).
+	/** Get Calculate Mean (μ).
 	  * Calculate Average of numeric content or length
 	  */
 	public boolean isAveraged();
@@ -314,12 +313,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsCounted */
     public static final String COLUMNNAME_IsCounted = "IsCounted";
 
-	/** Set Calculate Count (¿).
+	/** Set Calculate Count (№).
 	  * Count number of not empty elements
 	  */
 	public void setIsCounted (boolean IsCounted);
 
-	/** Get Calculate Count (¿).
+	/** Get Calculate Count (№).
 	  * Count number of not empty elements
 	  */
 	public boolean isCounted();
@@ -327,12 +326,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsDeviationCalc */
     public static final String COLUMNNAME_IsDeviationCalc = "IsDeviationCalc";
 
-	/** Set Calculate Deviation (s).
+	/** Set Calculate Deviation (σ).
 	  * Calculate Standard Deviation
 	  */
 	public void setIsDeviationCalc (boolean IsDeviationCalc);
 
-	/** Get Calculate Deviation (s).
+	/** Get Calculate Deviation (σ).
 	  * Calculate Standard Deviation
 	  */
 	public boolean isDeviationCalc();
@@ -418,12 +417,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsMinCalc */
     public static final String COLUMNNAME_IsMinCalc = "IsMinCalc";
 
-	/** Set Calculate Minimum (¿).
+	/** Set Calculate Minimum (↓).
 	  * Calculate the minimum amount
 	  */
 	public void setIsMinCalc (boolean IsMinCalc);
 
-	/** Get Calculate Minimum (¿).
+	/** Get Calculate Minimum (↓).
 	  * Calculate the minimum amount
 	  */
 	public boolean isMinCalc();
@@ -535,12 +534,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsSummarized */
     public static final String COLUMNNAME_IsSummarized = "IsSummarized";
 
-	/** Set Calculate Sum (S).
+	/** Set Calculate Sum (Σ).
 	  * Calculate the Sum of numeric content or length
 	  */
 	public void setIsSummarized (boolean IsSummarized);
 
-	/** Get Calculate Sum (S).
+	/** Get Calculate Sum (Σ).
 	  * Calculate the Sum of numeric content or length
 	  */
 	public boolean isSummarized();
@@ -574,12 +573,12 @@ public interface I_AD_PrintFormatItem
     /** Column name IsVarianceCalc */
     public static final String COLUMNNAME_IsVarianceCalc = "IsVarianceCalc";
 
-	/** Set Calculate Variance (s²).
+	/** Set Calculate Variance (σ²).
 	  * Calculate Variance
 	  */
 	public void setIsVarianceCalc (boolean IsVarianceCalc);
 
-	/** Get Calculate Variance (s²).
+	/** Get Calculate Variance (σ²).
 	  * Calculate Variance
 	  */
 	public boolean isVarianceCalc();

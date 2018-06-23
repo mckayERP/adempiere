@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_PrintFormatItem (Properties ctx, int AD_PrintFormatItem_ID, String trxName)
@@ -39,9 +38,9 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
       /** if (AD_PrintFormatItem_ID == 0)
         {
 			setAD_Column_ID (0);
+			setAD_PrintFormat_ID (0);
 			setAD_PrintFormatChild_ID (0);
 			setAD_PrintFormatItem_ID (0);
-			setAD_PrintFormat_ID (0);
 			setFieldAlignmentType (null);
 // D
 			setImageIsAttached (false);
@@ -205,6 +204,34 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_PrintFormat)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormat.Table_Name)
+			.getPO(getAD_PrintFormat_ID(), get_TrxName());	}
+
+	/** Set Print Format.
+		@param AD_PrintFormat_ID 
+		Data Print Format
+	  */
+	public void setAD_PrintFormat_ID (int AD_PrintFormat_ID)
+	{
+		if (AD_PrintFormat_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_PrintFormat_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_PrintFormat_ID, Integer.valueOf(AD_PrintFormat_ID));
+	}
+
+	/** Get Print Format.
+		@return Data Print Format
+	  */
+	public int getAD_PrintFormat_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_PrintFormat_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormatChild() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_PrintFormat)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormat.Table_Name)
@@ -251,34 +278,6 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 	public int getAD_PrintFormatItem_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_PrintFormatItem_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_AD_PrintFormat getAD_PrintFormat() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_PrintFormat)MTable.get(getCtx(), org.compiere.model.I_AD_PrintFormat.Table_Name)
-			.getPO(getAD_PrintFormat_ID(), get_TrxName());	}
-
-	/** Set Print Format.
-		@param AD_PrintFormat_ID 
-		Data Print Format
-	  */
-	public void setAD_PrintFormat_ID (int AD_PrintFormat_ID)
-	{
-		if (AD_PrintFormat_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_PrintFormat_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_PrintFormat_ID, Integer.valueOf(AD_PrintFormat_ID));
-	}
-
-	/** Get Print Format.
-		@return Data Print Format
-	  */
-	public int getAD_PrintFormat_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_PrintFormat_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -508,7 +507,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return (String)get_Value(COLUMNNAME_ImageURL);
 	}
 
-	/** Set Calculate Mean (µ).
+	/** Set Calculate Mean (μ).
 		@param IsAveraged 
 		Calculate Average of numeric content or length
 	  */
@@ -517,7 +516,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsAveraged, Boolean.valueOf(IsAveraged));
 	}
 
-	/** Get Calculate Mean (µ).
+	/** Get Calculate Mean (μ).
 		@return Calculate Average of numeric content or length
 	  */
 	public boolean isAveraged () 
@@ -556,7 +555,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return false;
 	}
 
-	/** Set Calculate Count (¿).
+	/** Set Calculate Count (№).
 		@param IsCounted 
 		Count number of not empty elements
 	  */
@@ -565,7 +564,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsCounted, Boolean.valueOf(IsCounted));
 	}
 
-	/** Get Calculate Count (¿).
+	/** Get Calculate Count (№).
 		@return Count number of not empty elements
 	  */
 	public boolean isCounted () 
@@ -580,7 +579,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return false;
 	}
 
-	/** Set Calculate Deviation (s).
+	/** Set Calculate Deviation (σ).
 		@param IsDeviationCalc 
 		Calculate Standard Deviation
 	  */
@@ -589,7 +588,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsDeviationCalc, Boolean.valueOf(IsDeviationCalc));
 	}
 
-	/** Get Calculate Deviation (s).
+	/** Get Calculate Deviation (σ).
 		@return Calculate Standard Deviation
 	  */
 	public boolean isDeviationCalc () 
@@ -748,7 +747,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return false;
 	}
 
-	/** Set Calculate Minimum (¿).
+	/** Set Calculate Minimum (↓).
 		@param IsMinCalc 
 		Calculate the minimum amount
 	  */
@@ -757,7 +756,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsMinCalc, Boolean.valueOf(IsMinCalc));
 	}
 
-	/** Get Calculate Minimum (¿).
+	/** Get Calculate Minimum (↓).
 		@return Calculate the minimum amount
 	  */
 	public boolean isMinCalc () 
@@ -964,7 +963,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return false;
 	}
 
-	/** Set Calculate Sum (S).
+	/** Set Calculate Sum (Σ).
 		@param IsSummarized 
 		Calculate the Sum of numeric content or length
 	  */
@@ -973,7 +972,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsSummarized, Boolean.valueOf(IsSummarized));
 	}
 
-	/** Get Calculate Sum (S).
+	/** Get Calculate Sum (Σ).
 		@return Calculate the Sum of numeric content or length
 	  */
 	public boolean isSummarized () 
@@ -1036,7 +1035,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		return false;
 	}
 
-	/** Set Calculate Variance (s²).
+	/** Set Calculate Variance (σ²).
 		@param IsVarianceCalc 
 		Calculate Variance
 	  */
@@ -1045,7 +1044,7 @@ public class X_AD_PrintFormatItem extends PO implements I_AD_PrintFormatItem, I_
 		set_Value (COLUMNNAME_IsVarianceCalc, Boolean.valueOf(IsVarianceCalc));
 	}
 
-	/** Get Calculate Variance (s²).
+	/** Get Calculate Variance (σ²).
 		@return Calculate Variance
 	  */
 	public boolean isVarianceCalc () 

@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_WF_ProcessData extends PO implements I_AD_WF_ProcessData, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_WF_ProcessData (Properties ctx, int AD_WF_ProcessData_ID, String trxName)
@@ -38,8 +37,8 @@ public class X_AD_WF_ProcessData extends PO implements I_AD_WF_ProcessData, I_Pe
       super (ctx, AD_WF_ProcessData_ID, trxName);
       /** if (AD_WF_ProcessData_ID == 0)
         {
-			setAD_WF_ProcessData_ID (0);
 			setAD_WF_Process_ID (0);
+			setAD_WF_ProcessData_ID (0);
 			setAttributeName (null);
         } */
     }
@@ -71,29 +70,6 @@ public class X_AD_WF_ProcessData extends PO implements I_AD_WF_ProcessData, I_Pe
         .append(get_ID()).append("]");
       return sb.toString();
     }
-
-	/** Set Workflow Process Data.
-		@param AD_WF_ProcessData_ID 
-		Workflow Process Context
-	  */
-	public void setAD_WF_ProcessData_ID (int AD_WF_ProcessData_ID)
-	{
-		if (AD_WF_ProcessData_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_WF_ProcessData_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_WF_ProcessData_ID, Integer.valueOf(AD_WF_ProcessData_ID));
-	}
-
-	/** Get Workflow Process Data.
-		@return Workflow Process Context
-	  */
-	public int getAD_WF_ProcessData_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WF_ProcessData_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
 
 	public org.compiere.model.I_AD_WF_Process getAD_WF_Process() throws RuntimeException
     {
@@ -130,6 +106,29 @@ public class X_AD_WF_ProcessData extends PO implements I_AD_WF_ProcessData, I_Pe
     {
         return new KeyNamePair(get_ID(), String.valueOf(getAD_WF_Process_ID()));
     }
+
+	/** Set Workflow Process Data.
+		@param AD_WF_ProcessData_ID 
+		Workflow Process Context
+	  */
+	public void setAD_WF_ProcessData_ID (int AD_WF_ProcessData_ID)
+	{
+		if (AD_WF_ProcessData_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_WF_ProcessData_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_WF_ProcessData_ID, Integer.valueOf(AD_WF_ProcessData_ID));
+	}
+
+	/** Get Workflow Process Data.
+		@return Workflow Process Context
+	  */
+	public int getAD_WF_ProcessData_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_WF_ProcessData_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set Attribute Name.
 		@param AttributeName 

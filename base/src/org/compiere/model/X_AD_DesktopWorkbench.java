@@ -1,6 +1,6 @@
 /******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                       *
- * Copyright (C) 1999-2007 ComPiere, Inc. All Rights Reserved.                *
+ * Product: ADempiere ERP & CRM Smart Business Solution                       *
+ * Copyright (C) 2006-2016 ADempiere Foundation, All Rights Reserved.         *
  * This program is free software, you can redistribute it and/or modify it    *
  * under the terms version 2 of the GNU General Public License as published   *
  * by the Free Software Foundation. This program is distributed in the hope   *
@@ -11,8 +11,7 @@
  * with this program, if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
+ * or via info@adempiere.net or http://www.adempiere.net/license.html         *
  *****************************************************************************/
 /** Generated Model - DO NOT CHANGE */
 package org.compiere.model;
@@ -30,7 +29,7 @@ public class X_AD_DesktopWorkbench extends PO implements I_AD_DesktopWorkbench, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20150223L;
+	private static final long serialVersionUID = 20180606L;
 
     /** Standard Constructor */
     public X_AD_DesktopWorkbench (Properties ctx, int AD_DesktopWorkbench_ID, String trxName)
@@ -38,8 +37,8 @@ public class X_AD_DesktopWorkbench extends PO implements I_AD_DesktopWorkbench, 
       super (ctx, AD_DesktopWorkbench_ID, trxName);
       /** if (AD_DesktopWorkbench_ID == 0)
         {
-			setAD_DesktopWorkbench_ID (0);
 			setAD_Desktop_ID (0);
+			setAD_DesktopWorkbench_ID (0);
 			setAD_Workbench_ID (0);
 			setSeqNo (0);
         } */
@@ -73,26 +72,6 @@ public class X_AD_DesktopWorkbench extends PO implements I_AD_DesktopWorkbench, 
       return sb.toString();
     }
 
-	/** Set Desktop Workbench.
-		@param AD_DesktopWorkbench_ID Desktop Workbench	  */
-	public void setAD_DesktopWorkbench_ID (int AD_DesktopWorkbench_ID)
-	{
-		if (AD_DesktopWorkbench_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_DesktopWorkbench_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_DesktopWorkbench_ID, Integer.valueOf(AD_DesktopWorkbench_ID));
-	}
-
-	/** Get Desktop Workbench.
-		@return Desktop Workbench	  */
-	public int getAD_DesktopWorkbench_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_DesktopWorkbench_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_AD_Desktop getAD_Desktop() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_Desktop)MTable.get(getCtx(), org.compiere.model.I_AD_Desktop.Table_Name)
@@ -116,6 +95,26 @@ public class X_AD_DesktopWorkbench extends PO implements I_AD_DesktopWorkbench, 
 	public int getAD_Desktop_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Desktop_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Desktop Workbench.
+		@param AD_DesktopWorkbench_ID Desktop Workbench	  */
+	public void setAD_DesktopWorkbench_ID (int AD_DesktopWorkbench_ID)
+	{
+		if (AD_DesktopWorkbench_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_DesktopWorkbench_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_DesktopWorkbench_ID, Integer.valueOf(AD_DesktopWorkbench_ID));
+	}
+
+	/** Get Desktop Workbench.
+		@return Desktop Workbench	  */
+	public int getAD_DesktopWorkbench_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_DesktopWorkbench_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
