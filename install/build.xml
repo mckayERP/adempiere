@@ -96,7 +96,7 @@
 	  <zipfileset src="../tools/lib/ant-commons-net.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
-	  <zipfileset src="../tools/lib/commons-net-1.4.0.jar" >
+	  <zipfileset src="../tools/lib/commons-net-3.6.jar" >
 		<patternset refid="manifest.exclude"/>
 	  </zipfileset>
 			
@@ -107,7 +107,7 @@
 		<attribute name="Implementation-Title" value="CInstall ${env.ADEMPIERE_VERSION}"/>
 		<attribute name="Implementation-Version" value="${env.ADEMPIERE_VERSION} ${DSTAMP}-${TSTAMP}"/>
 		<attribute name="Implementation-Vendor" value="${env.ADEMPIERE_VENDOR}"/>
-		<attribute name="Implementation-URL" value="http://www.adempiere.org"/>
+		<attribute name="Implementation-URL" value="http://www.adempiere.net"/>
 		<attribute name="Main-Class" value="org.compiere.install.Setup"/>
 		<attribute name="Class-Path" value="CTools.jar CClient.jar oracle.jar"/>
 	  </manifest>
