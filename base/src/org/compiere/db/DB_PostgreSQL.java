@@ -573,7 +573,7 @@ public class DB_PostgreSQL implements AdempiereDatabase
             {
                 cpds.setInitialPoolSize(1);
                 cpds.setMinPoolSize(1);
-                cpds.setMaxPoolSize(20);
+                cpds.setMaxPoolSize(60);
                 cpds.setMaxIdleTimeExcessConnections(1200);
                 cpds.setMaxIdleTime(900);
                 m_maxbusyconnections = 10;
