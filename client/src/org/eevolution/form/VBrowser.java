@@ -526,14 +526,14 @@ public class VBrowser extends Browser implements ActionListener,
 		m_frame.setCursor(Cursor.getDefaultCursor());
 		//	For when is ok the process
 		if(isOk) {
-			//	Close
-			if(getParentWindowNo() > 0) {
+//			//	Close
+//			if(getParentWindowNo() > 0) {
 				dispose();
 				return;
-			}
-			//	Else Reset
-			p_loadedOK = initBrowser();
-			collapsibleSearch.setCollapsed(false);
+//			}
+//			//	Else Reset
+//			p_loadedOK = initBrowser();
+//			collapsibleSearch.setCollapsed(false);
 		}
 	}
 
