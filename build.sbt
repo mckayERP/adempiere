@@ -19,13 +19,14 @@ name := "org.adempiere.jetty"
 lazy val commonSettings = Seq(
   organization := "org.adempiere.net",
   version := "3.9.0-SNAPSHOT",
-  scalaVersion := "2.12.10"
+  scalaVersion := "2.13.1"
 )
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.13.1"
 resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
 
 fork := true
+//val adempiereProperties = "-DPropertyFile=/Users/e-Evolution/AdempierePG.properties"
 val adempiereProperties = "-DPropertyFile=/Users/e-Evolution/AdempierePG.properties"
 //scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-encoding" , "utf8")
 javaOptions in Test := Seq (adempiereProperties)
@@ -33,9 +34,9 @@ javaOptions in Test := Seq (adempiereProperties)
 libraryDependencies ++= Seq(
   "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided",
   "com.typesafe" % "config" % "1.2.0",
-  "org.scala-lang" % "scala-reflect" % "2.12.8",
-  "org.scalactic" %% "scalactic" % "3.0.5",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+  "org.scala-lang" % "scala-reflect" % "2.13.1",
+  "org.scalactic" %% "scalactic" % "3.1.0",
+  "org.scalatest" %% "scalatest" % "3.1.0" % "test"
 )
 
 
@@ -72,6 +73,9 @@ unmanagedJars in Compile ++= (file(sourceAdempiere + "/JasperReportsTools/lib") 
 unmanagedJars in Compile ++= (file(sourceAdempiere + "/lib") * "*.jar").classpath
 unmanagedJars in Compile ++= (file(sourceAdempiere + "/packages") * "*.jar").classpath
 unmanagedJars in Compile ++= (file(sourceAdempiere + "/zkpackages") * "*.jar").classpath
+unmanagedJars in Compile ++= (file("/Users/e-Evolution/Develop/ADempiere/org.eevolution.LCO/target") * "*.jar").classpath
+unmanagedJars in Compile ++= (file("/Users/e-Evolution/Develop/ADempiere/org.eevolution.LEC/dist/lib") * "*.jar").classpath
+unmanagedJars in Compile ++= (file("/Users/e-Evolution/Develop/ADempiere/customizationQuimasa/target/scala-2.13") * "*.jar").classpath
 
 testOptions in Test += Tests.Argument("-oD")
 
@@ -97,6 +101,9 @@ webappPostProcess := {
     IO.copyDirectory(baseDirectory.value / "org.eevolution.hr_and_payroll/src/main/java/ui/zk",webappDir / "WEB-INF" / "classes")
     IO.copyDirectory(baseDirectory.value / "zkwebui", webappDir)
     //IO.copyDirectory(baseDirectory.value / "serverRoot" / "src" / "web", webappDir)
+    IO.copyDirectory(file("/Users/e-Evolution/Develop/ADempiere/org.eevolution.LCO/target/classes"), webappDir / "WEB-INF" / "classes")
+    IO.copyDirectory(file("/Users/e-Evolution/Develop/ADempiere/org.eevolution.LEC/dist/lib"), webappDir / "WEB-INF" / "lib")
+    IO.copyDirectory(file("/Users/e-Evolution/Develop/ADempiere/customizationQuimasa/target/scala-2.13/classes"), webappDir / "WEB-INF" / "classes")
     IO.copyDirectory(baseDirectory.value / "lib", webappDir / "WEB-INF" / "lib")
     IO.copyDirectory(baseDirectory.value / "packages", webappDir / "WEB-INF" / "lib")
     IO.copyDirectory(baseDirectory.value / "zkpackages", webappDir / "WEB-INF" / "lib")
