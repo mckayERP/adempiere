@@ -968,7 +968,7 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 				|| (!newRecord && is_ValueChanged(MOrderLine.COLUMNNAME_QtyEntered) && !getParent().isProcessed())
 				|| (!newRecord && is_ValueChanged(MOrderLine.COLUMNNAME_PriceActual) && !getParent().isProcessed())
 		)
-			return getParent().calculateTaxTotal();
+			return updateHeaderTax();
 
 		return true;
 	}	//	afterSave
