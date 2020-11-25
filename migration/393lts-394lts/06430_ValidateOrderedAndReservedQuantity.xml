@@ -33,7 +33,7 @@
         <Data AD_Column_ID="11563" Column="WorkflowValue" isNewNull="true"/>
         <Data AD_Column_ID="56515" Column="AD_Form_ID" isNewNull="true"/>
         <Data AD_Column_ID="5790" Column="AccessLevel">3</Data>
-        <Data AD_Column_ID="14084" Column="IsServerProcess">true</Data>
+        <Data AD_Column_ID="14084" Column="IsServerProcess">false</Data>
         <Data AD_Column_ID="78843" Column="GenerateClass">N</Data>
         <Data AD_Column_ID="7752" Column="AD_PrintFormat_ID" isNewNull="true"/>
       </PO>
