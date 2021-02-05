@@ -142,6 +142,8 @@ utils_dev/packages/testSqlStatement2Pack.zip
 utils_dev/packages/testSqlStatement2Pack/
 
 # User specific files
+/utils_dev/mybuild.properties
+/utils_dev/mytest.properties
 migration/oracle.properties
 migration/postgresql.properties
 
