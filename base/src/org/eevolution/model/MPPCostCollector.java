@@ -16,13 +16,14 @@
  *****************************************************************************/
 package org.eevolution.model;
 
-
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.*;
 import org.adempiere.engine.*;
+import org.adempiere.engine.storage.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.DocTypeNotFoundException;
 import org.adempiere.exceptions.FillMandatoryException;
@@ -395,17 +396,11 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 		// Issue
 		else if (isIssue())
 		{
-			MPeriod.testPeriodOpen(getCtx(), getDateAcct(), getC_DocTypeTarget_ID(), getAD_Org_ID());
-			MProduct product = getM_Product();
-			//Validate if ASI is mandatory
-			MAttributeSet.validateAttributeSetInstanceMandatory(product, Table_ID , false , getM_AttributeSetInstance_ID());
-		}
-		// Receipt
-		else if (isReceipt())
-		{
-			MPeriod.testPeriodOpen(getCtx(), getDateAcct(), getC_DocTypeTarget_ID(), getAD_Org_ID());
-			MProduct product = getM_Product();
-			MAttributeSet.validateAttributeSetInstanceMandatory(product, Table_ID , false , getM_AttributeSetInstance_ID());
+			m_processMsg = validateAttributeSetInstanceMandatory(getCtx(), getM_Product(), Table_ID , false , getM_AttributeSetInstance_ID(), get_TrxName());
+			if (m_processMsg != null)
+			{
+				return DocAction.STATUS_Invalid;
+			}
 		}
 		
 		m_justPrepared = true;
@@ -454,60 +449,62 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 		//
 		// Material Issue (component issue, method change variance, mix variance)
 		// Material Receipt
+		//  Counterpart for reservations/orders in MPPOrder and MPPOrderBOMLine
 		if(isIssue() || isReceipt())
 		{
-			//	Stock Movement 
-			MProduct product = getM_Product();
-			if (product != null	&& product.isStocked() && !isVariance())
-			{
-				StorageEngine.createTrasaction(
-						this,
-						getMovementType() , 
-						getMovementDate() , 
-						getMovementQty() , 
-						false,											// IsReversal=false
-						getM_Warehouse_ID(), 
-						getPP_Order().getM_AttributeSetInstance_ID(),	// Reservation ASI
-						getPP_Order().getM_Warehouse_ID(),				// Reservation Warehouse
-						false											// IsSOTrx=false
-						);
-			}	//	stock movement
-			
-			if (isIssue() && !isVariance())
-			{
-				//	Update PP Order Line
-				MPPOrderBOMLine obomline = getPP_Order_BOMLine();
-				obomline.setQtyDelivered(obomline.getQtyDelivered().add(getMovementQty()));
-				obomline.setQtyScrap(obomline.getQtyScrap().add(getScrappedQty()));
-				obomline.setQtyReject(obomline.getQtyReject().add(getQtyReject()));  
-				obomline.setDateDelivered(getMovementDate());	//	overwrite=last	
-
-				log.fine("OrderLine - Reserved=" + obomline.getQtyReserved() + ", Delivered=" + obomline.getQtyDelivered());				
-				obomline.saveEx();
-				log.fine("OrderLine -> Reserved="+obomline.getQtyReserved()+", Delivered="+obomline.getQtyDelivered());
-			}
-			if (isReceipt())
-			{
-				//	Update PP Order Qtys 
-				final MPPOrder order = getPP_Order();
-				order.setQtyDelivered(order.getQtyDelivered().add(getMovementQty()));                
-				order.setQtyScrap(order.getQtyScrap().add(getScrappedQty()));
-				order.setQtyReject(order.getQtyReject().add(getQtyReject()));                
-				order.setQtyReserved(order.getQtyReserved().subtract(getMovementQty()));
-				
-				//
-				// Update PP Order Dates
-				order.setDateDelivered(getMovementDate()); //	overwrite=last
-				if (order.getDateStart() == null)
-				{
-					order.setDateStart(getDateStart());
-				}
-				if (order.getQtyOpen().signum() <= 0)
-				{
-					order.setDateFinish(getDateFinish());
-				}
-				order.saveEx();
-			}
+			; // No actions
+//			//	Stock Movement 
+//			MProduct product = getM_Product();
+//			if (product != null	&& product.isStocked() && !isVariance())
+//			{ 
+//				StorageEngine.createTransaction(
+//						this,
+//						getMovementType() , 
+//						getMovementDate() , 
+//						getMovementQty() , 
+//						false,											// IsReversal=false
+//						getM_Warehouse_ID(), 
+//						getPP_Order().getM_AttributeSetInstance_ID(),	// Reservation ASI
+//						getPP_Order().getM_Warehouse_ID(),				// Reservation Warehouse
+//						false											// IsSOTrx=false
+//						);
+//			}	//	stock movement
+//			
+//			if (isIssue() && !isVariance())
+//			{
+//				//	Update PP Order Line
+//				MPPOrderBOMLine obomline = getPP_Order_BOMLine();
+//				obomline.setQtyDelivered(obomline.getQtyDelivered().add(getMovementQty()));
+//				obomline.setQtyScrap(obomline.getQtyScrap().add(getScrappedQty()));
+//				obomline.setQtyReject(obomline.getQtyReject().add(getQtyReject()));  
+//				obomline.setDateDelivered(getMovementDate());	//	overwrite=last	
+//
+//				log.fine("OrderLine - Reserved=" + obomline.getQtyReserved() + ", Delivered=" + obomline.getQtyDelivered());				
+//				obomline.saveEx();
+//				log.fine("OrderLine -> Reserved="+obomline.getQtyReserved()+", Delivered="+obomline.getQtyDelivered());
+//			}
+//			if (isReceipt())
+//			{
+//				//	Update PP Order Qtys 
+//				final MPPOrder order = getPP_Order();
+//				order.setQtyDelivered(order.getQtyDelivered().add(getMovementQty()));                
+//				order.setQtyScrap(order.getQtyScrap().add(getScrappedQty()));
+//				order.setQtyReject(order.getQtyReject().add(getQtyReject()));                
+//				order.setQtyReserved(order.getQtyReserved().subtract(getMovementQty()));
+//				
+//				//
+//				// Update PP Order Dates
+//				order.setDateDelivered(getMovementDate()); //	overwrite=last
+//				if (order.getDateStart() == null)
+//				{
+//					order.setDateStart(getDateStart());
+//				}
+//				if (order.getQtyOpen().signum() <= 0)
+//				{
+//					order.setDateFinish(getDateFinish());
+//				}
+//				order.saveEx();
+//			}
 		}
 		//
 		// Activity Control
@@ -1025,13 +1022,13 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
@@ -1087,4 +1084,15 @@ public class MPPCostCollector extends X_PP_Cost_Collector implements DocAction ,
 		return false;
 	}
 
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public PO getParent() {
+		// MPPCostCollector has no parent
+		return null;
+	}
 }	//	MPPCostCollector

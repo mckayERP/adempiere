@@ -95,6 +95,7 @@ public class MPPOrderBOM extends X_PP_Order_BOM
 		String whereClause = MPPOrderBOMLine.COLUMNNAME_PP_Order_BOM_ID+"=?";
 		List<MPPOrderBOMLine> list = new Query(getCtx(), MPPOrderBOMLine.Table_Name, whereClause, get_TrxName())
 									.setParameters(new Object[]{get_ID()})
+									.setOrderBy(MPPOrderBOMLine.COLUMNNAME_Line)
 									.list();
 		return list.toArray(new MPPOrderBOMLine[list.size()]);
 	}

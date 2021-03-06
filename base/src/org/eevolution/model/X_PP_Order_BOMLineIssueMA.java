@@ -23,32 +23,31 @@ import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
 
-/** Generated Model for PP_Cost_CollectorMA
+/** Generated Model for PP_Order_BOMLineIssueMA
  *  @author Adempiere (generated) 
  *  @version Release 3.9.3 - $Id$ */
-public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, I_Persistent 
+public class X_PP_Order_BOMLineIssueMA extends PO implements I_PP_Order_BOMLineIssueMA, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200305L;
+	private static final long serialVersionUID = 20201003L;
 
     /** Standard Constructor */
-    public X_PP_Cost_CollectorMA (Properties ctx, int PP_Cost_CollectorMA_ID, String trxName)
+    public X_PP_Order_BOMLineIssueMA (Properties ctx, int PP_Order_BOMLineIssueMA_ID, String trxName)
     {
-      super (ctx, PP_Cost_CollectorMA_ID, trxName);
-      /** if (PP_Cost_CollectorMA_ID == 0)
+      super (ctx, PP_Order_BOMLineIssueMA_ID, trxName);
+      /** if (PP_Order_BOMLineIssueMA_ID == 0)
         {
-			setM_AttributeSetInstance_ID (0);
+			setM_MPolicyTicket_ID (0);
 			setMovementQty (Env.ZERO);
-			setPP_Cost_Collector_ID (0);
-			setPP_Cost_CollectorMA_ID (0);
+			setPP_Order_BOMLineIssueMA_ID (0);
         } */
     }
 
     /** Load Constructor */
-    public X_PP_Cost_CollectorMA (Properties ctx, ResultSet rs, String trxName)
+    public X_PP_Order_BOMLineIssueMA (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
@@ -70,7 +69,7 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_PP_Cost_CollectorMA[")
+      StringBuffer sb = new StringBuffer ("X_PP_Order_BOMLineIssueMA[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
@@ -86,10 +85,10 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 	  */
 	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
 	{
-		if (M_AttributeSetInstance_ID < 0) 
-			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
+		if (M_AttributeSetInstance_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstance_ID, null);
 		else 
-			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
 	}
 
 	/** Get Attribute Set Instance.
@@ -115,9 +114,9 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
 	{
 		if (M_MPolicyTicket_ID < 1) 
-			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, null);
 		else 
-			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
 	}
 
 	/** Get Material Policy Ticket.
@@ -195,46 +194,46 @@ public class X_PP_Cost_CollectorMA extends PO implements I_PP_Cost_CollectorMA, 
 		return (String)get_Value(COLUMNNAME_MovementType);
 	}
 
-	public org.eevolution.model.I_PP_Cost_Collector getPP_Cost_Collector() throws RuntimeException
+	public org.eevolution.model.I_PP_Order_BOMLineIssue getPP_Order_BOMLineIssue() throws RuntimeException
     {
-		return (org.eevolution.model.I_PP_Cost_Collector)MTable.get(getCtx(), org.eevolution.model.I_PP_Cost_Collector.Table_Name)
-			.getPO(getPP_Cost_Collector_ID(), get_TrxName());	}
+		return (org.eevolution.model.I_PP_Order_BOMLineIssue)MTable.get(getCtx(), org.eevolution.model.I_PP_Order_BOMLineIssue.Table_Name)
+			.getPO(getPP_Order_BOMLineIssue_ID(), get_TrxName());	}
 
-	/** Set Manufacturing Cost Collector.
-		@param PP_Cost_Collector_ID Manufacturing Cost Collector	  */
-	public void setPP_Cost_Collector_ID (int PP_Cost_Collector_ID)
+	/** Set Manufacturing Order BOM Line Issue ID.
+		@param PP_Order_BOMLineIssue_ID Manufacturing Order BOM Line Issue ID	  */
+	public void setPP_Order_BOMLineIssue_ID (int PP_Order_BOMLineIssue_ID)
 	{
-		if (PP_Cost_Collector_ID < 1) 
-			set_Value (COLUMNNAME_PP_Cost_Collector_ID, null);
+		if (PP_Order_BOMLineIssue_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_PP_Order_BOMLineIssue_ID, null);
 		else 
-			set_Value (COLUMNNAME_PP_Cost_Collector_ID, Integer.valueOf(PP_Cost_Collector_ID));
+			set_ValueNoCheck (COLUMNNAME_PP_Order_BOMLineIssue_ID, Integer.valueOf(PP_Order_BOMLineIssue_ID));
 	}
 
-	/** Get Manufacturing Cost Collector.
-		@return Manufacturing Cost Collector	  */
-	public int getPP_Cost_Collector_ID () 
+	/** Get Manufacturing Order BOM Line Issue ID.
+		@return Manufacturing Order BOM Line Issue ID	  */
+	public int getPP_Order_BOMLineIssue_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_Collector_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Order_BOMLineIssue_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set Manufacturing Order MA.
-		@param PP_Cost_CollectorMA_ID Manufacturing Order MA	  */
-	public void setPP_Cost_CollectorMA_ID (int PP_Cost_CollectorMA_ID)
+	/** Set Manufacturing Order BOM Line Issue MA ID.
+		@param PP_Order_BOMLineIssueMA_ID Manufacturing Order BOM Line Issue MA ID	  */
+	public void setPP_Order_BOMLineIssueMA_ID (int PP_Order_BOMLineIssueMA_ID)
 	{
-		if (PP_Cost_CollectorMA_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, null);
+		if (PP_Order_BOMLineIssueMA_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_PP_Order_BOMLineIssueMA_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_PP_Cost_CollectorMA_ID, Integer.valueOf(PP_Cost_CollectorMA_ID));
+			set_ValueNoCheck (COLUMNNAME_PP_Order_BOMLineIssueMA_ID, Integer.valueOf(PP_Order_BOMLineIssueMA_ID));
 	}
 
-	/** Get Manufacturing Order MA.
-		@return Manufacturing Order MA	  */
-	public int getPP_Cost_CollectorMA_ID () 
+	/** Get Manufacturing Order BOM Line Issue MA ID.
+		@return Manufacturing Order BOM Line Issue MA ID	  */
+	public int getPP_Order_BOMLineIssueMA_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_CollectorMA_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Order_BOMLineIssueMA_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

@@ -21,17 +21,17 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for PP_Cost_CollectorMA
+/** Generated Interface for PP_OrderReceiptMA
  *  @author Adempiere (generated) 
  *  @version Release 3.9.3
  */
-public interface I_PP_Cost_CollectorMA 
+public interface I_PP_OrderReceiptMA 
 {
 
-    /** TableName=PP_Cost_CollectorMA */
-    public static final String Table_Name = "PP_Cost_CollectorMA";
+    /** TableName=PP_OrderReceiptMA */
+    public static final String Table_Name = "PP_OrderReceiptMA";
 
-    /** AD_Table_ID=53062 */
+    /** AD_Table_ID=54781 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -148,25 +148,25 @@ public interface I_PP_Cost_CollectorMA
 	  */
 	public String getMovementType();
 
-    /** Column name PP_Cost_Collector_ID */
-    public static final String COLUMNNAME_PP_Cost_Collector_ID = "PP_Cost_Collector_ID";
+    /** Column name PP_OrderReceipt_ID */
+    public static final String COLUMNNAME_PP_OrderReceipt_ID = "PP_OrderReceipt_ID";
 
-	/** Set Manufacturing Cost Collector	  */
-	public void setPP_Cost_Collector_ID (int PP_Cost_Collector_ID);
+	/** Set Manufacturing Order Receipt ID	  */
+	public void setPP_OrderReceipt_ID (int PP_OrderReceipt_ID);
 
-	/** Get Manufacturing Cost Collector	  */
-	public int getPP_Cost_Collector_ID();
+	/** Get Manufacturing Order Receipt ID	  */
+	public int getPP_OrderReceipt_ID();
 
-	public org.eevolution.model.I_PP_Cost_Collector getPP_Cost_Collector() throws RuntimeException;
+	public org.eevolution.model.I_PP_OrderReceipt getPP_OrderReceipt() throws RuntimeException;
 
-    /** Column name PP_Cost_CollectorMA_ID */
-    public static final String COLUMNNAME_PP_Cost_CollectorMA_ID = "PP_Cost_CollectorMA_ID";
+    /** Column name PP_OrderReceiptMA_ID */
+    public static final String COLUMNNAME_PP_OrderReceiptMA_ID = "PP_OrderReceiptMA_ID";
 
-	/** Set Manufacturing Order MA	  */
-	public void setPP_Cost_CollectorMA_ID (int PP_Cost_CollectorMA_ID);
+	/** Set PP_OrderReceiptMA ID	  */
+	public void setPP_OrderReceiptMA_ID (int PP_OrderReceiptMA_ID);
 
-	/** Get Manufacturing Order MA	  */
-	public int getPP_Cost_CollectorMA_ID();
+	/** Get PP_OrderReceiptMA ID	  */
+	public int getPP_OrderReceiptMA_ID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

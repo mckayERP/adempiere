@@ -16,15 +16,21 @@
  *****************************************************************************/
 package org.eevolution.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Optional;
 import java.util.Properties;
 
+import org.adempiere.engine.IDocumentLine;
+import org.adempiere.engine.storage.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.DBException;
+import org.compiere.model.MAttributeSet;
 import org.compiere.model.MLocator;
 import org.compiere.model.MProduct;
 import org.compiere.model.MStorage;
@@ -32,8 +38,10 @@ import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
+import org.compiere.process.DocAction;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 /**
  * PP Order BOM Line Model.
@@ -41,7 +49,7 @@ import org.compiere.util.Env;
  * @author Victor Perez www.e-evolution.com     
  * @author Teo Sarca, www.arhipac.ro
  */
-public class MPPOrderBOMLine extends X_PP_Order_BOMLine
+public class MPPOrderBOMLine extends X_PP_Order_BOMLine implements IDocumentLine
 {
 
 	
@@ -178,11 +186,11 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 			setQtyRequired(getQtyRequired().setScale(precision, RoundingMode.UP));
 		}
 		
-		if( is_ValueChanged(MPPOrderBOMLine.COLUMNNAME_QtyDelivered)
-				|| is_ValueChanged(MPPOrderBOMLine.COLUMNNAME_QtyRequired))
-		{	
-			reserveStock();
-		}
+//		if( !newRecord && (is_ValueChanged(MPPOrderBOMLine.COLUMNNAME_QtyDelivered)
+//				|| is_ValueChanged(MPPOrderBOMLine.COLUMNNAME_QtyRequired)))
+//		{	
+//			reserveStock();
+//		}
 		
 		return true;
 	}
@@ -201,8 +209,10 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 	{
 		// Release Reservation
 		setQtyRequired(Env.ZERO);
-		reserveStock();
-		return true;
+		String err = reserveStock();
+		if (err != null)
+			log.saveError("Error", Msg.parseTranslation(getCtx(), err));
+		return err == null;
 	}
 
 	/**
@@ -559,45 +569,17 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 	/**
 	 * Reserve Inventory for this BOM Line
 	 */
-	protected void reserveStock()
+	protected String reserveStock()
 	{
-		final int header_M_Warehouse_ID = getParent().getM_Warehouse_ID();
-
-		//	Check/set WH/Org
-		if (header_M_Warehouse_ID != 0) //	enforce WH
+		
+		String msg = validateAttributeSetInstanceMandatory(getCtx(), getM_Product(), Table_ID, false, getM_AttributeSetInstance_ID(), get_TrxName());
+		if (msg != null)
 		{
-			if (header_M_Warehouse_ID != getM_Warehouse_ID())
-				setM_Warehouse_ID(header_M_Warehouse_ID);
-			if (getAD_Org_ID() != getAD_Org_ID())
-				setAD_Org_ID(getAD_Org_ID());
+			return msg;
 		}
-		//
-		final BigDecimal target = getQtyRequired();
-		final BigDecimal difference = target.subtract(getQtyReserved()).subtract(getQtyDelivered());
-		log.fine("Line=" + getLine() + " - Target=" + target + ",Difference=" + difference + " - Requiered=" + getQtyRequired()
-				+ ",Reserved=" + getQtyReserved() + ",Delivered=" + getQtyDelivered());
-		if (difference.signum() == 0)
-		{
-			return;
-		}
-
-		//	Check Product - Stocked and Item
-		MProduct product = getM_Product();
-		if (!product.isStocked())
-		{
-			return;
-		}
-		BigDecimal reserved = difference;
-		int M_Locator_ID = getM_Locator_ID(reserved);
-		//	Update Storage
-		if (!MStorage.add(getCtx(), getM_Warehouse_ID(), M_Locator_ID,
-				getM_Product_ID(), getM_AttributeSetInstance_ID(),
-				getM_AttributeSetInstance_ID(), Env.ZERO, reserved, Env.ZERO, get_TrxName()))
-		{
-			throw new AdempiereException();
-		}
-		//	update line
-		setQtyReserved(getQtyReserved().add(difference));
+					
+		return StorageEngine.applyStorageRules(this);
+		
 	} //	reserveStock
 	
 	/**
@@ -641,5 +623,100 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine
 				+",QtyRequired="+getQtyRequired()
 				+",QtyScrap="+getQtyScrap()
 				+"]";
+	}
+
+	@Override
+	public int getC_DocType_ID() {
+		
+		return this.getPP_Order().getC_DocType_ID();
+	}
+
+	@Override
+	public int getM_LocatorTo_ID() {
+		// Not applicable
+		return 0;
+	}
+
+	@Override
+	public int getM_AttributeSetInstanceTo_ID() {
+		// Not applicable
+		return 0;
+	}
+
+	@Override
+	public Timestamp getDateAcct() {
+		
+		return this.getPP_Order().getDateOrdered();
+	}
+
+	@Override
+	public BigDecimal getMovementQty() {
+		return null;
+	}
+
+	@Override
+	public boolean isSOTrx() {
+		return false;
+	}
+
+	@Override
+	public int getReversalLine_ID() {
+		// Not applicable
+		return 0;
+	}
+
+	@Override
+	public int getC_Currency_ID() {
+		// Not applicable
+		return 0;
+	}
+
+	@Override
+	public int getC_ConversionType_ID() {
+		// Not applicable
+		return 0;
+	}
+
+	@Override
+	public BigDecimal getPriceActual() {
+		// Not applicable
+		return null;
+	}
+
+	@Override
+	public BigDecimal getPriceActualCurrency() {
+		// Not applicable
+		return null;
+	}
+
+	@Override
+	public IDocumentLine getReversalDocumentLine() {
+		// Not applicable
+		return null;
+	}
+
+	@Override
+	public boolean isReversalParent() {
+		// Not applicable
+		return false;
+	}
+
+	@Override
+	public boolean isReversal() {
+		// Not applicable
+		return false;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		if (getParent().getDateOrdered() != null)
+			return getParent().getDateOrdered();
+		return getParent().getDateOrdered();
+	}
+
+	@Override
+	public String getMovementType() {
+		// Not applicable
+		return null;
 	}
 }

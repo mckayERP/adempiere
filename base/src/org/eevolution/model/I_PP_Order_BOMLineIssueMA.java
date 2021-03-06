@@ -21,17 +21,17 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for PP_Cost_CollectorMA
+/** Generated Interface for PP_Order_BOMLineIssueMA
  *  @author Adempiere (generated) 
  *  @version Release 3.9.3
  */
-public interface I_PP_Cost_CollectorMA 
+public interface I_PP_Order_BOMLineIssueMA 
 {
 
-    /** TableName=PP_Cost_CollectorMA */
-    public static final String Table_Name = "PP_Cost_CollectorMA";
+    /** TableName=PP_Order_BOMLineIssueMA */
+    public static final String Table_Name = "PP_Order_BOMLineIssueMA";
 
-    /** AD_Table_ID=53062 */
+    /** AD_Table_ID=54772 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -148,25 +148,25 @@ public interface I_PP_Cost_CollectorMA
 	  */
 	public String getMovementType();
 
-    /** Column name PP_Cost_Collector_ID */
-    public static final String COLUMNNAME_PP_Cost_Collector_ID = "PP_Cost_Collector_ID";
+    /** Column name PP_Order_BOMLineIssue_ID */
+    public static final String COLUMNNAME_PP_Order_BOMLineIssue_ID = "PP_Order_BOMLineIssue_ID";
 
-	/** Set Manufacturing Cost Collector	  */
-	public void setPP_Cost_Collector_ID (int PP_Cost_Collector_ID);
+	/** Set Manufacturing Order BOM Line Issue ID	  */
+	public void setPP_Order_BOMLineIssue_ID (int PP_Order_BOMLineIssue_ID);
 
-	/** Get Manufacturing Cost Collector	  */
-	public int getPP_Cost_Collector_ID();
+	/** Get Manufacturing Order BOM Line Issue ID	  */
+	public int getPP_Order_BOMLineIssue_ID();
 
-	public org.eevolution.model.I_PP_Cost_Collector getPP_Cost_Collector() throws RuntimeException;
+	public org.eevolution.model.I_PP_Order_BOMLineIssue getPP_Order_BOMLineIssue() throws RuntimeException;
 
-    /** Column name PP_Cost_CollectorMA_ID */
-    public static final String COLUMNNAME_PP_Cost_CollectorMA_ID = "PP_Cost_CollectorMA_ID";
+    /** Column name PP_Order_BOMLineIssueMA_ID */
+    public static final String COLUMNNAME_PP_Order_BOMLineIssueMA_ID = "PP_Order_BOMLineIssueMA_ID";
 
-	/** Set Manufacturing Order MA	  */
-	public void setPP_Cost_CollectorMA_ID (int PP_Cost_CollectorMA_ID);
+	/** Set Manufacturing Order BOM Line Issue MA ID	  */
+	public void setPP_Order_BOMLineIssueMA_ID (int PP_Order_BOMLineIssueMA_ID);
 
-	/** Get Manufacturing Order MA	  */
-	public int getPP_Cost_CollectorMA_ID();
+	/** Get Manufacturing Order BOM Line Issue MA ID	  */
+	public int getPP_Order_BOMLineIssueMA_ID();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
