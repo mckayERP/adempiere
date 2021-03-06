@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.test.CommonGWSetup;
 import org.compiere.util.Env;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,10 @@ class IT_MStorage extends CommonGWSetup {
         //
         BigDecimal targetQty = BigDecimal.valueOf(qtyOnHand).setScale(12,
                 BigDecimal.ROUND_HALF_UP);
-        MStorage s1 = MStorage.getCreate(getCtx(), loc.get_ID(), product_id, 0,
+        MMPolicyTicket ticket = new MMPolicyTicket(ctx, 0, trxName);
+        ticket.setMovementDate(today);
+        ticket.saveEx();
+        MStorage s1 = MStorage.getCreate(getCtx(), loc.get_ID(), product_id, 0, ticket.get_ID(),
                 getTrxName());
         s1.setQtyOnHand(targetQty);
         s1.saveEx();

@@ -42,6 +42,7 @@ public class X_M_Storage extends PO implements I_M_Storage, I_Persistent
         {
 			setM_AttributeSetInstance_ID (0);
 			setM_Locator_ID (0);
+			setM_MPolicyTicket_ID (0);
 			setM_Product_ID (0);
 			setQtyOnHand (Env.ZERO);
 			setQtyOrdered (Env.ZERO);
@@ -145,6 +146,34 @@ public class X_M_Storage extends PO implements I_M_Storage, I_Persistent
 	public int getM_Locator_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
