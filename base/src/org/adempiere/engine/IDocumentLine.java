@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Properties;
 
+import org.compiere.model.PO;
+
 /**
  *  Inventory Document Line interface
  *  @author victor.perez@e-evolution.com http://www.e-evolution.com
@@ -30,6 +32,7 @@ public interface IDocumentLine
 	public Properties getCtx();
 	public String get_TrxName();
 	public String get_TableName();
+	public int get_Table_ID();
 	//
 	public int get_ID();
 	public int getAD_Client_ID();
@@ -53,4 +56,11 @@ public interface IDocumentLine
 	public BigDecimal getPriceActualCurrency();
 	public IDocumentLine getReversalDocumentLine();
 	public boolean isReversalParent();
+	public int getM_MPolicyTicket_ID();
+	public void setM_MPolicyTicket_ID(int M_MPolicyTicket_ID);
+	public boolean isReversal();
+	public int getM_Warehouse_ID();
+	public Timestamp getMovementDate();
+	public String getMovementType();
+	public PO getParent();
 }
