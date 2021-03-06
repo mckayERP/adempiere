@@ -16,12 +16,22 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
+
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
+import org.adempiere.engine.IInventoryAllocation;
+import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 /**
  *	Shipment Material Allocation
@@ -29,7 +39,7 @@ import org.compiere.util.DB;
  *  @author Jorg Janke
  *  @version $Id: MInOutLineMA.java,v 1.3 2006/07/30 00:51:02 jjanke Exp $
  */
-public class MInOutLineMA extends X_M_InOutLineMA
+public class MInOutLineMA extends X_M_InOutLineMA implements IInventoryAllocation
 {
 	/**
 	 * 
@@ -50,7 +60,57 @@ public class MInOutLineMA extends X_M_InOutLineMA
                 .setParameters(M_InOutLine_ID)
                 .list();
 	}	//	get
-	
+
+	/**
+	 * 	Get Material Allocations for Line with the allocations returned in FIFO or LIFO order
+	 *	@param ctx context
+	 *	@param M_InOutLine_ID line
+	 *	@param trxName trx
+	 *	@return allocations
+	 */
+	public static List<MInOutLineMA> getInOrder (Properties ctx, int M_InOutLine_ID, boolean fifoOrder, String trxName)
+	{
+		String sql = "SELECT ma.* "
+				+ "FROM " + MInOutLineMA.Table_Name + " ma "
+				+ "JOIN M_MPolicyTicket mp ON (ma.M_MPolicyTicket_ID = mp.M_MPolicyTicket_ID) "
+				+ "WHERE ma." + MInOutLineMA.COLUMNNAME_AD_Client_ID + "=? "
+				+ "AND ma." + MInOutLineMA.COLUMNNAME_M_InOutLine_ID + "=? "
+				+ "ORDER BY mp." + MMPolicyTicket.COLUMNNAME_MovementDate;
+		
+		if (fifoOrder)
+			sql += " ASC";
+		else
+			sql += " DESC";
+		
+		List<MInOutLineMA> lines = new ArrayList<MInOutLineMA>();
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try 
+		{
+				
+			pstmt = DB.prepareStatement(sql, trxName);
+			pstmt.setInt(1, Env.getAD_Client_ID(ctx));
+			pstmt.setInt(2, M_InOutLine_ID);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				MInOutLineMA newLineMA = new MInOutLineMA(ctx, rs, trxName);
+				lines.add(newLineMA);
+			}
+		}
+		catch (SQLException e)
+		{
+			CLogger.get().log(Level.SEVERE, sql.toString(), e);
+		}
+		finally {
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		
+		return lines;
+		
+	}	//	getInOrder
+
 	/**
 	 * Delete all Material Allocation for InOut
 	 * @param M_InOut_ID shipment
@@ -108,16 +168,16 @@ public class MInOutLineMA extends X_M_InOutLineMA
 	/**
 	 * 	Parent Constructor
 	 *	@param parent parent
-	 *	@param M_AttributeSetInstance_ID asi
+	 *	@param M_MPolicyTicket_ID material policy ticket ID
 	 *	@param MovementQty qty
 	 */
-	public MInOutLineMA (MInOutLine parent, int M_AttributeSetInstance_ID, BigDecimal MovementQty)
+	public MInOutLineMA (MInOutLine parent, int M_MPolicyTicket_ID, BigDecimal MovementQty)
 	{
 		this (parent.getCtx(), 0, parent.get_TrxName());
 		setClientOrg(parent);
 		setM_InOutLine_ID(parent.getM_InOutLine_ID());
 		//
-		setM_AttributeSetInstance_ID(M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		setMovementQty(MovementQty);
 	}	//	MInOutLineMA
 
@@ -126,12 +186,16 @@ public class MInOutLineMA extends X_M_InOutLineMA
 	 *	@param newRecord new
 	 *	@return true or false
 	 */
+	@Override
 	protected boolean beforeSave (boolean newRecord)
 	{
 		MInOutLine inOutLine =  (MInOutLine) getM_InOutLine();
-		MProduct product = (MProduct) inOutLine.getM_Product();
-		MAttributeSet.validateAttributeSetInstanceMandatory(product, MInOutLine.Table_ID, inOutLine.isSOTrx(), getM_AttributeSetInstance_ID());
-		return true;
+		String msg = validateAttributeSetInstanceMandatory(inOutLine);
+		if (msg != null)
+		{
+			log.saveError("Error", Msg.parseTranslation(getCtx(), msg));
+		}
+		return msg == null;
 	}
 
 
@@ -143,7 +207,7 @@ public class MInOutLineMA extends X_M_InOutLineMA
 	{
 		StringBuffer sb = new StringBuffer ("MInOutLineMA[");
 		sb.append("M_InOutLine_ID=").append(getM_InOutLine_ID())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append(", Qty=").append(getMovementQty())
 			.append ("]");
 		return sb.toString ();

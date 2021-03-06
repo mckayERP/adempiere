@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.FillMandatoryException;
 import org.adempiere.exceptions.WarehouseLocatorConflictException;
 import org.compiere.process.DocumentReversalLineEnable;
@@ -45,6 +47,8 @@ import org.compiere.util.Util;
  *  			https://sourceforge.net/tracker/?func=detail&atid=879332&aid=2797938&group_id=176962
  *  @author eEvolution author Victor Perez <victor.perez@e-evolution.com>
  *			<li>Implement Reverse Accrual for all document https://github.com/adempiere/adempiere/issues/1348</>
+ *  @author mckayERP www.mckayERP.com
+ *  		<li>#281 Improve tests of validity of ASI values
  */
 public class MInOutLine extends X_M_InOutLine
 implements IDocumentLine , DocumentReversalLineEnable
@@ -390,6 +394,27 @@ implements IDocumentLine , DocumentReversalLineEnable
 		super.setMovementQty(MovementQty);
 	}	//	setMovementQty
 
+	
+	public void setM_Product_ID(int M_Product_ID)
+	{
+		if ((m_product == null || m_product.getM_Product_ID() != M_Product_ID)
+			&& M_Product_ID > 0)
+		{
+			m_product = MProduct.get(getCtx(), M_Product_ID, get_TrxName()); 
+		}
+		
+		if (m_product == null)
+		{
+			super.setM_Product_ID(0);
+			setM_AttributeSetInstance_ID(0);
+		}
+		else
+		{
+			super.setM_Product_ID(m_product.getM_Product_ID());
+			setM_AttributeSetInstance_ID(m_product.getM_AttributeSetInstance_ID());
+		}
+	}
+	
 	/**
 	 * 	Get Product
 	 *	@return product or null
@@ -428,12 +453,25 @@ implements IDocumentLine , DocumentReversalLineEnable
 	 */
 	public void setM_Product_ID (int M_Product_ID, boolean setUOM)
 	{
+		setM_Product_ID(M_Product_ID);
 		if (setUOM)
-			setProduct(MProduct.get(getCtx(), M_Product_ID));
-		else
-			super.setM_Product_ID (M_Product_ID);
-		setM_AttributeSetInstance_ID(0);
+			setC_UOM_ID();
+		
+		
 	}	//	setM_Product_ID
+	
+	private void setC_UOM_ID() {
+
+		if (m_product != null)
+		{
+			setC_UOM_ID (m_product.getC_UOM_ID());
+		}
+		else
+		{
+			set_ValueNoCheck ("C_UOM_ID", null);
+		}
+		
+	}
 
 	/**
 	 * 	Set Product and UOM
@@ -442,11 +480,10 @@ implements IDocumentLine , DocumentReversalLineEnable
 	 */
 	public void setM_Product_ID (int M_Product_ID, int C_UOM_ID)
 	{
-		if (M_Product_ID != 0)
-			super.setM_Product_ID (M_Product_ID);
-		super.setC_UOM_ID(C_UOM_ID);
-		setM_AttributeSetInstance_ID(0);
-		m_product = null;
+		setM_Product_ID(M_Product_ID);
+		if (C_UOM_ID != 0)
+			super.setC_UOM_ID(C_UOM_ID);
+		
 	}	//	setM_Product_ID
 
 	/**
@@ -522,14 +559,49 @@ implements IDocumentLine , DocumentReversalLineEnable
 			log.saveError("ParentComplete", Msg.translate(getCtx(), "M_InOutLine"));
 			return false;
 		}
-		// Locator is mandatory if no charge is defined - teo_sarca BF [ 2757978 ]
-		if(getProduct() != null && MProduct.PRODUCTTYPE_Item.equals(getProduct().getProductType()))
-		{
-			if (getM_Locator_ID() <= 0 && getC_Charge_ID() <= 0)
+		
+		MProduct product = getProduct();
+		
+		if (product != null) {
+			// Locator is mandatory if no charge is defined - teo_sarca BF [ 2757978 ]
+			if(MProduct.PRODUCTTYPE_Item.equals(product.getProductType()))
 			{
-				throw new FillMandatoryException(COLUMNNAME_M_Locator_ID);
+				if (getM_Locator_ID() <= 0 && getC_Charge_ID() <= 0)
+				{
+					throw new FillMandatoryException(COLUMNNAME_M_Locator_ID);
+				}
 			}
-		}
+			
+			// Test the ASI for validity
+			int AD_Column_ID = MColumn.getColumn_ID(MInOutLine.Table_Name, MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID);
+			if (!isValidAttributeSetInstance(getCtx(), product, isSOTrx(), AD_Column_ID, getM_AttributeSetInstance_ID(), get_TrxName())) {
+				throw new AdempiereException("@NotValid@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );
+			}
+			
+			// Test the qty and ASI - can't have unique ASI with qty > 1.
+			if (!isUniqueAttributeSetInstance(product, getM_AttributeSetInstance_ID(), getMovementQty(), 
+					getMovementType(), get_TrxName())) {
+				throw new AdempiereException("@NotUnique@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );
+			}
+			
+			// Check the other lines for this attribute set instance
+			MAttributeSet as = (MAttributeSet) product.getM_AttributeSet();
+			boolean isASIMandatory = isAttributeSetInstanceMandatory(getCtx(), product, MInOut.Table_ID, isSOTrx(), get_TrxName());
+			if (as != null && as.isSerNo() && as.isSerNoMandatory() && isASIMandatory) {
+				String where = "M_InOut_ID=? AND M_AttributeSetInstance_ID=?"
+						+ " AND M_InOutLine_ID!=?";
+				int count = new Query(getCtx(), Table_Name, where, get_TrxName())
+								.setClient_ID()
+								.setOnlyActiveRecords(true)
+								.setParameters(getM_InOut_ID(), 
+										getM_AttributeSetInstance_ID(),
+										getM_InOutLine_ID())
+								.count();
+				if (count > 0) {
+					throw new AdempiereException("@NotUnique@ @" + MInOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "@" );				
+				}
+			}
+		}		
 
 		//	Get Line No
 		if (getLine() == 0)
@@ -553,6 +625,7 @@ implements IDocumentLine , DocumentReversalLineEnable
 		if (newRecord || is_ValueChanged("MovementQty"))
 			setMovementQty(getMovementQty());
 
+		
 		//	Order/RMA Line
 		if (getC_OrderLine_ID() == 0 && getM_RMALine_ID() == 0)
 		{
@@ -580,6 +653,7 @@ implements IDocumentLine , DocumentReversalLineEnable
 						getLine());
 			}
 		}
+
 
 	//	if (getC_Charge_ID() == 0 && getM_Product_ID() == 0)
 	//		;
@@ -636,9 +710,10 @@ implements IDocumentLine , DocumentReversalLineEnable
 	{
 		StringBuffer sb = new StringBuffer ("MInOutLine[").append (get_ID())
 			.append(",M_Product_ID=").append(getM_Product_ID())
+			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
 			.append(",QtyEntered=").append(getQtyEntered())
 			.append(",MovementQty=").append(getMovementQty())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append ("]");
 		return sb.toString ();
 	}	//	toString
@@ -867,6 +942,22 @@ implements IDocumentLine , DocumentReversalLineEnable
 		return conversionTypeId;
 	}
 
+
+	@Override
+	public boolean isReversal() {
+		return getParent().isReversal();
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return getParent().getMovementDate();
+	}
+
+	@Override
+	public String getMovementType() {
+		return getParent().getMovementType();
+	}
+
 	@Override
 	public boolean isReversalParent() {
 		return getM_InOutLine_ID() < getReversalLine_ID();
@@ -899,5 +990,38 @@ implements IDocumentLine , DocumentReversalLineEnable
     	}
     	return invoiceLineId;
     }
+
+	/**
+	 * 	Called after Save for Post-Save Operation
+	 * 	@param newRecord new record
+	 *	@param success true if save operation was success
+	 *	@return if save was a success
+	 */
+	protected boolean afterSave (boolean newRecord, boolean success)
+	{
+		//  In the case of an RMA - force the return Movement Date to be later or equal to 
+		//  the latest of the original transactions.  If the Return is allowed to occur
+		//  before the original shipment, the cost records may be incorrect.
+		MInOut parent = getParent();
+		if (parent.getM_RMA_ID() > 0)
+		{
+			MRMALine rmaLine = (MRMALine) getM_RMALine();
+			if (rmaLine != null) 
+			{
+				MInOutLine originalLine = rmaLine.getShipLine();
+				if (originalLine != null)
+				{
+					Timestamp moveDate = originalLine.getParent().getMovementDate();
+					if(moveDate.compareTo(parent.getMovementDate()) > 0)
+					{
+						parent.setMovementDate(moveDate);
+						parent.saveEx();
+					}
+				}
+			}
+		}
+				
+		return success;
+	}	//	afterSave
 
 }	//	MInOutLine
