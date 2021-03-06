@@ -16,11 +16,11 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.verifyMandatoryAttributeSetInstancesExist;
+
 import java.io.File;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import org.adempiere.engine.storage.StorageEngine;
 import org.adempiere.exceptions.BPartnerNoBillToAddressException;
 import org.adempiere.exceptions.BPartnerNoShipToAddressException;
 import org.adempiere.exceptions.FillMandatoryException;
@@ -1051,6 +1052,7 @@ public class MOrder extends X_C_Order implements DocAction
 					setC_PaymentTerm_ID (ii);
 			}
 		}
+		
 		return true;
 	}	//	beforeSave
 	
@@ -1308,11 +1310,21 @@ public class MOrder extends X_C_Order implements DocAction
 		//	Lines
 		if (explodeBOM())
 			lines = getLines(true, MOrderLine.COLUMNNAME_M_Product_ID);
-		if (!reserveStock(documentType, lines))
+		
+		m_processMsg = verifyMandatoryAttributeSetInstancesExist(lines);
+		if (m_processMsg != null)
+		{
+			return DocAction.STATUS_Invalid;
+		}
+		
+		enforceSameWarehouseOnLines(lines);
+		
+		if (!reserveStock(lines))
 		{
 			m_processMsg = "Cannot reserve Stock";
 			return DocAction.STATUS_Invalid;
 		}
+		
 		if (!calculateTaxTotal())
 		{
 			m_processMsg = "Error calculating tax";
@@ -1484,117 +1496,46 @@ public class MOrder extends X_C_Order implements DocAction
 	 * 	@param lines order lines (ordered by M_Product_ID for deadlock prevention)
 	 * 	@return true if (un) reserved
 	 */
-	private boolean reserveStock (MDocType dt, MOrderLine[] lines)
+	private boolean reserveStock (MOrderLine[] lines)
 	{
-
-		if (dt == null)
-			dt = MDocType.get(getCtx(), getC_DocType_ID());
-
-		//	Binding
-		boolean binding = !dt.isProposal() && !isReturnOrder();
-		//	Not binding - i.e. Target=0
-		if (DOCACTION_Void.equals(getDocAction())
-			//	Closing Binding Quotation
-			|| (MDocType.DOCSUBTYPESO_Quotation.equals(dt.getDocSubTypeSO()) 
-				&& DOCACTION_Close.equals(getDocAction())) 
-			) // || isDropShip() )
-			binding = false;
-		boolean isSOTrx = isSOTrx();
-		log.fine("Binding=" + binding + " - IsSOTrx=" + isSOTrx);
-		//	Force same WH for all but SO/PO
-		int header_M_Warehouse_ID = getM_Warehouse_ID();
-		if (MDocType.DOCSUBTYPESO_StandardOrder.equals(dt.getDocSubTypeSO())
-			|| MDocType.DOCBASETYPE_PurchaseOrder.equals(dt.getDocBaseType()))
-			header_M_Warehouse_ID = 0;		//	don't enforce
 		
-		BigDecimal Volume = Env.ZERO;
-		BigDecimal Weight = Env.ZERO;
-		
-		//	Always check and (un) Reserve Inventory		
 		for (int i = 0; i < lines.length; i++)
 		{
 			MOrderLine line = lines[i];
-			//	Check/set WH/Org
-			if (header_M_Warehouse_ID != 0)	//	enforce WH
-			{
-				if (header_M_Warehouse_ID != line.getM_Warehouse_ID())
-					line.setM_Warehouse_ID(header_M_Warehouse_ID);
-				if (getAD_Org_ID() != line.getAD_Org_ID())
-					line.setAD_Org_ID(getAD_Org_ID());
-			}
-			//	Binding
-			BigDecimal target = binding ? line.getQtyOrdered() : Env.ZERO; 
-			BigDecimal difference = target.subtract(line.getQtyReserved()).subtract(line.getQtyDelivered());
-			if (difference.signum() == 0)
-			{
-				MProduct product = line.getProduct();
-				if (product != null)
-				{
-					Volume = Volume.add(product.getVolume().multiply(line.getQtyOrdered()));
-					Weight = Weight.add(product.getWeight().multiply(line.getQtyOrdered()));
-				}
-				continue;
-			}
-			
-			log.fine("Line=" + line.getLine() 
-				+ " - Target=" + target + ",Difference=" + difference
-				+ " - Ordered=" + line.getQtyOrdered() 
-				+ ",Reserved=" + line.getQtyReserved() + ",Delivered=" + line.getQtyDelivered());
 
-			//	Check Product - Stocked and Item
+			m_processMsg = StorageEngine.applyStorageRules(line);
+			if (m_processMsg != null)
+				return false;
+
+		}		
+		return true;
+		
+	}
+
+	/**
+	 * 	Calculate the weight and volume of the order lines
+	 * 	@param lines order lines (ordered by M_Product_ID for deadlock prevention)
+	 */
+	private void calculateWeightAndVolume(MOrderLine[] lines)
+	{
+	
+		BigDecimal Volume = Env.ZERO;
+		BigDecimal Weight = Env.ZERO;
+		
+		for (int i = 0; i < lines.length; i++)
+		{
+			MOrderLine line = lines[i];
 			MProduct product = line.getProduct();
-			if (product != null) 
+			if (product != null)
 			{
-				if (product.isStocked())
-				{
-					//	Mandatory Product Attribute Set Instance
-					MAttributeSet.validateAttributeSetInstanceMandatory(product, line.Table_ID, isSOTrx() , line.getM_AttributeSetInstance_ID());
-
-					BigDecimal ordered = isSOTrx ? Env.ZERO : difference;
-					BigDecimal reserved = isSOTrx ? difference : Env.ZERO;
-					int M_Locator_ID = 0; 
-					//	Get Locator to reserve
-					if (line.getM_AttributeSetInstance_ID() != 0)	//	Get existing Location
-						M_Locator_ID = MStorage.getM_Locator_ID (line.getM_Warehouse_ID(), 
-							line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), 
-							ordered, get_TrxName());
-					//	Get default Location
-					if (M_Locator_ID == 0)
-					{
-						// try to take default locator for product first
-						// if it is from the selected warehouse
-						MWarehouse wh = MWarehouse.get(getCtx(), line.getM_Warehouse_ID());
-						M_Locator_ID = product.getM_Locator_ID();
-						if (M_Locator_ID!=0) {
-							MLocator locator = new MLocator(getCtx(), product.getM_Locator_ID(), get_TrxName());
-							//product has default locator defined but is not from the order warehouse
-							if(locator.getM_Warehouse_ID()!=wh.get_ID()) {
-								M_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
-							}
-						} else {
-							M_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
-						}
-					}
-					//	Update Storage
-					if (!MStorage.add(getCtx(), line.getM_Warehouse_ID(), M_Locator_ID, 
-						line.getM_Product_ID(), 
-						line.getM_AttributeSetInstance_ID(), line.getM_AttributeSetInstance_ID(),
-						Env.ZERO, reserved, ordered, get_TrxName()))
-						return false;
-				}	//	stockec
-				//	update line
-				line.setQtyReserved(line.getQtyReserved().add(difference));
-				if (!line.save(get_TrxName()))
-					return false;
-				//
 				Volume = Volume.add(product.getVolume().multiply(line.getQtyOrdered()));
 				Weight = Weight.add(product.getWeight().multiply(line.getQtyOrdered()));
-			}	//	product
-		}	//	reserve inventory
+			}	
+		}	
 		
 		setVolume(Volume);
 		setWeight(Weight);
-		return true;
+		
 	}	//	reserveStock
 
 	/**
@@ -1702,7 +1643,7 @@ public class MOrder extends X_C_Order implements DocAction
 		{
 			//	Binding
 			if (MDocType.DOCSUBTYPESO_Quotation.equals(DocSubTypeSO))
-				reserveStock(dt, getLines(true, MOrderLine.COLUMNNAME_M_Product_ID));
+				reserveStock(getLines(true, MOrderLine.COLUMNNAME_M_Product_ID));
 			m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
@@ -1850,7 +1791,7 @@ public class MOrder extends X_C_Order implements DocAction
 			BigDecimal MovementQty = oLine.getQtyOrdered().subtract(oLine.getQtyDelivered()); 
 			//	Location
 			int M_Locator_ID = MStorage.getM_Locator_ID (oLine.getM_Warehouse_ID(), 
-					oLine.getM_Product_ID(), oLine.getM_AttributeSetInstance_ID(), 
+					oLine.getM_Product_ID(), oLine.getM_AttributeSetInstance_ID(), 0,
 					MovementQty, get_TrxName());
 			if (M_Locator_ID == 0)		//	Get default Location
 			{
@@ -2090,7 +2031,7 @@ public class MOrder extends X_C_Order implements DocAction
 		
 		addDescription(Msg.getMsg(getCtx(), "Voided"));
 		//	Clear Reservations
-		if (!reserveStock(null, lines))
+		if (!reserveStock(lines))
 		{
 			m_processMsg = "Cannot unreserve Stock (void)";
 			return false;
@@ -2229,7 +2170,7 @@ public class MOrder extends X_C_Order implements DocAction
 			}
 		}
 		//	Clear Reservations
-		if (!reserveStock(null, lines))
+		if (!reserveStock(lines))
 		{
 			m_processMsg = "Cannot unreserve Stock (close)";
 			return false;
@@ -2283,7 +2224,7 @@ public class MOrder extends X_C_Order implements DocAction
 			}
 		}
 		//	Clear Reservations
-		if (!reserveStock(null, lines))
+		if (!reserveStock(lines))
 		{
 			m_processMsg = "Cannot unreserve Stock (close)";
 			return "Failed to update reservations";
@@ -2348,8 +2289,6 @@ public class MOrder extends X_C_Order implements DocAction
 		if (m_processMsg != null)
 			return false;	
 				
-		
-		
 		MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
 		String DocSubTypeSO = dt.getDocSubTypeSO();
 		
@@ -2401,13 +2340,6 @@ public class MOrder extends X_C_Order implements DocAction
 		setDocAction(DOCACTION_Complete);
 		setProcessed(false);
 		
-		/*for(final MOrderLine ol: getLines())
-		{
-			Util.assume(ol.getQtyInvoiced().signum() == 0, 
-					"After reactivateIt, QtyInvoiced is zero");
-			Util.assume(ol.getQtyReserved().compareTo(ol.getQtyOrdered()) == 0, 
-					"After reactivateIt, reservations are still in place");
-		}*/
 		return true;
 	}	//	reActivateIt
 	
@@ -2509,53 +2441,58 @@ public class MOrder extends X_C_Order implements DocAction
 	 * 
 	 * @param C_Order_ID
 	 */
-	public void updateIsDelivered() throws SQLException {
+	public MOrder setIsDelivered() {
 		
 		String query = "SELECT COUNT(*) FROM C_OrderLine WHERE C_Order_ID=? and QtyOrdered > QtyDelivered ";
-		PreparedStatement ps = DB.prepareStatement(query, get_TrxName());
-		ps.setInt(1, get_ID());
-		ResultSet rs = ps.executeQuery();
-		
-		if (rs.next()) {
-			int delta = rs.getInt(1);
-			if (delta==0) {
-				setIsDelivered(true);
-			}else {
-				setIsDelivered(false);
-				
-			}
+		int delta = DB.getSQLValue(get_TrxName(), query, get_ID());
+		if (delta==0) {
+			setIsDelivered(true);
+		}else {
+			setIsDelivered(false);
+			
 		}
-		rs.close();
-		ps.close();
+		return this;
+	}
+	
+	public boolean isOrderBinding() {
+		
+		MDocType docType = (MDocType) getC_DocType();
+		if (docType.isProposal()) return false;
+		if (isReturnOrder()) return false;
+		if (DOCSTATUS_Voided.equals(getDocStatus())) return false;
+		if (DOCSTATUS_Closed.equals(getDocStatus())) return false;
+		return true;
 		
 	}
 	
-	//Mandatory Product Attribute Set Instance
-	/*private void isASIMandatory()
-	{
-		for(MOrderLine ol : getLines())
+	public boolean isEnforceSameWarehouseOnLines() {
+		
+		MDocType docType = (MDocType) getC_DocType();
+		
+		if (!MDocType.DOCSUBTYPESO_StandardOrder.equals(docType.getDocSubTypeSO())
+			&& !MDocType.DOCBASETYPE_PurchaseOrder.equals(docType.getDocBaseType()))
 		{
-			MProduct product = new MProduct(getCtx(), ol.getM_Product_ID(), get_TrxName());
-			if(product.getM_AttributeSet_ID() > 0)
-			{
-				if(product.isASIMandatory(isSOTrx(), ol.getAD_Org_ID()))
-				{
-					MAttributeSet mas = MAttributeSet.get(getCtx(), product.getM_AttributeSet_ID());
-					Boolean isASIMandatory = mas.isMandatory();
-					Boolean isExclude = mas.excludeEntry(MColumn.getColumn_ID(MOrderLine.Table_Name, MOrderLine.COLUMNNAME_C_OrderLine_ID), isSOTrx());
-					Boolean isStandardOrder = isSOTrx()?							
-							(getC_DocTypeTarget().getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_StandardOrder)
-							|| getC_DocTypeTarget().getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Proposal)
-							|| getC_DocTypeTarget().getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_Quotation))
-							: true;
-					Boolean isAsiInOrderLine = isASIMandatory && !isExclude && !isStandardOrder;
-					if(isAsiInOrderLine	&& ol.getM_AttributeSetInstance_ID() == 0)
-					{
-							m_processMsg = "@LinesWithoutProductAttribute@ (" + ol.getLine()+ ")";
-							throw new AdempiereException(m_processMsg);
-					}	
-				}
-			}
+			return true;			
 		}
-	}*/
-}	//	MOrder
+		return false;
+
+	}
+	
+	private void enforceSameWarehouseOnLines(MOrderLine[] lines) {
+		
+		if (isEnforceSameWarehouseOnLines())
+		{
+			for (MOrderLine line : lines)
+			{
+				if (getM_Warehouse_ID() != line.getM_Warehouse_ID())
+				{
+					line.setM_Warehouse_ID(getM_Warehouse_ID());
+				}
+				if (getAD_Org_ID() != line.getAD_Org_ID())
+					line.setAD_Org_ID(getAD_Org_ID());
+			}			
+		}
+		
+
+	}
+}	

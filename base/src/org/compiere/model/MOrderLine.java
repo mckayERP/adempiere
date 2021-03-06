@@ -16,6 +16,8 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.isValidAttributeSetInstance;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -348,17 +350,24 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	public boolean setTax()
 	{
-		int ii = Tax.get(getCtx(), getM_Product_ID(), getC_Charge_ID(), getDateOrdered(), getDateOrdered(),
-			getAD_Org_ID(), getM_Warehouse_ID(),
-			getC_BPartner_Location_ID(),		//	should be bill to
-			getC_BPartner_Location_ID(), m_IsSOTrx, get_TrxName());
-		if (ii == 0)
+
+		//	Set Tax
+		if (getC_Tax_ID() == 0)
 		{
-			log.log(Level.SEVERE, "No Tax found");
-			return false;
+			int ii = Tax.get(getCtx(), getM_Product_ID(), getC_Charge_ID(), getDateOrdered(), getDateOrdered(),
+				getAD_Org_ID(), getM_Warehouse_ID(),
+				getC_BPartner_Location_ID(),		//	should be bill to
+				getC_BPartner_Location_ID(), m_IsSOTrx, get_TrxName());
+			if (ii == 0)
+			{
+				log.log(Level.SEVERE, "No Tax found");
+				return false;
+			}
+			setC_Tax_ID (ii);
+			return true;
 		}
-		setC_Tax_ID (ii);
 		return true;
+		
 	}	//	setTax
 	
 	/**
@@ -481,6 +490,23 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 		return m_precision.intValue();
 	}	//	getPrecision
 	
+	public void setM_Product_ID(int M_Product_ID)
+	{
+		
+		if ((m_product == null || m_product.getM_Product_ID() != M_Product_ID))
+		{
+			if (M_Product_ID > 0)
+			{
+				setProduct(MProduct.get(getCtx(), M_Product_ID, get_TrxName()));
+			}
+			else
+			{
+				setProduct(null);
+			}
+		}
+		
+	}
+	
 	/**
 	 * 	Set Product
 	 *	@param product product
@@ -488,17 +514,20 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	public void setProduct (MProduct product)
 	{
 		m_product = product;
-		if (m_product != null)
+		
+		if (m_product != null && m_product.getM_Product_ID() != getM_Product_ID())
 		{
-			setM_Product_ID(m_product.getM_Product_ID());
-			setC_UOM_ID (m_product.getC_UOM_ID());
+
+			super.setM_Product_ID(m_product.getM_Product_ID());
+			setM_AttributeSetInstance_ID(m_product.getM_AttributeSetInstance_ID());
 		}
-		else
+		else if (m_product == null)
 		{
-			setM_Product_ID(0);
-			set_ValueNoCheck ("C_UOM_ID", null);
+			super.setM_Product_ID(0);
+			setM_AttributeSetInstance_ID(0);
 		}
-		setM_AttributeSetInstance_ID(0);
+		setC_UOM_ID ();
+		
 	}	//	setProduct
 
 	
@@ -509,13 +538,27 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	public void setM_Product_ID (int M_Product_ID, boolean setUOM)
 	{
+
+		setM_Product_ID(M_Product_ID);
 		if (setUOM)
-			setProduct(MProduct.get(getCtx(), M_Product_ID));
-		else
-			super.setM_Product_ID (M_Product_ID);
-		setM_AttributeSetInstance_ID(0);
+			setC_UOM_ID();
+		
+		
 	}	//	setM_Product_ID
 	
+	private void setC_UOM_ID() {
+
+		if (m_product != null)
+		{
+			setC_UOM_ID (m_product.getC_UOM_ID());
+		}
+		else
+		{
+			set_ValueNoCheck ("C_UOM_ID", null);
+		}
+		
+	}
+
 	/**
 	 * 	Set Product and UOM
 	 *	@param M_Product_ID product
@@ -523,10 +566,10 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	public void setM_Product_ID (int M_Product_ID, int C_UOM_ID)
 	{
-		super.setM_Product_ID (M_Product_ID);
+		setM_Product_ID(M_Product_ID);
 		if (C_UOM_ID != 0)
 			super.setC_UOM_ID(C_UOM_ID);
-		setM_AttributeSetInstance_ID(0);
+		
 	}	//	setM_Product_ID
 	
 	
@@ -536,22 +579,22 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	public MProduct getProduct()
 	{
-		if (m_product == null && getM_Product_ID() != 0)
+		if (m_product == null && getM_Product_ID() > 0)
 			m_product =  MProduct.get (getCtx(), getM_Product_ID(), get_TrxName());
 		return m_product;
 	}	//	getProduct
 	
-	/**
-	 * 	Set M_AttributeSetInstance_ID
-	 *	@param M_AttributeSetInstance_ID id
-	 */
-	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
-	{
-		if (M_AttributeSetInstance_ID == 0)		//	 0 is valid ID
-			set_Value("M_AttributeSetInstance_ID", new Integer(0));
-		else
-			super.setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
-	}	//	setM_AttributeSetInstance_ID
+//	/**
+//	 * 	Set M_AttributeSetInstance_ID
+//	 *	@param M_AttributeSetInstance_ID id
+//	 */
+//	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
+//	{
+//		if (M_AttributeSetInstance_ID == 0)		//	 0 is valid ID
+//			set_Value("M_AttributeSetInstance_ID", new Integer(0));
+//		else
+//			super.setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+//	}	//	setM_AttributeSetInstance_ID
 	
 	/**
 	 * 	Set Warehouse
@@ -573,23 +616,13 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	public boolean canChangeWarehouse()
 	{
-		if (getQtyDelivered().signum() != 0)
-		{
-			log.saveError("Error", Msg.translate(getCtx(), "QtyDelivered") + "=" + getQtyDelivered());
-			return false;
-		}
-		if (getQtyInvoiced().signum() != 0)
-		{
-			log.saveError("Error", Msg.translate(getCtx(), "QtyInvoiced") + "=" + getQtyInvoiced());
-			return false;
-		}
-		if (getQtyReserved().signum() != 0)
-		{
-			log.saveError("Error", Msg.translate(getCtx(), "QtyReserved") + "=" + getQtyReserved());
-			return false;
-		}
-		//	We can change
-		return true;
+		
+		//  Allowed for non-binding orders and draft documents.  Once prepared, there will be 
+		//  a storage record, so no changes.  Warehouse matching is performed in the prepareIt() 
+		//  document action.
+		return !getParent().isOrderBinding() || getParent().getDocStatus().equals(MOrder.DOCSTATUS_Drafted);
+				
+		
 	}	//	canChangeWarehouse
 
 	/**
@@ -871,52 +904,61 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 	 */
 	protected boolean beforeSave (boolean newRecord)
 	{
-		if (newRecord && getParent().isComplete()) {
-			log.saveError("ParentComplete", Msg.translate(getCtx(), "C_OrderLine"));
+		
+		if (addingANewLineToACompletedOrder(newRecord))
 			return false;
-		}
-		//	Get Defaults from Parent
-		if (getC_BPartner_ID() == 0 || getC_BPartner_Location_ID() == 0
-			|| getM_Warehouse_ID() == 0 
-			|| getC_Currency_ID() == 0)
-			setOrder (getParent());
-		if (m_M_PriceList_ID == 0)
-			setHeaderInfo(getParent());
+		
+		if(isCompleteButChangingMaterialPolicyTicket(newRecord))
+			return true;
+				
+		if(changeToProductOrWarehouseIsNotAllowed(newRecord))
+			return false;
+		
+		getDetailsFromParent();
+		checkAndSetProductAndAttributeSetInstance();
+		checkAndSetProductPrice();
+		checkAndSetUOM();
+		checkAndSetQtyPrecision(newRecord);
+		checkFreightAmtNotUsed();
+		setTax();
+		setDefaultLineNo();		
+		setLineNetAmt();
+		setDiscount();
 
+		return true;
 		
-		//	R/O Check - Product/Warehouse Change
-		if (!newRecord 
-			&& (is_ValueChanged("M_Product_ID") || is_ValueChanged("M_Warehouse_ID"))) 
-		{
-			if (!canChangeWarehouse())
-				return false;
-		}	//	Product Changed
+	}	//	beforeSave
+
+	
+	private void setDefaultLineNo() {
 		
-		//	Charge
-		if (getC_Charge_ID() != 0 && getM_Product_ID() != 0)
-				setM_Product_ID(0);
-		//	No Product
-		if (getM_Product_ID() == 0)
-			setM_AttributeSetInstance_ID(0);
-		//	Product
-		else	//	Set/check Product Price
+		//	Get Line No
+		if (getLine() == 0)
 		{
-			//	Set Price if Actual = 0
-			if (m_productPrice == null 
-				&&  Env.ZERO.compareTo(getPriceActual()) == 0
-				&&  Env.ZERO.compareTo(getPriceList()) == 0)
-				setPrice();
-			//	Check if on Price list
-			if (m_productPrice == null)
-				getProductPricing(m_M_PriceList_ID);
-			if (!m_productPrice.isCalculated()) {
-				MDocType documentType = MDocType.get(getCtx(), getParent().getC_DocTypeTarget_ID());
-				if(Util.isEmpty(documentType.getDocSubTypeSO())
-						|| !documentType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_ReturnMaterial)) {
-					throw new ProductNotOnPriceListException(m_productPrice, getLine());
-				}
-			}
+			String sql = "SELECT COALESCE(MAX(Line),0)+10 FROM C_OrderLine WHERE C_Order_ID=?";
+			int ii = DB.getSQLValue (get_TrxName(), sql, getC_Order_ID());
+			setLine (ii);
 		}
+		
+	}
+
+	private void checkFreightAmtNotUsed() {
+		//	FreightAmt Not used
+		if (Env.ZERO.compareTo(getFreightAmt()) != 0)
+			setFreightAmt(Env.ZERO);		
+	}
+
+	private void checkAndSetQtyPrecision(boolean newRecord) {
+
+		//	Qty Precision
+		if (newRecord || is_ValueChanged("QtyEntered"))
+			setQtyEntered(getQtyEntered());
+		if (newRecord || is_ValueChanged("QtyOrdered"))
+			setQtyOrdered(getQtyOrdered());
+		
+	}
+
+	private void checkAndSetUOM() {
 
 		//	UOM
 		if (getC_UOM_ID() == 0 
@@ -928,76 +970,97 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 			if (C_UOM_ID > 0)
 				setC_UOM_ID (C_UOM_ID);
 		}
-		//	Qty Precision
-		if (newRecord || is_ValueChanged("QtyEntered"))
-			setQtyEntered(getQtyEntered());
-		if (newRecord || is_ValueChanged("QtyOrdered"))
-			setQtyOrdered(getQtyOrdered());
+
+	}
+
+	private void checkAndSetProductAndAttributeSetInstance() {
+
+		//	Charge
+		if (getC_Charge_ID() != 0 && getM_Product_ID() != 0)
+				setM_Product_ID(0);
 		
-		//	Qty on instance ASI for SO
-		if (getParent().isSOTrx()
-			&& getM_AttributeSetInstance_ID() != 0
-			&& (newRecord || is_ValueChanged("M_Product_ID")
-				|| is_ValueChanged("M_AttributeSetInstance_ID")
-				|| is_ValueChanged("M_Warehouse_ID")))
+		if (getProduct() != null)
 		{
-			MProduct product = getProduct();
-			if (product.isStocked())
+			if (!isValidAttributeSetInstance(getCtx(), getProduct(), isSOTrx(), MColumn.getColumn_ID(Table_Name, COLUMNNAME_M_AttributeSetInstance_ID), getM_AttributeSetInstance_ID(), get_TrxName()))
 			{
-				int M_AttributeSet_ID = product.getM_AttributeSet_ID();
-				boolean isInstance = M_AttributeSet_ID != 0;
-				if (isInstance)
-				{
-					MAttributeSet mas = MAttributeSet.get(getCtx(), M_AttributeSet_ID);
-					isInstance = mas.isInstanceAttribute();
-				}
-				//	Max
-				if (isInstance)
-				{
-					MStorage[] storages = MStorage.getWarehouse(getCtx(), 
-						getM_Warehouse_ID(), getM_Product_ID(), getM_AttributeSetInstance_ID(), 
-						M_AttributeSet_ID, false, null, true, get_TrxName());
-					BigDecimal qty = Env.ZERO;
-					for (int i = 0; i < storages.length; i++)
-					{
-						if (storages[i].getM_AttributeSetInstance_ID() == getM_AttributeSetInstance_ID())
-							qty = qty.add(storages[i].getQtyOnHand());
-					}
-					
-					if (getQtyOrdered().compareTo(qty) > 0)
-					{
-						log.warning("Qty - Stock=" + qty + ", Ordered=" + getQtyOrdered());
-						log.saveError("QtyInsufficient", "=" + qty); 
-						return false;
-					}
-				}
-			}	//	stocked
-		}	//	SO instance
-		
-		//	FreightAmt Not used
-		if (Env.ZERO.compareTo(getFreightAmt()) != 0)
-			setFreightAmt(Env.ZERO);
-
-		//	Set Tax
-		if (getC_Tax_ID() == 0)
-			setTax();
-
-		//	Get Line No
-		if (getLine() == 0)
+				log.warning("M_AttributeSetInstance was not valid. Changed to product M_AttributeSetInstance");
+				setM_AttributeSetInstance_ID(m_product.getM_AttributeSetInstance_ID());
+			}
+		}
+		else
 		{
-			String sql = "SELECT COALESCE(MAX(Line),0)+10 FROM C_OrderLine WHERE C_Order_ID=?";
-			int ii = DB.getSQLValue (get_TrxName(), sql, getC_Order_ID());
-			setLine (ii);
+			setM_AttributeSetInstance_ID(0);			
 		}
 		
-		//	Calculations & Rounding
-		setLineNetAmt();	//	extended Amount with or without tax
-		setDiscount();
+	}
 
-		return true;
-	}	//	beforeSave
+	private boolean changeToProductOrWarehouseIsNotAllowed(boolean newRecord) {
 
-	
+		//	R/O Check - Product/Warehouse Change
+		if (!newRecord 
+			&& (is_ValueChanged("M_Product_ID") || is_ValueChanged("M_Warehouse_ID"))) 
+		{
+			return !canChangeWarehouse();
+		}
+		return false;
+		
+	}
+
+	private boolean isCompleteButChangingMaterialPolicyTicket(boolean newRecord) {
+		// If the document is completed, allow changes of the material policy ticket 
+		// without checking the other fields.  Prevents errors if price lists are no 
+		// longer valid.  This situation should only occur during storage cleanup 
+		// and only if the line did not have a material policy ticket.
+		if (!newRecord && getParent().isComplete() && is_ValueChanged("M_MPolicyTicket_ID")) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean addingANewLineToACompletedOrder(boolean newRecord) {
+
+		if (newRecord && getParent().isComplete()) {
+			log.saveError("ParentComplete", Msg.translate(getCtx(), "C_OrderLine"));
+			return true;
+		}
+		return false;
+	}
+
+	private void getDetailsFromParent() {
+
+		if (getC_BPartner_ID() == 0 
+				|| getC_BPartner_Location_ID() == 0
+				|| getM_Warehouse_ID() == 0 
+				|| getC_Currency_ID() == 0)
+				setOrder (getParent());
+			if (m_M_PriceList_ID == 0)
+				setHeaderInfo(getParent());
+
+	}
+
+	private void checkAndSetProductPrice() {
+		
+		if (getM_Product_ID() == 0)
+			return;
+		
+		//	Set Price if Actual = 0
+		if (m_productPrice == null 
+			&&  Env.ZERO.compareTo(getPriceActual()) == 0
+			&&  Env.ZERO.compareTo(getPriceList()) == 0)
+			setPrice();
+		//	Check if on Price list
+		if (m_productPrice == null)
+			getProductPricing(m_M_PriceList_ID);
+		if (!m_productPrice.isCalculated()) {
+			MDocType documentType = MDocType.get(getCtx(), getParent().getC_DocTypeTarget_ID(), null);
+			if(Util.isEmpty(documentType.getDocSubTypeSO())
+					|| !documentType.getDocSubTypeSO().equals(MDocType.DOCSUBTYPESO_ReturnMaterial)) {
+				throw new ProductNotOnPriceListException(m_productPrice, getLine());
+			}
+		}
+		
+	}
+
 	/**
 	 * 	Before Delete
 	 *	@return true if it can be deleted
@@ -1103,31 +1166,36 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public int getM_Locator_ID() {
-		// TODO Auto-generated method stub
+		
+		// Always the default locator
+		if (getParent().getM_Warehouse_ID() > 0)
+			return ((MWarehouse) getParent().getM_Warehouse()).getDefaultLocator().get_ID();
+		
 		return 0;
 	}
 
 	@Override
 	public BigDecimal getMovementQty()
 	{
-		return this.getQtyEntered();
+		//  Orders don't cause a movement so the movementQty should be zero
+		return Env.ZERO;
+		//return this.getQtyOrdered().subtract(this.getQtyDelivered());
 	}
 
 	@Override
 	public int getReversalLine_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return 0;
 	}
 
 	@Override
 	public boolean isSOTrx() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.getParent().isSOTrx();
 	}
 
 	@Override
 	public void setM_Locator_ID(int M_Locator_ID) {
-		// TODO Auto-generated method stub
+		// Not relevant
 
 	}
 
@@ -1143,13 +1211,13 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
@@ -1177,7 +1245,23 @@ public class MOrderLine extends X_C_OrderLine implements IDocumentLine
 
 	@Override
 	public boolean isReversalParent() {
-		// TODO Auto-generated method stub
 		return getC_OrderLine_ID() < getReversalLine_ID();
+	}
+
+	@Override
+	public boolean isReversal() {
+		return false;
+	}
+	
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+	@Override
+	public String getMovementType() {
+		// Not Relevant
+		return null;
 	}
 }	//	MOrderLine
