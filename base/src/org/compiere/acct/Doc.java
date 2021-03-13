@@ -314,6 +314,8 @@ public abstract class Doc
 		 * 53035	PP_Cost_Collector	Doc_PPCostCollector
 		 * 53037	DD_Order			Doc_DDOrder
 		 * 53092	HR_Process			Doc_HRProcess
+		 * 54770	PP_Order_BOMLineIssue	Doc_PPOrderBOMLineIssue
+		 * 54764	PP_OrderReceipt		Doc_PPOrderReceipt
 		 */
 		
 		String tableName = MTable.getTableName(Env.getCtx(), AD_Table_ID);
