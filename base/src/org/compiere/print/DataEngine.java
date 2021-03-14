@@ -955,6 +955,8 @@ public class DataEngine
 							if (pdc.getColumnName().endsWith("_ID"))
 							{
 								int id = rs.getInt(counter++);
+								if (id == 0 && !displayNullInstance(pdc))
+									display = ""; // Hide the null instance value where ID = 0
 								if (display != null && !rs.wasNull())
 								{
 									KeyNamePair pp = new KeyNamePair(id, display);
@@ -1126,6 +1128,30 @@ public class DataEngine
 			log.info("Rows=" + pd.getRowCount()
 				+ " - ms=" + (System.currentTimeMillis()-m_startTime));
 	}	//	loadPrintData
+
+	/**
+	 * Return false if the null instance should not be displayed.  This applies to certain
+	 * columns that occur in multiple-key constraints where the ID value of 0 represents
+	 * the null instance.  In most single key situations, the value of 0 is saved as null
+	 * in the database.  For these columns, the null value is -1 and 0 refers to a records
+	 * in the system client with a description similar to of "Do not use".  Note that 
+	 * the display value is usually handled by the lookup but the report engine does not
+	 * use the lookup and resolves the display value itself.  Hence the need for this
+	 * kludge.
+	 * @param pdc
+	 * @return true if the null instance value should be displayed
+	 */
+	private boolean displayNullInstance(PrintDataColumn pdc) {
+		
+		// TODO these are hard coded.  Perhaps it would be worth adding 
+		// a field in the PrintFormat to control this.
+		if ("M_AttributeSet_ID".equals(pdc.getColumnName())
+		 || "M_AttributeSetInstance_ID".equals(pdc.getColumnName())
+		 || "M_AttributeSetInstanceTo_ID".equals(pdc.getColumnName()))
+			return false;
+		
+		return true;
+	}
 
 	/**
 	 * 	Print Running Total
