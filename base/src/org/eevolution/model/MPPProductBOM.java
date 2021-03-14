@@ -83,20 +83,34 @@ public class MPPProductBOM extends X_PP_Product_BOM
 					.list();
 		
 	}
+	
 	/**
 	 * Get Product BOM by ID (cached) 
 	 * @param ctx
 	 * @param PP_Product_BOM_ID
 	 * @return product bom
+	 * @deprecated Use {@link #get(Properties,int,String)} instead
 	 */
 	public static MPPProductBOM get(Properties ctx, int PP_Product_BOM_ID)
+	{
+		return get(ctx, PP_Product_BOM_ID, null);
+	}
+
+	/**
+	 * Get Product BOM by ID (cached) 
+	 * @param ctx
+	 * @param PP_Product_BOM_ID
+	 * @param trxName Transaction Name
+	 * @return product bom
+	 */
+	public static MPPProductBOM get(Properties ctx, int PP_Product_BOM_ID, String trxName)
 	{
 		if (PP_Product_BOM_ID <= 0)
 			return null;
 		MPPProductBOM bom = s_cache.get(PP_Product_BOM_ID);
 		if (bom != null)
 			return bom;
-		bom = new MPPProductBOM(ctx, PP_Product_BOM_ID, null);
+		bom = new MPPProductBOM(ctx, PP_Product_BOM_ID, trxName);
 		if (bom.get_ID() == PP_Product_BOM_ID)
 		{
 			s_cache.put(PP_Product_BOM_ID, bom);
