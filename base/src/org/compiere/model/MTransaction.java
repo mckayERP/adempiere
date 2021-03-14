@@ -25,7 +25,10 @@ import java.util.Properties;
 
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.Env;
+import org.eevolution.model.MPPOrder;
+import org.eevolution.model.MPPOrderBOMLine;
 
 /**
  * 	Material Transaction Model
@@ -57,6 +60,22 @@ public class MTransaction extends X_M_Transaction
 		.first();
 	}
 
+	/**
+	 * Gets all transactions associated with a Document Line
+	 * @param model IDocumentLine
+	 * @return the list of transactions
+	 */
+	public static List<MTransaction> getByDocumentLine(IDocumentLine model)
+	{
+		final String column_id = model.get_TableName() + "_ID";
+		final String whereClause = column_id + "=?";
+		return new Query (model.getCtx(), I_M_Transaction.Table_Name, whereClause, model.get_TrxName())
+		.setClient_ID()
+		.setParameters(model.get_ID())
+		.list();
+	}
+
+	
 	/**
 	 * get the Material Transaction after Date Account
 	 * @param ctx Context
@@ -97,7 +116,7 @@ public class MTransaction extends X_M_Transaction
 		List<MInOutLineMA> lines = MInOutLineMA.get(line.getCtx(), line.getM_InOutLine_ID(), line.get_TrxName());
 		if(lines != null && lines.size() == 0)
 		{
-            MTransaction transaction = get(line, line.getM_AttributeSetInstance_ID());
+            MTransaction transaction = get(line, line.getM_MPolicyTicket_ID());
             if (transaction != null && transaction.get_ID() > 0)
 			    transactions.add(transaction);
 
@@ -105,22 +124,23 @@ public class MTransaction extends X_M_Transaction
 		}
 		for(MInOutLineMA ma : lines)
 		{	
-			MTransaction transaction = get(line, ma.getM_AttributeSetInstance_ID());
+			MTransaction transaction = get(line, ma.getM_MPolicyTicket_ID());
 			if (transaction != null && transaction.get_ID() > 0)
 				transactions.add(transaction);
 		}		
 		return transactions;
 	}
 	
-	static public MTransaction get(MInOutLine line , int M_ASI_ID)
+	static public MTransaction get(MInOutLine line , int m_mPolicyTicket_id)
 	{
 		final String whereClause = I_M_InOutLine.COLUMNNAME_M_Product_ID + "=? AND "
+								 + I_M_InOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "=? AND "
 								 + I_M_InOutLine.COLUMNNAME_M_InOutLine_ID + "=? AND "
-		 						 + I_M_InOutLine.COLUMNNAME_M_AttributeSetInstance_ID + "=?";
+		 						 + I_M_InOutLine.COLUMNNAME_M_MPolicyTicket_ID + "=?";
 		
 		return new Query(line.getCtx(), Table_Name, whereClause, line.get_TrxName())
 		.setClient_ID()
-		.setParameters(line.getM_Product_ID(),line.getM_InOutLine_ID(), M_ASI_ID)
+		.setParameters(line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), line.getM_InOutLine_ID(), m_mPolicyTicket_id)
 		.firstOnly();
 	}
 	
@@ -141,12 +161,15 @@ public class MTransaction extends X_M_Transaction
 		parameters.add(reversal.getM_Product_ID());
 		whereClause.append( columnName ).append("=? AND ");
 		parameters.add(reversal.get_ID());
+		whereClause.append(I_M_Transaction.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ");
+		parameters.add(trx.getM_AttributeSetInstance_ID());
 		
-		if (trx.getM_AttributeSetInstance_ID() >  0)
-		{
-			whereClause.append(I_M_Transaction.COLUMNNAME_M_AttributeSetInstance_ID).append("=? AND ");
-			parameters.add(trx.getM_AttributeSetInstance_ID());
-		}
+//		
+//		if (trx.getM_MPolicyTicket_ID() >  0)
+//		{
+//			whereClause.append(I_M_Transaction.COLUMNNAME_M_MPolicyTicket_ID).append("=? AND ");
+//			parameters.add(trx.getM_MPolicyTicket_ID());
+//		}
 		
 		whereClause.append(I_M_Transaction.COLUMNNAME_MovementType).append("=? AND ");
 		if(MTransaction.MOVEMENTTYPE_InventoryIn.equals(trx.getMovementType()))
@@ -156,8 +179,8 @@ public class MTransaction extends X_M_Transaction
 		else
 			parameters.add(trx.getMovementType());
 			
-		whereClause.append(I_M_Transaction.COLUMNNAME_M_Transaction_ID).append("<>?");
-		parameters.add(trx.getM_Transaction_ID());
+		whereClause.append(I_M_Transaction.COLUMNNAME_M_MPolicyTicket_ID).append("=?");
+		parameters.add(trx.getM_MPolicyTicket_ID());
 		return new Query(trx.getCtx(), Table_Name, whereClause.toString(), trx.get_TrxName())
 		.setClient_ID()
 		.setParameters(parameters)
@@ -207,9 +230,33 @@ public class MTransaction extends X_M_Transaction
 	 * 	@param MovementDate optional date
 	 *	@param trxName transaction
 	 */
+	@Deprecated
 	public MTransaction (Properties ctx, int AD_Org_ID, 
 		String MovementType, 
 		int M_Locator_ID, int M_Product_ID, int M_AttributeSetInstance_ID, 
+		BigDecimal MovementQty, Timestamp MovementDate, String trxName)
+	{
+		this(ctx, AD_Org_ID, MovementType, M_Locator_ID, 
+				M_Product_ID, M_AttributeSetInstance_ID, 0,
+				MovementQty, MovementDate, trxName);
+	}
+	/**
+	 * 	Detail Constructor
+	 *	@param ctx context
+	 *	@param AD_Org_ID org
+	 * 	@param MovementType movement type
+	 * 	@param M_Locator_ID locator
+	 * 	@param M_Product_ID product
+	 * 	@param M_AttributeSetInstance_ID attribute
+	 *  @param M_MPolicyTicket_ID Material Policy Ticket
+	 * 	@param MovementQty qty
+	 * 	@param MovementDate optional date
+	 *	@param trxName transaction
+	 */
+	public MTransaction (Properties ctx, int AD_Org_ID, 
+		String MovementType, 
+		int M_Locator_ID, int M_Product_ID, int M_AttributeSetInstance_ID,
+		int M_MPolicyTicket_ID,
 		BigDecimal MovementQty, Timestamp MovementDate, String trxName)
 	{
 		super(ctx, 0, trxName);
@@ -222,6 +269,7 @@ public class MTransaction extends X_M_Transaction
 			throw new IllegalArgumentException("No Product");
 		setM_Product_ID (M_Product_ID);
 		setM_AttributeSetInstance_ID (M_AttributeSetInstance_ID);
+		setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		//
 		if (MovementQty != null)		//	Can be 0
 			setMovementQty (MovementQty);
@@ -243,17 +291,21 @@ public class MTransaction extends X_M_Transaction
 	public IDocumentLine getDocumentLine()
 	{
 	    if(getM_InOutLine_ID() > 0)
-		return (IDocumentLine) getM_InOutLine();
+	    	return (IDocumentLine) getM_InOutLine();
 	    if(getM_InventoryLine_ID() > 0)
-		return (IDocumentLine) getM_InventoryLine();
+	    	return (IDocumentLine) getM_InventoryLine();
 	    if(getM_MovementLine_ID() > 0)
-		return (IDocumentLine) getM_MovementLine();
+	    	return (IDocumentLine) getM_MovementLine();
 	    if(getM_ProductionLine_ID() > 0)
-		return (IDocumentLine) getM_ProductionLine();
+	    	return (IDocumentLine) getM_ProductionLine();
 	    if(getPP_Cost_Collector_ID() > 0)
-		return (IDocumentLine) getPP_Cost_Collector();
+	    	return (IDocumentLine) getPP_Cost_Collector();
 		if(getC_ProjectIssue_ID() > 0)
-		return (IDocumentLine) getC_ProjectIssue();
+			return (IDocumentLine) getC_ProjectIssue();
+		if(getPP_OrderReceipt_ID() > 0)
+			return (IDocumentLine) getPP_OrderReceipt();
+		if(getPP_Order_BOMLineIssue_ID() > 0)
+			return (IDocumentLine) getPP_Order_BOMLineIssue();
 	    
 	    return null;	
 	}
@@ -279,6 +331,7 @@ public class MTransaction extends X_M_Transaction
 			.append(",Qty=").append(getMovementQty())
 			.append(",M_Product_ID=").append(getM_Product_ID())
 			.append(",ASI=").append(getM_AttributeSetInstance_ID())
+			.append(",Mat Policy Ticket=").append(getM_MPolicyTicket_ID())
 			.append ("]");
 		return sb.toString ();
 	}	//	toString
@@ -299,5 +352,66 @@ public class MTransaction extends X_M_Transaction
 			return getPP_Cost_Collector().getDateAcct();
 		return null;
 	}
+	
+
+	/**
+	 * Test the movement type to determine if the movement will increase inventory (incoming)
+	 * or decrease inventory (outgoing).  A AdempiereException will be thrown if the 
+	 * movementType is not recognized.
+	 * @param movementType a string that must match one of the defined movement types in 
+	 * the movement type reference list (AD_Reference_ID=189)
+	 * @return true if the movement in incoming, false if outgoing.
+	 */
+	public static Boolean isIncomingTransaction(String movementType) {
+
+		switch (movementType) {
+
+			// Incoming
+			case MOVEMENTTYPE_CustomerReturns:
+			case MOVEMENTTYPE_VendorReceipts: 
+			case MOVEMENTTYPE_InventoryIn:
+			case MOVEMENTTYPE_MovementTo:
+			case MOVEMENTTYPE_ProductionPlus:
+			case MOVEMENTTYPE_WorkOrderPlus:
+				return true;
+
+			// Outgoing
+			case MOVEMENTTYPE_CustomerShipment:
+			case MOVEMENTTYPE_VendorReturns:
+			case MOVEMENTTYPE_InventoryOut:
+			case MOVEMENTTYPE_MovementFrom:
+			case MOVEMENTTYPE_Production_:
+			case MOVEMENTTYPE_WorkOrder_:
+				return false;
+				
+			default:
+				throw new AdempiereException("Unknown Movement Type: " + movementType);
+		}
+	}
+
+	/**
+	 * Test the movement type represented by the transaction.  This
+	 * test is based only on the movement type and does not look at 
+	 * the sign of the quantity being moved.
+	 *   
+	 * @return true if the movement type generally increases inventory or
+	 * false if inventory is decreased
+	 */
+	public boolean isIncomingTransaction() {
+		return isIncomingTransaction(getMovementType());
+	}
+	
+	public static MTransaction createTransaction(IDocumentLine model, int ad_org_id, int m_locator_id, 
+			int m_product_id, int m_attributeSetInstance_id,
+			String MovementType, Timestamp MovementDate,
+			int m_mPolicyTicket_id, BigDecimal Qty)
+	{
+		MTransaction mtrx = new MTransaction (model.getCtx(), ad_org_id,
+		MovementType, m_locator_id,
+		m_product_id, m_attributeSetInstance_id, m_mPolicyTicket_id,
+		Qty, MovementDate, model.get_TrxName());
+		return mtrx;
+	}	
+	
 	
 }	//	MTransaction
