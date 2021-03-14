@@ -40,6 +40,9 @@ import org.compiere.model.MRefTable;
  * @author Yamel Senih, ysenih@erpcya.com, ERPCyA http://www.erpcya.com
  *		<a href="https://github.com/adempiere/adempiere/issues/676">
  * 		@see FR [ 677 ] Process Class Generator not get parameters type correctly</a>
+ * 
+ *  @author mckayERP www.mckayERP.com
+ * 				<li>#278 Enable zoom in ASI fields
  */
 public final class DisplayType
 {
@@ -229,7 +232,8 @@ public final class DisplayType
 	public static boolean isLookup(int displayType)
 	{
 		if (displayType == List || displayType == Table
-			|| displayType == TableDir || displayType == Search)
+			|| displayType == TableDir || displayType == Search
+			|| displayType == PAttribute)
 			return true;
 		return false;
 	}	//	isLookup
