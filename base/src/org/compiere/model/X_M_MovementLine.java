@@ -42,12 +42,12 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
         {
 			setLine (0);
 // @SQL=SELECT NVL(MAX(Line),0)+10 AS DefaultValue FROM M_MovementLine WHERE M_Movement_ID=@M_Movement_ID@
-			setM_LocatorTo_ID (0);
-// @M_LocatorTo_ID@
 			setM_Locator_ID (0);
 // @M_Locator_ID@
-			setM_MovementLine_ID (0);
+			setM_LocatorTo_ID (0);
+// @M_LocatorTo_ID@
 			setM_Movement_ID (0);
+			setM_MovementLine_ID (0);
 			setM_Product_ID (0);
 			setMovementQty (Env.ZERO);
 // 1
@@ -169,6 +169,34 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_Project)MTable.get(getCtx(), org.compiere.model.I_C_Project.Table_Name)
+			.getPO(getC_Project_ID(), get_TrxName());	}
+
+	/** Set Project.
+		@param C_Project_ID 
+		Financial Project
+	  */
+	public void setC_Project_ID (int C_Project_ID)
+	{
+		if (C_Project_ID < 1) 
+			set_Value (COLUMNNAME_C_Project_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Project_ID, Integer.valueOf(C_Project_ID));
+	}
+
+	/** Get Project.
+		@return Financial Project
+	  */
+	public int getC_Project_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Project_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_ProjectPhase getC_ProjectPhase() throws RuntimeException
     {
 		return (org.compiere.model.I_C_ProjectPhase)MTable.get(getCtx(), org.compiere.model.I_C_ProjectPhase.Table_Name)
@@ -220,34 +248,6 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 	public int getC_ProjectTask_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectTask_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_Project)MTable.get(getCtx(), org.compiere.model.I_C_Project.Table_Name)
-			.getPO(getC_Project_ID(), get_TrxName());	}
-
-	/** Set Project.
-		@param C_Project_ID 
-		Financial Project
-	  */
-	public void setC_Project_ID (int C_Project_ID)
-	{
-		if (C_Project_ID < 1) 
-			set_Value (COLUMNNAME_C_Project_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_Project_ID, Integer.valueOf(C_Project_ID));
-	}
-
-	/** Get Project.
-		@return Financial Project
-	  */
-	public int getC_Project_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_Project_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -343,34 +343,6 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
         return new KeyNamePair(get_ID(), String.valueOf(getLine()));
     }
 
-	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException
-    {
-		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
-			.getPO(getM_AttributeSetInstanceTo_ID(), get_TrxName());	}
-
-	/** Set Attribute Set Instance To.
-		@param M_AttributeSetInstanceTo_ID 
-		Target Product Attribute Set Instance
-	  */
-	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID)
-	{
-		if (M_AttributeSetInstanceTo_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, Integer.valueOf(M_AttributeSetInstanceTo_ID));
-	}
-
-	/** Get Attribute Set Instance To.
-		@return Target Product Attribute Set Instance
-	  */
-	public int getM_AttributeSetInstanceTo_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstanceTo_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException
     {
 		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
@@ -399,29 +371,29 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return ii.intValue();
 	}
 
-	public I_M_Locator getM_LocatorTo() throws RuntimeException
+	public I_M_AttributeSetInstance getM_AttributeSetInstanceTo() throws RuntimeException
     {
-		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_Name)
-			.getPO(getM_LocatorTo_ID(), get_TrxName());	}
+		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
+			.getPO(getM_AttributeSetInstanceTo_ID(), get_TrxName());	}
 
-	/** Set Locator To.
-		@param M_LocatorTo_ID 
-		Location inventory is moved to
+	/** Set Attribute Set Instance To.
+		@param M_AttributeSetInstanceTo_ID 
+		Target Product Attribute Set Instance
 	  */
-	public void setM_LocatorTo_ID (int M_LocatorTo_ID)
+	public void setM_AttributeSetInstanceTo_ID (int M_AttributeSetInstanceTo_ID)
 	{
-		if (M_LocatorTo_ID < 1) 
-			set_Value (COLUMNNAME_M_LocatorTo_ID, null);
+		if (M_AttributeSetInstanceTo_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, null);
 		else 
-			set_Value (COLUMNNAME_M_LocatorTo_ID, Integer.valueOf(M_LocatorTo_ID));
+			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstanceTo_ID, Integer.valueOf(M_AttributeSetInstanceTo_ID));
 	}
 
-	/** Get Locator To.
-		@return Location inventory is moved to
+	/** Get Attribute Set Instance To.
+		@return Target Product Attribute Set Instance
 	  */
-	public int getM_LocatorTo_ID () 
+	public int getM_AttributeSetInstanceTo_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_LocatorTo_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstanceTo_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -455,24 +427,29 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return ii.intValue();
 	}
 
-	/** Set Move Line.
-		@param M_MovementLine_ID 
-		Inventory Move document Line
+	public I_M_Locator getM_LocatorTo() throws RuntimeException
+    {
+		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_Name)
+			.getPO(getM_LocatorTo_ID(), get_TrxName());	}
+
+	/** Set Locator To.
+		@param M_LocatorTo_ID 
+		Location inventory is moved to
 	  */
-	public void setM_MovementLine_ID (int M_MovementLine_ID)
+	public void setM_LocatorTo_ID (int M_LocatorTo_ID)
 	{
-		if (M_MovementLine_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, null);
+		if (M_LocatorTo_ID < 1) 
+			set_Value (COLUMNNAME_M_LocatorTo_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, Integer.valueOf(M_MovementLine_ID));
+			set_Value (COLUMNNAME_M_LocatorTo_ID, Integer.valueOf(M_LocatorTo_ID));
 	}
 
-	/** Get Move Line.
-		@return Inventory Move document Line
+	/** Get Locator To.
+		@return Location inventory is moved to
 	  */
-	public int getM_MovementLine_ID () 
+	public int getM_LocatorTo_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_MovementLine_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_LocatorTo_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -501,6 +478,57 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 	public int getM_Movement_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Movement_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Move Line.
+		@param M_MovementLine_ID 
+		Inventory Move document Line
+	  */
+	public void setM_MovementLine_ID (int M_MovementLine_ID)
+	{
+		if (M_MovementLine_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_MovementLine_ID, Integer.valueOf(M_MovementLine_ID));
+	}
+
+	/** Get Move Line.
+		@return Inventory Move document Line
+	  */
+	public int getM_MovementLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MovementLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -646,23 +674,6 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		return bd;
 	}
 
-	/** Set Immutable Universally Unique Identifier.
-		@param UUID 
-		Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID)
-	{
-		set_Value (COLUMNNAME_UUID, UUID);
-	}
-
-	/** Get Immutable Universally Unique Identifier.
-		@return Immutable Universally Unique Identifier
-	  */
-	public String getUUID () 
-	{
-		return (String)get_Value(COLUMNNAME_UUID);
-	}
-
 	public org.compiere.model.I_C_ElementValue getUser1() throws RuntimeException
     {
 		return (org.compiere.model.I_C_ElementValue)MTable.get(getCtx(), org.compiere.model.I_C_ElementValue.Table_Name)
@@ -773,6 +784,23 @@ public class X_M_MovementLine extends PO implements I_M_MovementLine, I_Persiste
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Immutable Universally Unique Identifier.
+		@param UUID 
+		Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID)
+	{
+		set_Value (COLUMNNAME_UUID, UUID);
+	}
+
+	/** Get Immutable Universally Unique Identifier.
+		@return Immutable Universally Unique Identifier
+	  */
+	public String getUUID () 
+	{
+		return (String)get_Value(COLUMNNAME_UUID);
 	}
 
 	/** Set Search Key.

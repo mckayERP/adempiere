@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_ProjectIssue
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2
+ *  @version Release 3.9.3
  */
 public interface I_C_ProjectIssue 
 {
@@ -62,19 +62,6 @@ public interface I_C_ProjectIssue
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name C_ProjectIssue_ID */
-    public static final String COLUMNNAME_C_ProjectIssue_ID = "C_ProjectIssue_ID";
-
-	/** Set Project Issue.
-	  * Project Issues (Material, Labor)
-	  */
-	public void setC_ProjectIssue_ID (int C_ProjectIssue_ID);
-
-	/** Get Project Issue.
-	  * Project Issues (Material, Labor)
-	  */
-	public int getC_ProjectIssue_ID();
-
     /** Column name C_Project_ID */
     public static final String COLUMNNAME_C_Project_ID = "C_Project_ID";
 
@@ -89,6 +76,19 @@ public interface I_C_ProjectIssue
 	public int getC_Project_ID();
 
 	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException;
+
+    /** Column name C_ProjectIssue_ID */
+    public static final String COLUMNNAME_C_ProjectIssue_ID = "C_ProjectIssue_ID";
+
+	/** Set Project Issue.
+	  * Project Issues (Material, Labor)
+	  */
+	public void setC_ProjectIssue_ID (int C_ProjectIssue_ID);
+
+	/** Get Project Issue.
+	  * Project Issues (Material, Labor)
+	  */
+	public int getC_ProjectIssue_ID();
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -189,6 +189,21 @@ public interface I_C_ProjectIssue
 	public int getM_Locator_ID();
 
 	public I_M_Locator getM_Locator() throws RuntimeException;
+
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
@@ -294,19 +309,6 @@ public interface I_C_ProjectIssue
 
 	public org.compiere.model.I_S_TimeExpenseLine getS_TimeExpenseLine() throws RuntimeException;
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -322,4 +324,17 @@ public interface I_C_ProjectIssue
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }

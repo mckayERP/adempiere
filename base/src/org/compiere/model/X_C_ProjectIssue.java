@@ -26,14 +26,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_ProjectIssue
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2 - $Id$ */
+ *  @version Release 3.9.3 - $Id$ */
 public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20191120L;
+	private static final long serialVersionUID = 20200430L;
 
     /** Standard Constructor */
     public X_C_ProjectIssue (Properties ctx, int C_ProjectIssue_ID, String trxName)
@@ -41,8 +41,8 @@ public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persiste
       super (ctx, C_ProjectIssue_ID, trxName);
       /** if (C_ProjectIssue_ID == 0)
         {
-			setC_ProjectIssue_ID (0);
 			setC_Project_ID (0);
+			setC_ProjectIssue_ID (0);
 			setLine (0);
 // @SQL=SELECT NVL(MAX(Line),0)+10 AS DefaultValue FROM C_ProjectIssue WHERE C_Project_ID=@C_Project_ID@
 			setM_AttributeSetInstance_ID (0);
@@ -84,29 +84,6 @@ public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persiste
       return sb.toString();
     }
 
-	/** Set Project Issue.
-		@param C_ProjectIssue_ID 
-		Project Issues (Material, Labor)
-	  */
-	public void setC_ProjectIssue_ID (int C_ProjectIssue_ID)
-	{
-		if (C_ProjectIssue_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_ProjectIssue_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_ProjectIssue_ID, Integer.valueOf(C_ProjectIssue_ID));
-	}
-
-	/** Get Project Issue.
-		@return Project Issues (Material, Labor)
-	  */
-	public int getC_ProjectIssue_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectIssue_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException
     {
 		return (org.compiere.model.I_C_Project)MTable.get(getCtx(), org.compiere.model.I_C_Project.Table_Name)
@@ -142,6 +119,29 @@ public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persiste
     {
         return new KeyNamePair(get_ID(), String.valueOf(getC_Project_ID()));
     }
+
+	/** Set Project Issue.
+		@param C_ProjectIssue_ID 
+		Project Issues (Material, Labor)
+	  */
+	public void setC_ProjectIssue_ID (int C_ProjectIssue_ID)
+	{
+		if (C_ProjectIssue_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_ProjectIssue_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_ProjectIssue_ID, Integer.valueOf(C_ProjectIssue_ID));
+	}
+
+	/** Get Project Issue.
+		@return Project Issues (Material, Labor)
+	  */
+	public int getC_ProjectIssue_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_ProjectIssue_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set Description.
 		@param Description 
@@ -191,7 +191,7 @@ public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persiste
 	  */
 	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
 	{
-		if (M_AttributeSetInstance_ID < 0) 
+		if (M_AttributeSetInstance_ID < 1) 
 			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
 		else 
 			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
@@ -259,6 +259,34 @@ public class X_C_ProjectIssue extends PO implements I_C_ProjectIssue, I_Persiste
 	public int getM_Locator_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

@@ -216,6 +216,21 @@ public interface I_M_MatchInv
 	  */
 	public int getM_MatchInv_ID();
 
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
+
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
@@ -307,19 +322,6 @@ public interface I_M_MatchInv
 
 	public org.compiere.model.I_M_MatchInv getReversal() throws RuntimeException;
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -335,4 +337,17 @@ public interface I_M_MatchInv
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }

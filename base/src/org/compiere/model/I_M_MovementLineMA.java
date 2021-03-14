@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for M_MovementLineMA
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2
+ *  @version Release 3.9.3
  */
 public interface I_M_MovementLineMA 
 {
@@ -121,6 +121,21 @@ public interface I_M_MovementLineMA
 
 	public org.compiere.model.I_M_MovementLine getM_MovementLine() throws RuntimeException;
 
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
+
     /** Column name MovementQty */
     public static final String COLUMNNAME_MovementQty = "MovementQty";
 
@@ -134,18 +149,18 @@ public interface I_M_MovementLineMA
 	  */
 	public BigDecimal getMovementQty();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
+    /** Column name MovementType */
+    public static final String COLUMNNAME_MovementType = "MovementType";
 
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
+	/** Set Movement Type.
+	  * Method of moving the inventory
 	  */
-	public void setUUID (String UUID);
+	public void setMovementType (String MovementType);
 
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
+	/** Get Movement Type.
+	  * Method of moving the inventory
 	  */
-	public String getUUID();
+	public String getMovementType();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -162,4 +177,30 @@ public interface I_M_MovementLineMA
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name UseToFields */
+    public static final String COLUMNNAME_UseToFields = "UseToFields";
+
+	/** Set Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public void setUseToFields (boolean UseToFields);
+
+	/** Get Use To Fields.
+	  * Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public boolean isUseToFields();
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 }

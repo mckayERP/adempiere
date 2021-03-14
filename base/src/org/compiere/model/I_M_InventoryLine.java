@@ -49,6 +49,19 @@ public interface I_M_InventoryLine
 	  */
 	public int getAD_Client_ID();
 
+    /** Column name AD_Org_ID */
+    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/** Set Organization.
+	  * Organizational entity within client
+	  */
+	public void setAD_Org_ID (int AD_Org_ID);
+
+	/** Get Organization.
+	  * Organizational entity within client
+	  */
+	public int getAD_Org_ID();
+
     /** Column name AD_OrgTrx_ID */
     public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
 
@@ -63,19 +76,6 @@ public interface I_M_InventoryLine
 	public int getAD_OrgTrx_ID();
 
 	public org.compiere.model.I_AD_Org getAD_OrgTrx() throws RuntimeException;
-
-    /** Column name AD_Org_ID */
-    public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
-
-	/** Set Organization.
-	  * Organizational entity within client
-	  */
-	public void setAD_Org_ID (int AD_Org_ID);
-
-	/** Get Organization.
-	  * Organizational entity within client
-	  */
-	public int getAD_Org_ID();
 
     /** Column name C_Activity_ID */
     public static final String COLUMNNAME_C_Activity_ID = "C_Activity_ID";
@@ -122,6 +122,21 @@ public interface I_M_InventoryLine
 
 	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException;
 
+    /** Column name C_Project_ID */
+    public static final String COLUMNNAME_C_Project_ID = "C_Project_ID";
+
+	/** Set Project.
+	  * Financial Project
+	  */
+	public void setC_Project_ID (int C_Project_ID);
+
+	/** Get Project.
+	  * Financial Project
+	  */
+	public int getC_Project_ID();
+
+	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException;
+
     /** Column name C_ProjectPhase_ID */
     public static final String COLUMNNAME_C_ProjectPhase_ID = "C_ProjectPhase_ID";
 
@@ -151,21 +166,6 @@ public interface I_M_InventoryLine
 	public int getC_ProjectTask_ID();
 
 	public org.compiere.model.I_C_ProjectTask getC_ProjectTask() throws RuntimeException;
-
-    /** Column name C_Project_ID */
-    public static final String COLUMNNAME_C_Project_ID = "C_Project_ID";
-
-	/** Set Project.
-	  * Financial Project
-	  */
-	public void setC_Project_ID (int C_Project_ID);
-
-	/** Get Project.
-	  * Financial Project
-	  */
-	public int getC_Project_ID();
-
-	public org.compiere.model.I_C_Project getC_Project() throws RuntimeException;
 
     /** Column name CostStandard */
     public static final String COLUMNNAME_CostStandard = "CostStandard";
@@ -333,19 +333,6 @@ public interface I_M_InventoryLine
 
 	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
 
-    /** Column name M_InventoryLine_ID */
-    public static final String COLUMNNAME_M_InventoryLine_ID = "M_InventoryLine_ID";
-
-	/** Set Phys.Inventory Line.
-	  * Unique line in an Inventory document
-	  */
-	public void setM_InventoryLine_ID (int M_InventoryLine_ID);
-
-	/** Get Phys.Inventory Line.
-	  * Unique line in an Inventory document
-	  */
-	public int getM_InventoryLine_ID();
-
     /** Column name M_Inventory_ID */
     public static final String COLUMNNAME_M_Inventory_ID = "M_Inventory_ID";
 
@@ -361,6 +348,19 @@ public interface I_M_InventoryLine
 
 	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException;
 
+    /** Column name M_InventoryLine_ID */
+    public static final String COLUMNNAME_M_InventoryLine_ID = "M_InventoryLine_ID";
+
+	/** Set Phys.Inventory Line.
+	  * Unique line in an Inventory document
+	  */
+	public void setM_InventoryLine_ID (int M_InventoryLine_ID);
+
+	/** Get Phys.Inventory Line.
+	  * Unique line in an Inventory document
+	  */
+	public int getM_InventoryLine_ID();
+
     /** Column name M_Locator_ID */
     public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
 
@@ -375,6 +375,21 @@ public interface I_M_InventoryLine
 	public int getM_Locator_ID();
 
 	public I_M_Locator getM_Locator() throws RuntimeException;
+
+    /** Column name M_MPolicyTicket_ID */
+    public static final String COLUMNNAME_M_MPolicyTicket_ID = "M_MPolicyTicket_ID";
+
+	/** Set Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID);
+
+	/** Get Material Policy Ticket.
+	  * A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID();
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException;
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
@@ -524,19 +539,6 @@ public interface I_M_InventoryLine
 	  */
 	public String getUPC();
 
-    /** Column name UUID */
-    public static final String COLUMNNAME_UUID = "UUID";
-
-	/** Set Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public void setUUID (String UUID);
-
-	/** Get Immutable Universally Unique Identifier.
-	  * Immutable Universally Unique Identifier
-	  */
-	public String getUUID();
-
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -612,6 +614,19 @@ public interface I_M_InventoryLine
 	public int getUser4_ID();
 
 	public org.compiere.model.I_C_ElementValue getUser4() throws RuntimeException;
+
+    /** Column name UUID */
+    public static final String COLUMNNAME_UUID = "UUID";
+
+	/** Set Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public void setUUID (String UUID);
+
+	/** Get Immutable Universally Unique Identifier.
+	  * Immutable Universally Unique Identifier
+	  */
+	public String getUUID();
 
     /** Column name Value */
     public static final String COLUMNNAME_Value = "Value";

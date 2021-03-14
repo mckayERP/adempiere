@@ -25,14 +25,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_ProjectIssueMA
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2 - $Id$ */
+ *  @version Release 3.9.3 - $Id$ */
 public class X_C_ProjectIssueMA extends PO implements I_C_ProjectIssueMA, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20191120L;
+	private static final long serialVersionUID = 20200430L;
 
     /** Standard Constructor */
     public X_C_ProjectIssueMA (Properties ctx, int C_ProjectIssueMA_ID, String trxName)
@@ -121,7 +121,7 @@ public class X_C_ProjectIssueMA extends PO implements I_C_ProjectIssueMA, I_Pers
 	  */
 	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID)
 	{
-		if (M_AttributeSetInstance_ID < 0) 
+		if (M_AttributeSetInstance_ID < 1) 
 			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstance_ID, null);
 		else 
 			set_ValueNoCheck (COLUMNNAME_M_AttributeSetInstance_ID, Integer.valueOf(M_AttributeSetInstance_ID));
@@ -133,6 +133,34 @@ public class X_C_ProjectIssueMA extends PO implements I_C_ProjectIssueMA, I_Pers
 	public int getM_AttributeSetInstance_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_AttributeSetInstance_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -156,6 +184,74 @@ public class X_C_ProjectIssueMA extends PO implements I_C_ProjectIssueMA, I_Pers
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** MovementType AD_Reference_ID=189 */
+	public static final int MOVEMENTTYPE_AD_Reference_ID=189;
+	/** Customer Shipment = C- */
+	public static final String MOVEMENTTYPE_CustomerShipment = "C-";
+	/** Customer Returns = C+ */
+	public static final String MOVEMENTTYPE_CustomerReturns = "C+";
+	/** Vendor Receipts = V+ */
+	public static final String MOVEMENTTYPE_VendorReceipts = "V+";
+	/** Vendor Returns = V- */
+	public static final String MOVEMENTTYPE_VendorReturns = "V-";
+	/** Inventory Out = I- */
+	public static final String MOVEMENTTYPE_InventoryOut = "I-";
+	/** Inventory In = I+ */
+	public static final String MOVEMENTTYPE_InventoryIn = "I+";
+	/** Movement From = M- */
+	public static final String MOVEMENTTYPE_MovementFrom = "M-";
+	/** Movement To = M+ */
+	public static final String MOVEMENTTYPE_MovementTo = "M+";
+	/** Production + = P+ */
+	public static final String MOVEMENTTYPE_ProductionPlus = "P+";
+	/** Production - = P- */
+	public static final String MOVEMENTTYPE_Production_ = "P-";
+	/** Work Order + = W+ */
+	public static final String MOVEMENTTYPE_WorkOrderPlus = "W+";
+	/** Work Order - = W- */
+	public static final String MOVEMENTTYPE_WorkOrder_ = "W-";
+	/** Set Movement Type.
+		@param MovementType 
+		Method of moving the inventory
+	  */
+	public void setMovementType (String MovementType)
+	{
+
+		set_Value (COLUMNNAME_MovementType, MovementType);
+	}
+
+	/** Get Movement Type.
+		@return Method of moving the inventory
+	  */
+	public String getMovementType () 
+	{
+		return (String)get_Value(COLUMNNAME_MovementType);
+	}
+
+	/** Set Use To Fields.
+		@param UseToFields 
+		Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public void setUseToFields (boolean UseToFields)
+	{
+		set_Value (COLUMNNAME_UseToFields, Boolean.valueOf(UseToFields));
+	}
+
+	/** Get Use To Fields.
+		@return Use the "To" fields. Relevant only in material allocation tables which have from-to ranges or pairs in the lines such as the MovementLine
+	  */
+	public boolean isUseToFields () 
+	{
+		Object oo = get_Value(COLUMNNAME_UseToFields);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Immutable Universally Unique Identifier.

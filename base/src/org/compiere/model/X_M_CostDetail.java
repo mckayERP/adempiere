@@ -25,14 +25,14 @@ import org.compiere.util.Env;
 
 /** Generated Model for M_CostDetail
  *  @author Adempiere (generated) 
- *  @version Release 3.9.2 - $Id$ */
+ *  @version Release 3.9.3 - $Id$ */
 public class X_M_CostDetail extends PO implements I_M_CostDetail, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20191120L;
+	private static final long serialVersionUID = 20210106L;
 
     /** Standard Constructor */
     public X_M_CostDetail (Properties ctx, int M_CostDetail_ID, String trxName)
@@ -44,7 +44,6 @@ public class X_M_CostDetail extends PO implements I_M_CostDetail, I_Persistent
 			setAmtLL (Env.ZERO);
 			setC_AcctSchema_ID (0);
 			setIsSOTrx (false);
-			setM_AttributeSetInstance_ID (0);
 			setM_CostDetail_ID (0);
 			setM_Product_ID (0);
 			setProcessed (false);
@@ -901,6 +900,34 @@ public class X_M_CostDetail extends PO implements I_M_CostDetail, I_Persistent
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_M_MPolicyTicket getM_MPolicyTicket() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_MPolicyTicket)MTable.get(getCtx(), org.compiere.model.I_M_MPolicyTicket.Table_Name)
+			.getPO(getM_MPolicyTicket_ID(), get_TrxName());	}
+
+	/** Set Material Policy Ticket.
+		@param M_MPolicyTicket_ID 
+		A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public void setM_MPolicyTicket_ID (int M_MPolicyTicket_ID)
+	{
+		if (M_MPolicyTicket_ID < 1) 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_MPolicyTicket_ID, Integer.valueOf(M_MPolicyTicket_ID));
+	}
+
+	/** Get Material Policy Ticket.
+		@return A Material Policy Ticket is used to track the FIFO/LIFO lifecycle of products in storage according to the material policy 
+	  */
+	public int getM_MPolicyTicket_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_MPolicyTicket_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
@@ -1025,6 +1052,56 @@ public class X_M_CostDetail extends PO implements I_M_CostDetail, I_Persistent
 	public int getPP_Cost_Collector_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Cost_Collector_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.eevolution.model.I_PP_Order_BOMLineIssue getPP_Order_BOMLineIssue() throws RuntimeException
+    {
+		return (org.eevolution.model.I_PP_Order_BOMLineIssue)MTable.get(getCtx(), org.eevolution.model.I_PP_Order_BOMLineIssue.Table_Name)
+			.getPO(getPP_Order_BOMLineIssue_ID(), get_TrxName());	}
+
+	/** Set Manufacturing Order BOM Line Issue ID.
+		@param PP_Order_BOMLineIssue_ID Manufacturing Order BOM Line Issue ID	  */
+	public void setPP_Order_BOMLineIssue_ID (int PP_Order_BOMLineIssue_ID)
+	{
+		if (PP_Order_BOMLineIssue_ID < 1) 
+			set_Value (COLUMNNAME_PP_Order_BOMLineIssue_ID, null);
+		else 
+			set_Value (COLUMNNAME_PP_Order_BOMLineIssue_ID, Integer.valueOf(PP_Order_BOMLineIssue_ID));
+	}
+
+	/** Get Manufacturing Order BOM Line Issue ID.
+		@return Manufacturing Order BOM Line Issue ID	  */
+	public int getPP_Order_BOMLineIssue_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_PP_Order_BOMLineIssue_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.eevolution.model.I_PP_OrderReceipt getPP_OrderReceipt() throws RuntimeException
+    {
+		return (org.eevolution.model.I_PP_OrderReceipt)MTable.get(getCtx(), org.eevolution.model.I_PP_OrderReceipt.Table_Name)
+			.getPO(getPP_OrderReceipt_ID(), get_TrxName());	}
+
+	/** Set Manufacturing Order Receipt ID.
+		@param PP_OrderReceipt_ID Manufacturing Order Receipt ID	  */
+	public void setPP_OrderReceipt_ID (int PP_OrderReceipt_ID)
+	{
+		if (PP_OrderReceipt_ID < 1) 
+			set_Value (COLUMNNAME_PP_OrderReceipt_ID, null);
+		else 
+			set_Value (COLUMNNAME_PP_OrderReceipt_ID, Integer.valueOf(PP_OrderReceipt_ID));
+	}
+
+	/** Get Manufacturing Order Receipt ID.
+		@return Manufacturing Order Receipt ID	  */
+	public int getPP_OrderReceipt_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_PP_OrderReceipt_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

@@ -30,7 +30,7 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200804L;
+	private static final long serialVersionUID = 20201007L;
 
     /** Standard Constructor */
     public X_C_DocType (Properties ctx, int C_DocType_ID, String trxName)
@@ -120,6 +120,29 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 		return ii.intValue();
 	}
 
+	/** Set Document Type.
+		@param C_DocType_ID 
+		Document type or rules
+	  */
+	public void setC_DocType_ID (int C_DocType_ID)
+	{
+		if (C_DocType_ID < 0) 
+			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, Integer.valueOf(C_DocType_ID));
+	}
+
+	/** Get Document Type.
+		@return Document type or rules
+	  */
+	public int getC_DocType_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_DocType getC_DocTypeDifference() throws RuntimeException
     {
 		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_Name)
@@ -143,29 +166,6 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public int getC_DocTypeDifference_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocTypeDifference_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Document Type.
-		@param C_DocType_ID 
-		Document type or rules
-	  */
-	public void setC_DocType_ID (int C_DocType_ID)
-	{
-		if (C_DocType_ID < 0) 
-			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, Integer.valueOf(C_DocType_ID));
-	}
-
-	/** Get Document Type.
-		@return Document type or rules
-	  */
-	public int getC_DocType_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -409,6 +409,10 @@ public class X_C_DocType extends PO implements I_C_DocType, I_Persistent
 	public static final String DOCBASETYPE_FreightOrder = "FRO";
 	/** Package = MMK */
 	public static final String DOCBASETYPE_Package = "MMK";
+	/** Manufacturing Order Issue = MOI */
+	public static final String DOCBASETYPE_ManufacturingOrderIssue = "MOI";
+	/** Manufacturing Order Receipt = MOR */
+	public static final String DOCBASETYPE_ManufacturingOrderReceipt = "MOR";
 	/** Fixed Assets Addition = FAA */
 	public static final String DOCBASETYPE_FixedAssetsAddition = "FAA";
 	/** Fixed Assets Disposal = FAD */
