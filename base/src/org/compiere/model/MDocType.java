@@ -143,10 +143,22 @@ public class MDocType extends X_C_DocType
 	 */
 	static public MDocType get (Properties ctx, int C_DocType_ID)
 	{
+		return get(ctx, C_DocType_ID, null);
+	} 	//	get
+	
+	/**
+	 * 	Get Document Type (cached)
+	 *	@param ctx context
+	 * @param C_DocType_ID id
+	 * @param trxName the transaction name
+	 *	@return document type
+	 */
+	static public MDocType get (Properties ctx, int C_DocType_ID, String trxName)
+	{
 		MDocType retValue = (MDocType)s_cache.get(C_DocType_ID);
 		if (retValue == null)
 		{
-			retValue = new MDocType (ctx, C_DocType_ID, null);
+			retValue = new MDocType (ctx, C_DocType_ID, trxName);
 			s_cache.put(C_DocType_ID, retValue);
 		}
 		return retValue; 
