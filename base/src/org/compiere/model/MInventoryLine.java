@@ -16,6 +16,8 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -251,20 +253,28 @@ public class MInventoryLine extends X_M_InventoryLine implements IDocumentLine ,
 			log.saveError("ParentComplete", Msg.translate(getCtx(), "M_InventoryLine"));
 			return false;
 		}
+		
 		if (newRecord && m_isManualEntry)
 		{
-			//	Product requires ASI
-			if (getM_AttributeSetInstance_ID() == 0)
+			MProduct product = MProduct.get(getCtx(), getM_Product_ID(), get_TrxName());
+			
+			// From
+			String msg = validateAttributeSetInstanceMandatory(getCtx(), product, Table_ID, isSOTrx() , getM_AttributeSetInstance_ID(), get_TrxName());
+			if (msg != null)
 			{
-				MProduct product = MProduct.get(getCtx(), getM_Product_ID());
-				MAttributeSet.validateAttributeSetInstanceMandatory(product, Table_ID, isSOTrx() , getM_AttributeSetInstance_ID());
-				/*if (product != null && product.isASIMandatory(isSOTrx(), getAD_Org_ID()))
-				{
-					log.saveError("FillMandatory", Msg.getElement(getCtx(), COLUMNNAME_M_AttributeSetInstance_ID));
-					return false;
-				}*/
-			}	//	No ASI
-		}	//	new or manual
+				log.saveWarning("Error", Msg.parseTranslation(getCtx(), msg));
+				return false;
+			}				
+
+			// To
+			msg = validateAttributeSetInstanceMandatory(getCtx(), product, Table_ID, !isSOTrx() , getM_AttributeSetInstanceTo_ID(), get_TrxName());
+			if (msg != null)
+			{
+				log.saveError("Error", Msg.parseTranslation(getCtx(), msg));
+				return false;
+			}
+			
+		}	//	new and manual
 		
 		//	Set Line No
 		if (getLine() == 0)
@@ -434,13 +444,13 @@ public class MInventoryLine extends X_M_InventoryLine implements IDocumentLine ,
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
@@ -472,4 +482,45 @@ public class MInventoryLine extends X_M_InventoryLine implements IDocumentLine ,
 	public boolean isReversalParent() {
 		return getM_InventoryLine_ID() < getReversalLine_ID();
 	}
+	
+	/**
+	 * Determine the movement type for this line.
+	 * @return  The movement type reference code (I-, I+)
+	 */
+	public String getMovementType() {
+
+		// Set the movementType
+		String movementType = MTransaction.MOVEMENTTYPE_InventoryOut;
+
+		//Get Quantity Internal Use
+		BigDecimal qtyDiff = getQtyInternalUse().negate();
+		
+		//If Quantity Internal Use = Zero Then Physical Inventory  Else Internal Use Inventory
+		if (qtyDiff.signum() == 0)
+		{
+			qtyDiff = getQtyCount().subtract(getQtyBook());
+		}
+
+		if(qtyDiff.compareTo(Env.ZERO) > 0 )
+			movementType = MTransaction.MOVEMENTTYPE_InventoryIn;
+
+		return movementType;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		return this.getParent().getM_Warehouse_ID();
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return this.getParent().getMovementDate();
+	}
+
+	@Override
+	public boolean isReversal() {
+		
+		return this.getParent().isReversal();
+	}
+	
 }	//	MInventoryLine

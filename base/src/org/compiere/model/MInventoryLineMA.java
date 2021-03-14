@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.engine.IInventoryAllocation;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 
@@ -33,7 +34,7 @@ import org.compiere.util.DB;
  *  @author Jorg Janke
  *  @version $Id: MInventoryLineMA.java,v 1.3 2006/07/30 00:51:04 jjanke Exp $
  */
-public class MInventoryLineMA extends X_M_InventoryLineMA
+public class MInventoryLineMA extends X_M_InventoryLineMA implements IInventoryAllocation 
 {
 	/**
 	 * 
@@ -136,16 +137,16 @@ public class MInventoryLineMA extends X_M_InventoryLineMA
 	/**
 	 * 	Parent Constructor
 	 *	@param parent parent
-	 *	@param M_AttributeSetInstance_ID asi
+	 *	@param M_MPolicyTicket_ID asi
 	 *	@param MovementQty qty
 	 */
-	public MInventoryLineMA (MInventoryLine parent, int M_AttributeSetInstance_ID, BigDecimal MovementQty)
+	public MInventoryLineMA (MInventoryLine parent, int M_MPolicyTicket_ID, BigDecimal MovementQty)
 	{
 		this (parent.getCtx(), 0, parent.get_TrxName());
 		setClientOrg(parent);
 		setM_InventoryLine_ID(parent.getM_InventoryLine_ID());
 		//
-		setM_AttributeSetInstance_ID(M_AttributeSetInstance_ID);
+		this.setM_MPolicyTicket_ID(M_MPolicyTicket_ID);
 		setMovementQty(MovementQty);
 	}	//	MInventoryLineMA
 	
@@ -157,7 +158,7 @@ public class MInventoryLineMA extends X_M_InventoryLineMA
 	{
 		StringBuffer sb = new StringBuffer ("MInventoryLineMA[");
 		sb.append("M_InventoryLine_ID=").append(getM_InventoryLine_ID())
-			.append(",M_AttributeSetInstance_ID=").append(getM_AttributeSetInstance_ID())
+			.append(",M_MPolicyTicket_ID=").append(getM_MPolicyTicket_ID())
 			.append(", Qty=").append(getMovementQty())
 			.append ("]");
 		return sb.toString ();
