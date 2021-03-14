@@ -267,7 +267,7 @@ public class ImportInventory extends ImportInventoryAbstract {
 				} else if (importInventory.getLot() != null || importInventory.getSerNo() != null) {
 					MProduct product = MProduct.get(getCtx(), importInventory.getM_Product_ID());
 					if (product.isInstanceAttribute()) {
-						MAttributeSet attributeSet = product.getAttributeSet();
+						MAttributeSet attributeSet = (MAttributeSet) product.getM_AttributeSet();
 						MAttributeSetInstance attributeSetInstance = new MAttributeSetInstance(getCtx(), 0, attributeSet.getM_AttributeSet_ID(), get_TrxName());
 						if (attributeSet.isLot() && importInventory.getLot() != null) {
 							attributeSetInstance.setLot(importInventory.getLot(), importInventory.getM_Product_ID());
