@@ -15,6 +15,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -80,6 +81,7 @@ public class MProductionLine extends X_M_ProductionLine implements IDocumentLine
 		setM_Production_ID(header.getM_Production_ID());
 		setAD_Client_ID(header.getAD_Client_ID());
 		setAD_Org_ID(header.getAD_Org_ID());
+		m_parent = header;
 	}
 
 	public int deleteMA() {
@@ -206,7 +208,6 @@ public class MProductionLine extends X_M_ProductionLine implements IDocumentLine
 		return m_parent;
 	}	//	getParent
 	
-
 	public MProduct getProduct()
 	{
 		if (m_product == null && getM_Product_ID() != 0)
@@ -282,6 +283,33 @@ public class MProductionLine extends X_M_ProductionLine implements IDocumentLine
 	@Override
 	public boolean isReversalParent() {
 		return getM_ProductionLine_ID() < getReversalLine_ID();
+	}
+	
+
+	@Override
+	public boolean isReversal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public int getM_Warehouse_ID() {
+		return this.getM_Production().getM_Locator().getM_Warehouse_ID();
+	}
+
+
+	@Override
+	public Timestamp getMovementDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String getMovementType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

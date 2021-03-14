@@ -15,6 +15,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -166,7 +167,7 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 
 		for (MProductionLine line : lines) {
 			MProduct product = (MProduct) line.getM_Product();
-			MAttributeSet as = product.getAttributeSet();
+			MAttributeSet as = (MAttributeSet) product.getM_AttributeSet();
 			if (as != null) {
 				if ((as.isMandatoryAlways() ||
 						(as.isSerNo() && as.isSerNoMandatory()) ||
@@ -304,7 +305,7 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 					int transactionAttributeSetInstance_ID = productionLine.getM_AttributeSetInstance_ID();
 					//always create asi so fifo/lifo work.
 					if (productionLine.getM_AttributeSetInstance_ID() == 0) {
-						MAttributeSet.validateAttributeSetInstanceMandatory(product, MProductionLine.Table_ID , false , productionLine.getM_AttributeSetInstance_ID());
+						validateAttributeSetInstanceMandatory(productionLine);
 						asi = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
 						productionLine.setM_AttributeSetInstance_ID(asi.getM_AttributeSetInstance_ID());
 						transactionAttributeSetInstance_ID = asi.getM_AttributeSetInstance_ID();
@@ -1034,7 +1035,7 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 
 		if (qtyToDeliver.signum() != 0)
 		{
-			MAttributeSet.validateAttributeSetInstanceMandatory(product, I_M_ProductionLine.Table_ID , false , pLine.getM_AttributeSetInstance_ID());
+			validateAttributeSetInstanceMandatory(getCtx(), product, I_M_ProductionLine.Table_ID , false , pLine.getM_AttributeSetInstance_ID(), get_TrxName());
 			//deliver using new asi
 			MAttributeSetInstance asi = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
 			int M_AttributeSetInstance_ID = asi.getM_AttributeSetInstance_ID();
@@ -1101,7 +1102,7 @@ public class MProduction extends X_M_Production implements DocAction , DocumentR
 		// product to be produced	
 		MProduct finishedProduct = new MProduct(getCtx(), getM_Product_ID(), get_TrxName());
 		
-		MAttributeSet as = finishedProduct.getAttributeSet();
+		MAttributeSet as = (MAttributeSet) finishedProduct.getM_AttributeSet();
 		if ( as != null && as.isSerNo())
 		{
 				for ( int i = 0; i < getProductionQty().intValue(); i++)
