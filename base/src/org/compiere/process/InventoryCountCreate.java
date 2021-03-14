@@ -138,42 +138,45 @@ public class InventoryCountCreate extends SvrProcess
 		}
 		
 		//	Create Null Storage records
-		if (p_QtyRange != null && p_QtyRange.equals("="))
-		{
-			String sql = "INSERT INTO M_Storage "
-				+ "(AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,"
-				+ " M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID,"
-				+ " QtyOnHand, QtyReserved, QtyOrdered, DateLastInventory) "
-				+ "SELECT l.AD_CLIENT_ID, l.AD_ORG_ID, 'Y', SysDate, 0,SysDate, 0,"
-				+ " l.M_Locator_ID, p.M_Product_ID, 0,"
-				+ " 0,0,0,null "
-				+ "FROM M_Locator l"
-				+ " INNER JOIN M_Product p ON (l.AD_Client_ID=p.AD_Client_ID) "
-				+ "WHERE l.M_Warehouse_ID=" + m_inventory.getM_Warehouse_ID();
-			if (p_M_Locator_ID != 0)
-				sql += " AND l.M_Locator_ID=" + p_M_Locator_ID;
-			sql += " AND l.IsDefault='Y'"
-				+ " AND p.IsActive='Y' AND p.IsStocked='Y' and p.ProductType='I'"
-				+ " AND NOT EXISTS (SELECT * FROM M_Storage s"
-					+ " INNER JOIN M_Locator sl ON (s.M_Locator_ID=sl.M_Locator_ID) "
-					+ "WHERE sl.M_Warehouse_ID=l.M_Warehouse_ID"
-					+ " AND s.M_Product_ID=p.M_Product_ID)";
-			int no = DB.executeUpdate(sql, get_TrxName());
-			log.fine("'0' Inserted #" + no);
-		}
+		//  TODO - Why?  These shouldn't be needed.  Storage clean-up removes these.
+//		if (p_QtyRange != null && p_QtyRange.equals("="))
+//		{
+//			String sql = "INSERT INTO M_Storage "
+//				+ "(AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,"
+//				+ " M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID, M_MPolicyTicket_ID"
+//				+ " QtyOnHand, QtyReserved, QtyOrdered, DateLastInventory) "
+//				+ "SELECT l.AD_CLIENT_ID, l.AD_ORG_ID, 'Y', SysDate, 0,SysDate, 0,"
+//				+ " l.M_Locator_ID, p.M_Product_ID, 0, 0,"
+//				+ " 0,0,0,null "
+//				+ "FROM M_Locator l"
+//				+ " INNER JOIN M_Product p ON (l.AD_Client_ID=p.AD_Client_ID) "
+//				+ "WHERE l.M_Warehouse_ID=" + m_inventory.getM_Warehouse_ID();
+//			if (p_M_Locator_ID != 0)
+//				sql += " AND l.M_Locator_ID=" + p_M_Locator_ID;
+//			sql += " AND l.IsDefault='Y'"
+//				+ " AND p.IsActive='Y' AND p.IsStocked='Y' and p.ProductType='I'"
+//				+ " AND NOT EXISTS (SELECT * FROM M_Storage s"
+//					+ " INNER JOIN M_Locator sl ON (s.M_Locator_ID=sl.M_Locator_ID) "
+//					+ "WHERE sl.M_Warehouse_ID=l.M_Warehouse_ID"
+//					+ " AND s.M_Product_ID=p.M_Product_ID)";
+//			int no = DB.executeUpdate(sql, get_TrxName());
+//			log.fine("'0' Inserted #" + no);
+//		}
 
+		//  Sum across the M_MPolicyTicket layers.  This avoids having to add
+		//  null entries in M_Storage
 		StringBuffer sql = new StringBuffer(
-			"SELECT DISTINCT s.M_Product_ID, s.M_Locator_ID, s.M_AttributeSetInstance_ID,"
-			+ " s.QtyOnHand, p.M_AttributeSet_ID "
-			+ "FROM M_Product p"
-			+ " INNER JOIN M_Storage s ON (s.M_Product_ID=p.M_Product_ID)"
-			+ " INNER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID) "
-			+ " LEFT JOIN M_Product_PO ppo ON (p.M_Product_ID=ppo.M_Product_ID) "
-			+ "WHERE l.M_Warehouse_ID=?"
-			+ " AND p.IsActive='Y' AND p.IsStocked='Y' and p.ProductType='I'");
+			"SELECT DISTINCT p.M_Product_ID, l.M_Locator_ID,"
+			+ " COALESCE(s.M_AttributeSetInstance_ID,0) as M_AttributeSetInstance_ID,"
+			+ " SUM(COALESCE(s.QtyOnHand,0)) as QtyOnHand, p.M_AttributeSet_ID "
+			+ "FROM M_Product p "
+			+ " JOIN M_Locator l ON (l.M_Warehouse_ID=?) "
+//			+ " LEFT JOIN M_Product_PO ppo ON (p.M_Product_ID=ppo.M_Product_ID) " // ppo not referenced in query
+			+ " LEFT OUTER JOIN M_Storage s ON (s.M_Product_ID=p.M_Product_ID AND s.M_Locator_ID=l.M_Locator_ID)"
+			+ "WHERE p.IsActive='Y' AND p.IsStocked='Y' and p.ProductType='I'");
 		//
 		if (p_M_Locator_ID != 0)
-			sql.append(" AND s.M_Locator_ID=?");
+			sql.append(" AND l.M_Locator_ID=?");
 		//
 		if (p_LocatorValue != null && 
 			(p_LocatorValue.trim().length() == 0 || p_LocatorValue.equals("%")))
@@ -197,12 +200,13 @@ public class InventoryCountCreate extends SvrProcess
 		if (!p_DeleteOld)
 			sql.append(" AND NOT EXISTS (SELECT * FROM M_InventoryLine il "
 			+ "WHERE il.M_Inventory_ID=?"
-			+ " AND il.M_Product_ID=s.M_Product_ID"
-			+ " AND il.M_Locator_ID=s.M_Locator_ID"
+			+ " AND il.M_Product_ID=p.M_Product_ID"
+			+ " AND il.M_Locator_ID=l.M_Locator_ID"
 			+ " AND COALESCE(il.M_AttributeSetInstance_ID,0)=COALESCE(s.M_AttributeSetInstance_ID,0))");
 		//	+ " AND il.M_AttributeSetInstance_ID=s.M_AttributeSetInstance_ID)");
 		//
-		sql.append(" ORDER BY s.M_Locator_ID, s.M_Product_ID, s.QtyOnHand DESC");	//	Locator/Product		
+		sql.append(" GROUP BY p.M_Product_ID, l.M_Locator_ID, COALESCE(s.M_AttributeSetInstance_ID,0), p.M_AttributeSet_ID");
+		sql.append(" ORDER BY l.M_Locator_ID, p.M_Product_ID, QtyOnHand DESC");	//	Locator/Product		
 		//
 		int count = 0;
 		PreparedStatement pstmt = null;

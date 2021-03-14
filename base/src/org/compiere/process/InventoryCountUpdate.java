@@ -118,7 +118,7 @@ public class InventoryCountUpdate extends InventoryCountUpdateAbstract
 	{
 		int no = 0;
 		//
-		String sql = "SELECT * FROM M_InventoryLine WHERE M_Inventory_ID=? AND M_AttributeSetInstance_ID=0";
+		String sql = "SELECT * FROM M_InventoryLine WHERE M_Inventory_ID=? AND M_MPolicyTicket_ID=0";
 		PreparedStatement preparedStatement = null;
 		try
 		{
@@ -137,13 +137,12 @@ public class InventoryCountUpdate extends InventoryCountUpdateAbstract
 					if (storage.getQtyOnHand().signum() == 0)
 						continue;
 					onHand = onHand.add(storage.getQtyOnHand());
-					//	No ASI
-					if (storage.getM_AttributeSetInstance_ID() == 0 
+					//	No material policy ticket = orders/reservations only
+					if (storage.getM_MPolicyTicket_ID() == 0 
 						&& storages.length == 1)
 						continue;
-					//	Save ASI
-					inventoryLineMA = new MInventoryLineMA (inventoryLine,
-						storage.getM_AttributeSetInstance_ID(), storage.getQtyOnHand());
+					//	Save Material Policy Ticket
+					inventoryLineMA = new MInventoryLineMA (inventoryLine, storage.getM_MPolicyTicket_ID(), storage.getQtyOnHand());
 					if (!inventoryLineMA.save())
 						;
 				}
