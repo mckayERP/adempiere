@@ -577,4 +577,13 @@ class TimeUtilTest extends CommonUnitTestSetup {
 
     }
 
+    @Test
+    void getTimeBetween() {
+        
+        Timestamp start = TimeUtil.getDay(1); // using zero will get the current time
+        Timestamp end = TimeUtil.getDay(1000*60*60*24); 
+        
+        assertEquals(1, TimeUtil.getTimeBetween(start, end, TimeUtil.DURATIONUNIT_Day));
+        
+    }
 }

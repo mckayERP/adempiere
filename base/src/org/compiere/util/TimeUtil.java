@@ -45,7 +45,7 @@ public class TimeUtil
 	/**
 	 * 	Get earliest time of a day (truncate)
 	 *  @param time day and time
-	 *  @return day with 00:00
+	 *  @return day with 00:00.  If time is 0, returns current date.
 	 */
 	static public Timestamp getDay (long time)
 	{
@@ -675,14 +675,12 @@ public class TimeUtil
 			day = new Timestamp(System.currentTimeMillis());
 		}
 		//
-		GregorianCalendar cal = new GregorianCalendar();
+		GregorianCalendar cal = new GregorianCalendar(Language.getLoginLanguage().getLocale());
 		cal.setTime(day);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-		if (offset == 0)
-			return new Timestamp (cal.getTimeInMillis());
 		cal.add(Calendar.DAY_OF_YEAR, offset);			//	may have a problem with negative (before 1/1)
 		return new Timestamp (cal.getTimeInMillis());
 	}	//	addDays
