@@ -20,11 +20,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.DBException;
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
@@ -37,6 +36,11 @@ import org.compiere.util.DB;
  *
  * @author Teo Sarca, www.arhipac.ro
  *			<li>FR [ 2214883 ] Remove SQL code and Replace for Query
+ *
+ *  @author mckayERP, www.mckayerp.com
+ *  		<li> #254 MAttributeSet.getMAttributes sets isInstanceAttribute incorrectly 
+ *  		<li> #255 MAttributeSet.isExcludeSerNo returns incorrect value
+ *  		<li> #256 MAttributeSet add convenience function to return all attributes of a set. 
  */
 public class MAttributeSet extends X_M_AttributeSet
 {
@@ -45,38 +49,6 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	private static final long serialVersionUID = -2703536167929259405L;
 
-	/**
-	 * Is AttributeSet Instance Mandatory
-	 * @param product
-	 * @param tableId
-	 * @param isSOTrx
-	 * @param attributeSetIntanceId
-	 */
-	public static void validateAttributeSetInstanceMandatory(MProduct product, int tableId, boolean isSOTrx , int attributeSetIntanceId)
-	{
-		//	If CostingLevel is BatchLot ASI is always mandatory - check all client acct schemas
-		Arrays.stream(MAcctSchema.getClientAcctSchema(product.getCtx(), product.getAD_Client_ID(), product.get_TrxName()))
-		.forEach( as -> {
-			String costingLevel = product.getCostingLevel(as);
-			if (MAcctSchema.COSTINGLEVEL_BatchLot.equals(costingLevel) && attributeSetIntanceId == 0)
-				throw new AdempiereException("@LinesWithoutProductAttribute@ " + product.getName());
-		});
-		// Check Attribute Set settings
-		MAttributeSet attributeSet = MAttributeSet.get(product.getCtx(), product.getM_AttributeSet_ID());
-		if (attributeSet == null || !attributeSet.isInstanceAttribute())
-			return;
-
-		boolean isExcludeEntry = attributeSet.excludeEntry(tableId, isSOTrx);
-		if (!isExcludeEntry && attributeSet.isMandatoryAlways() && attributeSetIntanceId == 0)
-			throw new AdempiereException("@LinesWithoutProductAttribute@ " + product.getName());
-
-		if(!isExcludeEntry && attributeSet.isMandatory() && attributeSetIntanceId == 0)
-			throw new AdempiereException("@LinesWithoutProductAttribute@ " + product.getName());
-
-		if (!isExcludeEntry && attributeSet.isMandatoryShipping() && attributeSetIntanceId == 0 && isSOTrx)
-			throw new AdempiereException("@LinesWithoutProductAttribute@ " + product.getName());
-
-	}
 
 	/**
 	 * 	Get MAttributeSet from Cache
@@ -86,24 +58,24 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	public static MAttributeSet get (Properties ctx, int M_AttributeSet_ID)
 	{
-	    return get(ctx, M_AttributeSet_ID, null);
+		return get(ctx, M_AttributeSet_ID, null);
 	}
-	
+		
    /**
      *  Get MAttributeSet from Cache
      *  @param ctx context
-     *  @param M_AttributeSet_ID id
+     *  @param attributeSetId id
      *  @param trxName the Transaction name
      *  @return MAttributeSet
      */
-    public static MAttributeSet get (Properties ctx, int M_AttributeSet_ID, String trxName)
+    public static MAttributeSet get (Properties ctx, int attributeSetId, String trxName)
     {
 
-		Integer key = new Integer (M_AttributeSet_ID);
-		MAttributeSet retValue = (MAttributeSet) s_cache.get (key);
+		Integer key = Integer.valueOf(attributeSetId);
+		MAttributeSet retValue = s_cache.get (key);
 		if (retValue != null)
 			return retValue;
-		retValue = new MAttributeSet (ctx, M_AttributeSet_ID, trxName);
+		retValue = new MAttributeSet (ctx, attributeSetId, trxName);
 		if (retValue.get_ID () != 0)
 			s_cache.put (key, retValue);
 		return retValue;
@@ -113,6 +85,9 @@ public class MAttributeSet extends X_M_AttributeSet
 	private static CCache<Integer,MAttributeSet> s_cache
 		= new CCache<Integer,MAttributeSet> ("M_AttributeSet", 20);
 	
+	public static void clearCache() {
+		s_cache.clear();
+	}
 	
 	/**
 	 * 	Standard constructor
@@ -154,14 +129,34 @@ public class MAttributeSet extends X_M_AttributeSet
 	private MAttribute[]		m_productAttributes = null;
 	
 	/** Entry Exclude						*/
-	private X_M_AttributeSetExclude[] m_excludes = null;
+	private HashMap<Integer, Boolean> m_excludes = new HashMap<Integer,Boolean>();
 	/** Lot create Exclude						*/
 	private X_M_LotCtlExclude[] 	m_excludeLots = null;
 	/** Serial No create Exclude				*/
 	private X_M_SerNoCtlExclude[]	m_excludeSerNos = null;
 
 	/**
-	 * 	Get Attribute Array
+	 * 	Get Attribute Array 
+	 *	@return attribute array
+	 */
+	public MAttribute[] getMAttributes ()
+	{
+		getMAttributes(true);
+		getMAttributes(false);
+		
+		int instanceLength = m_instanceAttributes.length;
+		int productLength = m_productAttributes.length;
+		
+		// Order is important - instance first, then product.
+		MAttribute[] allAttributes = new MAttribute[instanceLength + productLength];
+		System.arraycopy(m_instanceAttributes, 0, allAttributes, 0, instanceLength);
+		System.arraycopy(m_productAttributes, 0, allAttributes, instanceLength, productLength);
+		
+		return allAttributes;
+	}
+	
+	/**
+	 * 	Get Attribute Array in order of attribute use sequence
 	 * 	@param instanceAttributes true if for instance
 	 *	@return instance or product attribute array
 	 */
@@ -212,14 +207,7 @@ public class MAttributeSet extends X_M_AttributeSet
 				m_productAttributes = new MAttribute[list.size()];
 				list.toArray (m_productAttributes);
 			}
-		}
-		//
-		if (instanceAttributes)
-		{
-			if (isInstanceAttribute() != m_instanceAttributes.length > 0)
-				setIsInstanceAttribute(m_instanceAttributes.length > 0);
-		}
-		
+		}		
 		//	Return
 		if (instanceAttributes)
 			return m_instanceAttributes;
@@ -253,7 +241,8 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	public boolean isMandatoryShipping()
 	{
-		return MANDATORYTYPE_WhenShipping.equals(getMandatoryType());
+		return MANDATORYTYPE_AlwaysMandatory.equals(getMandatoryType()) 
+				|| MANDATORYTYPE_WhenShipping.equals(getMandatoryType());
 	}	//	isMandatoryShipping
 
 	/**
@@ -264,51 +253,22 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	public boolean excludeEntry (int tableId , boolean isSOTrx)
 	{
+		
+		if (tableId == 0)
+			return false;
+		
 		final StringBuilder whereClause = new StringBuilder();
 		whereClause.append(X_M_AttributeSetExclude.COLUMNNAME_M_AttributeSet_ID).append("=? AND ");
 		whereClause.append(X_M_AttributeSetExclude.COLUMNNAME_AD_Table_ID).append("=? AND ");
 		whereClause.append(X_M_AttributeSetExclude.COLUMNNAME_IsSOTrx).append("=?");
 
-		return new Query(getCtx(), X_M_AttributeSetExclude.Table_Name, whereClause.toString(), null)
+		return new Query(getCtx(), X_M_AttributeSetExclude.Table_Name, whereClause.toString(), get_TrxName())
 				.setParameters(getM_AttributeSet_ID(), tableId , isSOTrx)
 				.setOnlyActiveRecords(true)
 				.match();
 
-	}
-
-	/**
-	 * 	Exclude entry
-	 *	@param AD_Column_ID column
-	 *	@param isSOTrx sales order
-	 *	@return true if excluded
-	 */
-	/*
-	public boolean excludeEntry (int AD_Column_ID, boolean isSOTrx)
-	{
-		if (m_excludes == null)
-		{
-			final String whereClause = X_M_AttributeSetExclude.COLUMNNAME_M_AttributeSet_ID+"=?";
-			List<X_M_AttributeSetExclude> list = new Query(getCtx(), X_M_AttributeSetExclude.Table_Name, whereClause, null)
-				.setParameters(get_ID())
-				.setOnlyActiveRecords(true)
-				.list();
-			m_excludes = new X_M_AttributeSetExclude[list.size ()];
-			list.toArray (m_excludes);
-		}
-		//	Find it
-		if (m_excludes != null && m_excludes.length > 0)
-		{
-			MColumn column = MColumn.get(getCtx(), AD_Column_ID);
-			for (int i = 0; i < m_excludes.length; i++)
-			{
-				if (m_excludes[i].getAD_Table_ID() == column.getAD_Table_ID()
-					&& m_excludes[i].isSOTrx() == isSOTrx)
-					return true;
-			}
-		}
-		return false;
 	}	//	excludeEntry
-    */
+
 	
 	/**
 	 * 	Exclude Lot creation
@@ -318,12 +278,14 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	public boolean isExcludeLot (int AD_Column_ID, boolean isSOTrx)
 	{
+		
 		if (getM_LotCtl_ID() == 0)
-			return true;
+			return false;
+		
 		if (m_excludeLots == null)
 		{
 			final String whereClause = X_M_LotCtlExclude.COLUMNNAME_M_LotCtl_ID+"=?";
-			List<X_M_LotCtlExclude> list = new Query(getCtx(), X_M_LotCtlExclude.Table_Name, whereClause, null)
+			List<X_M_LotCtlExclude> list = new Query(getCtx(), X_M_LotCtlExclude.Table_Name, whereClause, get_TrxName())
 			.setParameters(getM_LotCtl_ID())
 			.setOnlyActiveRecords(true)
 			.list();
@@ -342,6 +304,7 @@ public class MAttributeSet extends X_M_AttributeSet
 			}
 		}
 		return false;
+		
 	}	//	isExcludeLot
 	
 	/**
@@ -353,11 +316,12 @@ public class MAttributeSet extends X_M_AttributeSet
 	public boolean isExcludeSerNo (int AD_Column_ID, boolean isSOTrx)
 	{
 		if (getM_SerNoCtl_ID() == 0)
-			return true;
+			return false;  // serial numbers could be manually entered.
+		
 		if (m_excludeSerNos == null)
 		{
 			final String whereClause = X_M_SerNoCtlExclude.COLUMNNAME_M_SerNoCtl_ID+"=?";
-			List<X_M_SerNoCtlExclude> list = new Query(getCtx(), X_M_SerNoCtlExclude.Table_Name, whereClause, null)
+			List<X_M_SerNoCtlExclude> list = new Query(getCtx(), X_M_SerNoCtlExclude.Table_Name, whereClause, get_TrxName())
 			.setParameters(getM_SerNoCtl_ID())
 			.setOnlyActiveRecords(true)
 			.list();
@@ -435,10 +399,66 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	protected boolean beforeSave (boolean newRecord)
 	{
-		if (!isInstanceAttribute()
-			&& (isSerNo() || isLot() || isGuaranteeDate()) )
-			setIsInstanceAttribute(true);
+
+		boolean hasInstanceAttributes = false;
+		boolean hasMandatoryAttributes = false;
+
+		if (!newRecord)
+		{
+			String sql = "SELECT * FROM M_AttributeUse mau"
+						+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+						+ "WHERE mau.M_AttributeSet_ID= ?"
+						+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+						+ " AND ma.IsInstanceAttribute='Y'";
+			
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			pstmt = DB.prepareStatement(sql, get_TrxName());
+			try {
+				pstmt.setInt(1, getM_AttributeSet_ID());
+				rs = pstmt.executeQuery();
+				if (rs.next())
+				{
+					hasInstanceAttributes = true;
+				}
+			} catch (SQLException e) {
+				log.saveError("Error", e.getMessage());
+				return false;
+			}
+			
+			sql = "SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID= ?"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsMandatory='Y'";
+			
+			pstmt = DB.prepareStatement(sql, get_TrxName());
+			try {
+				pstmt.setInt(1, getM_AttributeSet_ID());
+				rs = pstmt.executeQuery();
+				if (rs.next())
+				{
+					hasMandatoryAttributes = true;
+				}
+			} catch (SQLException e) {
+				log.saveError("Error", e.getMessage());
+				return false;
+			}
+			
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		
+		setIsInstanceAttribute(isSerNo() || isLot() || isGuaranteeDate() || hasInstanceAttributes);
+		
+		if (MAttributeSet.MANDATORYTYPE_NotMandatory.equals(getMandatoryType())
+			&& (hasMandatoryAttributes || isSerNoMandatory() || isLotMandatory() || isGuaranteeDateMandatory()))
+		{
+			setMandatoryType(MAttributeSet.MANDATORYTYPE_AlwaysMandatory);
+		}
+		
 		return true;
+		
 	}	//	beforeSave
 	
 	
@@ -451,48 +471,76 @@ public class MAttributeSet extends X_M_AttributeSet
 	 */
 	protected boolean afterSave (boolean newRecord, boolean success)
 	{
-		//	Set Instance Attribute
-		if (!isInstanceAttribute())
-		{
-			String sql = "UPDATE M_AttributeSet mas"
-				+ " SET IsInstanceAttribute='Y' "
-				+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
-				+ " AND IsInstanceAttribute='N'"
-				+ " AND (IsSerNo='Y' OR IsLot='Y' OR IsGuaranteeDate='Y'"
-					+ " OR EXISTS (SELECT * FROM M_AttributeUse mau"
-						+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
-						+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
-						+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
-						+ " AND ma.IsInstanceAttribute='Y')"
-						+ ")";
-			int no = DB.executeUpdate(sql, get_TrxName());
-			if (no != 0)
-			{
-				log.warning("Set Instance Attribute");
-				setIsInstanceAttribute(true);
-			}
-		}
-		//	Reset Instance Attribute
-		if (isInstanceAttribute() && !isSerNo() && !isLot() && !isGuaranteeDate())
-		{
-			String sql = "UPDATE M_AttributeSet mas"
-				+ " SET IsInstanceAttribute='N' "
-				+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
-				+ " AND IsInstanceAttribute='Y'"
+		return success;
+	}	//	afterSave
+
+	
+	private static void checkAndSetIsInstanceAttribute(String trxName) {
+
+		String sql;
+		
+		sql = "UPDATE M_AttributeSet mas "
+				+ "SET IsInstanceAttribute='Y' "
+				+ "WHERE IsInstanceAttribute='N'"
+				+ "	AND (IsSerNo='Y' OR IsLot='Y' OR IsGuaranteeDate='Y'"
+				+ " OR EXISTS (SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsInstanceAttribute='Y'))";
+		DB.executeUpdate(sql, trxName);
+
+		sql = "UPDATE M_AttributeSet mas "
+				+ "SET IsInstanceAttribute='N' "
+				+ "WHERE IsInstanceAttribute='Y'"
 				+ "	AND IsSerNo='N' AND IsLot='N' AND IsGuaranteeDate='N'"
 				+ " AND NOT EXISTS (SELECT * FROM M_AttributeUse mau"
 					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
 					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
 					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
 					+ " AND ma.IsInstanceAttribute='Y')";
-			int no = DB.executeUpdate(sql, get_TrxName());
-			if (no != 0)
-			{
-				log.warning("Reset Instance Attribute");
-				setIsInstanceAttribute(false);
-			}
-		}
-		return success;
-	}	//	afterSave
+		DB.executeUpdate(sql, trxName);
+
+	}
+
+	private static void checkAndSetMandatoryType(String trxName) {
+
+		String sql;
+		
+		sql = "UPDATE M_AttributeSet mas "
+				+ "SET MandatoryType ='Y' "
+				+ "WHERE MandatoryType ='N'"
+				+ "	AND (IsSerNoMandatory='Y' OR IsLotMandatory='Y' OR IsGuaranteeDateMandatory='Y'"
+				+ " OR EXISTS (SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsMandatory='Y'))";
+		DB.executeUpdate(sql, trxName);
+
+		sql = "UPDATE M_AttributeSet mas "
+				+ "SET MandatoryType='N' "
+				+ "WHERE MandatoryType NOT IN ('N','S')"
+				+ "	AND IsSerNoMandatory='N' AND IsLotMandatory='N' AND IsGuaranteeDateMandatory='N'"
+				+ " AND NOT EXISTS (SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsMandatory='Y')";
+		DB.executeUpdate(sql, trxName);
+
+	}
+
+	public static void updateMAttributeSets(String trxName) {
+		
+		checkAndSetIsInstanceAttribute(trxName);
+		checkAndSetMandatoryType(trxName);
+		
+	}
+	
+	public void clearMAttributeCache() {
+		this.m_instanceAttributes = null;
+		this.m_productAttributes = null;
+	}
 	
 }	//	MAttributeSet

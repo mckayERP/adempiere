@@ -69,36 +69,8 @@ public class MAttributeUse extends X_M_AttributeUse
 	 */
 	protected boolean afterSave (boolean newRecord, boolean success)
 	{
-		//	also used for afterDelete
-		String sql = "UPDATE M_AttributeSet mas"
-			+ " SET IsInstanceAttribute='Y' "
-			+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
-			+ " AND IsInstanceAttribute='N'"
-			+ " AND (IsSerNo='Y' OR IsLot='Y' OR IsGuaranteeDate='Y'"
-				+ " OR EXISTS (SELECT * FROM M_AttributeUse mau"
-					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
-					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
-					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
-					+ " AND ma.IsInstanceAttribute='Y')"
-					+ ")";
-		int no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("afterSave - Set Instance Attribute");
-		//
-		sql = "UPDATE M_AttributeSet mas"
-			+ " SET IsInstanceAttribute='N' "
-			+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
-			+ " AND IsInstanceAttribute='Y'"
-			+ "	AND IsSerNo='N' AND IsLot='N' AND IsGuaranteeDate='N'"
-			+ " AND NOT EXISTS (SELECT * FROM M_AttributeUse mau"
-				+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
-				+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
-				+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
-				+ " AND ma.IsInstanceAttribute='Y')";
-		no = DB.executeUpdate(sql, get_TrxName());
-		if (no != 0)
-			log.fine("afterSave - Reset Instance Attribute");
 		
+		MAttributeSet.updateMAttributeSets(get_TrxName());		
 		return success;
 	}	//	afterSave
 	
@@ -110,7 +82,7 @@ public class MAttributeUse extends X_M_AttributeUse
 	 */
 	protected boolean afterDelete (boolean success)
 	{
-		afterSave(false, success);
+		MAttributeSet.updateMAttributeSets(get_TrxName());
 		return success;
 	}	//	afterDelete
 	

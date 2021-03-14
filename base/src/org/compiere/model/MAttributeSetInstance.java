@@ -16,18 +16,26 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static java.util.Objects.requireNonNull;
+
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
+import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
+import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
 
 /**
@@ -38,6 +46,12 @@ import org.compiere.util.TimeUtil;
  *
  * @author Teo Sarca, www.arhipac.ro
  *			<li>BF [ 2675699 ] MAttributeSetInstance.create should create Lot/Serial/Guaran
+ *
+ *  @author mckayERP, www.mckayerp.com
+ *  		<li>MAttributeSetInstance Improvements:
+ *  		<li>  #258 Reduce duplication.
+ *  		<li>  #260 Determine if all mandatory requirements are met
+ *  		<li>  #261 Add beforeSave function
  */
 public class MAttributeSetInstance extends X_M_AttributeSetInstance
 {
@@ -57,47 +71,40 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	public static MAttributeSetInstance get (Properties ctx, 
 		int M_AttributeSetInstance_ID, int M_Product_ID)
 	{
+		return get(ctx, M_AttributeSetInstance_ID, M_Product_ID, null);
+	}
+	
+	/**
+	 * 	Get Attribute Set Instance from ID or Product
+	 *	@param ctx context
+	 * 	@param M_AttributeSetInstance_ID id or 0
+	 * 	@param M_Product_ID required if id is 0
+	 *  @param trxName - the transaction name to use
+	 * 	@return Attribute Set Instance or null if error
+	 */
+	public static MAttributeSetInstance get (Properties ctx, 
+		int M_AttributeSetInstance_ID, int M_Product_ID, String trxName)
+	{
 		MAttributeSetInstance retValue = null;
 		//	Load Instance if not 0
 		if (M_AttributeSetInstance_ID != 0)
 		{
 			s_log.fine("From M_AttributeSetInstance_ID=" + M_AttributeSetInstance_ID);
-			return new MAttributeSetInstance (ctx, M_AttributeSetInstance_ID, null);
+			return new MAttributeSetInstance (ctx, M_AttributeSetInstance_ID, trxName);
 		}
+		
 		//	Get new from Product
 		s_log.fine("From M_Product_ID=" + M_Product_ID);
 		if (M_Product_ID == 0)
 			return null;
-		String sql = "SELECT M_AttributeSet_ID, M_AttributeSetInstance_ID "
-			+ "FROM M_Product "
-			+ "WHERE M_Product_ID=?";
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement(sql, null);
-			pstmt.setInt(1, M_Product_ID);
-			rs = pstmt.executeQuery();
-			if (rs.next())
-			{
-				int M_AttributeSet_ID = rs.getInt(1);
-			//	M_AttributeSetInstance_ID = rs.getInt(2);	//	needed ?
-				//
-				retValue = new MAttributeSetInstance (ctx, 0, M_AttributeSet_ID, null);
-			}
-		}
-		catch (SQLException ex)
-		{
-			s_log.log(Level.SEVERE, sql, ex);
-			retValue = null;
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		//
-		return retValue;
+		
+		MProduct product = MProduct.get(ctx, M_Product_ID, trxName);
+		
+		if (product == null || product.getM_AttributeSet_ID() == 0)
+			return null;
+		
+		return new MAttributeSetInstance (ctx, 0, product.getM_AttributeSet_ID(), trxName);
+		
 	}	//	get
 
 	private static CLogger		s_log = CLogger.getCLogger (MAttributeSetInstance.class);
@@ -112,9 +119,6 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	public MAttributeSetInstance (Properties ctx, int M_AttributeSetInstance_ID, String trxName)
 	{
 		super (ctx, M_AttributeSetInstance_ID, trxName);
-		if (M_AttributeSetInstance_ID == 0)
-		{
-		}
 	}	//	MAttributeSetInstance
 
 	/**
@@ -132,14 +136,16 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	 * 	Standard Constructor
 	 *	@param ctx context
 	 *	@param M_AttributeSetInstance_ID id
-	 * 	@param M_AttributeSet_ID attribute set
+	 * 	@param M_AttributeSet_ID attribute to set
 	 *	@param trxName transaction
 	 */
 	public MAttributeSetInstance (Properties ctx, int M_AttributeSetInstance_ID, 
 		int M_AttributeSet_ID, String trxName)
 	{
 		this (ctx, M_AttributeSetInstance_ID, trxName);
-		setM_AttributeSet_ID(M_AttributeSet_ID);
+		if (getM_AttributeSet_ID() == 0)
+			setM_AttributeSet_ID(M_AttributeSet_ID);
+		
 	}	//	MAttributeSetInstance
 
 	/**	Attribute Set				*/
@@ -153,8 +159,18 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	 */
 	public void setMAttributeSet (MAttributeSet mas)
 	{
-		m_mas = mas;
-		setM_AttributeSet_ID(mas.getM_AttributeSet_ID());
+		
+		if (mas == null || mas.get_ID() == 0)
+		{
+			setM_AttributeSet_ID(0);
+			m_mas = null;
+		}
+		else
+		{
+			setM_AttributeSet_ID(mas.getM_AttributeSet_ID());
+			m_mas = mas;
+		}
+		
 	}	//	setAttributeSet
 
 	/**
@@ -163,10 +179,33 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	 */
 	public MAttributeSet getMAttributeSet()
 	{
-		if (m_mas == null && getM_AttributeSet_ID() != 0)
-			m_mas = new MAttributeSet (getCtx(), getM_AttributeSet_ID(), get_TrxName());
+		if (getM_AttributeSet_ID() > 0)
+		{
+			if (m_mas == null || (m_mas != null && m_mas.getM_AttributeSet_ID() != getM_AttributeSet_ID()))
+			{
+				m_mas = new MAttributeSet (getCtx(), getM_AttributeSet_ID(), get_TrxName());
+			}
+		}
+		else if (getM_AttributeSet_ID() <= 0)
+		{
+			m_mas = null;
+		}
 		return m_mas;
+		
 	}	//	getMAttributeSet
+	
+	public String getDescription() 
+	{
+		
+		String description = super.getDescription();
+		if (description == null || description.length() == 0)
+		{
+			description = setDescription();
+		}
+		
+		return description;
+		
+	}
 
 	/**
 	 * 	Set Description.
@@ -176,65 +215,74 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	 *  - Lot 	= \u00ab123\u00bb
 	 *  - GuaranteeDate	= 10/25/2003
 	 */
-	public void setDescription()
+	public String setDescription()
 	{
+		String description = null;
+		
 		//	Make sure we have a Attribute Set
-		getMAttributeSet();
-		if (m_mas == null)
+		MAttributeSet attributeSet = getMAttributeSet();
+		if (attributeSet != null)
 		{
-			setDescription ("");
-			return;
-		}
 		
-		StringBuffer sb = new StringBuffer();
-		
-		//	Instance Attribute Values
-		MAttribute[] attributes = m_mas.getMAttributes(true);
-		for (int i = 0; i < attributes.length; i++)
-		{
-			MAttributeInstance mai = attributes[i].getMAttributeInstance(getM_AttributeSetInstance_ID());
-			if (mai != null && mai.getValue() != null)
+			StringBuffer sb = new StringBuffer();
+			
+			//	Instance Attribute Values
+			MAttribute[] attributes = attributeSet.getMAttributes(true);
+			for (int i = 0; i < attributes.length; i++)
+			{
+				MAttributeInstance mai = attributes[i].getMAttributeInstance(getM_AttributeSetInstance_ID());
+				if (mai != null && mai.getValue() != null)
+				{
+					if (sb.length() > 0)
+						sb.append("_");
+					sb.append(mai.getValue());
+				}
+			}
+			//	SerNo
+			if (attributeSet.isSerNo() && getSerNo() != null)
 			{
 				if (sb.length() > 0)
 					sb.append("_");
-				sb.append(mai.getValue());
+				sb.append(attributeSet.getSerNoCharStart()).append(getSerNo()).append(attributeSet.getSerNoCharEnd());
 			}
-		}
-		//	SerNo
-		if (m_mas.isSerNo() && getSerNo() != null)
-		{
-			if (sb.length() > 0)
-				sb.append("_");
-			sb.append(m_mas.getSerNoCharStart()).append(getSerNo()).append(m_mas.getSerNoCharEnd());
-		}
-		//	Lot
-		if (m_mas.isLot() && getLot() != null)
-		{
-			if (sb.length() > 0)
-				sb.append("_");
-			sb.append(m_mas.getLotCharStart()).append(getLot()).append(m_mas.getLotCharEnd());
-		}
-		//	GuaranteeDate
-		if (m_mas.isGuaranteeDate() && getGuaranteeDate() != null)
-		{
-			if (sb.length() > 0)
-				sb.append("_");
-			sb.append (m_dateFormat.format(getGuaranteeDate()));
-		}
-
-		//	Product Attribute Values
-		attributes = m_mas.getMAttributes(false);
-		for (int i = 0; i < attributes.length; i++)
-		{
-			MAttributeInstance mai = attributes[i].getMAttributeInstance(getM_AttributeSetInstance_ID());
-			if (mai != null && mai.getValue() != null)
+			//	Lot
+			if (attributeSet.isLot() && getLot() != null)
 			{
 				if (sb.length() > 0)
 					sb.append("_");
-				sb.append(mai.getValue());
+				sb.append(attributeSet.getLotCharStart()).append(getLot()).append(attributeSet.getLotCharEnd());
 			}
+			//	GuaranteeDate
+			if (attributeSet.isGuaranteeDate() && getGuaranteeDate() != null)
+			{
+				if (sb.length() > 0)
+					sb.append("_");
+				sb.append (m_dateFormat.format(getGuaranteeDate()));
+			}
+	
+			//	Product Attribute Values
+			attributes = attributeSet.getMAttributes(false);
+			for (int i = 0; i < attributes.length; i++)
+			{
+				MAttributeInstance mai = attributes[i].getMAttributeInstance(getM_AttributeSetInstance_ID());
+				if (mai != null && mai.getValue() != null)
+				{
+					if (sb.length() > 0)
+						sb.append("_");
+					sb.append(mai.getValue());
+				}
+			}
+			description = sb.toString();
 		}
-		setDescription (sb.toString());
+		
+		if (description == null || description.length() == 0)
+		{
+			description = Integer.valueOf(getM_AttributeSetInstance_ID()).toString();
+		}
+		
+		setDescription (description);
+		return description;
+		
 	}	//	setDescription
 
 
@@ -278,9 +326,16 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	public KeyNamePair createLot (int M_Product_ID)
 	{
 		KeyNamePair retValue = null;
-		int M_LotCtl_ID = getMAttributeSet().getM_LotCtl_ID();
+		
+		getMAttributeSet();
+		if (m_mas == null)
+			return retValue;
+		
+		int M_LotCtl_ID = m_mas.getM_LotCtl_ID();
 		if (M_LotCtl_ID != 0)
 		{
+			checkProductAttributeSetMatch(M_Product_ID);
+			
 			MLotCtl ctl = new MLotCtl (getCtx(), M_LotCtl_ID, get_TrxName());
 			MLot lot = ctl.createLot(M_Product_ID);
 			setM_Lot_ID (lot.getM_Lot_ID());
@@ -290,6 +345,20 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		return retValue;
 	}	//	createLot
 	
+	private void checkProductAttributeSetMatch(int m_product_id) {
+
+		if (m_product_id <= 0)
+			throw new AdempiereException("@M_Product_ID@ <= 0");
+		
+		MProduct product = MProduct.get(getCtx(), m_product_id, get_TrxName());
+		if (product.getM_Product_ID() <= 0)
+			throw new AdempiereException("@M_Product_ID@ <= 0");
+
+		if (product.getM_AttributeSet_ID() != getM_AttributeSet_ID())
+			throw new AdempiereException("@M_Product_ID@ @M_AttributeSet_ID@ != @M_AttributeSetInstance_ID@ @M_AttributeSet_ID@");
+		
+	}
+
 	/**
 	 * 	To to find lot and set Lot/ID
 	 *	@param Lot lot
@@ -299,8 +368,14 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	{
 		//	Try to find it
 		MLot mLot = MLot.getProductLot(getCtx(), M_Product_ID, Lot, get_TrxName());
-		if (mLot != null)
+		if (mLot != null && mLot.getM_Lot_ID() > 0)
+		{
 			setM_Lot_ID(mLot.getM_Lot_ID());
+		}
+		else
+		{
+			setM_Lot_ID(0);
+		}
 		setLot (Lot);
 	}	//	setLot
 
@@ -327,7 +402,11 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	{
 		if (getNew)
 		{
-			int M_SerNoCtl_ID = getMAttributeSet().getM_SerNoCtl_ID();
+			getMAttributeSet();
+			if (m_mas == null)
+				return null;
+						
+			int M_SerNoCtl_ID = m_mas.getM_SerNoCtl_ID();
 			if (M_SerNoCtl_ID != 0)
 			{
 				MSerNoCtl ctl = new MSerNoCtl (getCtx(), M_SerNoCtl_ID, get_TrxName());
@@ -335,6 +414,7 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 			}
 		}
 		return getSerNo();
+		
 	}	//	getSerNo
 
 	/**
@@ -351,34 +431,29 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 		return false;
 	}	//	isExcludeSerNo
 
-	@Override
-	protected boolean afterSave(boolean newRecord, boolean success) 
-	{
-		if (super.afterSave(newRecord, success)) 
-		{
-			if (newRecord && success)
-			{
-				//use id as description when description is empty
-				String desc = this.getDescription();
-				if (desc == null || desc.trim().length() == 0)
-				{
-					this.set_ValueNoCheck("Description", Integer.toString(getM_AttributeSetInstance_ID()));
-					String sql = "UPDATE M_AttributeSetInstance SET Description = ? WHERE M_AttributeSetInstance_ID = ?";
-					int no = DB.executeUpdateEx(sql, 
-							new Object[]{Integer.toString(getM_AttributeSetInstance_ID()), getM_AttributeSetInstance_ID()}, 
-							get_TrxName());
-					if (no <= 0)
-					{
-						log.log(Level.SEVERE, "Failed to update description.");
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-		
-		return false;
-	}
+//	@Override
+//	protected boolean afterSave(boolean newRecord, boolean success) 
+//	{
+//		if (newRecord && success)
+//		{
+//			//use id as description when description is empty
+//			String desc = this.getDescription();
+//			if (desc == null || desc.trim().length() == 0)
+//			{
+//				this.set_ValueNoCheck("Description", Integer.toString(getM_AttributeSetInstance_ID()));
+//				String sql = "UPDATE M_AttributeSetInstance SET Description = ? WHERE M_AttributeSetInstance_ID = ?";
+//				int no = DB.executeUpdateEx(sql, 
+//						new Object[]{Integer.toString(getM_AttributeSetInstance_ID()), getM_AttributeSetInstance_ID()}, 
+//						get_TrxName());
+//				if (no <= 0)
+//				{
+//					log.log(Level.SEVERE, "Failed to update description.");
+//					return false;
+//				}
+//			}
+//		}
+//		return success;
+//	}
 	
 	/**
 	 * Create & save a new ASI for given product.
@@ -390,18 +465,41 @@ public class MAttributeSetInstance extends X_M_AttributeSetInstance
 	 */
 	public static MAttributeSetInstance create(Properties ctx, MProduct product, String trxName)
 	{
+		
+		if (requireNonNull(product).getM_AttributeSet_ID() <= 0)
+			throw new IllegalArgumentException (Msg.parseTranslation(ctx, "@M_Product_ID@ @M_AttributeSet_ID@ <= 0"));
+		
 		MAttributeSetInstance asi = new MAttributeSetInstance(ctx, 0, trxName);
-		asi.setClientOrg(product.getAD_Client_ID(), 0);
 		asi.setM_AttributeSet_ID(product.getM_AttributeSet_ID());
-		// Create new Lot, Serial# and Guarantee Date
-		if (asi.getM_AttributeSet_ID() > 0)
-		{
-			asi.getLot(true, product.get_ID());
-			asi.getSerNo(true);
-			asi.getGuaranteeDate(true);
-		}
-		//
+		asi.getLot(true, product.get_ID());
+		asi.getSerNo(true);
+		asi.getGuaranteeDate(true);
+
 		asi.saveEx();
+		
 		return asi;
+		
 	}
+	
+	/**
+	 * 	Called before Save for Pre-Save Operation.   
+	 * 	@param newRecord new record
+	 *  @return true if record can be saved
+	 */
+	protected boolean beforeSave(boolean newRecord)
+	{
+
+		if (getM_AttributeSet_ID() == 0)
+		{
+			log.saveError("FillMandatory", Msg.getElement(getCtx(), "M_AttributeSet_ID"));
+			return false;
+		}
+		return true;
+		
+	}	//	beforeSave
+			
+	public String toString() {
+		return "ASI=" + this.getM_AttributeSetInstance_ID() + " AS=" + this.getM_AttributeSet_ID();
+	}
+	
 }	//	MAttributeSetInstance

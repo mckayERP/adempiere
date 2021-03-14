@@ -50,6 +50,21 @@ public class MAttribute extends X_M_Attribute
 	public static MAttribute[] getOfClient(Properties ctx, 
 		boolean onlyProductAttributes, boolean onlyListAttributes)
 	{
+		return getOfClient(ctx, onlyProductAttributes, onlyListAttributes, null);
+	}
+
+	/**
+	 * 	Get Attributes Of Client
+	 *	@param ctx Properties
+	 *	@param onlyProductAttributes only Product Attributes
+	 *	@param onlyListAttributes only List Attributes
+	 *  @param trxName the transaction name
+	 *	@return array of attributes
+	 */
+	public static MAttribute[] getOfClient(Properties ctx, 
+		boolean onlyProductAttributes, boolean onlyListAttributes, String trxName)
+	{
+		
 		int AD_Client_ID = Env.getAD_Client_ID(ctx);
 		String sql = "";
 		ArrayList<Object> params = new ArrayList<Object>();
@@ -66,7 +81,7 @@ public class MAttribute extends X_M_Attribute
 			}
 		final String whereClause = "AD_Client_ID=?"+sql;
 		
-		List<MAttribute>list = new Query(ctx,I_M_Attribute.Table_Name,whereClause,null)
+		List<MAttribute>list = new Query(ctx,I_M_Attribute.Table_Name,whereClause, trxName)
 		.setParameters(params)
 		.setOnlyActiveRecords(true)
 		.setOrderBy("Name")
@@ -127,7 +142,7 @@ public class MAttribute extends X_M_Attribute
 			if (!isMandatory()) {
 				list.add (null);
 			}
-			list.addAll( new Query(getCtx(), I_M_AttributeValue.Table_Name, whereClause, null)
+			list.addAll( new Query(getCtx(), I_M_AttributeValue.Table_Name, whereClause, get_TrxName())
 				.setParameters(getM_Attribute_ID())
 				.setOrderBy("Value")
 				.setOnlyActiveRecords( true )
@@ -170,7 +185,7 @@ public class MAttribute extends X_M_Attribute
 			if (value != null)
 				instance = new MAttributeInstance (getCtx (), getM_Attribute_ID (),
 					M_AttributeSetInstance_ID, value.getM_AttributeValue_ID (),
-					value.getName (), get_TrxName()); 					//	Cached !!
+					value.getValue(), get_TrxName()); 					//	Cached !!
 			else
 				instance = new MAttributeInstance (getCtx(), getM_Attribute_ID(),
 					M_AttributeSetInstance_ID, 0, null, get_TrxName());
@@ -247,18 +262,22 @@ public class MAttribute extends X_M_Attribute
 	protected boolean afterSave (boolean newRecord, boolean success)
 	{
 		//	Changed to Instance Attribute
-		if (!newRecord && is_ValueChanged("IsInstanceAttribute") && isInstanceAttribute())
+		if (success & !newRecord )
 		{
-			String sql = "UPDATE M_AttributeSet mas "
-				+ "SET IsInstanceAttribute='Y' "
-				+ "WHERE IsInstanceAttribute='N'"
-				+ " AND EXISTS (SELECT * FROM M_AttributeUse mau "
-					+ "WHERE mas.M_AttributeSet_ID=mau.M_AttributeSet_ID"
-					+ " AND mau.M_Attribute_ID=" + getM_Attribute_ID() + ")";
-			int no = DB.executeUpdate(sql, get_TrxName());
-			log.fine("AttributeSet Instance set #" + no);
+			MAttributeSet.updateMAttributeSets(get_TrxName());
 		}
 		return success;
 	}	//	afterSave
-	
+
+	/**
+	 * 	Executed after Delete operation.
+	 * 	@param success true if record deleted
+	 *	@return true if delete is a success
+	 */
+	protected boolean afterDelete (boolean success)
+	{
+		MAttributeSet.updateMAttributeSets(get_TrxName());
+		return success;
+	} 	//	afterDelete
+
 }	//	MAttribute
