@@ -27,6 +27,9 @@ import org.compiere.util.Env;
  *  @version $Id: CalloutProduction.java,v 1.2 2006/07/30 00:51:05 jjanke Exp $
  *  
  *  @contrib Paul Bowden (adaxa)  set locator from product
+ *  
+ *  @author mckayERP www.mckayERP.com
+ *  		<li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutProduction extends CalloutEngine
 {
@@ -44,21 +47,14 @@ public class CalloutProduction extends CalloutEngine
 	public String product (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
 	{
 		Integer M_Product_ID = (Integer)value;
-		if (M_Product_ID == null || M_Product_ID.intValue() == 0)
-			return "";
+		if (M_Product_ID == null)
+			M_Product_ID = Integer.valueOf(0);
 		
 		//	Set Attribute
-		if (Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_Product_ID") == M_Product_ID.intValue()
-			&& Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID") != 0)
-		{
-			mTab.setValue("M_AttributeSetInstance_ID", new Integer(Env.getContextAsInt(ctx, WindowNo, Env.TAB_INFO, "M_AttributeSetInstance_ID")));
-		}
-		else
-		{
-			mTab.setValue("M_AttributeSetInstance_ID", null);
-		}
-		
 		MProduct product = MProduct.get(ctx, M_Product_ID);
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx, WindowNo), mTab, 
+				"M_AttributeSetInstance_ID", product, null);
+		
 		if ( product != null )
 		{
 			if ( product.getM_Locator_ID() > 0)
@@ -67,5 +63,4 @@ public class CalloutProduction extends CalloutEngine
 		
 		return "";
 	}   //  product
-
 }	//	CalloutProduction

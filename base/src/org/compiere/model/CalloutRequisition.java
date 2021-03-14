@@ -30,6 +30,7 @@ import org.compiere.util.Env;
  *  @version $Id: CalloutRequisition.java,v 1.3 2006/07/30 00:51:05 jjanke Exp $
  *  @author Michael McKay (mjmckay)
  *          <li> BF3468429 Show attribute set instance field on the requisition line
+ *          <li> #286 Provide methods to treat ASI fields in a consistent manner.
  */
 public class CalloutRequisition extends CalloutEngine
 {
@@ -46,15 +47,20 @@ public class CalloutRequisition extends CalloutEngine
 	public String product (Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value)
 	{
 		Integer M_Product_ID = (Integer)value;
-		if (M_Product_ID == null || M_Product_ID.intValue() == 0)
-			return "";
+		if (M_Product_ID == null)
+			M_Product_ID = Integer.valueOf(0);
+
 		final I_M_Requisition req = GridTabWrapper.create(mTab.getParentTab(), I_M_Requisition.class);
 		final I_M_RequisitionLine line = GridTabWrapper.create(mTab, I_M_RequisitionLine.class);
 		setPrice(ctx, WindowNo, req, line);
 		MProduct product = MProduct.get(ctx, M_Product_ID);
-		line.setC_UOM_ID(product.getC_UOM_ID());
-		line.setM_AttributeSetInstance_ID(product.getM_AttributeSetInstance_ID());
+		if (product != null)
+			line.setC_UOM_ID(product.getC_UOM_ID());
+		else
+			line.setC_UOM_ID(0);
 
+		setAndTestASI(ctx, WindowNo, Env.isSOTrx(ctx), mTab, I_M_RequisitionLine.COLUMNNAME_M_AttributeSetInstance_ID, product, null);		
+		
 		return "";
 	}	//	product
 
@@ -114,5 +120,5 @@ public class CalloutRequisition extends CalloutEngine
 		line.setPriceActual(pp.getPriceStd());
 		Env.setContext(ctx, WindowNo, "EnforcePriceLimit", pp.isEnforcePriceLimit() ? "Y" : "N");	//	not used
 		Env.setContext(ctx, WindowNo, "DiscountSchema", pp.isDiscountSchema() ? "Y" : "N");
-	}
+	}	
 }	//	CalloutRequisition
