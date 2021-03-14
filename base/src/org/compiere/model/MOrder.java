@@ -1503,7 +1503,8 @@ public class MOrder extends X_C_Order implements DocAction
 		{
 			MOrderLine line = lines[i];
 
-			m_processMsg = StorageEngine.applyStorageRules(line);
+	        StorageEngine se = new StorageEngine();
+            m_processMsg = se.applyStorageRules(line);
 			if (m_processMsg != null)
 				return false;
 

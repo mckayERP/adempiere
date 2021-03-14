@@ -15,7 +15,6 @@
  *****************************************************************************/
 package org.adempiere.engine.storage;
 
-import static org.adempiere.engine.storage.StorageEngine.applyStorageRules;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,7 +55,7 @@ class IT_StorageEngine extends CommonGWSetup{
 	@Test
 	void getStorageEngine() {
 		
-		StorageEngine engine = StorageEngine.getStorageEngine();
+		StorageEngine engine = StorageEngine.get();
 		assertNotNull(engine, "getStorageEngine returned null");
 		
 	}
@@ -64,7 +63,7 @@ class IT_StorageEngine extends CommonGWSetup{
 	@Test
 	void getCLogger() {
 
-		StorageEngine engine = StorageEngine.getStorageEngine();
+		StorageEngine engine = StorageEngine.get();
 		CLogger log = engine.getCLogger();
 		assertNotNull(log, "getCLogger returned null");
 		
@@ -72,9 +71,11 @@ class IT_StorageEngine extends CommonGWSetup{
 
 	@Test
 	void applyStorageRules_ifPassedNullThrowsException() {
-		
+
+        StorageEngine se = new StorageEngine();
+
 	    Exception exception = assertThrows(AdempiereException.class, () -> {
-	        applyStorageRules(null);
+	        se.applyStorageRules(null);
 	    });
 	 
 	    String expectedMessage = Msg.getMsg(Env.getCtx(), 
@@ -89,9 +90,10 @@ class IT_StorageEngine extends CommonGWSetup{
 	void applyStorageRules_ifNoMatchThrowsException() {
 		
 		IDocumentLine lineMock = mock(IDocumentLine.class);
+		StorageEngine se = new StorageEngine();
 		
 	    Exception exception = assertThrows(AdempiereException.class, () -> {
-	        applyStorageRules((IDocumentLine) lineMock);
+	        se.applyStorageRules((IDocumentLine) lineMock);
 	    });
 	 
 	    String expectedMessage = Msg.getMsg(Env.getCtx(), 

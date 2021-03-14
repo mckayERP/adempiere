@@ -577,8 +577,9 @@ public class MPPOrderBOMLine extends X_PP_Order_BOMLine implements IDocumentLine
 		{
 			return msg;
 		}
-					
-		return StorageEngine.applyStorageRules(this);
+	
+        StorageEngine se = new StorageEngine();
+		return se.applyStorageRules(this);
 		
 	} //	reserveStock
 	

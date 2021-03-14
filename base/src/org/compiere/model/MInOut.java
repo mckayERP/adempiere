@@ -1281,8 +1281,8 @@ public class MInOut extends X_M_InOut implements DocAction , DocumentReversalEna
 		for (int lineIndex = 0; lineIndex < lines.length; lineIndex++)
 		{
 			MInOutLine inOutLine = lines[lineIndex];
-			
-			processMsg = StorageEngine.applyStorageRules(inOutLine);
+			StorageEngine se = new StorageEngine();
+			processMsg = se.applyStorageRules(inOutLine);
 			if (processMsg != null)
 			{
 				processMsg += " " + inOutLine;

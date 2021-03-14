@@ -831,7 +831,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			
 			//	Correct Ordered Qty for Stocked Products (see MOrder.reserveStock / MInOut.processIt)
 			//  The ordered qty is always recorded in the MStorage record with orderLine M_MPolicyTicket_ID
-			StorageEngine.getStorageEngine().reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
+			StorageEngine.get().reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
 					orderLine.getM_Product_ID(), orderLine.getM_AttributeSetInstance_ID(), orderLine.getM_MPolicyTicket_ID(),
 					getMovementQty(), Env.ZERO, get_TrxName());
 

@@ -490,7 +490,8 @@ public class MPPOrderBOMLineIssue extends X_PP_Order_BOMLineIssue
 
 	protected String applyStorageRules() {
 
-		return StorageEngine.applyStorageRules(this);
+        StorageEngine se = new StorageEngine();
+		return se.applyStorageRules(this);
 
 	}
 

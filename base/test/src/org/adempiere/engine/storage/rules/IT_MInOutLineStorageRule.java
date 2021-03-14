@@ -15,15 +15,12 @@
  *****************************************************************************/
 package org.adempiere.engine.storage.rules;
 
+import static org.adempiere.test.TestUtilities.randomString;
+import static org.compiere.model.X_C_DocType.DOCBASETYPE_PurchaseOrder;
 import static org.compiere.model.X_C_DocType.DOCBASETYPE_SalesOrder;
 import static org.compiere.model.X_C_DocType.DOCSUBTYPESO_ReturnMaterial;
-import static org.compiere.model.X_C_DocType.DOCBASETYPE_PurchaseOrder;
 import static org.compiere.model.X_M_InOut.MOVEMENTTYPE_CustomerReturns;
 import static org.compiere.model.X_M_InOut.MOVEMENTTYPE_VendorReturns;
-import static org.compiere.model.X_M_InOut.MOVEMENTTYPE_CustomerShipment;
-import static org.compiere.model.X_M_InOut.MOVEMENTTYPE_VendorReceipts;
-
-import static org.adempiere.test.TestUtilities.randomString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

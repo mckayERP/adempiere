@@ -624,8 +624,8 @@ public class MPPOrder extends X_PP_Order implements DocAction, IDocumentLine
 		String msg = validateAttributeSetInstanceMandatory(getCtx(), getM_Product(), Table_ID, false, getM_AttributeSetInstance_ID(), get_TrxName());
 		if (msg != null)
 			return msg;
-		
-		return StorageEngine.applyStorageRules(this);
+        StorageEngine se = new StorageEngine();
+		return se.applyStorageRules(this);
 		
 	}
 

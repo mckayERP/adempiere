@@ -64,7 +64,7 @@ public class StorageUtil {
 
 		ctx = getDefaultContext();
 		trxName = getDefaultTrxName();
-		storageEngine = StorageEngine.getStorageEngine();
+		storageEngine = StorageEngine.get();
 
 	}
 	
@@ -72,7 +72,7 @@ public class StorageUtil {
 
 		this.ctx = ctx;
 		this.trxName = trxName;
-		storageEngine = StorageEngine.getStorageEngine();
+		storageEngine = StorageEngine.get();
 
 	}
 	
@@ -143,7 +143,7 @@ public class StorageUtil {
 	
 	protected StorageEngine getStorageEngine() {
 		
-		return StorageEngine.getStorageEngine();
+		return StorageEngine.get();
 		
 	}
 

@@ -379,7 +379,8 @@ public class MPPOrderReceipt extends X_PP_OrderReceipt
 
 	protected String applyStorageRules() {
 
-		return StorageEngine.applyStorageRules(this);
+        StorageEngine se = new StorageEngine();
+		return se.applyStorageRules(this);
 
 	}
 

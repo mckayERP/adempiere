@@ -74,13 +74,13 @@ public class StorageEngine {
 
 	}
 
-	public static StorageEngine getStorageEngine() {
+	public static StorageEngine get() {
 
 		return new StorageEngine();
 
 	}
 
-	public static String applyStorageRules(IDocumentLine docLine) {
+	public String applyStorageRules(IDocumentLine docLine) {
 
 		String msg = streamStorageEngineRules()
 				.filter(rule -> rule.matches(docLine))
@@ -177,7 +177,7 @@ public class StorageEngine {
 			boolean useToFields,
 			boolean updateStorage) {
 
-		String msg = applyStorageRules(docLine);
+		String msg = get().applyStorageRules(docLine);
 		if (msg != null) {
 			log.severe(msg);
 			return false;

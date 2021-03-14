@@ -26,8 +26,6 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 
-import static org.adempiere.engine.storage.StorageEngine.applyStorageRules;
-
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -141,7 +139,19 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	/** Confirmations				*/
 	private MMovementConfirm[] movementConfirms = null;
 	
-	/**
+	ModelValidationEngine getModelValidationEngine() {
+    
+        return ModelValidationEngine.get();
+    
+    }
+
+    StorageEngine getStorageEngine() {
+    
+        return StorageEngine.get();
+    
+    }
+
+    /**
 	 * 	Get Lines
 	 *	@param requery requery
 	 *	@return array of lines
@@ -426,8 +436,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		//for (int i = 0; i < movementLines.length; i++)
 		for (MMovementLine movementLine : movementLines)
 		{
-		    
-		    applyStorageRules(movementLine);
+   	        getStorageEngine().applyStorageRules(movementLine);
 		    
 //			MTransaction transactionFrom = null;
 //			
@@ -500,13 +509,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		return DocAction.STATUS_Completed;
 	}	//	completeIt
 
-    ModelValidationEngine getModelValidationEngine() {
-
-        return ModelValidationEngine.get();
-
-    }
-	
-	/**
+    /**
 	 * 	Set the definite document number after completed
 	 */
 	protected void setDefiniteDocumentNo() {
