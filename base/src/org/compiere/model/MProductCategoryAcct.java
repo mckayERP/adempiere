@@ -36,6 +36,10 @@ public class MProductCategoryAcct extends X_M_Product_Category_Acct
 	private static CCache<String, MProductCategoryAcct>
 	s_cache = new CCache<String, MProductCategoryAcct>(Table_Name, 40, 5);
 	
+	public static void cleareCache() {
+		s_cache = new CCache<String, MProductCategoryAcct>(Table_Name, 40, 5);		
+	}
+	
 	/**
 	 * 	Get Category Acct
 	 *	@param ctx context

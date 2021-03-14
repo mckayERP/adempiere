@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import static org.adempiere.util.attributes.AttributeUtilities.*;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -181,12 +182,22 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine , D
 			setLine (ii);
 		}
 		
-		 //either movement between locator or movement between lot
-		if (getM_Locator_ID() == getM_LocatorTo_ID() && getM_AttributeSetInstance_ID() == getM_AttributeSetInstanceTo_ID())
-		{
-			log.saveError("Error", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ == @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ == @M_AttributeSetInstanceTo_ID@"));
-			return false;
-		}
+//		// either movement between locator or movement between lot
+//		// Changed to warning to allow movements that correct negative inventory in a particular material policy ticket in M_Storage
+//		if (getM_Locator_ID() == getM_LocatorTo_ID() && getM_AttributeSetInstance_ID() == getM_AttributeSetInstanceTo_ID())
+//		{
+//			log.saveWarning("Warning", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ == @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ == @M_AttributeSetInstanceTo_ID@"));
+////			log.saveError("Error", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ == @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ == @M_AttributeSetInstanceTo_ID@"));
+//			return false;
+//		}
+//
+//		// either movement between locator or movement between lot
+//		if (getM_Locator_ID() != getM_LocatorTo_ID() && getM_AttributeSetInstance_ID() != getM_AttributeSetInstanceTo_ID())
+//		{
+//			log.saveWarning("Warning", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ != @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ != @M_AttributeSetInstanceTo_ID@"));
+////			log.saveError("Error", Msg.parseTranslation(getCtx(), "@M_Locator_ID@ != @M_LocatorTo_ID@ and @M_AttributeSetInstance_ID@ != @M_AttributeSetInstanceTo_ID@"));
+//			return false;
+//		}
 
 		if (getMovementQty().signum() == 0)
 		{
@@ -213,7 +224,12 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine , D
 		
 		//      Mandatory Instance
 		MProduct product = getProduct();
-		MAttributeSet.validateAttributeSetInstanceMandatory(product, Table_ID , isSOTrx() , getM_AttributeSetInstance_ID());
+		String msg = validateAttributeSetInstanceMandatory(getCtx(), product, Table_ID , isSOTrx() , getM_AttributeSetInstance_ID(), get_TrxName());
+		if (msg != null)
+		{
+			log.saveError("Error", Msg.parseTranslation(getCtx(), msg));
+			return false;
+		}
 		/*if (getM_AttributeSetInstance_ID() == 0) {
 			if (product != null && product.isASIMandatory(false, getAD_Org_ID())) {
 				log.saveError("FillMandatory", Msg.getElement(getCtx(), COLUMNNAME_M_AttributeSetInstance_ID));
@@ -228,7 +244,7 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine , D
 				if (getM_AttributeSetInstance_ID() != 0)        //set to from
 					setM_AttributeSetInstanceTo_ID(getM_AttributeSetInstance_ID());
 			}
-			MAttributeSet.validateAttributeSetInstanceMandatory(product, Table_ID , isSOTrx() , getM_AttributeSetInstanceTo_ID());
+			validateAttributeSetInstanceMandatory(getCtx(), product, Table_ID , isSOTrx() , getM_AttributeSetInstanceTo_ID(), get_TrxName());
 			/*if (product != null && product.isASIMandatory(true, getAD_Org_ID()) && getM_AttributeSetInstanceTo_ID() == 0)
 			{
 				log.saveError("FillMandatory", Msg.getElement(getCtx(), COLUMNNAME_M_AttributeSetInstanceTo_ID));
@@ -413,4 +429,28 @@ public class MMovementLine extends X_M_MovementLine implements IDocumentLine , D
 	public boolean isReversalParent() {
 		return getM_MovementLine_ID() < getReversalLine_ID();
 	}
+	
+	@Override
+	public boolean isReversal() {
+		// TODO determine if this is a reversal
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// This depends on the locator
+		return 0;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		return this.getParent().getMovementDate();
+	}
+
+	@Override
+	public String getMovementType() {
+		// This is a special case - the line has two movement types.
+		// Return null. Callers will have to know which one they want.
+		return null;
+	}	
 }	//	MMovementLine

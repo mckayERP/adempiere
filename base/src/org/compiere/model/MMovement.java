@@ -16,6 +16,7 @@
  *****************************************************************************/
 package org.compiere.model;
 
+import org.adempiere.engine.storage.StorageEngine;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocumentReversalEnabled;
@@ -24,6 +25,8 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
+
+import static org.adempiere.engine.storage.StorageEngine.applyStorageRules;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -286,7 +289,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	/**	Process Message 			*/
 	private String processMessage = null;
 	/**	Just Prepared Flag			*/
-	private boolean justPrepared = false;
+	protected boolean justPrepared = false;
 
 	/**
 	 * 	Unlock Document.
@@ -317,13 +320,13 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	public String prepareIt()
 	{
 		log.info(toString());
-		processMessage = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
+		processMessage = getModelValidationEngine().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (processMessage != null)
 			return DocAction.STATUS_Invalid;
 		MDocType docType = MDocType.get(getCtx(), getC_DocType_ID());
 
 		//	Std Period open?
-		if (!MPeriod.isOpen(getCtx(), getMovementDate(), docType.getDocBaseType(), getAD_Org_ID()))
+		if (!MPeriod.isOpen(getCtx(), getMovementDate(), docType.getDocBaseType(), getAD_Org_ID(), get_TrxName()))
 		{
 			processMessage = "@PeriodClosed@";
 			return DocAction.STATUS_Invalid;
@@ -339,7 +342,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		if (docType.isInTransit() && !isReversal())
 			createConfirmation();
 
-		processMessage = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
+		processMessage = getModelValidationEngine().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (processMessage != null)
 			return DocAction.STATUS_Invalid;
 		
@@ -398,7 +401,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 				return status;
 		}
 		
-		processMessage = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
+		processMessage = getModelValidationEngine().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 		if (processMessage != null)
 			return DocAction.STATUS_Invalid;
 
@@ -423,134 +426,65 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		//for (int i = 0; i < movementLines.length; i++)
 		for (MMovementLine movementLine : movementLines)
 		{
-			MTransaction transactionFrom = null;
-			
-			//Stock Movement - Counterpart MOrder.reserveStock
-			MProduct product = movementLine.getProduct();
-			if (product != null 
-					&& product.isStocked() )
-			{
-				//Ignore the Material Policy when is Reverse Correction
-				if(!isReversal())
-					checkMaterialPolicy(movementLine);
+		    
+		    applyStorageRules(movementLine);
+		    
+//			MTransaction transactionFrom = null;
+//			
+//			//Stock Movement
+//			MLocator locator = new MLocator (getCtx(), movementLine.getM_Locator_ID(), get_TrxName());
+//			MLocator locatorTo = new MLocator (getCtx(), movementLine.getM_LocatorTo_ID(), get_TrxName());
+//
+//			// Move from
+//			try {
+//
+//				StorageEngine.createTransaction(
+//						movementLine,
+//						MTransaction.MOVEMENTTYPE_MovementFrom, 
+//						getMovementDate() , 
+//						movementLine.getMovementQty(), 
+//						isReversal(),
+//						locator.getM_Warehouse_ID(),
+//						0,								// Reservation Warehouse  - not relevant
+//						0,								// Reservation ASI - not relevant
+//						false,							// IsSOTrx=false
+//						true,							// Delete existing MA Lines
+//						false,							// Don't process the new MA Lines
+//						false,							// Don't use the To fields
+//						true);							// Update the storage record
+//			}
+//			catch (AdempiereException e) {
+//				processMessage = e.getMessage();
+//				return DocAction.STATUS_Invalid;
+//			}
+//
+//			// Move to
+//			try {
+//				StorageEngine.createTransaction(
+//						movementLine,
+//						MTransaction.MOVEMENTTYPE_MovementTo, 
+//						getMovementDate() , 
+//						movementLine.getMovementQty(), 
+//						isReversal(),							
+//						locatorTo.getM_Warehouse_ID(), 
+//						0, 								// Ordered Warehouse - not relevant
+//						0,								// Ordered ASI - not relevant
+//						false,							// IsSOTrx=false
+//						false,							// Important! - don't delete existing MA entries
+//						true,							// Process all the lines
+//						true,							// Use the To fields
+//						true);							// Update the storage record
+//			}
+//			catch (AdempiereException e) {
+//				processMessage = e.getMessage();
+//				return DocAction.STATUS_Invalid;
+//			}
+//
+//			log.fine("Material Transaction Complete.");
 
-				if (movementLine.getM_AttributeSetInstance_ID() == 0)
-				{
-					MMovementLineMA movementLineMAS[] = MMovementLineMA.get(getCtx(),
-							movementLine.getM_MovementLine_ID(), get_TrxName());
-					for (int j = 0; j < movementLineMAS.length; j++)
-					{
-						MMovementLineMA movementLineMA = movementLineMAS[j];
-						//
-						MLocator locator = new MLocator (getCtx(), movementLine.getM_Locator_ID(), get_TrxName());
-						MLocator locatorTo = new MLocator (getCtx(), movementLine.getM_LocatorTo_ID(), get_TrxName());
-						//Update Storage 
-						if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
-								movementLine.getM_Locator_ID(),
-								movementLine.getM_Product_ID(),
-								movementLineMA.getM_AttributeSetInstance_ID(), 0,
-								movementLineMA.getMovementQty().negate(), Env.ZERO ,  Env.ZERO , get_TrxName()))
-						{
-							processMessage = "Cannot correct Inventory (MA)";
-							return DocAction.STATUS_Invalid;
-						}
-
-						int attributeSetInstanceToId = movementLine.getM_AttributeSetInstanceTo_ID();
-						//only can be same asi if locator is different
-						if (attributeSetInstanceToId == 0 && movementLine.getM_Locator_ID() != movementLine.getM_LocatorTo_ID())
-						{
-							attributeSetInstanceToId = movementLineMA.getM_AttributeSetInstance_ID();
-						}
-						//Update Storage 
-						if (!MStorage.add(getCtx(),locatorTo.getM_Warehouse_ID(),
-								movementLine.getM_LocatorTo_ID(),
-								movementLine.getM_Product_ID(),
-								attributeSetInstanceToId, 0,
-								movementLineMA.getMovementQty(), Env.ZERO ,  Env.ZERO , get_TrxName()))
-						{
-							processMessage = "Cannot correct Inventory (MA)";
-							return DocAction.STATUS_Invalid;
-						}
-
-						//
-						transactionFrom = new MTransaction (getCtx(), locator.getAD_Org_ID(),
-								MTransaction.MOVEMENTTYPE_MovementFrom,
-								movementLine.getM_Locator_ID(), movementLine.getM_Product_ID(), movementLineMA.getM_AttributeSetInstance_ID(),
-								movementLineMA.getMovementQty().negate(), getMovementDate(), get_TrxName());
-						transactionFrom.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
-						if (!transactionFrom.save())
-						{
-							processMessage = "Transaction From not inserted (MA)";
-							return DocAction.STATUS_Invalid;
-						}
-						MTransaction transactionTo = new MTransaction (getCtx(), locatorTo.getAD_Org_ID(),
-								MTransaction.MOVEMENTTYPE_MovementTo,
-								movementLine.getM_LocatorTo_ID(), movementLine.getM_Product_ID(), attributeSetInstanceToId,
-								movementLineMA.getMovementQty(), getMovementDate(), get_TrxName());
-						transactionTo.setAD_Org_ID(locatorTo.getAD_Org_ID());
-						transactionTo.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
-						if (!transactionTo.save())
-						{
-							processMessage = "Transaction To not inserted (MA)";
-							return DocAction.STATUS_Invalid;
-						}
-					}
-				}
-				//	Fallback - We have ASI
-				if (transactionFrom == null)
-				{
-					MLocator locator = new MLocator (getCtx(), movementLine.getM_Locator_ID(), get_TrxName());
-					MLocator locatorTo = new MLocator (getCtx(), movementLine.getM_LocatorTo_ID(), get_TrxName());
-					//Update Storage 
-					if (!MStorage.add(getCtx(),locator.getM_Warehouse_ID(),
-							movementLine.getM_Locator_ID(),
-							movementLine.getM_Product_ID(),
-							movementLine.getM_AttributeSetInstance_ID(), 0,
-							movementLine.getMovementQty().negate(), Env.ZERO ,  Env.ZERO , get_TrxName()))
-					{
-						processMessage = "Cannot correct Inventory (MA)";
-						return DocAction.STATUS_Invalid;
-					}
-
-					//Update Storage 
-					if (!MStorage.add(getCtx(),locatorTo.getM_Warehouse_ID(),
-							movementLine.getM_LocatorTo_ID(),
-							movementLine.getM_Product_ID(),
-							movementLine.getM_AttributeSetInstanceTo_ID(), 0,
-							movementLine.getMovementQty(), Env.ZERO ,  Env.ZERO , get_TrxName()))
-					{
-						processMessage = "Cannot correct Inventory (MA)";
-						return DocAction.STATUS_Invalid;
-					}
-
-					//
-					transactionFrom = new MTransaction (getCtx(), locator.getAD_Org_ID(),
-							MTransaction.MOVEMENTTYPE_MovementFrom,
-							movementLine.getM_Locator_ID(), movementLine.getM_Product_ID(), movementLine.getM_AttributeSetInstance_ID(),
-							movementLine.getMovementQty().negate(), getMovementDate(), get_TrxName());
-					transactionFrom.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
-					if (!transactionFrom.save())
-					{
-						processMessage = "Transaction From not inserted";
-						return DocAction.STATUS_Invalid;
-					}
-
-					MTransaction transactionTo = new MTransaction (getCtx(), locatorTo.getAD_Org_ID(),
-							MTransaction.MOVEMENTTYPE_MovementTo,
-							movementLine.getM_LocatorTo_ID(), movementLine.getM_Product_ID(), movementLine.getM_AttributeSetInstanceTo_ID(),
-							movementLine.getMovementQty(), getMovementDate(), get_TrxName());
-					transactionTo.setM_MovementLine_ID(movementLine.getM_MovementLine_ID());
-					transactionTo.setAD_Org_ID(locatorTo.getAD_Org_ID());
-					if (!transactionTo.save())
-					{
-						processMessage = "Transaction To not inserted";
-						return DocAction.STATUS_Invalid;
-					}
-				}	//	Fallback
-			} // product stock	
 		}	//	for all lines
 		//	User Validation
-		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
+		String valid = getModelValidationEngine().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)
 		{
 			processMessage = valid;
@@ -565,11 +499,17 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		setDocAction(DOCACTION_Close);
 		return DocAction.STATUS_Completed;
 	}	//	completeIt
+
+    ModelValidationEngine getModelValidationEngine() {
+
+        return ModelValidationEngine.get();
+
+    }
 	
 	/**
 	 * 	Set the definite document number after completed
 	 */
-	private void setDefiniteDocumentNo() {
+	protected void setDefiniteDocumentNo() {
 		MDocType docType = MDocType.get(getCtx(), getC_DocType_ID());
 		if (docType.isOverwriteDateOnComplete()) {
 			setMovementDate(new Timestamp (System.currentTimeMillis()));
@@ -585,71 +525,6 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	}
 
 	/**
-	 * 	Check Material Policy
-	 * 	Sets line ASI
-	 */
-	private void checkMaterialPolicy(MMovementLine line)
-	{
-		int no = MMovementLineMA.deleteMovementLineMA(line.getM_MovementLine_ID(), get_TrxName());
-		if (no > 0)
-			log.config("Delete old #" + no);
-		
-		boolean needSave = false;
-
-		//	Attribute Set Instance
-		if (line.getM_AttributeSetInstance_ID() == 0)
-		{
-			MProduct product = MProduct.get(getCtx(), line.getM_Product_ID());
-			String issuePolicy = product.getMMPolicy();
-			MStorage[] storages = MStorage.getWarehouse(getCtx(), 0, line.getM_Product_ID(), 0, 
-					null, MClient.MMPOLICY_FiFo.equals(issuePolicy), true, line.getM_Locator_ID(), get_TrxName());
-
-			BigDecimal qtyToDeliver = line.getMovementQty();
-
-			for (MStorage storage: storages)
-			{
-				if (storage.getQtyOnHand().compareTo(qtyToDeliver) >= 0)
-				{
-					MMovementLineMA movementLineMA = new MMovementLineMA (line,
-							storage.getM_AttributeSetInstance_ID(),
-							qtyToDeliver);
-					movementLineMA.saveEx();
-					qtyToDeliver = Env.ZERO;
-					log.fine( movementLineMA + ", QtyToDeliver=" + qtyToDeliver);
-				}
-				else
-				{	
-					MMovementLineMA movementLineMA = new MMovementLineMA (line,
-								storage.getM_AttributeSetInstance_ID(),
-								storage.getQtyOnHand());
-					movementLineMA.saveEx();
-					qtyToDeliver = qtyToDeliver.subtract(storage.getQtyOnHand());
-					log.fine( movementLineMA + ", QtyToDeliver=" + qtyToDeliver);
-				}
-				if (qtyToDeliver.signum() == 0)
-					break;
-			}
-							
-			//	No AttributeSetInstance found for remainder
-			if (qtyToDeliver.signum() != 0)
-			{
-				//deliver using new asi
-				MAttributeSet.validateAttributeSetInstanceMandatory(product, line.Table_ID , false , line.getM_AttributeSetInstance_ID());
-				MAttributeSetInstance attributeSetInstance = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
-				int attributeSetInstanceId = attributeSetInstance.getM_AttributeSetInstance_ID();
-				MMovementLineMA movementLineMA = new MMovementLineMA (line, attributeSetInstanceId , qtyToDeliver);
-				movementLineMA.saveEx();
-				log.fine("##: " + movementLineMA);
-			}
-		}	//	attributeSetInstance
-		
-		if (needSave)
-		{
-			line.saveEx();
-		}
-	}	//	checkMaterialPolicy
-
-	/**
 	 * 	Void Document.
 	 * 	@return true if success 
 	 */
@@ -657,7 +532,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	{
 		log.info(toString());
 		// Before Void
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
 		if (processMessage != null)
 			return false;
 		
@@ -695,7 +570,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 			return reverseCorrectIt();
 		}
 		// After Void
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_AFTER_VOID);
 		if (processMessage != null)
 			return false;
 			
@@ -712,7 +587,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	{
 		log.info(toString());
 		// Before Close
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_CLOSE);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_BEFORE_CLOSE);
 		if (processMessage != null)
 			return false;
 
@@ -720,7 +595,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		setDocAction(DOCACTION_None);
 
 		// After Close
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_CLOSE);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_AFTER_CLOSE);
 		if (processMessage != null)
 			return false;
 		return true;
@@ -836,7 +711,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	{
 		log.info(toString());
 		// Before reverseCorrect
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSECORRECT);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSECORRECT);
 		if (processMessage != null)
 			return false;
 
@@ -896,7 +771,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 			//	We need revert MA
 			MMovementLineMA[] mas = MMovementLineMA.get(getCtx(), movementLine.getM_MovementLine_ID(), get_TrxName());
 			Arrays.stream(mas).forEach(lineMA -> {
-				MMovementLineMA reverseLine = new MMovementLineMA (reversalMovementLine, lineMA.getM_AttributeSetInstance_ID(), lineMA.getMovementQty().negate());
+				MMovementLineMA reverseLine = new MMovementLineMA (reversalMovementLine, lineMA.getM_MPolicyTicket_ID(), lineMA.getMovementQty().negate());
 				reverseLine.saveEx();
 			});
 		});
@@ -935,7 +810,7 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 		processMessage = reversalMovement.getDocumentNo();*/
 
 		// After reverseCorrect
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSECORRECT);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSECORRECT);
 		if (processMessage != null)
 			return false;
 
@@ -950,12 +825,12 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	{
 		log.info(toString());
 		// Before reverseAccrual
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSEACCRUAL);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSEACCRUAL);
 		if (processMessage != null)
 			return false;
 		
 		// After reverseAccrual
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
 		if (processMessage != null)
 			return false;
 		
@@ -970,12 +845,12 @@ public class MMovement extends X_M_Movement implements DocAction , DocumentRever
 	{
 		log.info(toString());
 		// Before reActivate
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REACTIVATE);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REACTIVATE);
 		if (processMessage != null)
 			return false;	
 		
 		// After reActivate
-		processMessage = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
+		processMessage = getModelValidationEngine().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
 		if (processMessage != null)
 			return false;
 		

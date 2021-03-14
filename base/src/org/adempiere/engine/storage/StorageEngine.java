@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.adempiere.engine.IDocumentLine;
 import org.adempiere.engine.storage.rules.MInOutLineStorageRule;
+import org.adempiere.engine.storage.rules.MMovementLineStorageRule;
 import org.adempiere.engine.storage.rules.MOrderLineStorageRule;
 import org.adempiere.engine.storage.rules.MPPOrderBOMLineStorageRule;
 import org.adempiere.engine.storage.rules.MPPOrderReceiptStorageRule;
@@ -67,6 +68,7 @@ public class StorageEngine {
 		storageEngineRules.add(new MPPOrderReceiptStorageRule());
 		storageEngineRules.add(new MPPOrderBOMLineStorageRule());
 		storageEngineRules.add(new MInOutLineStorageRule());
+		storageEngineRules.add(new MMovementLineStorageRule());
 
 		return storageEngineRules.stream();
 

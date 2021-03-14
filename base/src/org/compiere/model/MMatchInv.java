@@ -307,7 +307,7 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 	}	//	afterSave
 	
 	/**
-	 * 	Get the Date Acct from  shipment
+	 * 	Get the most recent Date Acct from the shipment or invoice
 	 *	@return date or null
 	 */
 	public Timestamp getNewerDateAcct()
@@ -317,7 +317,17 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 			+ " INNER JOIN M_InOut io ON (io.M_InOut_ID=iol.M_InOut_ID) "
 			+ "WHERE iol.M_InOutLine_ID=?";
 		Timestamp shipDate = DB.getSQLValueTS(get_TrxName(), sql, getM_InOutLine_ID());
-		return shipDate;
+
+		sql = "SELECT i.DateAcct "
+				+ "FROM C_InvoiceLine il"
+				+ " INNER JOIN C_Invoice i ON (i.C_Invoice_ID=il.C_Invoice_ID) "
+				+ "WHERE il.C_InvoiceLine_ID=?";
+		Timestamp invoiceDate = DB.getSQLValueTS(get_TrxName(), sql, getC_InvoiceLine_ID());
+
+		if (invoiceDate != null && shipDate != null && invoiceDate.after(shipDate))
+			return invoiceDate;
+		else
+			return shipDate;
 	}	//	getNewerDateAcct
 	
 	
@@ -517,16 +527,44 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not Relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
-	
+
+
+	@Override
+	public boolean isReversal() {
+		// Not relevant
+		return false;
+	}
+
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// Not relevant
+		return 0;
+	}
+
+
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+
+	@Override
+	public String getMovementType() {
+		// Not relevant
+		return null;
+	}
+
 	/**
 	 * Reverse Match Invoice
 	 * @param reversalDate
@@ -577,6 +615,13 @@ public class MMatchInv extends X_M_MatchInv implements IDocumentLine
 	public boolean isReversalParent() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public PO getParent() {
+		//  MMatchInv has no parent
+		return null;
 	}
 
 

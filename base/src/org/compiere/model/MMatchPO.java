@@ -27,6 +27,7 @@ import java.util.logging.Level;
 
 import org.adempiere.engine.CostEngineFactory;
 import org.adempiere.engine.IDocumentLine;
+import org.adempiere.engine.storage.StorageEngine;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -447,6 +448,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setDateAcct(dateTrx);
 		}
 		setM_Product_ID (inOutLine.getM_Product_ID());
+		setM_MPolicyTicket_ID(inOutLine.getM_MPolicyTicket_ID());
 		setM_AttributeSetInstance_ID(inOutLine.getM_AttributeSetInstance_ID());
 		setQty (qty);
 		setProcessed(true);		//	auto
@@ -469,6 +471,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setDateTrx (dateTrx);
 		setM_Product_ID (invoiceLine.getM_Product_ID());
 		setM_AttributeSetInstance_ID(invoiceLine.getM_AttributeSetInstance_ID());
+		setM_MPolicyTicket_ID(0); // TODO - check should an invoice line have the material policy ticket?
 		setQty (qty);
 		setProcessed(true);		//	auto
 	}	//	MMatchPO
@@ -593,12 +596,20 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				newerDateAcct = getDateTrx();
 			setDateAcct (newerDateAcct);
 		}
-		//	Set ASI from Receipt
-		if (getM_AttributeSetInstance_ID() == 0 && getM_InOutLine_ID() != 0)
-		{
+		
+		// Set the material policy ticket number from the Receipt
+		if (getM_InOutLine_ID() != 0) {
 			MInOutLine inOutLine = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
-			setM_AttributeSetInstance_ID(inOutLine.getM_AttributeSetInstance_ID());
+			setM_MPolicyTicket_ID(inOutLine.getM_MPolicyTicket_ID());
 		}
+		
+//		Set ASI from Receipt  //  ASI is no longer used for FIFO tracking
+//		if (getM_AttributeSetInstance_ID() == 0 && getM_InOutLine_ID() != 0)
+//		{
+//			MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
+//			setM_AttributeSetInstance_ID(iol.getM_AttributeSetInstance_ID());
+//		}
+		
 		//	Find OrderLine
 		if (getC_OrderLine_ID() == 0)
 		{
@@ -725,16 +736,27 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 				orderLine.saveEx();
 			}
 
+// Removed as the Order has its own valid ticket which shouldn't be overwritten.  The updates
+// to the qty Ordered in M_Storage will be done to the record using the order ticket.  Also, if the
+// InOut Line has material allocation lines to fulfill negative inventory the line ticket will be zero/null.
+//			//	Update Order material policy ticket if full match  TODO WHy? Tickets aren't used on orders.
+//			if (orderLine.getM_MPolicyTicket_ID() == 0
+//				&& getM_InOutLine_ID() != 0)
+//			{
+//				MInOutLine iol = new MInOutLine (getCtx(), getM_InOutLine_ID(), get_TrxName());
+//				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
+//					orderLine.setM_MPolicyTicket_ID(iol.getM_MPolicyTicket_ID()); 
+//			}
+			
+			success = orderLine.save(get_TrxName());
+			
+			if (!success)
+				return success;
 
-
-			//	Update Order ASI if full match
-			if (orderLine.getM_AttributeSetInstance_ID() == 0
-					&& getM_InOutLine_ID() != 0) {
-				MInOutLine iol = new MInOutLine(getCtx(), getM_InOutLine_ID(), get_TrxName());
-				if (iol.getMovementQty().compareTo(orderLine.getQtyOrdered()) == 0)
-					orderLine.setM_AttributeSetInstance_ID(iol.getM_AttributeSetInstance_ID());
-			}
-			return orderLine.save();
+//			//	Correct Ordered Qty for Stocked Products (see MOrder.reserveStock / MInOut.processIt)
+//			StorageEngine.reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
+//					orderLine.getM_Product_ID(), orderLine.getM_AttributeSetInstance_ID(), orderLine.getM_MPolicyTicket_ID(),
+//					getMovementQty().negate(), Env.ZERO, get_TrxName());
 		}
 		//
 		return success;
@@ -769,6 +791,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			setPosted(false);
 			MFactAcct.deleteEx (Table_ID, get_ID(), get_TrxName());
 		}
+		
 		return true;
 	}	//	beforeDelete
 
@@ -782,6 +805,7 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 	@Override
 	protected boolean afterDelete (boolean success)
 	{
+		
 		//	Order Delivered/Invoiced
 		//	(Reserved in VMatch and MInOut.completeIt)
 		if (success && getC_OrderLine_ID() != 0)
@@ -800,9 +824,20 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 			}
 			if (getC_InvoiceLine_ID() != 0)
 				orderLine.setQtyInvoiced(orderLine.getQtyInvoiced().subtract(quantity));
-			return orderLine.save(get_TrxName());
+			success = orderLine.save(get_TrxName());
+			
+			if (!success)
+				return success;
+			
+			//	Correct Ordered Qty for Stocked Products (see MOrder.reserveStock / MInOut.processIt)
+			//  The ordered qty is always recorded in the MStorage record with orderLine M_MPolicyTicket_ID
+			StorageEngine.getStorageEngine().reserveOrOrderStock(getCtx(), orderLine.getM_Warehouse_ID(),  0,
+					orderLine.getM_Product_ID(), orderLine.getM_AttributeSetInstance_ID(), orderLine.getM_MPolicyTicket_ID(),
+					getMovementQty(), Env.ZERO, get_TrxName());
+
 		}
 		return success;
+		
 	}	//	afterDelete
 		
 	/**
@@ -956,13 +991,13 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 
 	@Override
 	public int getM_AttributeSetInstanceTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 
 	@Override
 	public int getM_LocatorTo_ID() {
-		// TODO Auto-generated method stub
+		// Not relevant
 		return -1;
 	}
 	
@@ -1016,10 +1051,40 @@ public class MMatchPO extends X_M_MatchPO implements IDocumentLine
 		}
 		return null;
 	}
+	
+	@Override
+	public boolean isReversal() {
+		// Not relevant
+		return false;
+	}
+
+	@Override
+	public int getM_Warehouse_ID() {
+		// Not relevant
+		return 0;
+	}
+
+	@Override
+	public Timestamp getMovementDate() {
+		// Not relevant
+		return null;
+	}
+
+	@Override
+	public String getMovementType() {
+		// Not relevant
+		return null;
+	}
 
 	@Override
 	public boolean isReversalParent() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public PO getParent() {
+		// MMatchPO has no parent
+		return null;
 	}
 }	//	MMatchPO

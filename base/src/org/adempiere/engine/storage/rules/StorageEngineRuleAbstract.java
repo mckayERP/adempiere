@@ -135,10 +135,16 @@ public abstract class StorageEngineRuleAbstract implements StorageEngineRule<IDo
 		ctx = docLine.getCtx();
 		trxName = docLine.get_TrxName();
 		
-		product = MProduct.get(ctx, m_product_id, trxName);
+		product = getProduct();
 		productIsStocked = product != null && product.isStocked();
 		
 	}
+
+    MProduct getProduct() {
+
+        return MProduct.get(ctx, m_product_id, trxName);
+
+    }
 	
 	protected void save(IDocumentLine line)
 	{
@@ -265,7 +271,7 @@ public abstract class StorageEngineRuleAbstract implements StorageEngineRule<IDo
 		return list;
 	}
 
-	private void setChangeInQuantities() {
+	protected void setChangeInQuantities() {
 		
 		changeInQtyOnHand = Optional.ofNullable(getChangeInQtyOnHand()).orElse(Env.ZERO);
 		changeInQtyOrdered = Optional.ofNullable(getChangeInQtyOrdered()).orElse(Env.ZERO);

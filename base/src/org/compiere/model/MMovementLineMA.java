@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.engine.IInventoryAllocation;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 
@@ -33,7 +34,7 @@ import org.compiere.util.DB;
  *  @author Jorg Janke
  *  @version $Id: MMovementLineMA.java,v 1.3 2006/07/30 00:51:05 jjanke Exp $
  */
-public class MMovementLineMA extends X_M_MovementLineMA
+public class MMovementLineMA extends X_M_MovementLineMA implements IInventoryAllocation
 {
 	/**
 	 * 

@@ -61,7 +61,7 @@ public class MPAttributeLookup extends Lookup
 //	/**	Properties					*/
 //	private Properties 			m_ctx;
 	/**	No Instance Value			*/
-	private static KeyNamePair	NO_INSTANCE = new KeyNamePair (0,"");
+	private static KeyNamePair	NO_INSTANCE = new KeyNamePair (0,""); // Replaces the system record with M_AttributeSetInstance_ID = 0
 
 	/**
 	 *	Get Display for Value (not cached)
