@@ -15,28 +15,69 @@
  *****************************************************************************/
 package org.adempiere.test;
 
+import static org.compiere.model.X_C_PeriodControl.PERIODSTATUS_Closed;
+import static org.compiere.model.X_C_PeriodControl.PERIODSTATUS_Open;
+
 import java.sql.Timestamp;
 import java.util.Properties;
 
+import org.compiere.model.MAcctSchema;
+import org.compiere.model.MClient;
+import org.compiere.model.MPeriod;
+import org.compiere.model.MPeriodControl;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 
 public class CommonIntegrationTestUtilities {
 
-    private Timestamp currentLoginDate = TimeUtil.getDay(System.currentTimeMillis());
-    private static final String DATE_PROPERTY = "#Date";
+	private boolean initialAutoPeriodControl;
+	private Timestamp currentLoginDate = TimeUtil.getDay(System.currentTimeMillis());
+	private static final String DATE_PROPERTY = "#Date";
+	
+	public void turnOffAutoPeriodControl(Properties ctx, int ad_client_id) {
+				
+		MAcctSchema as = MClient.get(ctx, ad_client_id).getAcctSchema();
+		initialAutoPeriodControl = as.isAutoPeriodControl();
+		as.setAutoPeriodControl(false);
+		as.saveEx();
+		
+	}
 
-    public void resetLoginDate(Properties ctx) {
+	public void closePeriod(Properties ctx, int ad_org_id, Timestamp dateInPeriod, 
+			String docBaseType, String trxName) {
+		
+		MPeriod period = MPeriod.get(ctx, dateInPeriod, ad_org_id, trxName);
+		MPeriodControl periodControl = period.getPeriodControl(docBaseType);
+		periodControl.setPeriodStatus(PERIODSTATUS_Closed);
+		periodControl.saveEx();
+		
+	}
 
-        ctx.setProperty(DATE_PROPERTY, currentLoginDate.toString());
+	public void openPeriod(Properties ctx, int ad_org_id, Timestamp dateInPeriod, 
+			String docBaseType, String trxName) {
 
-    }
+		MPeriod period = MPeriod.get(ctx, dateInPeriod, ad_org_id, trxName);
+		MPeriodControl periodControl = period.getPeriodControl(docBaseType);
+		periodControl.setPeriodStatus(PERIODSTATUS_Open);
+		periodControl.saveEx();
 
-    public void setLoginDate(Properties ctx, Timestamp newLoginDate) {
+	}
+	
+	public void resetAutoPeriodControl(Properties ctx, int ad_client_id) {
+		
+		MAcctSchema as = MClient.get(ctx, ad_client_id).getAcctSchema();
+		as.setAutoPeriodControl(initialAutoPeriodControl);
+		as.saveEx();
+		
+	}
+	
+	public void resetLoginDate(Properties ctx) {
+		ctx.setProperty(DATE_PROPERTY, currentLoginDate.toString());
+	}
 
-        currentLoginDate = Env.getContextAsDate(ctx, DATE_PROPERTY);
-        ctx.setProperty(DATE_PROPERTY, newLoginDate.toString());
-
-    }
+	public void setLoginDate(Properties ctx, Timestamp newLoginDate) {
+		currentLoginDate  = Env.getContextAsDate(ctx, DATE_PROPERTY);
+		ctx.setProperty(DATE_PROPERTY, newLoginDate.toString());
+	}
 
 }
