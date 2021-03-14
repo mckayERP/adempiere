@@ -370,9 +370,12 @@ public class Doc_InOut extends Doc
 				BigDecimal costs = null;
 				MProduct product = line.getProduct();
 				for (MCostDetail cost : line.getCostDetail(as, true))
-				{	   
+				{	
+					// Costs with invoice lines will be handled 
+					// by the Doc_MatchInv (#1240)
 					if (cost.getC_InvoiceLine_ID() > 0)
 						continue;
+					
 						if (!MCostDetail.existsCost(cost))
 							continue;
 						
@@ -400,6 +403,7 @@ public class Doc_InOut extends Doc
 							log.log(Level.WARNING, p_Error);
 							return null;
 						}
+						dr.addDescription(description);
 						dr.setM_Locator_ID(line.getM_Locator_ID());
 						dr.setLocationFromBPartner(getC_BPartner_Location_ID(), true);   // from Loc
 						dr.setLocationFromLocator(line.getM_Locator_ID(), false);   // to Loc
