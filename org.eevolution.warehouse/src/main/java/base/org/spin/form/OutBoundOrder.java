@@ -985,16 +985,28 @@ public class OutBoundOrder {
 				/*outBoundOrderLine = new MWMInOutBoundLine(outBoundOrder);
 				//	Set Values
 				outBoundOrderLine.setAD_Org_ID(orgId);
-				if (movementType.equals(I_DD_Order.Table_Name)) {
+				if (movementType.equals(I_DD_Order.Table_Name) && orderLineId > 0) {
+					MDDOrderLine orderLine = new MDDOrderLine(Env.getCtx(),orderLineId, trxName );
 					outBoundOrderLine.setDD_OrderLine_ID(orderLineId);
-					MDDOrderLine line = new MDDOrderLine(Env.getCtx(), orderLineId, trxName);
-					outBoundOrderLine.setDD_Order_ID(line.getDD_Order_ID());
-					outBoundOrderLine.setC_UOM_ID(line.getC_UOM_ID());
-				} else {
+					outBoundOrderLine.setDD_Order_ID(orderLine.getDD_Order_ID());
+					outBoundOrderLine.setC_UOM_ID(orderLine.getC_UOM_ID());
+					outBoundOrderLine.setDescription(orderLine.getDescription());
+					Optional.ofNullable(outBoundOrder.getDescription()).orElseGet(() -> {
+						String descriptionOrder = Optional.ofNullable(orderLine.getParent().getDescription()).orElse("");
+						outBoundOrder.setDescription(descriptionOrder);
+						return descriptionOrder;
+					});
+				} else if (orderLineId > 0){
+					MOrderLine orderLine = new MOrderLine(Env.getCtx(),orderLineId, trxName );
 					outBoundOrderLine.setC_OrderLine_ID(orderLineId);
-					MOrderLine line = new MOrderLine(Env.getCtx(), orderLineId, trxName);
-					outBoundOrderLine.setC_Order_ID(line.getC_Order_ID());
-					outBoundOrderLine.setC_UOM_ID(line.getC_UOM_ID());
+					outBoundOrderLine.setC_Order_ID(orderLine.getC_Order_ID());
+					outBoundOrderLine.setC_UOM_ID(orderLine.getC_UOM_ID());
+					outBoundOrderLine.setDescription(orderLine.getDescription());
+					Optional.ofNullable(outBoundOrder.getDescription()).orElseGet(() -> {
+						String descriptionOrder = Optional.ofNullable(orderLine.getParent().getDescription()).orElse("");
+						outBoundOrder.setDescription(descriptionOrder);
+						return descriptionOrder;
+					});
 				}
 				outBoundOrderLine.setM_LocatorTo_ID(locatorId);
 				outBoundOrderLine.setM_Product_ID(productId);
@@ -1068,7 +1080,7 @@ public class OutBoundOrder {
 		AtomicReference<BigDecimal> totalPickedQty = new AtomicReference<BigDecimal>(qty);
 		AtomicInteger line = new AtomicInteger(10);
 		for (MStorage storage : storageList) {
-			if (storage.getQtyOnHand().signum() > 0 && totalPickedQty.get().signum() != 0) {
+			if (storage.getQtyOnHand().signum() > 0 && totalPickedQty.get().signum() != 0 && orderLineId > 0) {
 				MWMInOutBoundLine outBoundOrderLine = new MWMInOutBoundLine(outBoundOrder);
 				outBoundOrderLine.setLine(line.get());
 				outBoundOrderLine.setPickDate(outBoundOrder.getPickDate());
@@ -1081,11 +1093,23 @@ public class OutBoundOrder {
 					MDDOrderLine orderLine = new MDDOrderLine(Env.getCtx(), orderLineId, trxName);
 					outBoundOrderLine.setDD_Order_ID(orderLine.getDD_Order_ID());
 					outBoundOrderLine.setC_UOM_ID(orderLine.getC_UOM_ID());
-				} else {
+					outBoundOrderLine.setDescription(orderLine.getDescription());
+					Optional.ofNullable(outBoundOrder.getDescription()).orElseGet(() -> {
+						String descriptionOrder = Optional.ofNullable(orderLine.getParent().getDescription()).orElse("");
+						outBoundOrder.setDescription(descriptionOrder);
+						return descriptionOrder;
+					});
+				} else if (orderLineId > 0){
 					outBoundOrderLine.setC_OrderLine_ID(orderLineId);
 					MOrderLine orderLine = new MOrderLine(Env.getCtx(), orderLineId, trxName);
 					outBoundOrderLine.setC_Order_ID(orderLine.getC_Order_ID());
 					outBoundOrderLine.setC_UOM_ID(orderLine.getC_UOM_ID());
+					outBoundOrderLine.setDescription(orderLine.getDescription());
+					Optional.ofNullable(outBoundOrder.getDescription()).orElseGet(() -> {
+						String descriptionOrder = Optional.ofNullable(orderLine.getParent().getDescription()).orElse("");
+						outBoundOrder.setDescription(descriptionOrder);
+						return descriptionOrder;
+					});
 				}
 				outBoundOrderLine.setM_LocatorTo_ID(locatorId);
 				outBoundOrderLine.setM_Product_ID(productId);
