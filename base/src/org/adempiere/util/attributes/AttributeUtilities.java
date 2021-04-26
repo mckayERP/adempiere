@@ -271,6 +271,7 @@ public class AttributeUtilities {
 					.setOrderBy(COLUMNNAME_M_AttributeSetInstance_ID + " ASC")
 					.list()
 					.stream()
+					.filter(match -> match.getAD_Org_ID() == asi.getAD_Org_ID())
 					.filter(match -> hasValues((MAttributeSetInstance) match, values))
 					.map(match -> ((MAttributeSetInstance) match)
 							.getM_AttributeSetInstance_ID())
