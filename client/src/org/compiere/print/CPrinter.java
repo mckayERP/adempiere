@@ -18,7 +18,6 @@ package org.compiere.print;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.print.PrinterJob;
 
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
@@ -40,107 +39,13 @@ public class CPrinter extends CComboBox implements ActionListener
 	 * 
 	 */
 	private static final long serialVersionUID = -6366208617152587573L;
-
-
-	/**
-	 *  Get Print (Services) Names
-	 *  @return Printer Name array
-	 */
-	public static String[] getPrinterNames()
-	{
-		// Refresh print services every time the combobox is constructed
-		s_services = PrintServiceLookup.lookupPrintServices(null,null);
-
-		String[] retValue = new String[s_services.length];
-		for (int i = 0; i < s_services.length; i++)
-			retValue[i] = s_services[i].getName();
-		return retValue;
-	}   //  getPrintServiceNames
-
-
-	/**
-	 *  Return default PrinterJob
-	 *  @return PrinterJob
-	 */
-	public static PrinterJob getPrinterJob()
-	{
-		return getPrinterJob(Ini.getProperty(Ini.P_PRINTER));
-	}   //  getPrinterJob
-
-	/**
-	 *  Return PrinterJob with selected printer name.
-	 *  @param printerName if null, get default printer (Ini)
-	 *  @return PrinterJob
-	 */
-	public static PrinterJob getPrinterJob (String printerName)
-	{
-		PrinterJob pj = null;
-		PrintService ps = null;
-		try
-		{
-			pj = PrinterJob.getPrinterJob();
-
-			//  find printer service
-			if (printerName == null || printerName.length() == 0)
-				printerName = Ini.getProperty(Ini.P_PRINTER);
-			if (printerName != null && printerName.length() != 0)
-			{
-			//	System.out.println("CPrinter.getPrinterJob - searching " + printerName);
-				for (int i = 0; i < s_services.length; i++)
-				{
-					String serviceName = s_services[i].getName();
-					if (printerName.equals(serviceName))
-					{
-						ps = s_services[i];
-					//	System.out.println("CPrinter.getPrinterJob - found " + printerName);
-						break;
-					}
-				//	System.out.println("CPrinter.getPrinterJob - not: " + serviceName);
-				}
-			}   //  find printer service
-
-			try
-			{
-				if (ps != null)
-					pj.setPrintService(ps);
-			}
-			catch (Exception e)
-			{
-				log.warning("Could not set Print Service: " + e.toString());
-			}
-			//
-			PrintService psUsed = pj.getPrintService();
-			if (psUsed == null)
-				log.warning("Print Service not Found");
-			else
-			{
-				String serviceName = psUsed.getName();
-				if (printerName != null && !printerName.equals(serviceName))
-					log.warning("Not found: " + printerName + " - Used: " + serviceName);
-			}
-		}
-		catch (Exception e)
-		{
-			log.warning("Could not create for " + printerName + ": " + e.toString());
-		}
-		return pj;
-	}   //  getPrinterJob
-
-
-	/** Available Printer Services  */
-//	private static PrintService[]   s_services = PrinterJob.lookupPrintServices();
-	private static PrintService[]   s_services = PrintServiceLookup.lookupPrintServices(null,null);
-
-	/**	Logger	*/
-	private static CLogger log = CLogger.getCLogger (CPrinter.class);
-	
 	
 	/**************************************************************************
 	 *  Create PrinterJob
 	 */
 	public CPrinter()
 	{
-		super(getPrinterNames());
+		super(PrintUtil.getPrinterNames());
 		//  Set Default
 		setValue(Ini.getProperty(Ini.P_PRINTER));
 		this.addActionListener(this);
@@ -161,11 +66,12 @@ public class CPrinter extends CComboBox implements ActionListener
 	 */
 	public PrintService getPrintService()
 	{
+	    PrintService[] services = PrintUtil.getPrintServices();
 		String currentService = (String)getSelectedItem();
-		for (int i = 0; i < s_services.length; i++)
+		for (int i = 0; i < services.length; i++)
 		{
-			if (s_services[i].getName().equals(currentService))
-				return s_services[i];
+			if (services[i].getName().equals(currentService))
+				return services[i];
 		}
 		return PrintServiceLookup.lookupDefaultPrintService();
 	}	//	getPrintService
@@ -176,7 +82,7 @@ public class CPrinter extends CComboBox implements ActionListener
 	public void refresh() {
 		String current = (String) getSelectedItem();
 		removeAllItems();
-		setModel(new DefaultComboBoxModel(getPrinterNames()));
+		setModel(new DefaultComboBoxModel(PrintUtil.getPrinterNames()));
 		if (current != null) {
 			for (int i = 0; i < getItemCount(); i++) {
 				String item = (String) getItemAt(i);
