@@ -488,8 +488,8 @@ queued-job-count = 0  (class javax.print.attribute.standard.QueuedJobCount)
 	private PrinterJob getPrinterJob (String printerName)
 	{
 		if (printerName != null && printerName.length() > 0)
-			return CPrinter.getPrinterJob(printerName);
-		return CPrinter.getPrinterJob(m_printerName);
+			return PrintUtil.getPrinterJob(printerName);
+		return PrintUtil.getPrinterJob(m_printerName);
 	}	//	getPrinterJob
 
 	/**

@@ -624,7 +624,7 @@ public class ReportStarter implements ProcessCall, ClientProcess
                     		JasperPrintManager.printReport(jasperPrint, false);
                     	} else {	//	Old compatibility
                         	// Get printer job
-                        	PrinterJob printerJob = org.compiere.print.CPrinter.getPrinterJob(printerName);
+                        	PrinterJob printerJob = org.compiere.print.PrintUtil.getPrinterJob(printerName);
                         	// Set print request attributes
                         	
                     		//	Paper Attributes:
