@@ -220,4 +220,12 @@ public class WDatetimeEditor extends WEditor implements ContextMenuListener
 	   	return popupMenu;
 	}
 
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

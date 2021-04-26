@@ -30,6 +30,7 @@ import org.adempiere.webui.event.ActionListener;
 import org.compiere.model.GridField;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
+import org.compiere.swing.IButton;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -46,7 +47,7 @@ import org.zkoss.zk.ui.event.Events;
  * Modifications - UI Compatibility
  * @author ashley
  */
-public class WButtonEditor extends WEditor
+public class WButtonEditor extends WEditor implements IButton
 {
     private static final String[] LISTENER_EVENTS = {Events.ON_CLICK};
     
@@ -275,4 +276,29 @@ public class WButtonEditor extends WEditor
 			}
 		}
 	}
+
+    @Override
+    public void setText(String text) {
+
+
+        getComponent().setLabel(text);
+        
+
+    }
+
+    @Override
+    public void setToolTipText(String text) {
+
+        getComponent().setToolTipText(text);
+        
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

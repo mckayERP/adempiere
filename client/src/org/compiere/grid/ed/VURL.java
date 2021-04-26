@@ -46,6 +46,7 @@ import org.compiere.apps.RecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.MRole;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CMenuItem;
 import org.compiere.swing.CTextField;
 import org.compiere.util.CLogger;
@@ -511,6 +512,22 @@ public class VURL extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
+
 
 	
 }	//	VURL

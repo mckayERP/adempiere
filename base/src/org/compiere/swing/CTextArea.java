@@ -490,4 +490,19 @@ public class CTextArea extends JScrollPane
 		return null;
 	}
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
+
 }   //  CTextArea

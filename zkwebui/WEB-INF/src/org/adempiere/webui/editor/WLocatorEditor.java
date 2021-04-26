@@ -523,4 +523,12 @@ public class WLocatorEditor extends WEditor implements EventListener, PropertyCh
     {
         return LISTENER_EVENTS;
     }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

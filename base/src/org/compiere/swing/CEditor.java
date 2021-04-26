@@ -64,7 +64,7 @@ public interface CEditor extends PropertyChangeListener
 	 *  Set Visible
 	 *  @param visible true if field is to be shown
 	 */
-	public void setVisible (boolean visible);
+	public void setVisibleState (boolean visible);
 
 	/**
 	 *	Set Editor to value
@@ -89,5 +89,7 @@ public interface CEditor extends PropertyChangeListener
 	public void addValueChangeListener(ValueChangeListener listener);
 
 	public GridField getField();
+
+    public void setLable(ILabel label);
 
 }   //  CEditor

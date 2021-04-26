@@ -17,6 +17,7 @@
 
 package org.adempiere.webui.component;
 
+import org.compiere.swing.ICheckBox;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 
@@ -26,7 +27,7 @@ import org.zkoss.zk.ui.event.Events;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class Checkbox extends org.zkoss.zul.Checkbox
+public class Checkbox extends org.zkoss.zul.Checkbox implements ICheckBox
 {
     /**
 	 * 

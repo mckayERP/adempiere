@@ -181,4 +181,12 @@ public class WFilenameEditor extends WEditor
     {
         return LISTENER_EVENTS;
     }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

@@ -31,6 +31,8 @@ import org.adempiere.webui.window.WRecordInfo;
 import org.adempiere.webui.window.WTextEditorDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.MRole;
+import org.compiere.swing.CEditor;
+import org.compiere.swing.ITextField;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -53,7 +55,7 @@ import org.zkoss.zul.Menuitem;
  * 		<li href="https://github.com/adempiere/adempiere/issues/1066">
  * 		@see BR [ 640 ] When try change of Tab in Migration window get this error</li>
  */
-public class WStringEditor extends WEditor implements ContextMenuListener
+public class WStringEditor extends WEditor implements ContextMenuListener, ITextField
 {
     private static final String EDITOR_EVENT = "EDITOR";
 
@@ -301,5 +303,31 @@ public class WStringEditor extends WEditor implements ContextMenuListener
         }
 	}
 
+    @Override
+    public void setEditable(boolean isEditable) {
+
+        getComponent().setReadonly(!isEditable);
+
+    }
+
+    @Override
+    public void setText(String text) {
+
+        setValue(text);
+    }
+
+    @Override
+    public String getText() {
+
+        return (String) getValue();
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
 
 }

@@ -14,7 +14,7 @@
  * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
-package org.compiere.swing;
+package org.compiere.grid.ed;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,6 +38,12 @@ import javax.swing.JColorChooser;
 
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.plaf.CompiereColor;
+import org.compiere.swing.CButton;
+import org.compiere.swing.CComboBox;
+import org.compiere.swing.CDialog;
+import org.compiere.swing.CLabel;
+import org.compiere.swing.CPanel;
+import org.compiere.swing.CTextField;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.ValueNamePair;
 

@@ -119,7 +119,7 @@ public class ProcessModalDialog extends Window implements IZKProcessDialog, ASyn
 	 * 	(set focus to OK if visible)
 	 * 	@param visible true if visible
 	 */
-	public boolean setVisible (boolean visible) {
+	public boolean setVisibleState (boolean visible) {
 		return super.setVisible(visible);
 	}	//	setVisible
 
@@ -141,7 +141,7 @@ public class ProcessModalDialog extends Window implements IZKProcessDialog, ASyn
 			getFirstChild().setVisible(false);
 			setTitle(null);
 			setBorder("none");
-			setVisible(false);
+			setVisibleState(false);
 			appendChild(new BusyDialog());
 			processPanel.process();
 		}

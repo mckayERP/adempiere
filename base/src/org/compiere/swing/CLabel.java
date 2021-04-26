@@ -30,7 +30,7 @@ import javax.swing.text.JTextComponent;
  *  @author     Jorg Janke
  *  @version    $Id: CLabel.java,v 1.2 2006/07/30 00:52:24 jjanke Exp $
  */
-public class CLabel extends JLabel
+public class CLabel extends JLabel implements ILabel
 {
 	/**
 	 * 
@@ -187,7 +187,8 @@ public class CLabel extends JLabel
 	 *  Set Background
 	 *  @param bg background
 	 */
-	public void setBackground (Color bg)
+	@Override
+    public void setBackground (Color bg)
 	{
 		if (bg.equals(getBackground()))
 			return;
@@ -198,7 +199,8 @@ public class CLabel extends JLabel
 	 * 	Set Font to Bold
 	 *	@param bold true bold false normal
 	 */
-	public void setFontBold (boolean bold)
+	@Override
+    public void setFontBold (boolean bold)
 	{
 		Font font = getFont();
 		if (bold != font.isBold())
@@ -214,7 +216,8 @@ public class CLabel extends JLabel
 	 *  Set label text - if it includes &, the next character is the Mnemonic
 	 *  @param mnemonicLabel Label containing Mnemonic
 	 */
-	public void setText (String mnemonicLabel)
+	@Override
+    public void setText (String mnemonicLabel)
 	{
 		String text = createMnemonic (mnemonicLabel);
 		super.setText (text);
@@ -260,40 +263,18 @@ public class CLabel extends JLabel
 	 *  Set ReadWrite
 	 *  @param rw enabled
 	 */
-	public void setReadWrite (boolean rw)
+	@Override
+    public void setReadWrite (boolean rw)
 	{
 		this.setEnabled(rw);
 	}   //  setReadWrite
-
-	/**
-	 * 	Set Label For
-	 *	@param c component
-	 */
-	public void setLabelFor (Component c)
-	{
-		//reset old if any
-		if (getLabelFor() != null && getLabelFor() instanceof JTextComponent)
-		{
-			((JTextComponent)getLabelFor()).setFocusAccelerator('\0');
-		}
-		super.setLabelFor (c);
-		if (c.getName() == null)
-			c.setName(getName());
-		//workaround for focus accelerator issue
-		if (c instanceof JTextComponent)
-		{
-			if (m_savedMnemonic > 0) 
-			{
-				((JTextComponent)c).setFocusAccelerator(m_savedMnemonic);
-			}
-		}
-	}	//	setLabelFor
 
 	
 	/**
 	 * @return Returns the savedMnemonic.
 	 */
-	public char getSavedMnemonic ()
+	@Override
+    public char getSavedMnemonic ()
 	{
 		return m_savedMnemonic;
 	}	//	getSavedMnemonic
@@ -301,9 +282,36 @@ public class CLabel extends JLabel
 	/**
 	 * @param savedMnemonic The savedMnemonic to set.
 	 */
-	public void setSavedMnemonic (char savedMnemonic)
+	@Override
+    public void setSavedMnemonic (char savedMnemonic)
 	{
 		m_savedMnemonic = savedMnemonic;
 	}	//	getSavedMnemonic
+
 	
+    @Override
+    public void setLabelFor(Object editor) {
+
+        if (editor instanceof Component)  {
+            Component c = (Component) editor;
+            
+            //reset old if any
+            if (getLabelFor() != null && getLabelFor() instanceof JTextComponent)
+            {
+                ((JTextComponent)getLabelFor()).setFocusAccelerator('\0');
+            }
+            super.setLabelFor (c);
+            if (c.getName() == null)
+                c.setName(getName());
+            //workaround for focus accelerator issue
+            if (c instanceof JTextComponent)
+            {
+                if (m_savedMnemonic > 0) 
+                {
+                    ((JTextComponent)c).setFocusAccelerator(m_savedMnemonic);
+                }
+            }
+        }        
+    }
+
 }   //  CLabel

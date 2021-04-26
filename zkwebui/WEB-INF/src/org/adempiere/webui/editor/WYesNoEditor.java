@@ -26,6 +26,7 @@ import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
+import org.compiere.swing.ICheckBox;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -41,7 +42,7 @@ import org.zkoss.zk.ui.event.Events;
  *		<li> FR [ 146 ] Remove unnecessary class, add support for info to specific column
  *		@see https://github.com/adempiere/adempiere/issues/146
  */
-public class WYesNoEditor extends WEditor implements ContextMenuListener
+public class WYesNoEditor extends WEditor implements ContextMenuListener, ICheckBox
 {
     public static final String[] LISTENER_EVENTS = {Events.ON_CHECK};
     private static final CLogger logger;
@@ -171,5 +172,35 @@ public class WYesNoEditor extends WEditor implements ContextMenuListener
 			WRecordInfo.start(gridField);
 		}
 	}
+
+    @Override
+    public void setText(String mnemonicLabel) {
+
+        getComponent().setLabel(mnemonicLabel);
+        
+
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+
+        getComponent().setSelected(selected);
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+
+    @Override
+    public boolean isSelected() {
+
+        return getComponent().isChecked();
+
+    }
 
 }

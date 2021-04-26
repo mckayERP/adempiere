@@ -529,7 +529,7 @@ public class WPaySelect extends PaySelect
 		if (processModalDialog.isValidDialog()) {
 			try {
 				processModalDialog.setWidth("500px");
-				processModalDialog.setVisible(true);
+				processModalDialog.setVisibleState(true);
 				processModalDialog.setPage(form.getPage());
 				processModalDialog.doModal();
 			} catch (SuspendNotAllowedException e) {

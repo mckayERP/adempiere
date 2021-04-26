@@ -163,4 +163,12 @@ public class WAssignmentEditor extends WEditor {
 		}
 	}
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+
 }

@@ -33,7 +33,6 @@ import org.compiere.model.GridTab;
 import org.compiere.plaf.CompiereColor;
 import org.compiere.plaf.CompiereLookAndFeel;
 import org.compiere.swing.CButton;
-import org.compiere.swing.ColorEditor;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;

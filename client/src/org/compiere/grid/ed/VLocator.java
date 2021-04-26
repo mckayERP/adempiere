@@ -52,6 +52,7 @@ import org.compiere.model.MRole;
 import org.compiere.model.MTable;
 import org.compiere.model.MWarehouse;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CMenuItem;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -640,6 +641,21 @@ public class VLocator extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VLocator
 

@@ -2269,7 +2269,7 @@ public abstract class AbstractADWindowPanel extends AbstractUIPart implements To
 			ProcessModalDialog dialog = new ProcessModalDialog(this, curWindowNo,
 					wButton.getProcess_ID(), table_ID, record_ID, startWOasking);
 			//	BR [ 1004 ]
-			dialog.setVisible(true);
+			dialog.setVisibleState(true);
 			dialog.setPosition("center");
 			AEnv.showWindow(dialog);
 

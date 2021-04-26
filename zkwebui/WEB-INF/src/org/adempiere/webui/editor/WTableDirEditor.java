@@ -467,4 +467,11 @@ ContextMenuListener, IZoomableEditor
 				return false; // Both null
 	}
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

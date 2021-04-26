@@ -475,7 +475,7 @@ public class ProcessPanel extends ProcessController
 						//	FR [ 349 ]
 						if (isRange && editorTo != null) {
 							m_separators.get(index).setVisible(true);
-							editorTo.setVisible(true);
+							editorTo.setVisibleState(true);
 						}
 					}
 				}
@@ -483,7 +483,7 @@ public class ProcessPanel extends ProcessController
 					comp.setVisible(false);
 					if(isRange && editorTo != null) {
 						m_separators.get(index).setText("");
-						editorTo.setVisible(false);
+						editorTo.setVisibleState(false);
 					}
 				}
 			}

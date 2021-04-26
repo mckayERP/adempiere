@@ -44,6 +44,7 @@ import org.compiere.model.GridTab;
 import org.compiere.model.MLocation;
 import org.compiere.model.MLocationLookup;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CMenuItem;
 import org.compiere.util.CLogger;
 import org.compiere.util.DefaultContextProvider;
@@ -458,6 +459,21 @@ public class VLocation extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VLocation
 

@@ -96,7 +96,7 @@ public class WProcessCtl {
 		if (processModalDialog.isValidDialog())
 		{
 			processModalDialog.setWidth("500px");
-			processModalDialog.setVisible(true);
+			processModalDialog.setVisibleState(true);
 			processModalDialog.setPosition("center");
 			processModalDialog.setAttribute(Window.MODE_KEY, Window.MODE_MODAL);
 			AEnv.showWindow(processModalDialog);

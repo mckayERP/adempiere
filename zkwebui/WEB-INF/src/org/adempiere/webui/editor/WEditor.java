@@ -36,6 +36,7 @@ import org.adempiere.webui.panel.IADTabPanel;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.swing.CEditor;
+import org.compiere.swing.ILabel;
 import org.compiere.util.DisplayType;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.HtmlBasedComponent;
@@ -749,4 +750,10 @@ public abstract class WEditor implements CEditor, EventListener, PropertyChangeL
 		// Not used in ZK		
 	}
 
+    @Override
+    public void setLable(ILabel label) {
+
+        this.label = (Label) label;
+        
+    }
 }

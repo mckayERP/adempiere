@@ -46,6 +46,7 @@ import org.compiere.apps.search.InfoSchedule;
 import org.compiere.model.GridField;
 import org.compiere.model.MResourceAssignment;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CMenuItem;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -440,8 +441,23 @@ public class VAssignment extends JComponent
 
 	@Override
 	public void addValueChangeListener(ValueChangeListener listener) {
-		// TODO Auto-generated method stub
+		// not used
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VAssignment

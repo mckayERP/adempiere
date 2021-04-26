@@ -141,4 +141,12 @@ public class WBinaryEditor extends WEditor
 			}
 		}
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

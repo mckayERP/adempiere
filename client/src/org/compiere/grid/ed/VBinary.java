@@ -40,6 +40,7 @@ import javax.swing.border.Border;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.compiere.model.GridField;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -305,17 +306,6 @@ public class VBinary extends JComponent implements VEditor, ActionListener {
 		// TODO Auto-generated method stub
 	}
 
-//	@Override
-//	public void addVetoableChangeListener(VetoableChangeListener listener) {
-		// TODO Auto-generated method stub
-//	}
-
-
-//	@Override
-//	public void removeVetoableChangeListener(VetoableChangeListener listener) {
-		// TODO Auto-generated method stub
-//	}
-
 	@Override
 	public void addActionListener(ActionListener listener) {
 		// TODO Auto-generated method stub
@@ -338,8 +328,23 @@ public class VBinary extends JComponent implements VEditor, ActionListener {
 
 	@Override
 	public void addValueChangeListener(ValueChangeListener listener) {
-		// TODO Auto-generated method stub
+		// Not used
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 } // VBinary

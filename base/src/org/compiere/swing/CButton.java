@@ -51,7 +51,7 @@ import org.compiere.plaf.CompiereLookAndFeel;
  * @author Jorg Janke
  * @version $Id: CButton.java,v 1.2 2006/07/30 00:52:24 jjanke Exp $
  */
-public class CButton extends JButton implements CEditor {
+public class CButton extends JButton implements CEditor, IButton {
 	/**
 	 * 
 	 */
@@ -252,7 +252,8 @@ public class CButton extends JButton implements CEditor {
 	 * @param text
 	 *            text
 	 */
-	public void setText(String text) {
+	@Override
+    public void setText(String text) {
 		if (text == null) {
 			super.setText(text);
 			return;
@@ -277,7 +278,8 @@ public class CButton extends JButton implements CEditor {
 	 * @param text
 	 *            text
 	 */
-	public void setToolTipText(String text) {
+	@Override
+    public void setToolTipText(String text) {
 		if (text == null) {
 			//super.setText(text); Angelo Dabala' (genied) fixed, was calling the wrong method
 			super.setToolTipText(text);
@@ -356,7 +358,24 @@ public class CButton extends JButton implements CEditor {
 
 	@Override
 	public GridField getField() {
-		// TODO Auto-generated method stub
+	    
 		return null;
+		
 	}
+
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+        
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // not used
+
+    }
 } // CButton

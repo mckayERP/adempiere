@@ -36,6 +36,7 @@ import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.model.GridField;
 import org.compiere.swing.CEditor;
+import org.compiere.swing.ILabel;
 import org.compiere.util.DB;
 
 /**
@@ -327,5 +328,21 @@ public class CConnectionEditor extends JComponent
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+        
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }   //  CConnectionEditor

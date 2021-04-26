@@ -18,6 +18,8 @@
 package org.adempiere.webui.component;
 
 import org.adempiere.webui.LayoutUtils;
+import org.compiere.swing.CEditor;
+import org.compiere.swing.ILabel;
 import org.zkoss.zk.ui.Component;
 
 /**
@@ -26,7 +28,7 @@ import org.zkoss.zk.ui.Component;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class Label extends org.zkoss.zul.Label
+public class Label extends org.zkoss.zul.Label implements ILabel
 {
     /**
 	 *
@@ -84,10 +86,7 @@ public class Label extends org.zkoss.zul.Label
 		if (decorator == null)
 			createMandatoryDecorator();
 		String value = getValue();
-		if (mandatory && value != null && value.trim().length() > 0) {
-			decorator.setVisible(true);
-		} else
-			decorator.setVisible(false);
+		decorator.setVisible(mandatory && value != null && value.trim().length() > 0);
 	}
 
 	private void createMandatoryDecorator() {
@@ -109,14 +108,62 @@ public class Label extends org.zkoss.zul.Label
 		return LayoutUtils.makeRightAlign(this);
 	}
 	
-	private boolean m_zoomable = false;
+    private boolean zommable = false;
+
+    private char savedMnemonic;
 
 	public boolean isZoomable() {
-		return m_zoomable;
+		return zommable;
 	}
 	
 	public void setZoomable(boolean zoomable) {
-		m_zoomable  = zoomable;
+		zommable = zoomable;
 	}
+
+    @Override
+    public void setFontBold(boolean bold) {
+
+        if (bold)
+            setStyle("font-weight: bold");
+        else
+            setStyle("font-weight: normal");
+        
+
+    }
+
+    @Override
+    public void setReadWrite(boolean rw) {
+
+        // Ignored
+
+    }
+
+    @Override
+    public char getSavedMnemonic() {
+
+        return savedMnemonic;
+
+    }
+
+    @Override
+    public void setSavedMnemonic(char savedMnemonic) {
+
+        this.savedMnemonic = savedMnemonic;
+    }
+
+    @Override
+    public void setToolTipText(String description) {
+
+        this.setTooltip(description);        
+
+    }
+
+    @Override
+    public void setLabelFor(Object editor) {
+
+            if (editor instanceof CEditor)
+                ((CEditor) editor).setLable(this);
+        
+    }
 	
 }

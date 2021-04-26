@@ -59,7 +59,7 @@ import org.compiere.util.Trace;
  *  @version    $Id: CComboBox.java,v 1.2 2006/07/30 00:52:24 jjanke Exp $
  */
 public class CComboBox extends JComboBox
-	implements CEditor
+	implements IComboBox
 {
 	/**
 	 * 
@@ -1005,5 +1005,20 @@ public class CComboBox extends JComboBox
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+        
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // not used
+
+    }
+
 
 }   //  CComboBox

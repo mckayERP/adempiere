@@ -26,6 +26,7 @@ import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.exceptions.ValueChangeEvent;
 import org.adempiere.webui.window.WRecordInfo;
 import org.compiere.model.GridField;
+import org.compiere.swing.IDate;
 import org.compiere.util.CLogger;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
@@ -45,9 +46,11 @@ import org.zkoss.zk.ui.event.Events;
  *		@see https://github.com/adempiere/adempiere/issues/146
  */
  
-public class WDateEditor extends WEditor implements ContextMenuListener
+public class WDateEditor extends WEditor implements ContextMenuListener, IDate
 {
-	private static final String[] LISTENER_EVENTS = {Events.ON_CHANGE, Events.ON_OK};
+
+    private static final long serialVersionUID = -5119806105750385111L;
+    private static final String[] LISTENER_EVENTS = {Events.ON_CHANGE, Events.ON_OK};
     @SuppressWarnings("unused")
 	private static final CLogger logger;
 
@@ -260,5 +263,14 @@ public class WDateEditor extends WEditor implements ContextMenuListener
 	{
 	   	return popupMenu;
 	}
+
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 
 }

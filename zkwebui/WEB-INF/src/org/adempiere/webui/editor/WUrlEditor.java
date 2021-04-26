@@ -170,4 +170,13 @@ public class WUrlEditor extends WEditor implements ContextMenuListener
 	}
 
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+
+
 }

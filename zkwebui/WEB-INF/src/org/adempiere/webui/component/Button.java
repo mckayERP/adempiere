@@ -17,6 +17,7 @@
 
 package org.adempiere.webui.component;
 
+import org.compiere.swing.IButton;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 
@@ -26,7 +27,7 @@ import org.zkoss.zk.ui.event.Events;
  * @date    Mar 12, 2007
  * @version $Revision: 0.10 $
  */
-public class Button extends org.zkoss.zul.Button
+public class Button extends org.zkoss.zul.Button implements IButton
 {
     /**
 	 * 
@@ -70,5 +71,27 @@ public class Button extends org.zkoss.zul.Button
      */
 	public void addActionListener(EventListener listener) {
 		addEventListener(Events.ON_CLICK, listener);
-	}	
+	}
+
+    @Override
+    public void setText(String text) {
+
+        setName(text);
+        
+
+    }
+
+    @Override
+    public void setToolTipText(String text) {
+
+        this.setToolTipText(text);
+
+    }
+
+    @Override
+    public void setReadWrite(boolean rw) {
+
+       setEnabled(rw);
+        
+    }	
 }

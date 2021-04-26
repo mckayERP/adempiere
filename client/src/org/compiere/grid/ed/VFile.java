@@ -39,6 +39,7 @@ import org.adempiere.exceptions.ValueChangeListener;
 import org.adempiere.plaf.AdempierePLAF;
 import org.compiere.model.GridField;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CTextField;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
@@ -453,5 +454,20 @@ public class VFile extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VFile

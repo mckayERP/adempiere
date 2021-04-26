@@ -366,4 +366,19 @@ public class CComboBoxEditable extends JComboBox
 		return null;
 	}
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+        
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // not used
+
+    }
+
+
 }   //  CComboBoxEditable

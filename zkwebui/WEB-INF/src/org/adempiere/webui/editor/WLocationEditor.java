@@ -275,4 +275,12 @@ public class WLocationEditor extends WEditor implements EventListener, PropertyC
 			WRecordInfo.start(gridField);
 		}
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

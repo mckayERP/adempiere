@@ -261,4 +261,12 @@ public class WChartEditor extends WEditor
 		createChart();
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

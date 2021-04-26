@@ -47,7 +47,7 @@ import org.compiere.model.GridField;
  * @author Jorg Janke
  * @version $Id: CCheckBox.java,v 1.2 2006/07/30 00:52:24 jjanke Exp $
  */
-public class CCheckBox extends JCheckBox implements CEditor {
+public class CCheckBox extends JCheckBox implements CEditor, ICheckBox {
 	/**
 	 * 
 	 */
@@ -290,7 +290,8 @@ public class CCheckBox extends JCheckBox implements CEditor {
 	 * @param mnemonicLabel
 	 *            text
 	 */
-	public void setText(String mnemonicLabel) {
+	@Override
+    public void setText(String mnemonicLabel) {
 		super.setText(createMnemonic(mnemonicLabel));
 	} // setText
 
@@ -365,5 +366,20 @@ public class CCheckBox extends JCheckBox implements CEditor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);        
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // not used
+
+    }
+
 
 } // CCheckBox

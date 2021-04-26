@@ -195,7 +195,7 @@ public class VBrowserSearch extends BrowserSearch implements SmallViewEditable {
 						comp.setVisible(true); // visibility
 						//	FR [ 349 ]
 						if (isRange && editorTo != null) {
-							editorTo.setVisible(true);
+							editorTo.setVisibleState(true);
 							m_separators.get(index).setText(" - ");
 						}
 					}
@@ -204,7 +204,7 @@ public class VBrowserSearch extends BrowserSearch implements SmallViewEditable {
 					comp.setVisible(false);
 					//	BR [ 590 ]
 					if (isRange && editorTo != null) {
-						editorTo.setVisible(false);
+						editorTo.setVisibleState(false);
 						m_separators.get(index).setText("");
 					}
 				}

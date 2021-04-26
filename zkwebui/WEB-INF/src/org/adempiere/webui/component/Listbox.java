@@ -17,10 +17,17 @@
 
 package org.adempiere.webui.component;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.VetoableChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.adempiere.exceptions.ValueChangeEvent;
+import org.adempiere.exceptions.ValueChangeListener;
+import org.compiere.model.GridField;
+import org.compiere.swing.IComboBox;
+import org.compiere.swing.ILabel;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.ValueNamePair;
 import org.zkoss.zk.ui.Component;
@@ -39,7 +46,7 @@ import org.zkoss.zul.Listitem;
  * 				<li>release/380 - add old value comparison for lookup/info window support
  */
 
-public class Listbox extends org.zkoss.zul.Listbox implements EventListener
+public class Listbox extends org.zkoss.zul.Listbox implements EventListener, IComboBox
 {
 	/**
 	 * 
@@ -50,6 +57,10 @@ public class Listbox extends org.zkoss.zul.Listbox implements EventListener
 	private boolean draggable;
 	private String oddRowSclass;
 	private Object m_oldValue;
+    private boolean readWrite;
+    private boolean mandatory;
+    private List<ValueChangeListener> listeners;
+    private Label label;
 	
     public Listbox() {
 		super();
@@ -390,5 +401,150 @@ public class Listbox extends org.zkoss.zul.Listbox implements EventListener
 			else
 				return false;
 	}
+
+    @Override
+    public void setReadWrite(boolean rw) {
+
+        setEnabled(rw);
+
+    }
+
+    @Override
+    public boolean isReadWrite() {
+
+        return isEnabled();
+
+    }
+
+    @Override
+    public void setMandatory(boolean mandatory) {
+
+        this.mandatory = mandatory;
+        if (label != null)
+            label.setMandatory(mandatory);
+
+
+    }
+
+    @Override
+    public boolean isMandatory() {
+
+        return mandatory;
+
+    }
+
+    @Override
+    public void setBackground(boolean error) {
+
+        // Not implemented
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        this.setVisible(visible);
+        
+    }
+
+    @Override
+    public String getDisplay() {
+
+        return this.getSelectedItem().getLabel();
+
+    }
+
+    @Override
+    public void addVetoableChangeListener(VetoableChangeListener listener) {
+
+        // not use
+
+    }
+
+    /**
+     * @param listener
+     */
+    public void addValueChangeListener(ValueChangeListener listener)
+    {
+        if (listener == null)
+        {
+            return;
+        }
+
+        if (!listeners.contains(listener))
+            listeners.add(listener);
+    }
+
+    public boolean removeValuechangeListener(ValueChangeListener listener)
+    {
+        return listeners.remove(listener);
+    }
+
+    protected void fireValueChange(ValueChangeEvent event)
+    {
+        //copy to array to avoid concurrent modification exception
+        ValueChangeListener[] vcl = new ValueChangeListener[listeners.size()];
+        listeners.toArray(vcl);
+        for (ValueChangeListener listener : vcl)
+        {
+            listener.valueChange(event);
+        }
+    }
+
+
+    @Override
+    public GridField getField() {
+
+        return null;
+
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        // Not used
+
+    }
+
+    @Override
+    public void setEditable(boolean b) {
+
+        setReadWrite(b);
+
+    }
+
+    @Override
+    public Object getItemAt(int i) {
+
+        return getItemAtIndex(i);
+
+    }
+
+    @Override
+    public void addItem(Object item) {
+
+        if (item instanceof KeyNamePair)
+            addItem((KeyNamePair) item);
+        else if (item instanceof ValueNamePair)
+            addItem((ValueNamePair) item);
+        
+    }
+
+    @Override
+    public void setSelectedItem(Object item) {
+
+        if (item instanceof KeyNamePair)
+            this.setSelectedKeyNamePair((KeyNamePair) item);
+        else if (item instanceof ValueNamePair)
+            this.setSelectedValueNamePair((ValueNamePair) item);
+        
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        this.label = (Label) label;
+        
+    }
 
 }

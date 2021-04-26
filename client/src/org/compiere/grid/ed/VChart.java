@@ -13,6 +13,7 @@ import org.compiere.apps.AEnv;
 import org.compiere.model.GridField;
 import org.compiere.model.MChart;
 import org.compiere.model.MQuery;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CPanel;
 import org.compiere.util.Env;
 import org.jfree.chart.ChartMouseEvent;
@@ -186,5 +187,20 @@ public class VChart extends CPanel implements ChartMouseListener, VEditor {
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }

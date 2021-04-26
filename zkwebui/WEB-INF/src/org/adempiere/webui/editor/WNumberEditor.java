@@ -231,4 +231,12 @@ public class WNumberEditor extends WEditor implements ContextMenuListener
 			WRecordInfo.start(gridField);
 		}
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
 }

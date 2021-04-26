@@ -17,7 +17,14 @@
 
 package org.adempiere.webui.component;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.VetoableChangeListener;
+
+import org.adempiere.exceptions.ValueChangeListener;
+import org.compiere.model.GridField;
 import org.compiere.model.Obscure;
+import org.compiere.swing.ILabel;
+import org.compiere.swing.ITextField;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -29,7 +36,7 @@ import org.zkoss.zk.ui.event.Events;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class Textbox extends org.zkoss.zul.Textbox implements EventListener
+public class Textbox extends org.zkoss.zul.Textbox implements EventListener, ITextField
 {
     /**
 	 * 
@@ -41,6 +48,10 @@ public class Textbox extends org.zkoss.zul.Textbox implements EventListener
     private Object m_oldValue = null;
 
     private boolean m_infocus;
+
+    private Label label;
+
+    private boolean mandatory;
 
 
     public Textbox()
@@ -155,5 +166,106 @@ public class Textbox extends org.zkoss.zul.Textbox implements EventListener
 				return false;
 	}
 
+    @Override
+    public void setReadWrite(boolean rw) {
 
-} //  Textbox
+        setReadonly(!rw);
+
+    }
+
+    @Override
+    public boolean isReadWrite() {
+
+        return !isReadonly();
+
+    }
+
+    @Override
+    public void setMandatory(boolean mandatory) {
+
+        this.mandatory = mandatory;
+        if (label != null)
+            label.setMandatory(mandatory);
+
+    }
+
+    @Override
+    public boolean isMandatory() {
+
+        return mandatory;
+
+    }
+
+    @Override
+    public void setBackground(boolean error) {
+
+        // ignored
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        label.setVisible(visible);
+        setVisible(visible);
+
+    }
+
+    @Override
+    public String getDisplay() {
+
+        return getText();
+
+    }
+
+    @Override
+    public void addVetoableChangeListener(VetoableChangeListener listener) {
+
+        // ignored
+
+    }
+
+    @Override
+    public void addValueChangeListener(ValueChangeListener listener) {
+
+        // ignored
+
+    }
+
+    @Override
+    public GridField getField() {
+
+        return null;
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        this.label = (Label) label;
+
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        // Ignored
+
+    }
+
+    @Override
+    public void setEditable(boolean isEditable) {
+
+        this.setReadonly(!isEditable);
+
+    }
+
+    @Override
+    public void setValue(Object value) {
+
+        setValue((String) value);
+        
+    }
+
+
+}

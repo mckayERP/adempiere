@@ -1207,4 +1207,13 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 				m_isSOTrx = true;
 	}
 
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+
 }

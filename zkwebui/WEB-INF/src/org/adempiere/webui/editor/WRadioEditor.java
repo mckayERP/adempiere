@@ -168,4 +168,12 @@ public class WRadioEditor extends WEditor implements ContextMenuListener
 		}
 	}
 
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+
 }

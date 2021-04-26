@@ -17,8 +17,16 @@
 
 package org.adempiere.webui.component;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.VetoableChangeListener;
 import java.util.List;
+import java.util.Optional;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.exceptions.ValueChangeListener;
+import org.compiere.model.GridField;
+import org.compiere.swing.IComboBox;
+import org.compiere.swing.ILabel;
 import org.zkoss.zul.Comboitem;
 
 /**
@@ -27,12 +35,14 @@ import org.zkoss.zul.Comboitem;
  * @date    Feb 25, 2007
  * @version $Revision: 0.10 $
  */
-public class Combobox extends org.zkoss.zul.Combobox
+public class Combobox extends org.zkoss.zul.Combobox implements IComboBox
 {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = -6278632602577424842L;
+    private boolean mandatory;
+    private ILabel label;
 
 	public void setEnabled(boolean enabled)
     {
@@ -135,4 +145,130 @@ public class Combobox extends org.zkoss.zul.Combobox
 	protected int getRealStyleFlags() {
 		return super.getRealStyleFlags() & 0x0006;
 	}
+
+    @Override
+    public void setReadWrite(boolean rw) {
+
+        setReadonly(!rw);
+    
+    }
+
+    @Override
+    public boolean isReadWrite() {
+
+        return !isReadonly();
+
+    }
+
+    @Override
+    public void setMandatory(boolean mandatory) {
+
+        this.mandatory = mandatory;
+        
+    }
+
+    @Override
+    public boolean isMandatory() {
+
+        return mandatory;
+
+    }
+
+    @Override
+    public void setBackground(boolean error) {
+
+        // Do Nothing
+        
+    }
+
+    @Override
+    public String getDisplay() {
+
+        return Optional.ofNullable((ComboItem) getSelectedItem())
+                .map(ComboItem::getLabel)
+                .orElse("");
+
+    }
+
+    @Override
+    public void addVetoableChangeListener(VetoableChangeListener listener) {
+
+        throw new AdempiereException("Method not Implemented");
+
+    }
+
+    @Override
+    public void addValueChangeListener(ValueChangeListener listener) {
+
+        throw new AdempiereException("Method not Implemented");
+
+    }
+
+    @Override
+    public GridField getField() {
+
+        throw new AdempiereException("Method not Implemented");
+
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        throw new AdempiereException("Method not Implemented");
+        
+    }
+
+    @Override
+    public boolean setVisible(boolean visible) {
+
+        // TODO Auto-generated method stub
+        return false;
+
+    }
+
+    @Override
+    public void setEditable(boolean b) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
+
+    @Override
+    public Object getItemAt(int i) {
+
+        // TODO Auto-generated method stub
+        return null;
+
+    }
+
+    @Override
+    public void addItem(Object item) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
+
+    @Override
+    public void setSelectedItem(Object item) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        this.label = label;
+        
+    }
 }

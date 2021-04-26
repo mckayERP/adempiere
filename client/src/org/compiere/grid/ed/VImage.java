@@ -29,6 +29,7 @@ import javax.swing.JButton;
 import org.adempiere.exceptions.ValueChangeListener;
 import org.compiere.model.GridField;
 import org.compiere.model.MImage;
+import org.compiere.swing.ILabel;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 
@@ -253,8 +254,23 @@ public class VImage extends JButton
 
 	@Override
 	public void addValueChangeListener(ValueChangeListener listener) {
-		// TODO Auto-generated method stub
-		
+	    
+	    // not used
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 	
 }   //  VImage

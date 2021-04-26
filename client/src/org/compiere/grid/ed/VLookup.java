@@ -68,6 +68,7 @@ import org.compiere.model.MProductPrice;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CMenuItem;
 import org.compiere.swing.CTextField;
 import org.compiere.util.CLogger;
@@ -1963,5 +1964,20 @@ public class VLookup extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VLookup

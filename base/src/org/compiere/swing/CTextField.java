@@ -39,7 +39,7 @@ import org.compiere.model.GridField;
  * 					https://adempiere.atlassian.net/browse/ADEMPIERE-72
  */
 public class CTextField extends JTextField 
-	implements CEditor, KeyListener
+	implements KeyListener, ITextField
 {
 	/**
 	 * 
@@ -141,6 +141,8 @@ public class CTextField extends JTextField
 	
 	/** Old value - for future comparison */
 	private Object m_oldValue;
+
+    private ILabel label;
 
 	/**
 	 *	Set Editor Mandatory
@@ -303,20 +305,35 @@ public class CTextField extends JTextField
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		// TODO Auto-generated method stub
+
+	    // Not used
 		
 	}
 
 	@Override
 	public void addValueChangeListener(ValueChangeListener listener) {
-		// TODO Auto-generated method stub
+        // Not used
 		
 	}
 
 	@Override
 	public GridField getField() {
-		// TODO Auto-generated method stub
+        // Not used
 		return null;
 	}
 
-}   //  CTextField
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+        
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        this.label = label;
+
+    }
+
+}

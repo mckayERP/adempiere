@@ -51,6 +51,8 @@ import org.compiere.apps.RecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.MRole;
 import org.compiere.swing.CButton;
+import org.compiere.swing.IDate;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CTextField;
 import org.compiere.util.CLogger;
 import org.compiere.util.DisplayType;
@@ -71,7 +73,7 @@ import org.compiere.util.Env;
  *		@see https://github.com/adempiere/adempiere/issues/146
  */
 public class VDate extends JComponent
-	implements VEditor, ActionListener, KeyListener, FocusListener
+	implements IDate, VEditor, ActionListener, KeyListener, FocusListener
 {
 	/**
 	 * 
@@ -689,5 +691,28 @@ public class VDate extends JComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void setVisible(boolean visible) {
+
+       super.setVisible(visible);
+        
+
+    }
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VDate

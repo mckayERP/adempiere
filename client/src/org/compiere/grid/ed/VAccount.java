@@ -46,6 +46,7 @@ import org.compiere.model.GridField;
 import org.compiere.model.MAccountLookup;
 import org.compiere.model.MRole;
 import org.compiere.swing.CButton;
+import org.compiere.swing.ILabel;
 import org.compiere.swing.CTextField;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -496,8 +497,24 @@ public final class VAccount extends JComponent
 
 	@Override
 	public void addValueChangeListener(ValueChangeListener listener) {
-		// TODO Auto-generated method stub
-		
+
+	    // Not used
+	    
 	}
+
+    @Override
+    public void setVisibleState(boolean visible) {
+
+        setVisible(visible);
+
+    }
+
+    @Override
+    public void setLable(ILabel label) {
+
+        // TODO Auto-generated method stub
+        
+
+    }
 
 }	//	VAccount
