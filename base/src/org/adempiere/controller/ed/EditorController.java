@@ -26,7 +26,7 @@ import org.compiere.model.MQuery;
  * @author Michael McKay, mckayERP
  *
  */
-public interface CEditorController {
+public interface EditorController {
 	
 	/** Dispose of the controller */
 	public void dispose();
@@ -58,6 +58,8 @@ public interface CEditorController {
 	public void setReadOnly(boolean readOnly);
 
 	public boolean isReadOnly();
+	
+	public Object getValue();
 
 	public void setValue(Object value);
 
@@ -82,5 +84,7 @@ public interface CEditorController {
 	public void set_oldValue();
 
 	public void init();
+
+    public String getText();
 
 }

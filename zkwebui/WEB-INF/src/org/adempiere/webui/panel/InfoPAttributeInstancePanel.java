@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.logging.Level;
 
+import org.adempiere.controller.form.AttributeInstanceSearchDialog;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.ConfirmPanel;
@@ -46,7 +47,7 @@ import org.zkoss.zul.Div;
  * @author Elaine
  *
  */
-public class InfoPAttributeInstancePanel extends Window implements EventListener, WTableModelListener
+public class InfoPAttributeInstancePanel extends Window implements EventListener, WTableModelListener, AttributeInstanceSearchDialog
 {
 	/**
 	 * 

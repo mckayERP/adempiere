@@ -35,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.adempiere.controller.form.AttributeInstanceSearchDialog;
 import org.compiere.apps.AEnv;
 import org.compiere.apps.ALayout;
 import org.compiere.apps.ALayoutConstraint;
@@ -62,7 +63,7 @@ import org.compiere.util.Msg;
  *  				<li>release/380 clean up size code
  */
 public class PAttributeInstance extends CDialog 
-	implements ListSelectionListener
+	implements ListSelectionListener, AttributeInstanceSearchDialog
 {
 	/**
 	 * 
