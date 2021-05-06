@@ -220,6 +220,11 @@
       <sourceFolder url="file://$MODULE_DIR$/org.spin.loan_management/src/main/java/ui/swing" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/org.spin.loan_management/src/main/java/ui/zk" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/org.spin.finance_management/src/main/java/base" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/base/test/src" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/org.adempiere.test/src/main" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/org.adempiere.test/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/.github" />
+      <excludeFolder url="file://$MODULE_DIR$/.settings" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
@@ -280,7 +285,7 @@
     <orderEntry type="module-library" exported="">
       <library name="ant-commons-net.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/lib/ant-commons-net.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/ant/apache-ant-1.10.9/lib/ant-commons-net.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -289,7 +294,7 @@
     <orderEntry type="module-library" exported="">
       <library name="ant-launcher.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/lib/ant-launcher.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/ant/apache-ant-1.10.9/lib/ant-launcher.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -298,7 +303,7 @@
     <orderEntry type="module-library" exported="">
       <library name="ant.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/lib/ant.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/ant/apache-ant-1.10.9/lib/ant.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -1005,24 +1010,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="junit.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/zkwebui/WEB-INF/lib/junit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="tools/lib/junit.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/tools/lib/junit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
       <library name="zweb.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/zkwebui/WEB-INF/lib/zweb.jar!/" />
@@ -1568,5 +1555,54 @@
     </orderEntry>
     <orderEntry type="library" name="org.scalatest:scalatest_2.12:3.0.5" level="project" />
     <orderEntry type="library" name="scala-sdk-2.12.10" level="project" />
+    <orderEntry type="module-library">
+      <library name="junit">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/apiguardian-api-1.1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/byte-buddy-1.10.15.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/byte-buddy-agent-1.10.15.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-api-5.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-engine-5.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-migrationsupport-5.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-params-5.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-commons-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-console-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-console-standalone-1.7.0-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-console-standalone-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-engine-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-launcher-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-runner-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-suite-api-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-testkit-1.7.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-core-3.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-junit-jupiter-3.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/objenesis-3.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/opentest4j-1.2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-core-3.6.0-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-junit-jupiter-3.6.0-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/apiguardian-api-1.1.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-api-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-api-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-engine-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-migrationsupport-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-params-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-jupiter-params-5.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-commons-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-console-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-engine-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-launcher-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-runner-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-suite-api-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/junit-platform-testkit-1.7.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-core-3.6.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/mockito-junit-jupiter-3.6.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/tools/lib/junit/opentest4j-1.2.0-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
