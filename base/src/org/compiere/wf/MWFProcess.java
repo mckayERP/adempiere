@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRole;
 import org.compiere.model.MTable;
 import org.compiere.model.PO;
@@ -30,10 +31,7 @@ import org.compiere.model.X_AD_WF_Process;
 import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfo;
 import org.compiere.process.StateEngine;
-import org.compiere.util.DB;
-import org.compiere.util.Env;
-import org.compiere.util.TimeUtil;
-import org.compiere.util.Util;
+import org.compiere.util.*;
 
 
 /**
@@ -139,10 +137,7 @@ public class MWFProcess extends X_AD_WF_Process
 	/**	Workflow					*/
 	private MWorkflow			m_wf = null;
 	/**	Process Info				*/
-/*TODO red1 - never used
- * 
-	private ProcessInfo			m_pi = null;
- */
+	private ProcessInfo 		processInfo = null;
 	/**	Persistent Object			*/
 	private PO					m_po = null;
 	/** Message from Activity		*/
@@ -622,5 +617,33 @@ public class MWFProcess extends X_AD_WF_Process
 	{
 		return m_processMsg;
 	}	//	getProcessMsg
-	
+
+	Trx workflowProcessTransaction;
+
+	public void setWorkflowProcessTransaction(Trx trx) {
+		workflowProcessTransaction = trx;
+		if (getPO() == null)
+		{
+			setTextMsg("No PO with ID=" + getRecord_ID());
+			addTextMsg(new Exception(""));
+			super.setWFState (WFSTATE_Terminated);
+		}
+		else
+			setTextMsg(getPO());
+
+		if (getProcessInfo() != null)
+			setUser_ID(getProcessInfo().getAD_User_ID());
+	}
+
+	public Trx getWorkflowProcessTransaction() {
+		if (workflowProcessTransaction == null)
+			throw new AdempiereException(" @Transaction@ @AD_Workflow_ID@ @NotFound@");
+
+		return workflowProcessTransaction;
+	}
+
+	public ProcessInfo getProcessInfo() {
+		return processInfo;
+	}
+
 }	//	MWFProcess
