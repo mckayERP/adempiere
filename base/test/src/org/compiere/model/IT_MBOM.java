@@ -60,11 +60,7 @@ class IT_MBOM extends CommonGWSetup {
             bom.saveEx();
         });
 
-        String message = e.getMessage().split("\\n")[0];
-        assertEquals(
-                "ERROR: null value in column \"m_product_id\" violates "
-                + "not-null constraint",
-                message, "Exception message not as expected");
+        ModelTestUtilities.verifyExceptionForMissingMandatoryField("m_product_id", e);
 
     }
 
@@ -77,11 +73,7 @@ class IT_MBOM extends CommonGWSetup {
             bom.saveEx();
         });
 
-        String message = e.getMessage().split("\\n")[0];
-        assertEquals(
-                "ERROR: null value in column \"name\" violates "
-                + "not-null constraint",
-                message, "Exception message not as expected");
+        ModelTestUtilities.verifyExceptionForMissingMandatoryField("name", e);
 
     }
     
