@@ -20,6 +20,7 @@ package org.spin.test;
 import org.compiere.model.I_AD_Role;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +30,7 @@ import org.adempiere.test.CommonGWSetup;
 /**
  * @author Yamel Senih, ysenih@erpya.com , http://www.erpya.com
  */
+@Tag("SeedOnly")
 class IT_Query extends CommonGWSetup {
 	
 	/**

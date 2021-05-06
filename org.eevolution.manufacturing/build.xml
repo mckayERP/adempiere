@@ -171,7 +171,7 @@
         printsummary="false" 
         haltonfailure="yes" 
         failureproperty="test.failed"
-        excludeTags="IntegrationTest">
+        excludeTags="${test.unitTestExcludeTags}">
       <classpath refid="test.class.path"/>
       <testclasses outputdir="${basedir}/${test.results.dir}">
         <fileset dir="${test.build.dir}"/>
@@ -191,7 +191,7 @@
         printsummary="false" 
         haltonfailure="yes" 
         failureproperty="test.failed"
-        excludeTags="UnitTest">
+        excludeTags="${test.integrationTestExcludeTags}">
       <classpath refid="test.class.path"/>
       <testclasses outputdir="${basedir}/${test.results.dir}">
         <fileset dir="${test.build.dir}"/>
