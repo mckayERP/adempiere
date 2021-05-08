@@ -1,69 +1,156 @@
-/bin
-/lib
-/install/lib
-/install/CInstall.jar
-/test
+# Gitignore for Adempiere repositories
+
+###############################################################################
+#
+#IDE Specific Entries
+#
+
+######################
+# Intellij
+#
+# Covers JetBrains IDEs: IntelliJ
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/artifacts
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+# *.iml
+# *.ipr
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+
+######################
+# Eclipse
+#
+# From https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
+#
+
+.metadata
+bin/
+tmp/
+lib/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
+
+# Specifically included and not ignored
+# .project
+# .settings
+# .classpath
+
+# Refactoring  and user specific preferences
+.settings/org.eclipse.ltk.core.refactoring.prefs
+.settings/org.zkoss.eclipse.preferences.prefs
+
+###############################################################################
+#
+# Project Specific Entries
+#
+
+# Any folder used in the build process
+build/
+dist/
+target/
+classes/
+
+# Specific folders with generated content
 /backend
-/zkwebui/WEB-INF/classes/metainfo/zk/lang-addon.xml
-/adempiere/
 /com.kkalice.adempiere.migrate/apidoc/
-/base/Base.jar
-/base/test/**/*.class
-/base/test/test_results/
-/com.kkalice.adempiere.migrate/lib/migrate.jar
-/extend/Extend.jar
-/JasperReports/build
-/JasperReports/CompiereJasper.jar
-/JasperReports/CompiereJasperReqs.jar
+/install/lib
+/JasperReports/build/
 /JasperReports/needed/
-/JasperReportsWebApp/webApp.ear
-/JasperReportsWebApp/webApp.war
-/JasperReportsWebApp/webAppEJB.jar
-/JasperReportsWebApp/webEJB-client.jar
-/migration/dist/
-/org.compiere.mobile/WEB-INF/classes/
-/mobile/dist/
-/mobile/WEB-INF/classes/
-/zkwebui/WEB-INF/classes/
-/org.adempiere.webservice/WEB-INF/classes/
-/org.adempiere.webservice/deploy/lib/ADInterface-1.0.war
-/org.adempiere.webservice/dist
-/sqlj/sqlj.jar
-/webCM/deploy/
-/zkwebui/dist/
-/zkwebui/WEB-INF/classes/
-/build
-/target
-/extend/test.properties
-/install/patch/
-/test.properties
 /org.adempiere.pos/bin/
 /org.adempiere.pos/project/target
 /org.adempiere.pos/project/project
 /org.adempiere.pos/target
 /org.adempiere.pos/dist
-dist/
-build/
-target/
-.settings/org.eclipse.ltk.core.refactoring.prefs
-.settings/org.zkoss.eclipse.preferences.prefs
-migration/oracle.properties
-migration/postgresql.properties
-.DS_Store
-.DS_Store?
-._*
+/org.adempiere.webservice/dist
 /packages/
 /posterita/
-/zkpackages/
-/.metadata/
-/.recommenders/
 /RemoteSystemsTempFiles/
-**/junit*.properties
-serverRoot/test/bin/
-org.adempiere.asset/test/test_results/
-org.eevolution.manufacturing/test/test_results/
-serverRoot/test/test_results/
-zkwebui/WEB-INF/test/test_results/
+/webCM/deploy/
+/zkpackages/
+/zkwebui/dist/
+
+
+# Specific generated files
+/base/Base.jar
+/com.kkalice.adempiere.migrate/lib/migrate.jar
+/extend/Extend.jar
+/install/CInstall.jar
+/install/patch/
+/JasperReports/CompiereJasper.jar
+/JasperReports/CompiereJasperReqs.jar
+/JasperReportsWebApp/webApp.ear
+/JasperReportsWebApp/webApp.war
+/JasperReportsWebApp/webAppEJB.jar
+/JasperReportsWebApp/webEJB-client.jar
+/org.adempiere.webservice/deploy/lib/ADInterface-*.war
+/sqlj/sqlj.jar
+._*
+.DS_Store
+.DS_Store?
+
+
+# Default install directory
+/adempiere/
+
+# Test output and results
+**/test_results/**
+test/**/*.class
+junit*.properties
 utils_dev/packages/testSqlStatement2Pack.tar.gz
 utils_dev/packages/testSqlStatement2Pack.zip
 utils_dev/packages/testSqlStatement2Pack/
+
+# User specific files
+migration/oracle.properties
+migration/postgresql.properties
+
+#Scala
+null/**
+
+# Git difference
+*_BACKUP_[0-9][0-9][0-9][0-9].*
+*_BASE_[0-9][0-9][0-9][0-9].*
+*_LOCAL_[0-9][0-9][0-9][0-9].*
+*_REMOTE_[0-9][0-9][0-9][0-9].*
+*.orig
